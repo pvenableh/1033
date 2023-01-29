@@ -31,7 +31,4 @@
     "overrides": {
         "vue": "latest"
     },
-    "engines": {
-        "node": "^18"
-    }
 }
