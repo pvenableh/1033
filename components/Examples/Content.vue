@@ -48,6 +48,7 @@
 <script setup>
 const { $directus } = useNuxtApp()
 const { fileUrl } = useFiles()
+console.log()
 
 const units = ref([])
 const loading = ref(false)
