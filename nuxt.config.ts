@@ -22,7 +22,12 @@ export default defineNuxtConfig({
     // https://vueuse.org/
     '@vueuse/nuxt',
   ],
-
+  buildModules: [
+    // https://pinia.esm.dev
+    '@pinia/nuxt',
+    // https://vueuse.org/
+    '@vueuse/nuxt',
+  ],
   runtimeConfig: {
     public: {
       directusUrl: process.env.DIRECTUS_URL,

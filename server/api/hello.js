@@ -1,6 +1,1 @@
-export default defineEventHandler((event) => {
-  const query = getQuery(event)
-  return {
-    data: `Hello ${query.name} 👋`,
-  }
-})
+export default defineEventHandler((event) => {  return {    api: 'works'  }})
