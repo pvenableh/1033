@@ -39,9 +39,7 @@ export default defineEventHandler(async (event) => {
         ],
     }
 
-    sgMail.send(message).then((res) => {
-        console.log(res)
-    }, error => {
+sgMail.send(message).then(() => {}, error => {
     
     console.error(error)
     if (error.response) {
@@ -50,5 +48,5 @@ export default defineEventHandler(async (event) => {
 
     }
   })
-//   return body.data
+  return body
 })
