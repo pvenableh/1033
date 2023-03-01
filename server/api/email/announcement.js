@@ -27,12 +27,12 @@ export default defineEventHandler(async (event) => {
             value: '&nbsp;'
         }],
         dynamicTemplateData: {
-            first_name: body.data.first_name,
-            unit: body.data.unit,
-            title: body.data.title,
-            subtitle: body.data.subtitle,
-            urgent: body.data.urgent,
-            content: body.data.content,
+            first_name: "Peter",
+            unit: "314",
+            title: "Testing This",
+            subtitle: "Now",
+            urgent: true,
+            content: body,
         },
         categories: [
             'announcements'
