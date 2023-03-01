@@ -30,9 +30,9 @@ export default defineEventHandler(async (event) => {
             first_name: "Peter",
             unit: "314",
             title: "Testing This",
-            subtitle: "Now",
+            subtitle: body.subtitle,
             urgent: true,
-            content: body.data,
+            content: body,
         },
         categories: [
             'announcements'
