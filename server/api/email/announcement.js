@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
             title: "Testing This",
             subtitle: "Now",
             urgent: true,
-            content: body,
+            content: body.data,
         },
         categories: [
             'announcements'
