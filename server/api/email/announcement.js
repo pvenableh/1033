@@ -27,19 +27,21 @@ export default defineEventHandler(async (event) => {
             value: '&nbsp;'
         }],
         dynamicTemplateData: {
-            first_name: body.first_name,
-            unit: body.unit,
-            title: body.title,
-            subtitle: body.subtitle,
-            urgent: body.urgent,
-            content: body.content,
+            first_name: body.data.first_name,
+            unit: body.data.unit,
+            title: body.data.title,
+            subtitle: body.data.subtitle,
+            urgent: body.data.urgent,
+            content: body.data.content,
         },
         categories: [
             'announcements'
         ],
     }
 
-sgMail.send(message).then(() => {}, error => {
+    sgMail.send(message).then((res) => {
+        console.log(res)
+    }, error => {
     
     console.error(error)
     if (error.response) {
@@ -48,5 +50,5 @@ sgMail.send(message).then(() => {}, error => {
 
     }
   })
-  return body
+//   return body.data
 })
