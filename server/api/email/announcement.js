@@ -15,7 +15,7 @@ const array1 = [
     {
         first_name: "Test",
         unit: "201",
-        email: "huestudios.com@gmail.com"
+        email: "contact@huestudios.com"
     }
 ]
 export default defineEventHandler(async (event) => {
@@ -62,13 +62,13 @@ export default defineEventHandler(async (event) => {
     })
  
 
-sgMail.send(messages).then(() => {}, error => {
-    console.error(error)
-    if (error.response) {
-      console.error(error.response.body)
-      const error = error.response.body
+    sgMail.send(messages).then(() => {}, error => {
+        console.error(error)
+        if (error.response) {
+        console.error(error.response.body)
+        const error = error.response.body
 
-    }
-  })
+        }
+    })
   return body
 })
