@@ -24,42 +24,42 @@ export default defineEventHandler(async (event) => {
     array1.forEach(element => {
         messages.push(
             {
-            personalizations: [{
-                to: [{
-                    email: element.email,
+                personalizations: [{
+                    to: [{
+                        email: element.email,
+                    }],
+                    bcc: [{
+                        email: 'huestudios.com@gmail.com',
+                    }]
                 }],
-                bcc: [{
-                    email: 'huestudios.com@gmail.com',
-                }]
-            }],
-            from: {
-                email: 'mail@1033lenox.com',
-                name: '1033 Lenox'
-            },
-            template_id: 'd-035e7712976d45aaa5143d8a1042aee7',
-            replyTo: {
-                email: 'mail@1033lenox.com',
-                name: '1033 Lenox'
-            },
-            subject: 'Attention ' + element.first_name + ': ' + body.payload.title,
-            content: [{
-                type: 'text/html',
-                value: '&nbsp;'
-            }],
-            dynamicTemplateData: {
-                first_name: element.first_name,
-                unit: element.unit,
-                title: body.payload.title,
-                subtitle: body.payload.subtitle,
-                urgent: body.payload.urgent,
-                content: body.payload.content,
-            },
-            categories: [
-                'announcements'
-            ],
-        }
+                from: {
+                    email: 'mail@1033lenox.com',
+                    name: '1033 Lenox'
+                },
+                template_id: 'd-035e7712976d45aaa5143d8a1042aee7',
+                replyTo: {
+                    email: 'mail@1033lenox.com',
+                    name: '1033 Lenox'
+                },
+                subject: 'Attention ' + element.first_name + ': ' + body.payload.title,
+                content: [{
+                    type: 'text/html',
+                    value: '&nbsp;'
+                }],
+                dynamicTemplateData: {
+                    first_name: element.first_name,
+                    unit: element.unit,
+                    title: body.payload.title,
+                    subtitle: body.payload.subtitle,
+                    urgent: body.payload.urgent,
+                    content: body.payload.content,
+                },
+                categories: [
+                    'announcements'
+                ],
+            }
         )
-    }
+    })
  
 
 sgMail.send(messages).then(() => {}, error => {
