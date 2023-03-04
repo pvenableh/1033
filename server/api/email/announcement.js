@@ -51,8 +51,8 @@ export default defineEventHandler(async (event) => {
                     unit: element.unit,
                     title: body.data,
                     subtitle: body.data.subtitle,
-                    urgent: body.urgent,
-                    content: body,
+                    urgent: body.data.urgent,
+                    content: body.data.content,
                 },
                 categories: [
                     'announcements'
