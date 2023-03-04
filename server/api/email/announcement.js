@@ -20,7 +20,7 @@ const array1 = [
 ]
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
-    const announcement = await $fetch(`https://admin.1033lenox.com/items/announcements/${body.payload.id}`)
+    // const announcement = await $fetch(`https://admin.1033lenox.com/items/announcements/${body.payload.id}`)
    
     const messages = []
     array1.forEach(element => {
@@ -54,8 +54,8 @@ export default defineEventHandler(async (event) => {
                     title: body.payload.title,
                     subtitle: body.payload.subtitle,
                     urgent: body.payload.urgent,
-                    // content: body.payload.content,
-                    content: announcement,
+                    content: body.payload.content,
+                    // content: announcement,
                 },
                 categories: [
                     'announcements'
@@ -73,5 +73,5 @@ export default defineEventHandler(async (event) => {
 
         }
     })
-  return body + announcement
+  return body.payload
 })
