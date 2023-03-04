@@ -41,7 +41,7 @@ export default defineEventHandler(async (event) => {
                     email: 'mail@1033lenox.com',
                     name: '1033 Lenox'
                 },
-                subject: 'Attention ' + element.first_name + ': ' + body.data.title,
+                subject: 'Attention ' + element.first_name + ': ' + body.data[0].title,
                 content: [{
                     type: 'text/html',
                     value: '&nbsp;'
@@ -49,10 +49,10 @@ export default defineEventHandler(async (event) => {
                 dynamicTemplateData: {
                     first_name: element.first_name,
                     unit: element.unit,
-                    title: body.data,
-                    subtitle: body.data.subtitle,
+                    title: body.data[0],
+                    subtitle: body.data,
                     urgent: body.data.urgent,
-                    content: body.data.content,
+                    content: body.data[0].content,
                 },
                 categories: [
                     'announcements'
