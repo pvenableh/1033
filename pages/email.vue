@@ -30,8 +30,8 @@ function sendHello() {
 async function sendEmail() {
   loading.value = true
   const { data } = await useFetch('/api/email/announcement', {
-    method: 'GET',
-    // body: content.value
+    method: 'POST',
+    body: content.value,
   })
   console.log(data)
   response.value = data.value
