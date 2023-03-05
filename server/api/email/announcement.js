@@ -49,8 +49,8 @@ export default defineEventHandler(async (event) => {
                 dynamicTemplateData: {
                     first_name: element.first_name,
                     unit: element.unit,
-                    title: body,
-                    subtitle: body.data,
+                    title: body.data.title,
+                    subtitle: body.data.subtitle,
                     urgent: body.data.urgent,
                     content: body.data.content,
                 },
