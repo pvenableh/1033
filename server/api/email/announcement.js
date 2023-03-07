@@ -23,6 +23,12 @@ export default defineEventHandler(async (event) => {
     const recipients = body.data.recipients
     const messages = []
     recipients.forEach(element => {
+        // let units
+        // if (element.people_id.unit.length > 1) {
+        //     units = 
+        // } else {
+        //     units = element.people_id.unit
+        // }
         messages.push(
             {
                 personalizations: [{
@@ -49,11 +55,11 @@ export default defineEventHandler(async (event) => {
                 }],
                 dynamicTemplateData: {
                     first_name: element.people_id.first_name,
-                    // unit: element.people_id.unit.units_id.number,
+                    unit: element.people_id.unit[0].units_id.number,
                     title: body.data.data.title,
                     subtitle: body.data.data.subtitle,
                     urgent: body.data.data.urgent,
-                    content: element,
+                    content: body.data.data.content,
                 },
                 categories: [
                     'announcements'
