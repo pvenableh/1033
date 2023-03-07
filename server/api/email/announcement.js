@@ -22,12 +22,12 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     const recipients = body.data.recipients
     const messages = []
-    array1.forEach(element => {
+    recipients.forEach(element => {
         messages.push(
             {
                 personalizations: [{
                     to: [{
-                        email: element.email,
+                        email: element.people_id.email,
                     }],
                     bcc: [{
                         email: 'huestudios.com@gmail.com',
@@ -42,18 +42,18 @@ export default defineEventHandler(async (event) => {
                     email: 'mail@1033lenox.com',
                     name: '1033 Lenox'
                 },
-                subject: 'Attention ' + element.first_name + ': ' + body.data,
+                subject: 'Attention ' + element.people_id.first_name + ': ' + body.data.data.title,
                 content: [{
                     type: 'text/html',
                     value: '&nbsp;'
                 }],
                 dynamicTemplateData: {
-                    first_name: element.first_name,
-                    unit: element.unit,
-                    title: body.data.data,
-                    subtitle: recipients,
-                    urgent: body,
-                    content: body,
+                    first_name: element.people_id.first_name,
+                    // unit: element.people_id.unit,
+                    title: body.data.data.title,
+                    subtitle: body.data.data.subtitle,
+                    urgent: body.data.data.urgent,
+                    content: body.data.data.content,
                 },
                 categories: [
                     'announcements'
