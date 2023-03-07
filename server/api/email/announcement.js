@@ -20,9 +20,9 @@ const array1 = [
 ]
 export default defineEventHandler(async (event) => {
     const body = await readBody(event)
-  
-    const messages = body.data.recipients
-    array1.forEach(element => {
+    const recipients = body.data.recipients
+    const messages = []
+    recipients.forEach(element => {
         messages.push(
             {
                 personalizations: [{
