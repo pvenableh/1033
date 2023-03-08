@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
                     subtitle: body.data.data.subtitle,
                     urgent: body.data.data.urgent,
                     content: body.data.data.content,
+                    url: body.data.data.url,
                 },
                 categories: [
                     'announcements'
