@@ -31,6 +31,7 @@
         "@sendgrid/mail": "^7.7.0",
         "@vee-validate/rules": "^4.7.3",
         "daisyui": "^2.50.2",
+        "nuxt-directus": "^5.0.1",
         "swiper": "^9.0.5",
         "vee-validate": "^4.7.4",
         "vue-social-sharing": "^4.0.0-alpha4",

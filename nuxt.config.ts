@@ -21,6 +21,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     // https://vueuse.org/
     '@vueuse/nuxt',
+    'nuxt-directus',
   ],
   buildModules: [
     // https://pinia.esm.dev
@@ -33,7 +34,9 @@ export default defineNuxtConfig({
       directusUrl: process.env.DIRECTUS_URL,
     },
   },
-
+  directus: {
+    url: process.env.DIRECTUS_URL,
+  },
   postcss: {
     plugins: {
       'postcss-import': {},

@@ -1,0 +1,119 @@
+<template>
+  <div class="w-full flex items-center justify-center flex-col">
+    <div class="w-full h-4 email__border"></div>
+    <div class="w-full flex items-center justify-center flex-col email">
+      <div class="w-full flex items-center justify-center email__header">
+        <a href="https://1033lenox.com" class="inline-block">
+          <img
+            src="https://admin.1033lenox.com/assets/61e1a568-679d-4965-9527-c89009ee2486?key=large"
+          />
+        </a>
+      </div>
+      <div class="w-full flex items-center justify-center flex-col email__body">
+        <h3 class="email__title" :class="{ red: email.urgent }">
+          <span v-if="email.urgent">🚨 </span>{{ email.title }}
+        </h3>
+        <h5 class="email__subtitle">{{ email.subtitle }}</h5>
+        <div class="email__content">
+          <div v-html="email.content"></div>
+          <p class="font-bold">Sincerely,</p>
+          <p class="font-bold">Lenox Plaza Association Board of Directors ☀️</p>
+        </div>
+      </div>
+      <div class="w-full text-center email__footer">
+        <a
+          href="https://1033lenox.com"
+          class="font-bold tracking-wide uppercase"
+          target="_blank"
+          >1033lenox.com</a
+        >
+        <h5 class="font-bold tracking-wide uppercase">
+          &copy; {{ new Date().getFullYear() }} LENOX PLAZA ASSOCIATION INC.
+        </h5>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+const { params, path } = useRoute()
+const { getItems } = useDirectusItems()
+const emailReq = await getItems({
+  collection: 'announcements',
+  params: {
+    filter: {
+      url: {
+        _eq: params.url,
+      },
+    },
+    fields: ['*'],
+  },
+})
+
+const email = ref(emailReq[0])
+</script>
+<style>
+.email {
+  max-width: 600px;
+  line-height: 1.4em;
+  font-size: 14px;
+  padding: 0 20px;
+  &__border {
+    background: #555555;
+  }
+  &__header {
+    img {
+      max-width: 400px;
+      padding: 20px 10px 10px;
+    }
+  }
+  &__body {
+    padding: 20px 0px;
+  }
+  &__title {
+    line-height: 1.1em;
+    font-size: 20px;
+    text-transform: uppercase;
+    @apply font-bold text-center;
+  }
+  &__title.red {
+    color: var(--red);
+  }
+  &__subtitle {
+    line-height: 1.1em;
+    text-transform: uppercase;
+    padding-bottom: 20px;
+    padding-top: 10px;
+    @apply font-bold text-center;
+  }
+  &__content {
+    padding: 20px 0px 20px;
+    border-top: thin solid #999;
+    border-bottom: thin solid #999;
+    line-height: 1.4em !important;
+
+    p {
+      padding: 5px 0px;
+      line-height: 1.4em;
+    }
+    b,
+    strong {
+      font-family: var(--bold-font);
+      @apply font-bold;
+    }
+
+    li {
+      list-style-type: disc;
+
+      padding: 2px 0px 2px 15px;
+    }
+  }
+  &__footer {
+    padding: 20px 0px;
+    font-size: 10px;
+    h5 {
+      margin-top: 10px;
+    }
+  }
+}
+</style>
