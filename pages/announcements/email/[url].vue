@@ -14,7 +14,7 @@
           <span v-if="email.urgent">🚨 </span>{{ email.title }}
         </h3>
         <h5 class="email__subtitle">{{ email.subtitle }}</h5>
-        <div class="email__content">
+        <div class="w-full email__content">
           <div v-html="email.content"></div>
           <p class="font-bold">Sincerely,</p>
           <p class="font-bold">Lenox Plaza Association Board of Directors ☀️</p>
