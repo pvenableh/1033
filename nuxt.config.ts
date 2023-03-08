@@ -31,11 +31,12 @@ export default defineNuxtConfig({
   ],
   runtimeConfig: {
     public: {
-      directusUrl: process.env.DIRECTUS_URL,
+      directusUrl: 'https://admin.1033lenox.com',
     },
   },
+
   directus: {
-    url: process.env.DIRECTUS_URL,
+    url: 'https://admin.1033lenox.com',
   },
   postcss: {
     plugins: {
