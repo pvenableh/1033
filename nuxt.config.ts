@@ -22,6 +22,7 @@ export default defineNuxtConfig({
     // https://vueuse.org/
     '@vueuse/nuxt',
     'nuxt-directus',
+    '@nuxtjs/plausible',
   ],
   buildModules: [
     // https://pinia.esm.dev
@@ -29,12 +30,10 @@ export default defineNuxtConfig({
     // https://vueuse.org/
     '@vueuse/nuxt',
   ],
-  runtimeConfig: {
-    public: {
-      directusUrl: 'https://admin.1033lenox.com',
-    },
-  },
 
+  plausible: {
+    domain: '1033lenox.com',
+  },
   directus: {
     url: 'https://admin.1033lenox.com',
   },
@@ -46,7 +45,14 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
-
+  runtimeConfig: {
+    public: {
+      directusUrl: 'https://admin.1033lenox.com',
+      plausible: {
+        domain: '1033lenox.com',
+      },
+    },
+  },
   //   Currently still needed
   build: {
     transpile: ['@heroicons/vue', '@headlessui/vue'],

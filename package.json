@@ -28,6 +28,7 @@
         "prettier": "^2.8.3"
     },
     "dependencies": {
+        "@nuxtjs/plausible": "^0.2.0",
         "@sendgrid/mail": "^7.7.0",
         "@vee-validate/rules": "^4.7.3",
         "daisyui": "^2.50.2",
