@@ -11,7 +11,8 @@
       </div>
       <div class="w-full flex items-center justify-center flex-col email__body">
         <h3 class="email__title" :class="{ red: email.urgent }">
-          <span v-if="email.urgent">🚨 </span>{{ email.title }}
+          <span v-if="email.urgent">🚨 </span><span v-else>📢 </span
+          >{{ email.title }}
         </h3>
         <h5 class="email__subtitle">{{ email.subtitle }}</h5>
         <div class="w-full email__content">
@@ -56,7 +57,7 @@ const email = ref(emailReq[0])
 .email {
   max-width: 600px;
   line-height: 1.4em;
-  font-size: 14px;
+  font-size: 15px;
   padding: 0 20px;
   &__border {
     background: #555555;
@@ -93,8 +94,10 @@ const email = ref(emailReq[0])
     line-height: 1.4em !important;
 
     p {
-      padding: 5px 0px;
-      line-height: 1.4em;
+      padding: 10px 0px 10px;
+      line-height: 1.6em;
+      font-weight: 600;
+      /* font-family: var(--bold-font); */
     }
     b,
     strong {
