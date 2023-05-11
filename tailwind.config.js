@@ -18,7 +18,7 @@ module.exports = {
       colors: {
         primary: colors.violet,
         gray: colors.slate,
-      }, 
+      },
       letterSpacing: {
         tightest: '-.075em',
         tighter: '-.05em',
@@ -69,6 +69,15 @@ module.exports = {
           'Times New Roman',
           'serif',
         ],
+        handwritten: [
+          'Gaegu', 
+          '-apple-system',
+          'Roboto',
+          'Helvetica Neue',
+          'Helvetica',
+          'Arial',
+          'sans-serif',
+        ],
       },
     },
   },
@@ -78,7 +87,6 @@ module.exports = {
   plugins: [
     require('@tailwindcss/forms'),
     require('@tailwindcss/typography'),
-    require('@tailwindcss/line-clamp'),
     require('@tailwindcss/aspect-ratio'),
   ],
 }

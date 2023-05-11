@@ -19,3 +19,7 @@
     font-family: "Proxima Nova W01 Regular";
     src: url("fonts/b38b8bd9-d96f-4bf9-add1-adbd2b08b802.woff2") format("woff2"), url("fonts/52ed7b2d-8a31-4b18-a1d5-8685608b0889.woff") format("woff");
 }
+@font-face  {
+    font-family: 'Gaegu';
+    src: url('fonts/Gaegu-Regular.ttf') format('truetype');
+}
