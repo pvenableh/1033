@@ -18,7 +18,7 @@
           <div class="w-full flex flex-row flex-wrap items-start signature">
             <p class="w-full font-bold greeting">Sincerely,</p>
             <p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">👑</span>Peter
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🕶</span>Peter
               Wyatt<span class="title">President</span></p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🏍</span>Alejandro
               Salinas<span class="title">Vice-President</span></p>
