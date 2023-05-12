@@ -1,6 +1,6 @@
 <template>
   <!-- <div class="relative w-full bg-center bg-cover bg-no-repeat min-h-screen flex items-start justify-start flex-col home" style="background-image: url(https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073?key=xlarge)"> -->
-    <div class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-start flex-col home" style="background-image: url(/images/scene.svg)">
+    <div class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-start flex-col home" style="background-image: url(/images/scene-2.svg)">
    <Logo/>
    
   
