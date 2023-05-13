@@ -13,12 +13,13 @@
         </h3>
         <h5 class="email__subtitle">{{ email.subtitle }}</h5>
         <div class="w-full email__content">
+          <p>{{ email.greeting }}</p>
           <div v-html="email.content"></div>
 
           <div class="w-full flex flex-row flex-wrap items-start signature">
             <p class="w-full font-bold greeting">Sincerely,</p>
             <p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🕶</span>Peter
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon peter">🕶</span>Peter
               Wyatt<span class="title">President</span></p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🏍</span>Alejandro
               Salinas<span class="title">Vice-President</span></p>
@@ -138,6 +139,7 @@ const email = ref(emailReq[0])
       .icon {
         font-size: 20px;
         margin-right: 2px;
+        @apply inline-block;
       }
 
       .title {
