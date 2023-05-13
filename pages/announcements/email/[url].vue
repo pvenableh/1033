@@ -37,6 +37,9 @@
         <h5 class="font-bold tracking-wide uppercase">
           &copy; {{ new Date().getFullYear() }} LENOX PLAZA ASSOCIATION INC.
         </h5>
+        <div class="w-full">
+          <img src="https://admin.1033lenox.com/assets/59b5609c-c802-4ef2-a2f2-b33016360917?key=large" alt="1033 Lenox Ave Building" />
+        </div>
       </div>
     </div>
   </div>
@@ -157,6 +160,9 @@ const email = ref(emailReq[0])
 
     h5 {
       margin-top: 10px;
+    }
+    img {
+      margin-top:40px;
     }
   }
 }</style>
