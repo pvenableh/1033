@@ -25,7 +25,7 @@
               Salinas<span class="title">Vice-President</span></p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">✨</span>Camila Hoffman<span
                 class="title">Secretary</span></p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">📊</span>Nenad Rakita<span
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🏊‍♂️</span>Nenad Rakita<span
                 class="title">Treasurer</span></p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🪴</span>Cecilia V. Demattos
             </p>
