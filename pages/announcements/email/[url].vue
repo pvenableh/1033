@@ -7,7 +7,7 @@
           <img src="https://admin.1033lenox.com/assets/61e1a568-679d-4965-9527-c89009ee2486?key=large" />
         </a>
       </div>
-      <div class="w-full flex items-center justify-center flex-col email__body">
+      <div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
         <h3 class="email__title" :class="{ red: email.urgent }">
           <span v-if="email.urgent">🚨 </span><span v-else>📢 </span>{{ email.title }}
         </h3>
@@ -48,19 +48,24 @@
 <script setup>
 const { params, path } = useRoute()
 const { getItems } = useDirectusItems()
-const emailReq = await getItems({
-  collection: 'announcements',
-  params: {
-    filter: {
-      url: {
-        _eq: params.url,
+console.log(params.url)
+const email = ref()
+if(params.url) {
+  const emailReq = await getItems({
+    collection: 'announcements',
+    params: {
+      filter: {
+        url: {
+          _eq: params.url,
+        },
       },
+      fields: ['*'],
     },
-    fields: ['*'],
-  },
-})
+  })
+  email.value = emailReq[0]
+}
 
-const email = ref(emailReq[0])
+
 </script>
 <style>
 .email {
