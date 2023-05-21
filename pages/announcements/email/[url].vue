@@ -142,7 +142,7 @@ const email = ref(emailReq[0])
       font-size: 10px;
 
       .icon {
-        font-size: 20px;
+        font-size: 16px;
         margin-right: 2px;
         @apply inline-block;
       }
