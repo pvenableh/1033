@@ -19,15 +19,15 @@
           <div class="w-full flex flex-row flex-wrap items-start signature">
             <p class="w-full font-bold greeting">Sincerely,</p>
             <p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon peter">🕶</span>Peter
-              Wyatt<span class="title">President</span></p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🏍</span>Alejandro
-              Salinas<span class="title">Vice-President</span></p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">✨</span>Camila Hoffman<span
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Peter
+              Wyatt<span class="icon peter">🕶</span><span class="title">President</span></p>
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Alejandro
+              Salinas<span class="icon">🏍</span><span class="title">Vice-President</span></p>
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Camila Hoffman<span class="icon">✨</span><span
                 class="title">Secretary</span></p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🏊‍♂️</span>Nenad Rakita<span
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Nenad Rakita<span class="icon">🏊‍♂️</span><span
                 class="title">Treasurer</span></p>
-            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2"><span class="icon">🪴</span>Cecilia V. Demattos
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Cecilia V. Demattos<span class="icon">🪴</span>
             </p>
           </div>
         </div>
@@ -143,7 +143,7 @@ const email = ref(emailReq[0])
 
       .icon {
         font-size: 16px;
-        margin-right: 2px;
+        margin-left: 2px;
         @apply inline-block;
       }
 
@@ -151,7 +151,6 @@ const email = ref(emailReq[0])
         display: block;
         font-size: 7px;
         line-height: 12px;
-        margin-left: 23px
       }
     }
   }
