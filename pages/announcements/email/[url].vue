@@ -115,6 +115,9 @@ const email = ref(emailReq[0])
       font-weight: 600;
       /* font-family: var(--bold-font); */
     }
+    ul, ol {
+      padding-left: 30px !important;
+    }
 
     b,
     strong {
@@ -124,8 +127,7 @@ const email = ref(emailReq[0])
 
     li {
       list-style-type: disc;
-
-      padding: 2px 0px 2px 15px;
+      padding: 2px 0px;
     }
   }
 
