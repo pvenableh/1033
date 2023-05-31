@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
                         title: body.data.data.title,
                         subtitle: body.data.data.subtitle,
                         urgent: body.data.data.urgent,
-                        content: body.data.data.content,
+                        content: body.data.data.content + attachment,
                         url: body.data.data.url,
                     },
                     categories: [
