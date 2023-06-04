@@ -38,7 +38,8 @@
           &copy; {{ new Date().getFullYear() }} LENOX PLAZA ASSOCIATION INC.
         </h5>
         <div class="w-full">
-          <img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large" alt="1033 Lenox Ave Building" />
+          <img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
+            alt="1033 Lenox Ave Building" />
         </div>
       </div>
     </div>
@@ -50,7 +51,7 @@ const { params, path } = useRoute()
 const { getItems } = useDirectusItems()
 console.log(params.url)
 const email = ref()
-if(params.url) {
+if (params.url) {
   const emailReq = await getItems({
     collection: 'announcements',
     params: {
@@ -120,7 +121,9 @@ if(params.url) {
       font-weight: 600;
       /* font-family: var(--bold-font); */
     }
-    ul, ol {
+
+    ul,
+    ol {
       padding-left: 30px !important;
     }
 
@@ -143,6 +146,7 @@ if(params.url) {
       /* margin-bottom: 0px;
       padding-bottom: 0px; */
     }
+
     p {
       font-size: 10px;
 
@@ -167,8 +171,12 @@ if(params.url) {
     h5 {
       margin-top: 10px;
     }
+
     img {
-      margin-top:40px;
+      margin: 40px auto 0px;
+
+      max-width: 250px;
     }
   }
-}</style>
+}
+</style>
