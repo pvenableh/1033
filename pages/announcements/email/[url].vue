@@ -73,16 +73,22 @@ if (params.url) {
   max-width: 600px;
   line-height: 1.4em;
   font-size: 15px;
-  padding: 0 20px;
-
+  padding: 0 10px;
+  color: var(--grey);
+  @media (min-width: 400px) {
+      
+      }
   &__border {
     background: #555555;
   }
 
   &__header {
     img {
-      max-width: 400px;
+      max-width: 370px;
       padding: 20px 10px 10px;
+      @media (min-width: 400px) {
+        max-width: 400px;
+      }
     }
   }
 
@@ -92,7 +98,7 @@ if (params.url) {
 
   &__title {
     line-height: 1.2em;
-    font-size: 18px;
+    font-size: 16px;
     text-transform: uppercase;
     @apply text-center tracking-wide;
   }
@@ -103,7 +109,7 @@ if (params.url) {
 
   &__subtitle {
     line-height: 1.2em;
-    font-size: 14px;
+    font-size: 12px;
     text-transform: uppercase;
     padding-bottom: 20px;
     padding-top: 10px;

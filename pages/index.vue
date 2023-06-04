@@ -1,9 +1,9 @@
 <template>
-  <!-- <div class="relative w-full bg-center bg-cover bg-no-repeat min-h-screen flex items-start justify-start flex-col home" style="background-image: url(https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073?key=xlarge)"> -->
-    <div class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-start flex-col home" style="background-image: url(/images/scene-2.svg)">
+  <!-- <div class="relative w-full bg-center bg-cover bg-no-repeat min-h-screen flex items-start justify-start flex-col home" style="background-image: url(https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=xlarge)"> -->
+    <div class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home" >
    <Logo/>
    
-  
+  <img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium" class="my-20 px-8"/>
    <h1>a new digital experience coming soon.</h1>
   </div>
 </template>
@@ -26,7 +26,7 @@ h1 {
     -webkit-text-fill-color: transparent;
     bottom: 0px;
     color: #cccccc;
-    @apply absolute uppercase tracking-wider mb-8 lg:mb-14;
+    @apply uppercase tracking-wider mb-8 lg:mb-14;
     @media (min-width: theme('screens.md')) {
       max-width: 400px;
     }
