@@ -9,7 +9,7 @@
       </div>
       <div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
         <h3 class="email__title" :class="{ red: email.urgent }">
-          <span v-if="email.urgent">🚨 </span><span v-else>📢 </span>{{ email.title }}
+          <span v-if="email.urgent">🚨 </span><span v-else> </span>{{ email.title }}
         </h3>
         <h5 class="email__subtitle">{{ email.subtitle }}</h5>
         <div class="w-full email__content">
@@ -91,10 +91,10 @@ if (params.url) {
   }
 
   &__title {
-    line-height: 1.1em;
-    font-size: 20px;
+    line-height: 1.2em;
+    font-size: 18px;
     text-transform: uppercase;
-    @apply font-bold text-center;
+    @apply text-center tracking-wide;
   }
 
   &__title.red {
@@ -102,11 +102,12 @@ if (params.url) {
   }
 
   &__subtitle {
-    line-height: 1.1em;
+    line-height: 1.2em;
+    font-size: 14px;
     text-transform: uppercase;
     padding-bottom: 20px;
     padding-top: 10px;
-    @apply font-bold text-center;
+    @apply text-center tracking-wide;
   }
 
   &__content {
