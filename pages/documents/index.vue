@@ -24,11 +24,17 @@ const doc = await getItemById({
     @media (min-width: theme('screens.lg')) {
     }
     h1 {
-        font-size: 20px;
+        font-size: 24px;
         letter-spacing: 0.05em;
         @apply mt-10 uppercase font-bold;
     }
     h2 {
+        font-size: 20px;
+        text-decoration: none !important;
+        letter-spacing: 0.05em;
+        @apply mt-6 uppercase font-bold;
+    }
+    h3 {
         font-size: 16px;
         text-decoration: none !important;
         letter-spacing: 0.05em;
