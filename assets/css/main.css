@@ -4,6 +4,7 @@
 
 html, body {
   color: var(--darkGrey);
+  scroll-behavior: smooth;
 }
 a {
   transition: all 0.3s var(--curve);
