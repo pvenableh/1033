@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
                         url: body.data.data.url,
                     },
                     categories: [
-                        'announcements'
+                        '1033 Lenox', 'announcements'
                     ],
                 }
             )

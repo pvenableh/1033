@@ -31,31 +31,28 @@
 </template>
 
 <script setup>
-// Import the $directus plugin
-const { $directus } = useNuxtApp()
+const { getItems } = useDirectusItems()
 const { fileUrl } = useFiles()
 
-// Get the params from the Nuxt route
 const { params, path } = useRoute()
 
-// Fetch the page data from the Directus API using the Nuxt useAsyncData composable
-// https://v3.nuxtjs.org/docs/usage/data-fetching#useasyncdata
-const {
-  data: unit,
-  pending,
-  error,
-} = await useAsyncData(
-  path,
-  () => {
-    return $directus
-      .items('units')
-      .readByQuery({ filter: { number: { _eq: params.unit } }, fields: ['*', 'people.people_id.*'], limit: 1 })
-  },
-  {
-    transform: (data) => data.data[0],
-  }
-)
 
+const unitReq = await getItems({
+  collection: 'units',
+  params: {
+    filter: {
+      url: {
+        _eq: params.unit,
+      },
+    },
+    fields: [
+      '*, people.people_id.*',
+    ],
+    limit: 1,
+  },
+})
+
+const unit = ref(unitReq[0])
 useHead({
   title: unit.value.number,
 })
