@@ -1,7 +1,7 @@
 <template>
     <div
         class="relative w-full min-h-screen flex items-center justify-center flex-col scroll-smooth documents">
-        <h1 class="uppercase tracking-wide my-8">Lenox Plaza Association By-Laws</h1>
+        <h1 class="uppercase tracking-wide mt-12 py-6 w-full lg:pl-20 page__content-title" style="max-width: 800px;">By-Laws</h1>
         <div class="w-full flex flex-row items-start justify-center relative">
             <div class="sticky flex flex-col items-start flex-shrink uppercase mr-10 text-right nav">
                 <h5 class="uppercase text-xs opacity-25 tracking-wider font-bold w-full mb-4">Sections</h5>
@@ -43,6 +43,12 @@ const doc = await getItemById({
             @apply w-full tracking-wider text-xs py-2;
         }
         h5 {
+            
+        }
+    }
+    .page__content-title {
+        @media (min-width: theme('screens.lg')) {
+            margin-left: 240px;
             
         }
     }

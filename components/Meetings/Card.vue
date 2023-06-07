@@ -70,7 +70,7 @@ const formattedTime = computed(() => {
 
     width: 100%;
     max-width: 800px;
-    @apply uppercase p-6 mb-8 ;
+    @apply uppercase py-6 mb-8 ;
     h4 {
         font-size: 10px;
     }
