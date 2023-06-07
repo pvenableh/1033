@@ -11,6 +11,9 @@
                 <a href="#four">Directors</a>
                 <a href="#five">Officers</a>
                 <a href="#six">Fiscal Management</a>
+                <a href="#seven">Parlimentary Rules</a>
+                <a href="#eight">Developer</a>
+                <a href="#nine">Amendment</a>
             </div>
         <div v-if="doc.document" v-html="doc.document" class="pr-4 pl-4 lg:pl-10 w-full flex-grow scroll-smooth by-laws"></div>
     </div>
