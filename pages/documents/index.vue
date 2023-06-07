@@ -86,6 +86,10 @@ const doc = await getItemById({
     ol {
         list-style-type: decimal;
     }
+    a {
+        text-decoration: underline;
+        color: var(--blue);
+    }
 }
 h1 {
 
