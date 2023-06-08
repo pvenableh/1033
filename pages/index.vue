@@ -1,7 +1,7 @@
 <template>
   <!-- <div class="relative w-full bg-center bg-cover bg-no-repeat min-h-screen flex items-start justify-start flex-col home" style="background-image: url(https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=xlarge)"> -->
     <div class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home" >
-   <Logo/>
+   <!-- <Logo/> -->
    
   <img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium" class="my-20 px-8"/>
    <h1>a new digital experience coming soon.</h1>
