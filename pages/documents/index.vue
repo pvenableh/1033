@@ -2,7 +2,7 @@
     <div
         class="relative w-full min-h-screen flex items-center justify-center flex-col scroll-smooth documents">
         <h1 class="uppercase tracking-wide mt-12 py-6 w-full lg:pl-20 page__content-title" style="max-width: 800px;">By-Laws</h1>
-        <div class="w-full flex flex-row items-start justify-center relative blur-lg">
+        <div class="w-full flex flex-row items-start justify-center relative">
             <div class="sticky flex flex-col items-start flex-shrink uppercase mr-10 text-right nav">
                 <h5 class="uppercase text-xs opacity-25 tracking-wider font-bold w-full mb-4">Sections</h5>
                 <a href="#one">Identity</a>
@@ -18,7 +18,6 @@
         <div v-if="doc.document" v-html="doc.document" class="pr-4 pl-4 lg:pl-10 w-full flex-grow scroll-smooth by-laws"></div>
 
     </div>
-    <div>{{ loggedIn }}</div> 
     </div>
 </template>
 
