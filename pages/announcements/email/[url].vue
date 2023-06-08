@@ -29,6 +29,10 @@
                 class="title">Treasurer</span></p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Cecilia V. Demattos<span class="icon">🪴</span>
             </p>
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Nick Valencia<span class="icon">📐</span>
+            </p>
+            <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Pat Tamburrino<span class="icon">🌊</span>
+            </p>
           </div>
         </div>
       </div>
