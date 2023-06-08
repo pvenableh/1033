@@ -162,7 +162,7 @@ if (params.url) {
       font-size: 10px;
 
       .icon {
-        font-size: 16px;
+        font-size: 12px;
         margin-left: 2px;
         @apply inline-block;
       }
