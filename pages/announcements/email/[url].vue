@@ -53,7 +53,9 @@
 <script setup>
 const { params, path } = useRoute()
 const { getItems } = useDirectusItems()
-console.log(params.url)
+definePageMeta({
+  layout: "email",
+});
 const email = ref()
 if (params.url) {
   const emailReq = await getItems({
