@@ -27,7 +27,11 @@ const props = defineProps({
 const minutes = computed(() => {
     if (props.meeting.files.length) {
         return props.meeting.files.filter((file) => {
-            return file.directus_files_id.tags.includes('Minutes')
+            if(file.directus_files_id.tags.length) {
+                return file.directus_files_id.tags.includes('Minutes')
+            } else {
+                return false
+            }
         }).map((file) => {
             return file.directus_files_id.id
         }).join(', ')
@@ -39,7 +43,11 @@ const minutes = computed(() => {
 const agenda = computed(() => {
     if (props.meeting.files.length) {
         return props.meeting.files.filter((file) => {
-            return file.directus_files_id.tags.includes('Agenda')
+            if(file.directus_files_id.tags.length) {
+                return file.directus_files_id.tags.includes('Agenda')
+            } else {
+                return false
+            }
         }).map((file) => {
             return file.directus_files_id.id
         }).join(', ')

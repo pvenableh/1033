@@ -30,7 +30,7 @@
         "@nuxtjs/plausible": "^0.2.0",
         "@sendgrid/mail": "^7.7.0",
         "@vee-validate/rules": "^4.7.3",
-        "nuxt-directus": "^5.3.0",
+        "nuxt-directus": "^5.4.4",
         "nuxt-icon": "^0.4.1",
         "swiper": "^9.0.5",
         "vee-validate": "^4.7.4",
