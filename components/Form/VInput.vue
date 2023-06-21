@@ -13,8 +13,8 @@
         bg-transparent
         border-0 border-b-2 border-gray-300
         appearance-none
-        dark:text-white dark:border-gray-600 dark:focus:border-purple-500
-        focus:outline-none focus:ring-0 focus:border-purple-600
+        dark:text-white dark:border-gray-600 dark:focus:border-gray-900
+        focus:outline-none focus:ring-0 focus:border-gray-900
         peer
       "
       :type="type"
@@ -40,8 +40,8 @@
         top-3
         origin-[0]
         peer-focus:left-0
-        peer-focus:text-purple-600
-        peer-focus:dark:text-purple-500
+        peer-focus:text-gray-600
+        peer-focus:dark:text-gray-500
         peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0
         peer-focus:scale-75 peer-focus:-translate-y-6
       "
@@ -104,7 +104,7 @@ const props = defineProps({
 //   return 'This is required right now!'
 // }
 </script>
-<style lang="postcss">
+<style>
 .input-container {
   .input {
     @apply block w-full dark:bg-gray-800 dark:text-white text-lg md:text-base border-gray-300 dark:border-gray-700 rounded-md shadow-sm placeholder:text-gray-400 dark:placeholder:text-gray-600;
@@ -115,7 +115,7 @@ const props = defineProps({
 
     right: 0px;
     bottom: -12px;
-    color: var(--purple);
+    color: var(--gray);
     @apply absolute uppercase tracking-wide font-bold;
   }
 }
