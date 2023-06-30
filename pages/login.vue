@@ -1,11 +1,11 @@
 <script setup>
 import { openScreen, loader, closeScreen } from '~/composables/useScreen'
-const token = useDirectusToken();
 const router = useRouter();
-
-// if (token) {
-//   router.push('/account');
-// }
+const user = useDirectusUser();
+if (user.value) {
+  console.log(user.value)
+  router.push('/account');
+}
 const { login } = useDirectusAuth()
 const email = ref()
 const password = ref()

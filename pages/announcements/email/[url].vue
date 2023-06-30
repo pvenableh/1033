@@ -106,7 +106,7 @@ if (params.url) {
     line-height: 1.2em;
     font-size: 16px;
     text-transform: uppercase;
-    @apply text-center tracking-wide;
+    @apply text-center tracking-wide font-bold;
   }
 
   &__title.red {
@@ -119,7 +119,7 @@ if (params.url) {
     text-transform: uppercase;
     padding-bottom: 20px;
     padding-top: 10px;
-    @apply text-center tracking-wide;
+    @apply text-center tracking-wide font-bold;
   }
 
   &__content {

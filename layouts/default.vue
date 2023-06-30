@@ -5,7 +5,9 @@
       <LayoutHeader />
       <div class="w-full mx-auto min-h-screen relative px-4 md:px-6">
         <slot />
+        
       </div>
+      <LayoutFooter />
     </div>
     <transition name="screen">
       <LayoutScreen v-if="screen" />

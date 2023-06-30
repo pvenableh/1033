@@ -41,7 +41,7 @@ const unitReq = await getItems({
   collection: 'units',
   params: {
     filter: {
-      url: {
+      number: {
         _eq: params.unit,
       },
     },
@@ -53,7 +53,5 @@ const unitReq = await getItems({
 })
 
 const unit = ref(unitReq[0])
-useHead({
-  title: unit.value.number,
-})
+
 </script>
