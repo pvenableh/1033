@@ -7,7 +7,7 @@
       justify-start sm:justify-center px-4 md:px-6 header"
   >
   <Logo/>
-  <LayoutNavButton class="lg:pr-6 hidden" />
+  <!-- <LayoutNavButton class="lg:pr-6 hidden" /> -->
   </div>
 </template>
 <script setup>
