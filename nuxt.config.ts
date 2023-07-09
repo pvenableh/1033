@@ -1,17 +1,20 @@
 export default defineNuxtConfig({
   ssr: true,
+
   app: {
     pageTransition: {
       name: 'page',
       mode: 'out-in',
     },
   },
+
   css: [
     {
       src: '~/assets/css/main.css',
       lang: 'postcss',
     },
   ],
+
   modules: [
     '@nuxthq/ui',
     '@nuxtjs/tailwindcss',
@@ -23,12 +26,15 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@vueuse/nuxt',
   ],
+
   buildModules: [
     
   ],
+
   plausible: {
     domain: '1033lenox.com',
   },
+
   directus: {
     url: 'https://admin.1033lenox.com',
     // token: '04tXzze0O5HBQScnlFn3FBLgx5QgtBNh',
@@ -43,6 +49,7 @@ export default defineNuxtConfig({
       autoprefixer: {},
     },
   },
+
   runtimeConfig: {
     public: {
       directusUrl: 'https://admin.1033lenox.com',
@@ -51,6 +58,7 @@ export default defineNuxtConfig({
       },
     },
   },
+
   //   Currently still needed
   build: {
     transpile: ['@vee-validate/rules', '@sendgrid/mail'],
@@ -64,4 +72,10 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  plugins: [
+    '~/plugins/veevalidate-components.ts',
+    '~/plugins/directus.js',
+    '~/plugins/veevalidate-rules.ts',
+  ],
 })

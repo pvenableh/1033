@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
                         urgent: body.data.data.urgent,
                         content: body.data.data.content,
                         url: body.data.data.url,
+                        closing: body.data.data.closing,
                     },
                     categories: [
                         '1033 Lenox', 'announcements'

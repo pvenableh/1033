@@ -17,7 +17,7 @@
           <div v-html="email.content"></div>
 
           <div class="w-full flex flex-row flex-wrap items-start signature">
-            <p class="w-full font-bold greeting">Sincerely,</p>
+            <p class="w-full font-bold greeting">{{ email.closing }}</p>
             <p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Peter
               Wyatt<span class="icon peter">🕶</span><span class="title">President</span></p>
@@ -52,26 +52,34 @@
 
 <script setup>
 const { params, path } = useRoute()
-const { getItems } = useDirectusItems()
+const { $directus, $preview } = useNuxtApp();
 definePageMeta({
   layout: "email",
 });
-const email = ref()
-if (params.url) {
-  const emailReq = await getItems({
-    collection: 'announcements',
-    params: {
+const email = ref(null)
+if ($preview) {
+  const { data: page, pending, error } = await useAsyncData('page', () => {
+    return $directus.items('announcements').readByQuery({
       filter: {
         url: {
           _eq: params.url,
         },
       },
       fields: ['*'],
-    },
+    })
   })
-  email.value = emailReq[0]
 }
-
+const { data: page, pending, error } = await useAsyncData('page', () => {
+  return $directus.items('announcements').readByQuery({
+    filter: {
+      url: {
+        _eq: params.url,
+      },
+    },
+    fields: ['*'],
+  })
+})
+email.value = page.value.data[0]
 
 </script>
 <style>
@@ -81,9 +89,9 @@ if (params.url) {
   font-size: 15px;
   padding: 0 10px;
   color: var(--grey);
-  @media (min-width: 400px) {
-      
-      }
+
+  @media (min-width: 400px) {}
+
   &__border {
     background: #555555;
   }
@@ -92,6 +100,7 @@ if (params.url) {
     img {
       max-width: 370px;
       padding: 20px 10px 10px;
+
       @media (min-width: 400px) {
         max-width: 400px;
       }
