@@ -31,7 +31,7 @@ const props = defineProps({
 <style>
 /* Using Tailwind @apply so we can easily re-use these styles for other 'button' based components like VDropdown */
 .btn {
-  background: var(--black);
+  background: var(--black) !important;
   @apply text-white inline-flex  border-transparent  items-center justify-center px-6 py-2 tracking-widest font-body uppercase shadow-sm disabled:opacity-50 disabled:cursor-not-allowed active:hover:scale-95 transition ease-in-out duration-150;
 }
 .btn-default {

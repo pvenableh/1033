@@ -1,11 +1,10 @@
 <script setup>
 import { Buffer } from 'buffer'
 import { navigateTo } from '#imports'
-// const toast = useToast()
 const route = useRoute()
 const { login } = useDirectusAuth()
 const encodedEmail = ref(
-  Buffer.from(route.params.email, 'base64').toString('ascii')
+  Buffer.from(route.query.e, 'base64').toString('ascii')
 )
 const email = ref(encodedEmail.value)
 const userExists = ref()
@@ -55,7 +54,7 @@ const onSubmit = async () => {
     <div v-if="userExists && email">
       <p>Reset password for {{ email }}.</p>
       <VForm class="" @submit="onSubmit()">
-        <VInput
+        <FormVInput
           name="password"
           type="password"
           rules="required"
@@ -63,7 +62,7 @@ const onSubmit = async () => {
           v-model="password"
           class="my-6"
         />
-        <VButton class="w-full mb-6" type="submit">Update Password</VButton>
+        <FormVButton class="w-full mb-6" type="submit">Update Password</FormVButton>
       </VForm>
     </div>
     <p v-else>The email address was not found.</p>
