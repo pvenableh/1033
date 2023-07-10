@@ -27,15 +27,15 @@
         user.first_name +
         ' ' +
         user.last_name +
-        '&background=cccccc&color=502989'
+        '&background=00ffff&color=333333'
         " class="mb-2 md:mb-6" />
       <h1 class="hidden md:inline-block">
         {{ user.first_name }} {{ user.last_name }}
       </h1>
       <a @click.prevent="changePanel(1)" :class="{ active: panel === 1 }">Profile</a>
-      <a @click.prevent="changePanel(2)" :class="{ active: panel === 2 }">Orders</a>
+      <!-- <a @click.prevent="changePanel(2)" :class="{ active: panel === 2 }">Orders</a>
       <a @click.prevent="changePanel(3)" :class="{ active: panel === 3 }">Addresses</a>
-      <a @click.prevent="changePanel(4)" :class="{ active: panel === 4 }">Payment Methods</a>
+      <a @click.prevent="changePanel(4)" :class="{ active: panel === 4 }">Payment Methods</a> -->
       <AccountLogout v-if="user" class="logout-icon" />
     </div>
     <transition-group name="list" tag="div" class="

@@ -17,6 +17,7 @@
         focus:outline-none focus:ring-0 focus:border-gray-900
         peer
       "
+      :readonly="disabled"
       :type="type"
       :rules="rules"
       placeholder=" "
@@ -96,6 +97,10 @@ const props = defineProps({
     type: String,
     default: null,
   },
+  disabled: {
+    type: Boolean,
+    default: false,
+  }
 })
 // const isRequired = (value) => {
 //   if (value && value.trim()) {
