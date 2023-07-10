@@ -4,7 +4,7 @@ export default defineNuxtRouteMiddleware(async (to, _from) => {
   const { fetchUser } = useDirectusAuth()
 
   if (!user.value && !token.value) {
-    return navigateTo('/')
+    return navigateTo('/login')
   }
 
   await fetchUser()
