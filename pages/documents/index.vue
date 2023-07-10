@@ -22,15 +22,32 @@
 </template>
 
 <script setup>
-
-const { getItemById } = useDirectusItems()
-const doc = await getItemById({
-    collection: 'by_laws',
-    id: '1',
-    params: {
-        fields: ['*'],
-    },
+definePageMeta({
+  middleware: ['auth'],
 })
+const { $directus, $preview } = useNuxtApp();
+const doc = ref(null)
+if ($preview) {
+  const { data: page, pending, error } = await useAsyncData('page', () => {
+    return $directus.items('by_laws').readOne(1, {
+      fields: ['*'],
+    })
+  })
+}
+const { data: page, pending, error } = await useAsyncData('page', () => {
+  return $directus.items('by_laws').readOne(1, {
+    fields: ['*'],
+  })
+})
+doc.value = page.value
+// const { getItemById } = useDirectusItems()
+// const doc = await getItemById({
+//     collection: 'by_laws',
+//     id: '1',
+//     params: {
+//         fields: ['*'],
+//     },
+// })
 
 </script>
 <style >

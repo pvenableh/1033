@@ -23,7 +23,6 @@ export default defineNuxtConfig({
     'nuxt-directus',
     'nuxt-icon',
     '@nuxtjs/plausible',
-    '@pinia/nuxt',
     '@vueuse/nuxt',
   ],
 
@@ -37,7 +36,7 @@ export default defineNuxtConfig({
 
   directus: {
     url: 'https://admin.1033lenox.com',
-    // token: '04tXzze0O5HBQScnlFn3FBLgx5QgtBNh',
+    token: 'rpS9FnBjatOHHUyDye4W4LCqwqV2vhlE',
     autoFetch: true
   },
 
@@ -58,7 +57,13 @@ export default defineNuxtConfig({
       },
     },
   },
-
+  pinia: {
+    autoImports: [
+      // automatically imports `defineStore`
+      'defineStore', // import { defineStore } from 'pinia'
+      ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
+    ],
+  },
   //   Currently still needed
   build: {
     transpile: ['@vee-validate/rules', '@sendgrid/mail'],

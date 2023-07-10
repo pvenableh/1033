@@ -69,6 +69,7 @@ const panel = ref(1)
 function changePanel(val) {
   panel.value = val
 }
+
 </script>
 <style>
 .account {

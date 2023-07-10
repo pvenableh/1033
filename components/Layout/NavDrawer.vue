@@ -20,11 +20,31 @@
             >By-Laws</nuxt-link
           >
         </li>
+        <li v-if="!user">
+          <nuxt-link to="/login/"
+            >Login</nuxt-link
+          >
+        </li>
+        <li v-if="user">
+          <nuxt-link to="/account/"
+            >Account</nuxt-link
+          >
+        </li>
+        <li v-if="user">
+          <a @click.prevent="onLogout()" class="cursor-pointer">
+            Logout</a>
+        </li>
       </ul>
     </div>
   </div>
 </template>
 <script setup>
+const user = useDirectusUser()
+const { logout } = useDirectusAuth();
+const onLogout = async () => {
+  logout();
+  return navigateTo('/')
+};
 import { onClickOutside } from '@vueuse/core'
 import { closeScreen, toggleScreen } from '~~/composables/useScreen'
 const navDrawerRef = ref(null)
@@ -45,7 +65,6 @@ function toggleNavDrawer() {
   // toggleScreen()
 }
 onClickOutside(navDrawerRef, (event) => {
-  console.log('outside')
   closeNavDrawer()
 })
 </script>

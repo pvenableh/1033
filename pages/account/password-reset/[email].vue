@@ -1,7 +1,7 @@
 <script setup>
 import { Buffer } from 'buffer'
 import { navigateTo } from '#imports'
-const toast = useToast()
+// const toast = useToast()
 const route = useRoute()
 const { login } = useDirectusAuth()
 const encodedEmail = ref(
@@ -35,7 +35,7 @@ const onSubmit = async () => {
   const { data, refresh } = await useFetch(
     'https://admin.1033lenox.com/users/' + user.value.id,
     {
-      headers: { Authorization: 'Bearer a-HH7-unz0s9wPo2Wi4LRM_i8FCUBbXe' },
+      headers: { Authorization: 'Bearer rpS9FnBjatOHHUyDye4W4LCqwqV2vhlE' },
       method: 'PATCH',
       body: {
         password: password.value,
@@ -44,7 +44,7 @@ const onSubmit = async () => {
   )
   console.log(data._value.data.id)
 
-  toast.success('Your password was updated.')
+  // toast.success('Your password was updated.')
 
   const status = await login({ email: email.value, password: password.value })
   return navigateTo('/account', { replace: true })

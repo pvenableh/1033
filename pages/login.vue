@@ -1,17 +1,24 @@
 <script setup>
 import { openScreen, loader, closeScreen } from '~/composables/useScreen'
-const router = useRouter();
-const user = useDirectusUser();
-if (user.value) {
-  console.log(user.value)
-  router.push('/account');
-}
 const { login } = useDirectusAuth()
+import { navigateTo } from '#imports'
 const email = ref()
 const password = ref()
+const error = ref(null)
 const signIn = async () => {
-  await login({ email: 'peter@huestudios.com', password: 'p195pr' })
-  router.push('/account');
+  loader.value = true
+  openScreen()
+  try {
+    const status = await login({ email: email.value, password: password.value })
+    closeScreen()
+    return navigateTo('/account')
+  } catch (e) {
+    closeScreen()
+    error.value = "Login failed, please check your credentials."
+  } finally {
+    closeScreen()
+    return navigateTo('/account')
+  }
 }
 
 const panel = ref('login')
@@ -39,6 +46,7 @@ function movePanel(val) {
             class="purple-txt">Register Here</span></a>
         <a @click.prevent="movePanel('request')"
           class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">Reset Password</a>
+          <div v-if="error" class="text-red-500 uppercase tracking-wide font-bold" style="font-size: 10px;">{{ error }}</div>
       </div>
       <div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
         <AccountPasswordRequest />
