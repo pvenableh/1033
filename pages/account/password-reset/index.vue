@@ -50,7 +50,7 @@ const onSubmit = async () => {
 }
 </script>
 <template>
-  <div class="flex items-center justify-center flex-col">
+  <div class="flex items-center justify-center flex-col min-h-screen">
     <div v-if="userExists && email">
       <p>Reset password for {{ email }}.</p>
       <VForm class="" @submit="onSubmit()">
