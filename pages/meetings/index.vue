@@ -29,7 +29,7 @@ const { data: meetings, pending, error } = await useAsyncData('meetings', () => 
   })
 })
 
-
+console.log(meetings.value.data)
 
 </script>
 <style ></style>
