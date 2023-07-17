@@ -36,7 +36,7 @@ export default defineNuxtConfig({
 
   directus: {
     url: 'https://admin.1033lenox.com',
-    token: 'rpS9FnBjatOHHUyDye4W4LCqwqV2vhlE',
+    token: 'eJMc0C1y_6IctdALsubkP30o1EMwV_I3',
     autoFetch: true
   },
 
