@@ -52,7 +52,6 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
     public: {
       directusUrl: 'https://admin.1033lenox.com',
       plausible: {
