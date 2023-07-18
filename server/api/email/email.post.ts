@@ -58,4 +58,5 @@ export default defineEventHandler(async (event) => {
       console.log('emails sent successfully!');
     }).catch(error => {
       console.log(error);
-    });
+    })
+  })
