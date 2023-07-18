@@ -2,10 +2,11 @@ import sgMail from '@sendgrid/mail';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
-    const body = await readBody(event)
     sgMail.setApiKey(config.SENDGRID_API_KEY)
+    const body = await readBody(event)
+    
     const recipients = body.data.recipients
-    const messages = []
+    let messages = []
     if(recipients.length > 0) {
       recipients.forEach(element => {
         if (element.people_id.email && element.people_id.unit.length > 0) {
@@ -51,12 +52,14 @@ export default defineEventHandler(async (event) => {
       }
     })
   }
-    // console.log(messages)
+    console.log(messages)
     const message = messages[0]
+    console.log(message)
     sgMail.send(message).then((res) => {
       console.log(res)
       console.log('emails sent successfully!');
     }).catch(error => {
       console.log(error);
     })
+    console.log(sgMail)
   })
