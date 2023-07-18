@@ -1,8 +1,7 @@
-import sgMail from '@sendgrid/mail';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
-    sgMail.setApiKey(config.SENDGRID_API_KEY)
+    
     const body = await readBody(event)
     const recipients = body.data.recipients
     const messages = []
@@ -50,12 +49,17 @@ export default defineEventHandler(async (event) => {
         }
     })
  
-
-    sgMail.send(messages).then(() => {}, error => {
-        console.error(error)
-        if (error.response) {
-            console.error(error.response.body)
-            const error = error.response.body
-        }
-  })
+    const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
+        {
+            method: "POST",
+            headers: {
+                Authorization: "Bearer " + config.SENDGRID_API_KEY,
+                "Content-Type": "application/json",
+                Accept: "application/json"
+            },
+        body: JSON.stringify(messages)
+    }).catch((error) => {
+        return error;
+    })
+    return sgRequest;
 })
