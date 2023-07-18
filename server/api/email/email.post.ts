@@ -5,6 +5,8 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     sgMail.setApiKey(config.SENDGRID_API_KEY)
     const recipients = body.data.recipients
+    console.log(recipients)
+    console.log(sgMail)
     const messages = []
     if(recipients.length > 0) {
       recipients.forEach(element => {
@@ -29,10 +31,10 @@ export default defineEventHandler(async (event) => {
                     name: '1033 Lenox'
                 },
                 subject: 'Attention ' + element.people_id.first_name + ': ' + body.data.data.title,
-                content: [{
-                    type: 'text/html',
-                    value: '&nbsp;'
-                }],
+                // content: [{
+                //     type: 'text/html',
+                //     value: '&nbsp;'
+                // }],
                 dynamicTemplateData: {
                     first_name: element.people_id.first_name,
                     unit: element.people_id.unit[0].units_id.number,
@@ -51,8 +53,9 @@ export default defineEventHandler(async (event) => {
         }
       })
     }
-    console.log(JSON.stringify(messages))
-    sgMail.send(messages).then(() => {
+    console.log(messages)
+    sgMail.send(messages).then((res) => {
+      console.log(res)
       console.log('emails sent successfully!');
     }).catch(error => {
       console.log(error);
