@@ -51,7 +51,8 @@ export default defineEventHandler(async (event) => {
       console.error(error)
       if (error.response) {
         console.error(error.response.body)
-        const error = error.response.body
+        console.log(error)
+        // const error = error.response.body
       }
     }
   )
