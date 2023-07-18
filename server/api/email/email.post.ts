@@ -1,6 +1,8 @@
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig();
+    const body = await readBody(event)
+    console.log(body)
     const message = {
         personalizations: [
           {
