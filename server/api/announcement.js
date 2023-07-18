@@ -1,8 +1,8 @@
 import sgMail from '@sendgrid/mail';
 
-sgMail.setApiKey('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');
-
 export default defineEventHandler(async (event) => {
+    const config = useRuntimeConfig();
+    sgMail.setApiKey(config.SENDGRID_API_KEY)
     const body = await readBody(event)
     const recipients = body.data.recipients
     const messages = []
