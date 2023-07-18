@@ -1,8 +1,8 @@
-import sgMail from '@sendgrid/mail';
+import client from '@sendgrid/mail';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
-    sgMail.setApiKey(config.SENDGRID_API_KEY)
+    client.setApiKey(config.SENDGRID_API_KEY)
     const body = await readBody(event)
     
     const recipients = body.data.recipients
@@ -52,14 +52,14 @@ export default defineEventHandler(async (event) => {
       }
     })
   }
-    console.log(messages)
+    
     const message = messages[0]
     console.log(message)
-    sgMail.send(message).then((res) => {
+    client.send(message).then((res) => {
       console.log(res)
       console.log('emails sent successfully!');
     }).catch(error => {
       console.log(error);
     })
-    console.log(sgMail)
+    console.log(client)
   })
