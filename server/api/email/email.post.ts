@@ -1,12 +1,10 @@
-import sgMail from '@sendgrid/mail';
+// import sgMail from '@sendgrid/mail';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const body = await readBody(event)
-    sgMail.setApiKey(config.SENDGRID_API_KEY)
+    // sgMail.setApiKey(config.SENDGRID_API_KEY)
     const recipients = body.data.recipients
-    console.log(recipients)
-    console.log(sgMail)
     const messages = []
     if(recipients.length > 0) {
       recipients.forEach(element => {
@@ -53,25 +51,27 @@ export default defineEventHandler(async (event) => {
         }
       })
     }
-    console.log(messages)
-    sgMail.send(messages).then((res) => {
+    // console.log(messages)
+    // sgMail.send(messages).then((res) => {
+    //   console.log(res)
+    //   console.log('emails sent successfully!');
+    // }).catch(error => {
+    //   console.log(error);
+    // });
+    const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + config.SENDGRID_API_KEY,
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+      body: JSON.stringify(messages)
+    }).then((res) {
       console.log(res)
-      console.log('emails sent successfully!');
-    }).catch(error => {
-      console.log(error);
-    });
-  //   const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
-  //     {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: "Bearer " + config.SENDGRID_API_KEY,
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json"
-  //       },
-  //     body: messages
-  //   }).catch((error) => {
-  //       console.log(error)
-  //       return error;
-  //   })
-  // return sgRequest;
+    }).catch((error) => {
+        console.log(error)
+        return error;
+    })
+  return sgRequest;
 })
