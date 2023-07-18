@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
                     Accept: "application/json"
                   },
                 body: message
-              }).then((res) {
+              }).then((res) => {
                 console.log(res)
               }).catch((error) => {
                   console.log(error)
