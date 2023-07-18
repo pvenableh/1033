@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
     },
     categories: ['1033 Lenox'],
   }
-  sgMail.send(message).then(
+  sgMail.send(JSON.stringify(message)).then(
     () => {
       console.log('Mail sent successfully')
     },
