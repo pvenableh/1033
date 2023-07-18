@@ -1,16 +1,15 @@
-// import sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig()
     const body = await readBody(event)
-    // sgMail.setApiKey(config.SENDGRID_API_KEY)
+    sgMail.setApiKey(config.SENDGRID_API_KEY)
     const recipients = body.data.recipients
     const messages = []
-    let message = {}
     if(recipients.length > 0) {
       recipients.forEach(element => {
         if (element.people_id.email && element.people_id.unit.length > 0) {
-            message =
+          messages.push(
               {
                 personalizations: [{
                     to: [{
@@ -48,46 +47,15 @@ export default defineEventHandler(async (event) => {
                     '1033 Lenox', 'announcements'
                 ],
             }
-            $fetch("https://api.sendgrid.com/v3/mail/send",
-                {
-                  method: "POST",
-                  headers: {
-                    Authorization: "Bearer " + config.SENDGRID_API_KEY,
-                    "Content-Type": "application/json",
-                    Accept: "application/json"
-                  },
-                body: message
-              }).then((res) => {
-                console.log(res)
-              }).catch((error) => {
-                  console.log(error)
-                  return error;
-              })
-            
-              message = {}
-        }
-      })
-    }
-  })
+        )
+      }
+    })
+  }
     // console.log(messages)
-    // sgMail.send(messages).then((res) => {
-    //   console.log(res)
-    //   console.log('emails sent successfully!');
-    // }).catch(error => {
-    //   console.log(error);
-    // });
-  //   const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
-  //     {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: "Bearer " + config.SENDGRID_API_KEY,
-  //         "Content-Type": "application/json",
-  //         Accept: "application/json"
-  //       },
-  //     body: messages
-  //   }).catch((error) => {
-  //       console.log(error)
-  //       return error;
-  //   })
-  //   console.log(sgRequest)
-  // return sgRequest;
+    const message = messages[0]
+    sgMail.send(message).then((res) => {
+      console.log(res)
+      console.log('emails sent successfully!');
+    }).catch(error => {
+      console.log(error);
+    });
