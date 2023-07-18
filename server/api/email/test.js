@@ -1,10 +1,11 @@
 import sgMail from '@sendgrid/mail'
 
-sgMail.setApiKey(
-  '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'
-)
+
 
 export default defineEventHandler(async (event) => {
+  const config = useRuntimeConfig()
+  const body = await readBody(event)
+  sgMail.setApiKey(config.SENDGRID_API_KEY)
   const message = {
     personalizations: [
       {
@@ -44,7 +45,9 @@ export default defineEventHandler(async (event) => {
     categories: ['1033 Lenox'],
   }
   sgMail.send(message).then(
-    () => { console.log('Mail sent successfully') },
+    () => {
+      console.log('Mail sent successfully')
+    },
     (error) => {
       console.error(error)
       if (error.response) {
