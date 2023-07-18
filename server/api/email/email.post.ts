@@ -67,11 +67,10 @@ export default defineEventHandler(async (event) => {
           Accept: "application/json"
         },
       body: JSON.stringify(messages)
-    }).then((res) {
-      console.log(res)
     }).catch((error) => {
         console.log(error)
         return error;
     })
+    console.log(sgRequest)
   return sgRequest;
 })
