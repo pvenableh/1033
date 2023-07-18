@@ -1,9 +1,9 @@
 
 export default defineEventHandler(async (event) => {
-    const config = useRuntimeConfig();
+    import sgMail from '@sendgrid/mail'
+    const config = useRuntimeConfig()
     const body = await readBody(event)
-    const sgMail = require('@sendgrid/mail');
-    sgMail.setApiKey(config.SENDGRID_API_KEY);
+    sgMail.setApiKey(config.SENDGRID_API_KEY)
     const recipients = body.data.recipients
     const messages = []
     if(recipients.length > 0) {
