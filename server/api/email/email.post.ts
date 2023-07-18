@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
                     '1033 Lenox', 'announcements'
                 ],
             }
-            const sgRequest = $fetch("https://api.sendgrid.com/v3/mail/send",
+            $fetch("https://api.sendgrid.com/v3/mail/send",
                 {
                   method: "POST",
                   headers: {
@@ -57,11 +57,13 @@ export default defineEventHandler(async (event) => {
                     Accept: "application/json"
                   },
                 body: message
+              }).then((res) {
+                console.log(res)
               }).catch((error) => {
                   console.log(error)
                   return error;
               })
-              console.log(sgRequest)
+            
               message = {}
         }
       })
