@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
         }
       })
     }
-    console.log(messages)
+    console.log(JSON.stringify(messages))
  
     const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
       {
@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
           "Content-Type": "application/json",
           Accept: "application/json"
         },
-      body: JSON.stringify(messages)
+      body: messages
     }).catch((error) => {
         console.log(error)
         return error;
