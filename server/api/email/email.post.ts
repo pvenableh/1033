@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
     // sgMail.setApiKey(config.SENDGRID_API_KEY)
     const recipients = body.data.recipients
     const messages = []
-    const message = {}
+    let message = {}
     if(recipients.length > 0) {
       recipients.forEach(element => {
         if (element.people_id.email && element.people_id.unit.length > 0) {
