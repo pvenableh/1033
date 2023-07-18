@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
                     '1033 Lenox', 'announcements'
                 ],
             }
-            const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
+            const sgRequest = $fetch("https://api.sendgrid.com/v3/mail/send",
                 {
                   method: "POST",
                   headers: {
