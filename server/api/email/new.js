@@ -48,19 +48,28 @@ export default defineEventHandler(async (event) => {
         categories: ['1033 Lenox'],
       }
  
-    const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
-        {
-            method: "POST",
-            headers: {
-                Authorization: "Bearer " + config.SENDGRID_API_KEY,
-                "Content-Type": "application/json",
-                Accept: "application/json"
-            },
-        body: JSON.stringify(message)
-    }).catch((error) => {
-        console.log(error)
-        return error;
-    })
-    return sgRequest;
-    
+    // const sgRequest = await $fetch("https://api.sendgrid.com/v3/mail/send",
+    //     {
+    //         method: "POST",
+    //         headers: {
+    //             Authorization: "Bearer " + config.SENDGRID_API_KEY,
+    //             "Content-Type": "application/json",
+    //             Accept: "application/json"
+    //         },
+    //     body: JSON.stringify(message)
+    // }).catch((error) => {
+    //     console.log(error)
+    //     return error;
+    // })
+    // return sgRequest;
+    (async () => {
+        try {
+          await sgMail.send(message);
+        } catch (error) {
+          console.error(error);
+          if (error.response) {
+            console.error(error.response.body)
+          }
+        } 
+      })();
 })
