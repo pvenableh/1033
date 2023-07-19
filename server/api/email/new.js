@@ -5,8 +5,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     console.log(query)
     const encoded_email = Buffer.from(query.email).toString('base64')
-    const body = await readBody(event)
-    console.log(body)
+    console.log(encoded_email)
     const config = useRuntimeConfig();
     const message = {
         personalizations: [
