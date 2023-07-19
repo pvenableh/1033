@@ -1,8 +1,8 @@
 export default defineNuxtConfig({
-  ssr: true,
-  // nitro: {
-  //   preset: "vercel",
-  // },
+  // ssr: true,
+  nitro: {
+    preset: "vercel",
+  },
   app: {
     pageTransition: {
       name: 'page',

@@ -4,7 +4,8 @@
         "dev": "nuxi dev",
         "build": "nuxi build",
         "start": "node .output/server/index.mjs",
-        "allupdate": "yarn upgrade-interactive --latest"
+        "allupdate": "yarn upgrade-interactive --latest",
+        "postinstall": "nuxt prepare"
     },
     "devDependencies": {
         "@directus/sdk": "^10.3.5",
