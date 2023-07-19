@@ -1,5 +1,6 @@
 
 export default defineEventHandler(async (event) => {
+    console.log(event)
     const config = useRuntimeConfig();
     const message = {
         personalizations: [
