@@ -1,10 +1,10 @@
 import sgMail from '@sendgrid/mail'
 import { Buffer } from 'buffer'
-sgMail.setApiKey(
-  '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'
-)
+
 
 export default defineEventHandler(async (event) => {
+    const config = useRuntimeConfig();
+    sgMail.setApiKey(config.SENDGRID_API_KEY)
   const query = getQuery(event)
   const encoded_email = Buffer.from(query.email).toString('base64')
   const message = {
@@ -53,7 +53,10 @@ export default defineEventHandler(async (event) => {
   //     });
 
   sgMail.send(message).then(
-    () => {},
+    (res) => {
+        console.log(res)
+        console.log('Mail sent successfully')
+    },
     (error) => {
       console.error(error)
       if (error.response) {
@@ -62,4 +65,5 @@ export default defineEventHandler(async (event) => {
       }
     }
   )
+  console.log(sgMail)
 })

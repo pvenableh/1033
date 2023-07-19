@@ -55,11 +55,14 @@ export default defineEventHandler(async (event) => {
     })
  
 
-    sgMail.send(messages).then(() => {}, error => {
+    sgMail.send(messages).then((res) => {
+        console.log(res)
+    }, error => {
         console.error(error)
         if (error.response) {
             console.error(error.response.body)
             const error = error.response.body
         }
   })
+  console.log(sgMail)
 })
