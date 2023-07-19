@@ -62,14 +62,13 @@ export default defineEventHandler(async (event) => {
     //     return error;
     // })
     // return sgRequest;
-    (async () => {
-        try {
-          await sgMail.send(message);
-        } catch (error) {
-          console.error(error);
-          if (error.response) {
-            console.error(error.response.body)
-          }
-        } 
-      })();
+    const sgRequest = await sgMail.send(message).then((res) => {
+        console.log(res)
+        console.log('emails sent successfully!');
+        return res;
+    }).catch((error) => {
+        console.log(error)
+        return error;
+    })
+    return sgRequest;
 })
