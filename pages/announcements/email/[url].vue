@@ -8,7 +8,7 @@
         </a>
       </div>
       <div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
-        <p style="font-weight: 900; line-height: 1.1em; font-size: 7px; text-transform: uppercase;letter-spacing: 0.07em;padding-bottom: 30px;">🛡 Official Communication of the Lenox Plaza Association 🛡</p>
+        <p style="font-weight: 900; line-height: 1.1em; font-size: 10px; text-transform: uppercase;letter-spacing: 0.07em;padding-bottom: 30px;">🛡 Official Communication of the Lenox Plaza Association 🛡</p>
         <h3 class="email__title" :class="{ red: email.urgent }">
           <span v-if="email.urgent">🚨 </span><span v-else> </span>{{ email.title }}
         </h3>
