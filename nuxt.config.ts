@@ -3,6 +3,11 @@ export default defineNuxtConfig({
   nitro: {
     preset: "vercel",
   },
+  router: {
+    options: {
+      strict: true,
+    },
+  },
   app: {
     pageTransition: {
       name: 'page',

@@ -2,8 +2,8 @@ import sgMail from '@sendgrid/mail'
 import { Buffer } from 'buffer'
 
 export default defineEventHandler(async (event) => {
-    const query = getQuery(event)
-    const encoded_email = Buffer.from(query.email).toString('base64')
+    const body = await readBody(event)
+    const encoded_email = Buffer.from(body.data.email).toString('base64')
     const config = useRuntimeConfig();
     sgMail.setApiKey(config.SENDGRID_API_KEY)
     const message = {
@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
           {
             to: [
               {
-                email: query.email,
+                email: body.data.email,
               },
             ],
     
@@ -39,7 +39,7 @@ export default defineEventHandler(async (event) => {
           },
         ],
         dynamicTemplateData: {
-            user_email: query.email,
+            user_email: body.data.email,
             email: encoded_email,
         },
         categories: ['1033 Lenox'],
