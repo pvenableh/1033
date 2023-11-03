@@ -23,21 +23,29 @@ const response = ref()
 const onSubmit = async () => {
   loader.value = true
   openScreen()
-  try {
-    const { data, pending, error, refresh } = await useFetch(
-      '/api/email/passwordreset?email=' + email.value,
-      {
-        onResponse({ request, response, options }) {
-          return response._data
-        },
-      }
-    )
-    response.value = data
+  const resetPassword = await $fetch('/api/email/passwordreset', {
+    data: {
+      email: email.value,
+    }
+  }).catch((error) => error.data)
+  response.value = resetPassword.data
     closeScreen()
-    // if (response.value) {
-    //   toast.add({ title: 'An email was sent to ' + email.value + '.', click: () => alert('Clicked!') })
-    // }
-  } catch (e) {}
+    if (response.value) {
+      // toast.add({ title: 'An email was sent to ' + email.value + '.', click: () => alert('Clicked!') })
+    }
+  // try {
+  //   const { data, pending, error, refresh } = await useFetch(
+  //     '/api/email/passwordreset?email=' + email.value,
+  //     {
+  //       onResponse({ request, response, options }) {
+  //         return response._data
+  //       },
+  //     }
+  //   )
+  //   response.value = data
+  //   closeScreen()
+    
+  // } catch (e) {}
 }
 </script>
 <style>

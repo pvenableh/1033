@@ -9,7 +9,7 @@
     },
     "devDependencies": {
         "@directus/sdk": "^10.3.5",
-        "@nuxthq/ui": "^2.5.0",
+        "@nuxt/ui": "^2.10.0",
         "@nuxtjs/tailwindcss": "^6.8.0",
         "@pinia/nuxt": "^0.4.7",
         "@tailwindcss/aspect-ratio": "0.4.2",
