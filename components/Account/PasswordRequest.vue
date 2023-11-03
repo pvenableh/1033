@@ -1,11 +1,11 @@
 <template>
   <div class="w-full flex items-start justify-start flex-row password-request">
-    <VForm class="w-full" @submit="onSubmit">
+    <VForm class="w-full" @submit="submit">
       <FormVInput name="email" type="email" rules="emailExists" label="Email" v-model="email" class="my-6" />
 
       <FormVButton class="w-full mb-6" type="submit">Send Email</FormVButton>
     </VForm>
-    <!-- <FormVButton class="w-full mb-6" type="submit" @click.prevent="onSubmit">Send Email</FormVButton> -->
+
   </div>
 </template>
 
@@ -15,6 +15,20 @@ import { openScreen, loader, closeScreen } from '~/composables/useScreen'
 const email = ref();
 const response = ref();
 
+async function submit() {
+  loader.value = true
+  openScreen()
+  const request = await $fetch('/api/email/passwordreset?email=' + email.value, {
+    method: 'post',
+    body: { email: email.value }
+  }).catch((error) => error.data)
+  console.log(request)
+  response.value = request
+  closeScreen()
+  if (response.value) {
+    console.log(response.value)
+  }
+}
 const onSubmit = async () => {
   loader.value = true
   openScreen()
@@ -28,6 +42,19 @@ const onSubmit = async () => {
   if (response.value) {
     // toast.add({ title: 'An email was sent to ' + email.value + '.', click: () => alert('Clicked!') })
   }
+  // try {
+  //   const { data, pending, error, refresh } = await useFetch(
+  //     '/api/email/passwordreset?email=' + email.value,
+  //     {
+  //       onResponse({ request, response, options }) {
+  //         return response._data
+  //       },
+  //     }
+  //   )
+  //   response.value = data
+  //   closeScreen()
+
+  // } catch (e) {}
 }
 </script>
 <style></style>
