@@ -1,11 +1,11 @@
 <template>
   <div class="w-full flex items-start justify-start flex-row password-request">
-    <VForm class="w-full" @submit="submit">
+    <VForm class="w-full" @submit="onSubmit">
       <FormVInput name="email" type="email" rules="emailExists" label="Email" v-model="email" class="my-6" />
 
       <FormVButton class="w-full mb-6" type="submit">Send Email</FormVButton>
     </VForm>
-    <FormVButton class="w-full mb-6" type="submit" @click="onSubmit">Send Email</FormVButton>
+    <!-- <FormVButton class="w-full mb-6" type="submit" @click.prevent="onSubmit">Send Email</FormVButton> -->
   </div>
 </template>
 
