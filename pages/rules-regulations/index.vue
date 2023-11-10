@@ -19,6 +19,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+  middleware: ['auth'],
+})
 const { getItems } = useDirectusItems()
 const rules = await getItems({
   collection: 'rules',

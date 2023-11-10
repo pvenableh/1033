@@ -42,10 +42,10 @@ function movePanel(val) {
           <FormVButton class="w-full mb-6" type="submit">Login</FormVButton>
         </VForm>
 
-        <a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button">New? <span
-            class="purple-txt">Register Here</span></a>
-        <a @click.prevent="movePanel('request')"
-          class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">Reset Password</a>
+        <!-- <a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button">New? <span
+            class="purple-txt">Register Here</span></a> -->
+        <!-- <a @click.prevent="movePanel('request')"
+          class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">Reset Password</a> -->
           <div v-if="error" class="text-red-500 uppercase tracking-wide font-bold" style="font-size: 10px;">{{ error }}</div>
       </div>
       <div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
