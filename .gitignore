@@ -9,6 +9,7 @@ admin
 dist
 .DS_Store
 .vscode
+.vercel
 .eslintcache
 .netlify
 .directus
