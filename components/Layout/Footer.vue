@@ -17,7 +17,7 @@
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link v-if="_loggedIn.get()" to="/account">Account</nuxt-link>
 			<a v-if="_loggedIn.get()" @click.prevent="onSubmit()" class="cursor-pointer">Logout</a>
-			<nuxt-link v-else to="/login">Login</nuxt-link>
+			<nuxt-link v-else to="/auth/signin">Login</nuxt-link>
 		</div>
 		<div class="w-full flex items-center justify-center flex-col sm:flex-row my-12 footer__contact-info">
 			<h5>1033 Lenox Ave</h5>

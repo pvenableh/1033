@@ -46,7 +46,7 @@ export default function useDirectusAuth<DirectusSchema extends object>() {
 		user.value = null;
 
 		await clearNuxtData();
-		await navigateTo(config.public?.directus?.auth?.redirect?.login || '/auth/login');
+		await navigateTo(config.public?.directus?.auth?.redirect?.login || '/auth/signin');
 	}
 
 	async function fetchUser(params?: object) {
