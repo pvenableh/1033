@@ -1,1 +1,0 @@
-import{_ as t}from"./_plugin-vue_export-helper.c27b6911.js";import{c as r,R as s,o}from"./entry.63d9d002.js";const n={},c={class:"min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative"};function a(e,i){return o(),r("div",c,[s(e.$slots,"default")])}const _=t(n,[["render",a]]);export{_ as default};

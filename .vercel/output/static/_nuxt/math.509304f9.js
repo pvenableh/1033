@@ -1,1 +1,0 @@
-function o(r,t){return r===0||t===0?0:Math.round(r/t*100)}function p(r,t){const e=typeof r=="string"?parseFloat(r):r,n=typeof t=="string"?parseInt(t,10):t;return+(Math.round(e+"e"+n)+"e-"+n)}export{o as p,p as r};
