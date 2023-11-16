@@ -6,7 +6,7 @@
 			Welcome to <span class="font-bold">1033 Lenox</span>: a boutique community focused on a local, active lifestyle in Miami Beach.
 		</h1>
 		<img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium" class="mt-8 mb-8 px-8" />
-		<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px;">Login</FormVButton>
+		<nuxt-link to="/auth/signin"><FormVButton class="w-full mb-6" type="submit" style="max-width: 450px;">Login</FormVButton></nuxt-link>
 
 	</div>
 	<Dashboard v-else :user="user" />

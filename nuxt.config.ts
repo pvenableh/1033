@@ -2,6 +2,10 @@
 import { theme } from './theme';
 
 export default defineNuxtConfig({
+	ssr: true,
+	nitro: {
+		preset: 'vercel',
+	},
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
@@ -20,7 +24,6 @@ export default defineNuxtConfig({
 		'@nuxt/image',
 		'@nuxt/ui',
 		'@nuxtjs/color-mode',
-		'@nuxtjs/google-fonts',
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-icon', // https://github.com/nuxt-modules/icon
@@ -28,6 +31,12 @@ export default defineNuxtConfig({
 		'nuxt-simple-sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
+
+	experimental: {
+		componentIslands: true,
+		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+		appManifest: true,
+	},
 
 	runtimeConfig: {
 		public: {
@@ -47,7 +56,7 @@ export default defineNuxtConfig({
 			userFields: ['id,first_name,last_name,email,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate'], // Select user fields
 			redirect: {
 				login: '/auth/signin', // Path to redirect when login is required
-				logout: '/', // Path to redirect after logout
+				logout: '/auth/logout', // Path to redirect after logout
 				home: '/account', // Path to redirect after successful login
 				resetPassword: '/auth/reset-password', // Path to redirect for password reset
 				callback: '/auth/callback', // Path to redirect after login with provider
@@ -75,13 +84,6 @@ export default defineNuxtConfig({
 		directus: {
 			baseURL: `${process.env.DIRECTUS_URL}/assets/`,
 		},
-	},
-
-	// Google Fonts Configuration - https://google-fonts.nuxtjs.org/
-	googleFonts: {
-		families: theme.googleFonts,
-		display: 'swap',
-		download: true,
 	},
 
 	site: {
