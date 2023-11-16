@@ -4,10 +4,10 @@ import { theme } from './theme';
 export default defineNuxtConfig({
 	ssr: true,
 	nitro: {
-		preset: "vercel",
+		preset: 'vercel',
 	},
 	app: {
-		pageTransition: { name: 'page', mode: 'out-in' }
+		pageTransition: { name: 'page', mode: 'out-in' },
 	},
 	components: [
 		// Disable prefixing base components with `Base`
@@ -66,10 +66,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	plugins: [
-		'~/plugins/veevalidate-components.ts',
-		'~/plugins/veevalidate-rules.ts',
-	  ],
+	plugins: ['~/plugins/veevalidate-components.ts', '~/plugins/veevalidate-rules.ts'],
 
 	// Nuxt DevTools - https://devtools.nuxtjs.org/
 	devtools: { enabled: false },
