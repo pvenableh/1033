@@ -24,17 +24,10 @@ export default defineNuxtConfig({
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-icon', // https://github.com/nuxt-modules/icon
-		'nuxt-og-image',
 		'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
 		'nuxt-simple-sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
-
-	experimental: {
-		componentIslands: true,
-		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-		appManifest: true,
-	},
 
 	runtimeConfig: {
 		public: {
@@ -94,17 +87,6 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 		name: 'hue',
-	},
-
-	// OG Image Configuration - https://nuxtseo.com/og-image/getting-started/installation
-	ogImage: {
-		defaults: {
-			component: 'OgImageTemplate',
-			width: 1200,
-			height: 630,
-		},
-		// @TODO: Fix font families for OG Image
-		// fonts: formatFonts(fontFamilies),
 	},
 
 	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
