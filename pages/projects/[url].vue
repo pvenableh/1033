@@ -1,10 +1,6 @@
 <template>
-  <div
-    class="w-full flex items-start justify-center flex-col lg:flex-row relative project"
-  >
-    <div
-      class="w-full flex flex-col items-start justify-center lg:sticky project__info"
-    >
+  <div class="w-full flex items-start justify-center flex-col lg:flex-row relative project">
+    <div class="w-full flex flex-col items-start justify-center lg:sticky project__info">
       {{ project }}
       <!-- <h4 class="w-auto" :class="'bg-' + getFirstWord(project.service.name)">
         {{ project.service.name }}
@@ -70,18 +66,10 @@
         <FormButton @click="showEventForm" label="Add Event" width="160" />
       </div>
     </div>
-    <div
-      class="w-full flex items-center justify-center flex-col md:mt-12 project-events"
-    >
-      <div
-        class="w-full max-w-xl flex items-center justify-center flex-row mb-12 project-events__controls"
-      ></div>
-      <transition-group
-        name="list"
-        mode="out-in"
-        tag="div"
-        class="w-full flex flex-col align-middle justify-center items-center projects__completed"
-      >
+    <div class="w-full flex items-center justify-center flex-col md:mt-12 project-events">
+      <div class="w-full max-w-xl flex items-center justify-center flex-row mb-12 project-events__controls"></div>
+      <transition-group name="list" mode="out-in" tag="div"
+        class="w-full flex flex-col align-middle justify-center items-center projects__completed">
         <!-- <EventsEventCard
           v-for="projectEvent in filteredEvents"
           :projectEvent="projectEvent"
@@ -94,24 +82,23 @@
 
 <script setup>
 const { params, path } = useRoute()
-const { getItems } = useDirectusItems()
-const projectReq = await getItems({
-  collection: 'projects',
-  params: {
-    filter: {
-      url: {
-        _eq: params.url,
+const { data: projects, pending, error } = await useAsyncData('projects', () => {
+  return useDirectus(
+    readItems('projects', {
+      filter: {
+        url: {
+          _eq: params.url,
+        },
       },
-    },
-    fields: [
-      'id,title,category,description,url,vendors.vendors_projects_id.vendors_id.*,events.*,documents.*',
-    ],
-  },
+      fields: [
+        'id,title,category,description,url,vendors.vendors_projects_id.vendors_id.*,events.*,documents.*',
+      ],
+    })
+  )
 })
 
-const project = ref(projectReq[0])
+const project = ref(projects[0])
 </script>
 <style>
-.roof {
-}
+.roof {}
 </style>

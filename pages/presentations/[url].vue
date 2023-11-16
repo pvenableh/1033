@@ -39,20 +39,21 @@
 
 <script setup>
 const { params, path } = useRoute()
-const { getItems } = useDirectusItems()
-const presentationReq = await getItems({
-  collection: 'presentations',
-  params: {
-    filter: {
+const { data: presentations, pending, error } = await useAsyncData('presentations', () => {
+  return useDirectus(
+    readItems('presentations', {
+      filter: {
       url: {
         _eq: params.url,
       },
     },
-    fields: ['id,title,description,url,slides.directus_files_id.id'],
-  },
+      fields: ['id,title,description,url,slides.directus_files_id.id'],
+    })
+  )
 })
 
-const presentation = ref(presentationReq[0])
+const presentation = ref(presentations[0]);
+
 import { Swiper, SwiperSlide } from 'swiper/vue'
 
 // Import Swiper styles

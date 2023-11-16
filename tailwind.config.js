@@ -70,7 +70,7 @@ module.exports = {
           'serif',
         ],
         handwritten: [
-          'Gaegu', 
+          'Gaegu',
           '-apple-system',
           'Roboto',
           'Helvetica Neue',

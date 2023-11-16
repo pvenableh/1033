@@ -8,7 +8,7 @@
 </template>
 <script setup>
 import { navigateTo } from '#imports'
-const { logout } = useDirectusAuth()
+const { logout } = useDirectusAuth();
 
 const onSubmit = async () => {
   logout()

@@ -1,94 +1,144 @@
+// import { formatFonts } from './utils/fonts';
+import { theme } from './theme';
+
 export default defineNuxtConfig({
-  ssr: true,
-  nitro: {
-    preset: "vercel",
-  },
-  router: {
-    options: {
-      strict: true,
-    },
-  },
-  app: {
-    pageTransition: {
-      name: 'page',
-      mode: 'out-in',
-    },
-  },
+	ssr: true,
+	nitro: {
+		preset: "vercel",
+	},
+	app: {
+		pageTransition: { name: 'page', mode: 'out-in' }
+	},
+	components: [
+		// Disable prefixing base components with `Base`
+		// { path: '~/components/base', pathPrefix: false },
+		// Auto import components from `~/components`
+		'~/components',
+	],
 
-  css: [
-    {
-      src: '~/assets/css/main.css',
-      lang: 'postcss',
-    },
-  ],
+	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
-  modules: [
-    '@nuxt/ui',
-    '@nuxtjs/tailwindcss',
-    '@pinia/nuxt',
-    '@vueuse/nuxt',
-    'nuxt-directus',
-    'nuxt-icon',
-    '@nuxtjs/plausible',
-    '@vueuse/nuxt',
-  ],
+	modules: [
+		// '@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
+		'@nuxt/devtools', // https://devtools.nuxtjs.org/
+		'@nuxt/image',
+		'@nuxt/ui',
+		'@nuxtjs/color-mode',
+		'@nuxtjs/google-fonts',
+		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
+		'@vueuse/nuxt', // https://vueuse.org/
+		'nuxt-icon', // https://github.com/nuxt-modules/icon
+		'nuxt-og-image',
+		'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
+		'nuxt-simple-sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
+		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
+	],
 
-  buildModules: [
-    
-  ],
+	experimental: {
+		componentIslands: true,
+		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+		appManifest: true,
+	},
 
-  plausible: {
-    domain: '1033lenox.com',
-  },
+	runtimeConfig: {
+		public: {
+			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		},
+	},
 
-  directus: {
-    url: 'https://admin.1033lenox.com',
-    token: 'dL-1lGYaP1Z2GcoYIcVk7Rc2a1FNtOhG',
-    autoFetch: true
-  },
+	// Directus Configuration
+	directus: {
+		rest: {
+			baseUrl: process.env.DIRECTUS_URL,
+			nuxtBaseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		},
+		auth: {
+			enabled: true,
+			enableGlobalAuthMiddleware: false, // Enable auth middleware on every page
+			userFields: ['id,first_name,last_name,email,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate'], // Select user fields
+			redirect: {
+				login: '/auth/signin', // Path to redirect when login is required
+				logout: '/', // Path to redirect after logout
+				home: '/account', // Path to redirect after successful login
+				resetPassword: '/auth/reset-password', // Path to redirect for password reset
+				callback: '/auth/callback', // Path to redirect after login with provider
+			},
+		},
+	},
 
-  postcss: {
-    plugins: {
-      'postcss-import': {},
-      'tailwindcss/nesting': {},
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
+	plugins: [
+		'~/plugins/veevalidate-components.ts',
+		'~/plugins/veevalidate-rules.ts',
+	  ],
 
-  runtimeConfig: {
-    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-    public: {
-      directusUrl: 'https://admin.1033lenox.com',
-      plausible: {
-        domain: '1033lenox.com',
-      },
-    },
-  },
-  pinia: {
-    autoImports: [
-      // automatically imports `defineStore`
-      'defineStore', // import { defineStore } from 'pinia'
-      ['defineStore', 'definePiniaStore'], // import { defineStore as definePiniaStore } from 'pinia'
-    ],
-  },
-  //   Currently still needed
-  build: {
-    transpile: ['@vee-validate/rules', '@sendgrid/mail'],
-  },
+	// Nuxt DevTools - https://devtools.nuxtjs.org/
+	devtools: { enabled: false },
 
-  vite: {
-    optimizeDeps: {
-      include: [
-        'vue',
-        'pinia',
-      ],
-    },
-  },
+	ui: {
+		icons: 'all',
+	},
 
-  plugins: [
-    '~/plugins/veevalidate-components.ts',
-    '~/plugins/directus.js',
-    '~/plugins/veevalidate-rules.ts',
-  ],
-})
+	// Color Mode Configuration - https://color-mode.nuxtjs.org/
+	colorMode: {
+		classSuffix: '', // This is so we play nice with TailwindCSS
+	},
+
+	// Image Configuration - https://image.nuxt.com/providers/directus
+	image: {
+		provider: 'directus',
+		directus: {
+			baseURL: `${process.env.DIRECTUS_URL}/assets/`,
+		},
+	},
+
+	// Google Fonts Configuration - https://google-fonts.nuxtjs.org/
+	googleFonts: {
+		families: theme.googleFonts,
+		display: 'swap',
+		download: true,
+	},
+
+	site: {
+		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		name: 'hue',
+	},
+
+	// OG Image Configuration - https://nuxtseo.com/og-image/getting-started/installation
+	ogImage: {
+		defaults: {
+			component: 'OgImageTemplate',
+			width: 1200,
+			height: 630,
+		},
+		// @TODO: Fix font families for OG Image
+		// fonts: formatFonts(fontFamilies),
+	},
+
+	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
+	sitemap: {
+		// sitemaps: {
+		// 	pages: {
+		// 		exclude: ['/posts/**', '/help/**'],
+		// 	},
+		// 	posts: {
+		// 		include: ['/posts/**'],
+		// 	},
+		// 	help: {
+		// 		include: ['/help/**'],
+		// 	},
+		// },
+	},
+
+	postcss: {
+		plugins: {
+			'postcss-import': {},
+			'tailwindcss/nesting': {},
+			tailwindcss: {},
+			autoprefixer: {},
+		},
+	},
+
+	build: {
+		transpile: ['chart.js', 'v-perfect-signature', '@vee-validate/rules', '@sendgrid/mail'],
+	},
+});

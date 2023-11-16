@@ -31,11 +31,11 @@
 
 <script setup>
 const { params, path } = useRoute()
-const { $directus, $preview } = useNuxtApp();
 const unit = ref(null)
-if ($preview) {
-  const { data: page, pending, error } = await useAsyncData('page', () => {
-    return $directus.items('units').readByQuery({
+
+const { data: page, pending, error } = await useAsyncData('page', () => {
+  return useDirectus(
+    readItems('units', {
       filter: {
         number: {
           _eq: params.unit,
@@ -43,40 +43,9 @@ if ($preview) {
       },
       fields: ['*, people.people_id.*'],
     })
-  })
-}
-const { data: page, pending, error } = await useAsyncData('page', () => {
-  return $directus.items('units').readByQuery({
-    filter: {
-      number: {
-        _eq: params.unit,
-      },
-    },
-    fields: ['*, people.people_id.*'],
-  })
+  )
 })
-unit.value = page.value.data[0]
-// const { getItems } = useDirectusItems()
-// const { fileUrl } = useFiles()
 
-// const { params, path } = useRoute()
-
-
-// const unitReq = await getItems({
-//   collection: 'units',
-//   params: {
-//     filter: {
-//       number: {
-//         _eq: params.unit,
-//       },
-//     },
-//     fields: [
-//       '*, people.people_id.*',
-//     ],
-//     limit: 1,
-//   },
-// })
-
-// const unit = ref(unitReq[0])
+unit.value = page.value.data[0];
 
 </script>

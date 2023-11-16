@@ -10,24 +10,14 @@
 </template>
 
 <script setup lang="ts">
-import { openScreen, loader, closeScreen } from '~/composables/useScreen'
+import { createDirectus, rest, passwordRequest } from '@directus/sdk';
 
+const client = createDirectus('https://admin.1033lenox.com').with(rest());
 const email = ref();
-const response = ref();
 
 async function submit() {
-  loader.value = true
-  openScreen()
-  const request = await $fetch('/api/email/passwordreset?email=' + email.value, {
-    method: 'post',
-    body: { email: email.value }
-  }).catch((error) => error.data)
-  console.log(request)
-  response.value = request
-  closeScreen()
-  if (response.value) {
-    console.log(response.value)
-  }
+	const result = await client.request(passwordRequest(email.value, 'https://1033lenox.com/auth/password-reset'));
+	console.log(result)
 }
 const onSubmit = async () => {
   loader.value = true

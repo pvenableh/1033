@@ -1,12 +1,16 @@
-# Nuxt dev/build outputs
-.output
-.nuxt
-.vercel
-# Node dependencies
 node_modules
-# System files
-*.log
-# Env file
+admin
+*.log*
+.nuxt
+.nitro
+.cache
+.output
 .env
-.gitignore
-
+dist
+.DS_Store
+.vscode
+.eslintcache
+.netlify
+.directus
+.directus/data
+.directus/uploads

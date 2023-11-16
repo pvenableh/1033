@@ -15,12 +15,12 @@
 </template>
 
 <script setup>
-const { getItems } = useDirectusItems()
-const presentations = await getItems({
-  collection: 'presentations',
-  params: {
-    fields: ['title,description,url,slides.directus_files_id.id'],
-  },
+const { data: presentations, pending, error } = await useAsyncData('presentations', () => {
+  return useDirectus(
+    readItems('presentations', {
+      fields: ['title,description,url,slides.directus_files_id.id'],
+    })
+  )
 })
 </script>
 <style >
