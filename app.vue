@@ -1,17 +1,15 @@
 <script setup lang="ts">
-const { _loggedIn } = useDirectusAuth();
-console.log(_loggedIn);
-console.log(_loggedIn.get());
+// const { _loggedIn } = useDirectusAuth();
 
-definePageMeta({
-	layout() {
-		if (_loggedIn) {
-			return 'auth';
-		} else {
-			return 'default';
-		}
-	},
-})
+// definePageMeta({
+// 	layout() {
+// 		if (_loggedIn.get()) {
+// 			return 'auth';
+// 		} else {
+// 			return 'default';
+// 		}
+// 	},
+// })
 </script>
 <template>
 	<NuxtLayout>
