@@ -40,7 +40,7 @@ const avatar = computed(() => {
 
 <style>
 .logo {
-	width: 300px;
+	width: 320px;
 	max-width: 380px;
 	@apply px-6 py-4 lg:py-6;
 
