@@ -32,7 +32,7 @@ const avatar = computed(() => {
 			/>
 		</div>
 		<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
-			<UAvatar icon="i-heroicons-user" chip-color="sky" chip-text="12" chip-position="top-right" size="sm" />
+			<UAvatar icon="i-heroicons-user" size="sm" />
 		</div>
 		<!-- <DarkModeToggle /> -->
 	</div>
@@ -40,9 +40,9 @@ const avatar = computed(() => {
 
 <style>
 .logo {
-	width: 250px;
+	width: 300px;
 	max-width: 380px;
-	@apply px-6 py-2 lg:py-6;
+	@apply px-6 py-4 lg:py-6;
 
 	/* filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5)); */
 	@media (min-width: theme('screens.sm')) {

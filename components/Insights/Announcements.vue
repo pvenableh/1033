@@ -54,7 +54,7 @@ const filteredAnnouncements = computed(() => {
 				class="relative uppercase inline-block w-full relative mb-5"
 				:to="'/announcements/email/' + item.url"
 			>
-				<h3 class="leading-4 uppercase">
+				<h3 class="leading-4 uppercase font-bold tracking-wide">
 					{{ item.title }}
 					<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />
 				</h3>
