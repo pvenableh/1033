@@ -6,7 +6,7 @@
 		<h1 class="-mt-28 mb-6 text-center temp-heading" style="max-width: 450px">
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
-			: a boutique community focused on a local, active lifestyle in Miami Beach.
+			: a boutique community in Miami Beach focused on a local, active lifestyle.
 		</h1>
 		<img
 			src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
