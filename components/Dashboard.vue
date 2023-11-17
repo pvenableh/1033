@@ -18,12 +18,10 @@
 			<p v-if="user.units[0].units_id.vehicles">
 				You have
 				<span class="font-bold">{{ user.units[0].units_id.vehicles.length }}</span>
-				vehicle
-				<span v-if="user.units[0].units_id.vehicles.length !== 1">s</span>
+				vehicle<span v-if="user.units[0].units_id.vehicles.length !== 1">s</span>
 				and
 				<span class="font-bold">{{ user.units[0].units_id.pets.length }}</span>
-				pet
-				<span v-if="user.units[0].units_id.pets.length !== 1">s</span>
+				pet<span v-if="user.units[0].units_id.pets.length !== 1">s</span>
 				registered with the community.
 			</p>
 		</div>
