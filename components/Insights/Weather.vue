@@ -8,8 +8,36 @@ const isIcon = ref(true);
 function generateIcon(code) {
 	if (code === '01d') {
 		return 'i-wi-day-sunny';
+	} else if (code === '01n') {
+		return 'i-wi-night-clear';
 	} else if (code === '02d') {
 		return 'i-wi-day-cloudy';
+	} else if (code === '02n') {
+		return 'i-wi-night-alt-cloudy';
+	} else if (code === '03d') {
+		return 'i-wi-cloudy';
+	} else if (code === '03n') {
+		return 'i-wi-cloudy';
+	} else if (code === '04d') {
+		return 'i-wi-cloud';
+	} else if (code === '04n') {
+		return 'i-wi-night-alt-cloudy-high';
+	} else if (code === '09d') {
+		return 'i-wi-showers';
+	} else if (code === '09n') {
+		return 'i-wi-night-showers';
+	} else if (code === '10d') {
+		return 'i-wi-rain';
+	} else if (code === '10n') {
+		return 'i-wi-night-alt-rain';
+	} else if (code === '11d') {
+		return 'i-wi-thunderstorm';
+	} else if (code === '11n') {
+		return 'i-wi-night-alt-thunderstorm';
+	} else if (code === '50d') {
+		return 'i-wi-fog';
+	} else if (code === '50n') {
+		return 'i-wi-fog';
 	} else {
 		isIcon.value = false;
 	}
