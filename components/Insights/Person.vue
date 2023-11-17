@@ -5,7 +5,6 @@ const props = defineProps({
 		default: null,
 	},
 });
-
 </script>
 <template>
 	<div class="insight person">

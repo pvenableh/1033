@@ -2,6 +2,7 @@
 // import { theme } from './theme';
 
 export default defineNuxtConfig({
+	ssr: true,
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
@@ -28,11 +29,11 @@ export default defineNuxtConfig({
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
 
-	// experimental: {
-	// 	componentIslands: true,
-	// 	asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-	// 	appManifest: true,
-	// },
+	experimental: {
+		componentIslands: true,
+		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+		appManifest: true,
+	},
 
 	runtimeConfig: {
 		public: {

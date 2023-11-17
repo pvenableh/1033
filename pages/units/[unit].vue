@@ -2,24 +2,27 @@
 	<div class="max-w-3xl px-6 py-12 mx-auto space-y-8">
 		<NuxtLink
 			class="flex items-center font-bold text-primary-600 hover:text-primary-800 dark:text-primary-400 dark:hover:text-primary-200"
-			to="/">
+			to="/"
+		>
 			<span class="mr-2 text-xl">←</span>
 			Back to Home Page
 		</NuxtLink>
 
 		<div class="relative pt-48 pb-10 overflow-hidden shadow-xl rounded-2xl">
-
 			<div class="absolute inset-0 bg-primary-500 mix-blend-multiply" />
 			<div class="absolute inset-0 bg-gradient-to-t from-primary-600 via-primary-600 opacity-80" />
 			<div class="relative px-8">
 				<div class="relative text-lg font-medium text-white md:flex-grow mb-6">
-					<h1 class="text-6xl font-thin tracking-wider uppercase"><span class="opacity-50">Unit: </span>{{ unit.number }}
+					<h1 class="text-6xl font-thin tracking-wider uppercase">
+						<span class="opacity-50">Unit:</span>
+						{{ unit.number }}
 					</h1>
 				</div>
-				<div class="w-full flex flex-col ">
+				<div class="w-full flex flex-col">
 					<div v-for="(person, index) in unit.people" class="w-full flex flex-col my-4">
-						<h3 class="font-thin tracking-wider uppercase text-white"> {{ person.people_id.first_name }} {{
-							person.people_id.last_name }}</h3>
+						<h3 class="font-thin tracking-wider uppercase text-white">
+							{{ person.people_id.first_name }} {{ person.people_id.last_name }}
+						</h3>
 						<h5 class="text-white">{{ person.people_id.email }}</h5>
 						<h5 class="text-white">{{ person.people_id.phone }}</h5>
 					</div>
@@ -30,10 +33,14 @@
 </template>
 
 <script setup>
-const { params, path } = useRoute()
-const unit = ref(null)
+const { params, path } = useRoute();
+const unit = ref(null);
 
-const { data: page, pending, error } = await useAsyncData('page', () => {
+const {
+	data: page,
+	pending,
+	error,
+} = await useAsyncData('page', () => {
 	return useDirectus(
 		readItems('units', {
 			filter: {
@@ -42,10 +49,9 @@ const { data: page, pending, error } = await useAsyncData('page', () => {
 				},
 			},
 			fields: ['*, people.people_id.*'],
-		})
-	)
-})
+		}),
+	);
+});
 
 unit.value = page.value.data[0];
-
 </script>

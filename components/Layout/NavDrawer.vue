@@ -2,7 +2,7 @@
 	<div class="flex items-center justify-center flex-col nav-drawer">
 		<div class="w-full nav-drawer__menu-box p-4 relative">
 			<!-- <XIcon class="cursor-pointer h-8 heroicon-sw-1.2 close-btn" /> -->
-			<Icon color="var(--white)" class="lenox-icon"/>
+			<Icon color="var(--white)" class="lenox-icon" />
 			<ul class="w-full nav-drawer__menu outline-0 text-center">
 				<li class="outline-0"><nuxt-link to="/">Home</nuxt-link></li>
 				<li>
@@ -42,7 +42,6 @@ const onLogout = async () => {
 	logout();
 	return navigateTo('/');
 };
-
 </script>
 <style>
 .nav-drawer {
@@ -103,15 +102,15 @@ const onLogout = async () => {
 		}
 
 		li:nth-of-type(4) {
-			transition-delay: 0.150s;
+			transition-delay: 0.15s;
 		}
 
 		li:nth-of-type(5) {
-			transition-delay: 0.170s;
+			transition-delay: 0.17s;
 		}
 
 		li:nth-of-type(6) {
-			transition-delay: 0.180s;
+			transition-delay: 0.18s;
 		}
 	}
 }

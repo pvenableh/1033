@@ -25,7 +25,8 @@ const isOpen = ref(false);
 	&__content {
 		transition: all 0.65s var(--curve);
 
-		&-title {}
+		&-title {
+		}
 	}
 
 	&__nav {
@@ -34,21 +35,21 @@ const isOpen = ref(false);
 		display: none;
 
 		@media (min-width: theme('screens.lg')) {
-			display: flex
+			display: flex;
 		}
 
 		a {
 			@apply w-full tracking-wider text-xs py-2;
 		}
 
-		h5 {}
+		h5 {
+		}
 	}
 
 	&__content-title {
 		@apply uppercase text-center tracking-wide mt-12 py-6 w-full;
 		@media (min-width: theme('screens.lg')) {
 			/* margin-left: 240px; */
-
 		}
 	}
 
@@ -85,7 +86,6 @@ const isOpen = ref(false);
 
 		ol,
 		ul {
-
 			@apply ml-8;
 			list-style-type: disc;
 

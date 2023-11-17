@@ -1,7 +1,7 @@
 <template>
 	<div class="insight reserves">
 		<div v-if="pending">Loading</div>
-		<h1 class="insight__label">Reserves: </h1>
+		<h1 class="insight__label">Reserves:</h1>
 		<h3 v-if="currentAmount" class="insight__title">${{ currentAmount.toLocaleString('en-US') }}</h3>
 		<h5 class="insight__subtitle">
 			<span class="font-bold">{{ percentage }}%</span>
@@ -29,19 +29,21 @@ const { data, pending, error } = await useAsyncData('data', () => {
 
 const labels = data.value.map((reserve) => new Date(reserve.date).toLocaleString('default', { month: 'short' }));
 
-const amounts = data.value.map((reserve) => reserve.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const amounts = data.value.map((reserve) =>
+	reserve.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+);
 
 const currentAmount = amounts[amounts.length - 1];
 
 const percentage = computed(() => {
 	const amount = ((currentAmount - amounts[0]) / currentAmount) * 100;
-	console.log(amount)
+	console.log(amount);
 	return Math.round(amount * 100) / 100;
 });
 
 const percentageChange = computed(() => {
 	console.log(percentage.value);
-	console.log(percentage > 0.00);
+	console.log(percentage > 0.0);
 
 	if (percentage.value > 0) {
 		return (

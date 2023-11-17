@@ -6,17 +6,20 @@ const weather = await $fetch(
 <template>
 	<div class="hidden sm:inline-block weather">
 		<h5 class="uppercase tracking-wide weather__intro"></h5>
-		<h5 class="uppercase tracking-wide weather__stats"><span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
+		<h5 class="uppercase tracking-wide weather__stats">
+			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
-			{{ weather.weather[0].main }} <img
+			{{ weather.weather[0].main }}
+			<img
 				:src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
-				:alt="weather.weather[0].description" class="hidden sm:inline-block" /></h5>
-
+				:alt="weather.weather[0].description"
+				class="hidden sm:inline-block"
+			/>
+		</h5>
 	</div>
 </template>
 <style>
 .weather {
-
 	@apply scale-75 sm:scale-75 md:scale-100;
 	&__intro {
 		font-size: 10px;
@@ -30,7 +33,6 @@ const weather = await $fetch(
 			height: 30px;
 			background: rgba(50, 50, 50, 0.15);
 			@apply rounded-full;
-
 		}
 	}
 }

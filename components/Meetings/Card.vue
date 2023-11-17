@@ -2,15 +2,20 @@
 	<div class="flex flex-col lg:flex-row lg:flex-wrap meeting-card">
 		<div class="w-full mb-4 meeting-card__title">
 			<h2 class="tracking-wide">{{ formattedDate }} @ {{ formattedTime }}</h2>
-			<h4 class="tracking-wide"><span class="opacity-50">{{ meeting.category }} Location: </span> Community Room</h4>
+			<h4 class="tracking-wide">
+				<span class="opacity-50">{{ meeting.category }} Location:</span>
+				Community Room
+			</h4>
 		</div>
 		<MeetingsPeopleCalculator v-if="meeting.people.length" :people="meeting.people" :date="meeting.date" />
 
 		<div class="w-full flex items-start mt-4 justify-start">
-			<a class="mr-4 button" :href="'https://admin.1033lenox.com/assets/' + agenda" v-if="agenda"
-				target="_blank">Agenda</a>
-			<a class="button" :href="'https://admin.1033lenox.com/assets/' + minutes" v-if="minutes"
-				target="_blank">Minutes</a>
+			<a class="mr-4 button" :href="'https://admin.1033lenox.com/assets/' + agenda" v-if="agenda" target="_blank">
+				Agenda
+			</a>
+			<a class="button" :href="'https://admin.1033lenox.com/assets/' + minutes" v-if="minutes" target="_blank">
+				Minutes
+			</a>
 		</div>
 	</div>
 </template>
@@ -18,7 +23,7 @@
 const props = defineProps({
 	meeting: {
 		type: Object,
-		default: null
+		default: null,
 	},
 });
 
@@ -58,7 +63,7 @@ const agenda = computed(() => {
 	} else {
 		return false;
 	}
-})
+});
 
 const formattedDate = computed(() => {
 	if (props.meeting.date) {
@@ -72,7 +77,7 @@ const formattedDate = computed(() => {
 
 const formattedTime = computed(() => {
 	if (props.meeting.time) {
-		const [hour, minute] = props.meeting.time.split(':')
+		const [hour, minute] = props.meeting.time.split(':');
 		const newTime = new Date();
 		newTime.setHours(hour);
 		newTime.setMinutes(minute);
@@ -105,4 +110,5 @@ const formattedTime = computed(() => {
 		border-bottom: thin solid rgba(0, 0, 0, 0.25);
 		@apply pb-4;
 	}
-}</style>
+}
+</style>

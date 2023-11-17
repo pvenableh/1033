@@ -1,7 +1,7 @@
 <template>
 	<div class="relative w-full min-h-screen flex items-center justify-start flex-col meetings">
 		<div class="w-full max-w-7xl flex items-center justify-start flex-col flex-wrap">
-			<h2 class="page__content-title" >Board Meetings</h2>
+			<h2 class="page__content-title">Board Meetings</h2>
 			<div v-if="pending">Loading</div>
 			<div v-if="pastMeetings">
 				<MeetingsCard v-for="(item, index) in pastMeetings" :key="index" :meeting="item" />
@@ -30,7 +30,6 @@ const {
 		}),
 	);
 });
-
 
 const pastMeetings = computed(() => {
 	if (meetings) {

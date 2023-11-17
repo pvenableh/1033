@@ -1,7 +1,6 @@
 <template>
 	<div class="relative w-full min-h-screen flex items-center justify-center flex-col scroll-smooth">
-		<h1 class="page__content-title">Rules /
-			Regulations</h1>
+		<h1 class="page__content-title">Rules / Regulations</h1>
 		<div class="w-full flex flex-row items-start justify-center relative">
 			<div class="sticky flex flex-col items-start flex-shrink uppercase mr-10 text-right page__nav">
 				<h5 class="uppercase text-xs opacity-25 tracking-wider font-bold w-full mb-4">Sections</h5>
@@ -13,7 +12,6 @@
 					<div v-html="rule.description"></div>
 				</div>
 			</div>
-
 		</div>
 	</div>
 </template>
@@ -31,5 +29,4 @@ const { data: page } = await useAsyncData('page', () => {
 	);
 });
 </script>
-<style >
-</style>
+<style></style>

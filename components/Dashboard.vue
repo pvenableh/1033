@@ -1,13 +1,31 @@
 <template>
 	<div class="grid grid-flow-row-dense grid-cols-2 gap-x-4 gap-y-12 lg:gap-y-20 lg:gap-x-10 dashboard">
 		<div class="col-span-2 mt-8">
-			<h2 class="text-3xl">{{ greetUser() }}
+			<h2 class="text-3xl">
+				{{ greetUser() }}
 				<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
 					{{ user.first_name }}
-				</span>.
+				</span>
+				.
 			</h2>
-			<p v-if="user.units.length">Your unit <span class="font-bold">{{ user.units[0].units_id.number }}</span> is <span class="font-bold lowercase">{{ user.units[0].units_id.occupant }}-occupied</span>.</p>
-			<p v-if="user.units[0].units_id.vehicles">You have <span class="font-bold">{{ user.units[0].units_id.vehicles.length }}</span> vehicle<span v-if="user.units[0].units_id.vehicles.length !== 1">s</span>  and <span class="font-bold">{{ user.units[0].units_id.pets.length }}</span> pet<span v-if="user.units[0].units_id.pets.length !== 1">s</span> registered with the community.</p>
+			<p v-if="user.units.length">
+				Your unit
+				<span class="font-bold">{{ user.units[0].units_id.number }}</span>
+				is
+				<span class="font-bold lowercase">{{ user.units[0].units_id.occupant }}-occupied</span>
+				.
+			</p>
+			<p v-if="user.units[0].units_id.vehicles">
+				You have
+				<span class="font-bold">{{ user.units[0].units_id.vehicles.length }}</span>
+				vehicle
+				<span v-if="user.units[0].units_id.vehicles.length !== 1">s</span>
+				and
+				<span class="font-bold">{{ user.units[0].units_id.pets.length }}</span>
+				pet
+				<span v-if="user.units[0].units_id.pets.length !== 1">s</span>
+				registered with the community.
+			</p>
 		</div>
 		<InsightsReserves class="col-span-2 lg:col-span-1" />
 		<InsightsNewsletter class="col-span-2 lg:col-span-1" />
@@ -23,7 +41,7 @@ const props = defineProps({
 		type: Object,
 		default: null,
 	},
-})
+});
 </script>
 <style>
 .insight {
@@ -75,6 +93,6 @@ const props = defineProps({
 			margin-bottom: -2px;
 			@apply inline-block;
 		}
-
 	}
-}</style>
+}
+</style>

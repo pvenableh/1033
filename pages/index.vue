@@ -1,13 +1,20 @@
 <template>
 	<div
 		v-if="!user"
-		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home">
-		<h1 class="-mt-28 mb-6 text-center temp-heading" style="max-width: 450px;">
-			Welcome to <span class="font-bold">1033 Lenox</span>: a boutique community focused on a local, active lifestyle in Miami Beach.
+		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home"
+	>
+		<h1 class="-mt-28 mb-6 text-center temp-heading" style="max-width: 450px">
+			Welcome to
+			<span class="font-bold">1033 Lenox</span>
+			: a boutique community focused on a local, active lifestyle in Miami Beach.
 		</h1>
-		<img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium" class="mt-8 mb-8 px-8" />
-		<nuxt-link to="/auth/signin"><FormVButton class="w-full mb-6" type="submit" style="max-width: 450px;">Login</FormVButton></nuxt-link>
-
+		<img
+			src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
+			class="mt-8 mb-8 px-8"
+		/>
+		<nuxt-link to="/auth/signin">
+			<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Login</FormVButton>
+		</nuxt-link>
 	</div>
 	<Dashboard v-else :user="user" />
 </template>
@@ -15,7 +22,7 @@
 <script setup>
 const { _loggedIn, user } = useDirectusAuth();
 </script>
-<style >
+<style>
 .home {
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */
@@ -50,7 +57,6 @@ const { _loggedIn, user } = useDirectusAuth();
 		@media (min-width: theme('screens.lg')) {
 			max-width: 600px;
 		}
-
 
 		path {
 			opacity: 0.4;
@@ -137,7 +143,7 @@ const { _loggedIn, user } = useDirectusAuth();
 		}
 
 		path:nth-of-type(20) {
-			animation-delay: 2.0s;
+			animation-delay: 2s;
 		}
 
 		path:nth-of-type(21) {
@@ -237,7 +243,7 @@ const { _loggedIn, user } = useDirectusAuth();
 		}
 
 		path:nth-of-type(45) {
-			animation-delay: 2.0s;
+			animation-delay: 2s;
 		}
 
 		path:nth-of-type(46) {
@@ -291,15 +297,15 @@ const { _loggedIn, user } = useDirectusAuth();
 
 	@keyframes example {
 		0% {
-			opacity: 0.4
+			opacity: 0.4;
 		}
 
 		50% {
-			opacity: 1
+			opacity: 1;
 		}
 
 		100% {
-			opacity: 0.4
+			opacity: 0.4;
 		}
 	}
 }

@@ -1,10 +1,13 @@
 <template>
 	<div id="nav-btn">
-		<div id="nav-icon"><span></span> <span></span> <span></span></div>
+		<div id="nav-icon">
+			<span></span>
+			<span></span>
+			<span></span>
+		</div>
 	</div>
 </template>
-<script setup>
-</script>
+<script setup></script>
 <style scoped>
 #nav-btn {
 	bottom: 0px;
@@ -63,13 +66,12 @@
 			top: 25px;
 			transform-origin: left center;
 			display: none;
-
 		}
 
 		span:nth-child(3) {
 			top: 29px;
 			transform-origin: left center;
-/*
+			/*
 			@media (min-width: theme('screens.lg')) {
 				top: 22px;
 			} */
@@ -84,7 +86,8 @@
 	/* transform: rotate(-360deg); */
 	opacity: 0;
 
-	@media (min-width: theme('screens.lg')) {}
+	@media (min-width: theme('screens.lg')) {
+	}
 
 	#nav-icon {
 		width: 55px;

@@ -9,10 +9,21 @@
 			</div>
 			<div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
 				<p
-					style="font-weight: 900; line-height: 1.1em; font-size: 10px; text-transform: uppercase;letter-spacing: 0.07em;padding-bottom: 30px;">
-					🛡 Official Communication of the Lenox Plaza Association 🛡</p>
+					style="
+						font-weight: 900;
+						line-height: 1.1em;
+						font-size: 10px;
+						text-transform: uppercase;
+						letter-spacing: 0.07em;
+						padding-bottom: 30px;
+					"
+				>
+					🛡 Official Communication of the Lenox Plaza Association 🛡
+				</p>
 				<h3 class="email__title" :class="{ red: email.urgent }">
-					<span v-if="email.urgent">🚨 </span><span v-else> </span>{{ email.title }}
+					<span v-if="email.urgent">🚨</span>
+					<span v-else></span>
+					{{ email.title }}
 				</h3>
 				<h5 class="email__subtitle">{{ email.subtitle }}</h5>
 				<div class="w-full email__content">
@@ -22,19 +33,37 @@
 					<div class="w-full flex flex-row flex-wrap items-start signature">
 						<p class="w-full font-bold greeting">{{ email.closing }}</p>
 						<p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Peter
-							Wyatt<span class="icon peter">🕶</span><span class="title">President</span></p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Alejandro
-							Salinas<span class="icon">🏍</span><span class="title">Vice-President</span></p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Camila Hoffman<span class="icon">✨</span><span
-								class="title">Secretary</span></p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Nenad Rakita<span class="icon">🏊‍♂️</span><span
-								class="title">Treasurer</span></p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Cecilia V. Demattos<span class="icon">🪴</span>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Peter Wyatt
+							<span class="icon peter">🕶</span>
+							<span class="title">President</span>
 						</p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Nick Valencia<span class="icon">📐</span>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Alejandro Salinas
+							<span class="icon">🏍</span>
+							<span class="title">Vice-President</span>
 						</p>
-						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">Pat Tamburrino<span class="icon">🌊</span>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Camila Hoffman
+							<span class="icon">✨</span>
+							<span class="title">Secretary</span>
+						</p>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Nenad Rakita
+							<span class="icon">🏊‍♂️</span>
+							<span class="title">Treasurer</span>
+						</p>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Cecilia V. Demattos
+							<span class="icon">🪴</span>
+						</p>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Nick Valencia
+							<span class="icon">📐</span>
+						</p>
+						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
+							Pat Tamburrino
+							<span class="icon">🌊</span>
 						</p>
 					</div>
 				</div>
@@ -45,8 +74,10 @@
 					&copy; {{ new Date().getFullYear() }} LENOX PLAZA ASSOCIATION INC.
 				</h5>
 				<div class="w-full">
-					<img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
-						alt="1033 Lenox Ave Building" />
+					<img
+						src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
+						alt="1033 Lenox Ave Building"
+					/>
 				</div>
 			</div>
 		</div>
@@ -60,7 +91,7 @@ definePageMeta({
 	layout: 'email',
 });
 
-const email = ref(null)
+const email = ref(null);
 
 const {
 	data: page,
@@ -89,7 +120,8 @@ email.value = page.value[0];
 	padding: 0 10px;
 	color: var(--black);
 
-	@media (min-width: 400px) {}
+	@media (min-width: 400px) {
+	}
 
 	&__border {
 		background: #555555;

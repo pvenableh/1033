@@ -56,7 +56,7 @@ function formatDate(date) {
 		const [year, month, day] = date.split('-');
 		return new Date(year, month - 1, day).toLocaleDateString('en-US', options);
 	}
-};
+}
 
 function formatTime(time) {
 	if (time) {
@@ -70,7 +70,7 @@ function formatTime(time) {
 			minute: 'numeric',
 		});
 	}
-};
+}
 
 function minutes(files) {
 	if (files.length) {
@@ -89,21 +89,26 @@ function minutes(files) {
 	} else {
 		return false;
 	}
-};
+}
 </script>
 <template>
 	<div class="insight meetings">
-		<h1 class="relative insight__label">Board Meetings:<UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }"
-				class="absolute top-[-10px] scale-90">{{ pastMeetings.length }}</UBadge>
+		<h1 class="relative insight__label">
+			Board Meetings:
+			<UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }" class="absolute top-[-10px] scale-90">
+				{{ pastMeetings.length }}
+			</UBadge>
 		</h1>
 
 		<div v-if="pending">Loading</div>
 		<div v-if="futureMeetings">
 			<div class="w-full my-4 next-meeting">
 				<h2 class="uppercase tracking-wide">
-					Next Meeting is: <span class="font-bold ">{{
-						formatDate(futureMeetings[0].date) }} <span v-if="futureMeetings[0].time">@
-							{{ formatTime(futureMeetings[0].time) }}</span></span>
+					Next Meeting is:
+					<span class="font-bold">
+						{{ formatDate(futureMeetings[0].date) }}
+						<span v-if="futureMeetings[0].time">@ {{ formatTime(futureMeetings[0].time) }}</span>
+					</span>
 				</h2>
 				<h4 class="insight__subtitle mb-0">
 					<span class="opacity-50">Location:</span>
@@ -120,16 +125,20 @@ function minutes(files) {
 					{{ formatDate(item.date) }}
 					<span v-if="item.time">@ {{ formatTime(item.time) }}</span>
 				</h4>
-				<a class="absolute right-0 top-0 insight__button" v-if="minutes(item.files)"
-					:href="'https://admin.1033lenox.com/assets/' + minutes(item.files)" target="_blank">
+				<a
+					class="absolute right-0 top-0 insight__button"
+					v-if="minutes(item.files)"
+					:href="'https://admin.1033lenox.com/assets/' + minutes(item.files)"
+					target="_blank"
+				>
 					Minutes
 				</a>
 				<MeetingsPeopleCalculator v-if="item.people.length" :people="item.people" :date="item.date" class="mt-2" />
-
 			</div>
 		</div>
 		<div class="w-full flex items-center justify-center mt-8">
-			<nuxt-link to="/meetings/" class="insight__link">View All Meetings
+			<nuxt-link to="/meetings/" class="insight__link">
+				View All Meetings
 				<UIcon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>

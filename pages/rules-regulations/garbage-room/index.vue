@@ -10,13 +10,10 @@
 				<div v-html="rule.description"></div>
 			</div>
 		</div>
-
-
 	</div>
 </template>
 
 <script setup>
-
 const { data: rules } = await useAsyncData('rules', () => {
 	return useDirectus(
 		readItems('rules', {
@@ -32,10 +29,8 @@ const { data: rules } = await useAsyncData('rules', () => {
 </script>
 <style>
 .rule {
-
-
-
-	@media (min-width: theme('screens.lg')) {}
+	@media (min-width: theme('screens.lg')) {
+	}
 
 	h1 {
 		font-size: 24px;
@@ -64,7 +59,6 @@ const { data: rules } = await useAsyncData('rules', () => {
 
 	ol,
 	ul {
-
 		@apply ml-8;
 		list-style-type: disc;
 
@@ -84,12 +78,8 @@ const { data: rules } = await useAsyncData('rules', () => {
 }
 
 h1 {
-
-
 	@media (min-width: theme('screens.md')) {
 		max-width: 400px;
 	}
-
-
 }
 </style>

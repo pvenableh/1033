@@ -27,7 +27,10 @@ const {
 			<h3 class="uppercase newsletter__title">
 				{{ newsletters[0].title }}
 			</h3>
-			<span class="absolute bottom-[10px] right-[10px] newsletter__link">Read Newsletter <UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-3px] opacity-75" /></span>
+			<span class="absolute bottom-[10px] right-[10px] newsletter__link">
+				Read Newsletter
+				<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-3px] opacity-75" />
+			</span>
 		</a>
 		<div v-if="error">Error</div>
 	</div>
@@ -43,7 +46,6 @@ const {
 		line-height: 1em;
 		text-shadow: 2px 2px #ff0000;
 		@apply tracking-wide;
-
 	}
 	&__link {
 		color: var(--white);

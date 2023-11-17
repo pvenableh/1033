@@ -36,16 +36,14 @@ async function submit() {
 	<div class="flex items-center justify-center flex-col min-h-screen">
 		<div v-if="expired">
 			<h3>Reset password for {{ decoded.email }}.</h3>
-			<h5  class="uppercase italic text-xs font-bold">Link expires in {{ getRelativeTime(expiredDate) }}</h5>
+			<h5 class="uppercase italic text-xs font-bold">Link expires in {{ getRelativeTime(expiredDate) }}</h5>
 
 			<VForm class="" @submit="submit()" v-if="expired">
 				<FormVInput name="password" type="password" rules="required" label="Password" v-model="password" class="my-6" />
 				<FormVButton class="w-full mb-6" type="submit">Update Password</FormVButton>
 			</VForm>
-
 		</div>
 		<h5 v-else class="uppercase italic text-xs font-bold">This link has expired.</h5>
-
 	</div>
 </template>
 

@@ -7,7 +7,7 @@ function setBackgroundColor(occupant) {
 	} else {
 		return '#e8fc00';
 	}
-};
+}
 
 const {
 	data: units,
@@ -51,7 +51,6 @@ const legendValues = labels.map((label) => ({
 }));
 
 const subtitle = ownershipPercentage + '% of units are owner-occupied.';
-
 </script>
 <template>
 	<div class="w-full insight units">
@@ -67,15 +66,15 @@ const subtitle = ownershipPercentage + '% of units are owner-occupied.';
 			<div class="lg:ml-8 grid grid-cols-4 2xl:grid-cols-5 gap-6 grow w-full">
 				<div class="units__unit" v-for="(unit, index) in units" :key="index">
 					<h3 class="w-full uppercase text-sm border-b">
-
 						<span class="opacity-50">Unit:</span>
 						{{ unit.number }}
-
 					</h3>
 					<p class="text-xxs uppercase tracking-wide mt-1 units__unit-occupant">
 						<span class="">Occupied by:</span>
-						<span class="font-bold px-1 py-[2px]"
-							:style="'background-color: ' + setBackgroundColor(unit.occupant) + ';'">
+						<span
+							class="font-bold px-1 py-[2px]"
+							:style="'background-color: ' + setBackgroundColor(unit.occupant) + ';'"
+						>
 							{{ unit.occupant }}
 						</span>
 					</p>

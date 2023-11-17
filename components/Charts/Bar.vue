@@ -20,7 +20,6 @@ const chartOptions = ref({
 	responsive: true,
 	maintainAspectRatio: false,
 });
-
 </script>
 <template>
 	<div>

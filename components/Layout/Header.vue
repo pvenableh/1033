@@ -22,14 +22,19 @@ const avatar = computed(() => {
 			<Logo />
 		</nuxt-link>
 		<div v-if="user" class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
-			<UAvatar chip-color="sky" chip-text="12" chip-position="top-right" size="sm" :src="avatar"
-				:alt="user?.first_name + ' ' + user?.last_name" />
+			<UAvatar
+				chip-color="sky"
+				chip-text="12"
+				chip-position="top-right"
+				size="sm"
+				:src="avatar"
+				:alt="user?.first_name + ' ' + user?.last_name"
+			/>
 		</div>
 		<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
 			<UAvatar icon="i-heroicons-user" chip-color="sky" chip-text="12" chip-position="top-right" size="sm" />
 		</div>
 		<!-- <DarkModeToggle /> -->
-
 	</div>
 </template>
 
@@ -133,7 +138,7 @@ const avatar = computed(() => {
 	}
 
 	path:nth-of-type(20) {
-		animation-delay: 2.0s;
+		animation-delay: 2s;
 	}
 
 	path:nth-of-type(21) {
@@ -233,7 +238,7 @@ const avatar = computed(() => {
 	}
 
 	path:nth-of-type(45) {
-		animation-delay: 2.0s;
+		animation-delay: 2s;
 	}
 
 	path:nth-of-type(46) {
@@ -287,15 +292,15 @@ const avatar = computed(() => {
 
 @keyframes logo {
 	0% {
-		opacity: 0.4
+		opacity: 0.4;
 	}
 
 	50% {
-		opacity: 1
+		opacity: 1;
 	}
 
 	100% {
-		opacity: 0.4
+		opacity: 0.4;
 	}
 }
 </style>

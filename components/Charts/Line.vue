@@ -1,13 +1,5 @@
 <script lang="ts" setup>
-import {
-	Chart as ChartJS,
-	CategoryScale,
-	LinearScale,
-	PointElement,
-	LineElement,
-	Title,
-	Tooltip,
-} from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip } from 'chart.js';
 import { Line } from 'vue-chartjs';
 
 // Register
@@ -27,8 +19,6 @@ const props = defineProps({
 		default: () => [],
 	},
 });
-
-
 
 function getGradient(ctx, chartArea) {
 	let width, height, gradient;
@@ -71,30 +61,29 @@ const chartData = ref({
 });
 
 const chartOptions = ref({
-	height: "200px",
+	height: '200px',
 	responsive: true,
 	maintainAspectRatio: true,
-	borderColor: "#c319ee",
-	backgroundColor: "#c319ee",
+	borderColor: '#c319ee',
+	backgroundColor: '#c319ee',
 	scales: {
 		y: {
 			ticks: {
-				color: "#cccccc",
+				color: '#cccccc',
 				callback: function (value, index, ticks) {
 					return '$' + value;
-				}
+				},
 			},
 			grid: {
 				drawTicks: false,
 			},
 			border: {
-				color: "#ffffff",
-
+				color: '#ffffff',
 			},
 		},
 		x: {
 			ticks: {
-				color: "#cccccc",
+				color: '#cccccc',
 			},
 			grid: {
 				display: false,
@@ -104,9 +93,7 @@ const chartOptions = ref({
 			},
 		},
 	},
-
 });
-
 </script>
 <template>
 	<Line :data="chartData" :options="chartOptions" class="w-full" />

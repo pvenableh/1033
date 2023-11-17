@@ -3,7 +3,6 @@
 		<nuxt-link to="/">
 			<UIcon name="i-heroicons-home-modern" />
 			<h5>Home</h5>
-
 		</nuxt-link>
 		<nuxt-link to="/account">
 			<UIcon name="i-heroicons-identification" />
@@ -92,26 +91,27 @@
 	}
 }
 
-.mobile-toolbar a:nth-of-type(1).router-link-exact-active~.indicator {
+.mobile-toolbar a:nth-of-type(1).router-link-exact-active ~ .indicator {
 	left: 0%;
 	top: 0px;
 	opacity: 1;
 }
 
-.mobile-toolbar a:nth-of-type(2).router-link-exact-active~.indicator {
+.mobile-toolbar a:nth-of-type(2).router-link-exact-active ~ .indicator {
 	left: 33.333333%;
 	top: 0px;
 	opacity: 1;
 }
 
-.mobile-toolbar a:nth-of-type(3).router-link-exact-active~.indicator {
+.mobile-toolbar a:nth-of-type(3).router-link-exact-active ~ .indicator {
 	left: 53%;
 	top: 0px;
 	opacity: 1;
 }
 
-.mobile-toolbar a:nth-of-type(4).router-link-exact-active~.indicator {
+.mobile-toolbar a:nth-of-type(4).router-link-exact-active ~ .indicator {
 	left: 60%;
 	top: 0px;
 	opacity: 1;
-}</style>
+}
+</style>

@@ -12,8 +12,8 @@ const loading = ref(false);
 const error = ref(null);
 
 async function attemptLogin() {
-	loader.value = true
-	openScreen()
+	loader.value = true;
+	openScreen();
 	const { email, password } = unref(credentials);
 	loading.value = true;
 	error.value = null;
@@ -32,7 +32,6 @@ async function attemptLogin() {
 	loading.value = false;
 }
 
-
 const panel = ref('login');
 
 function movePanel(val: string) {
@@ -43,7 +42,6 @@ function movePanel(val: string) {
 
 <template>
 	<div class="flex items-center justify-center flex-col login">
-
 		<transition-group name="list" tag="div" class="login-panels">
 			<div v-if="panel === 'register'" key="1" class="flex items-center justify-center flex-col login-panel">
 				<!-- <AccountRegister /> -->
@@ -52,19 +50,33 @@ function movePanel(val: string) {
 			<div class="flex items-center justify-center flex-col login-panel" v-if="panel === 'login'" key="2">
 				<p class="text-xs uppercase tracking-wide">This platform is accessible by invitation only.</p>
 				<VForm class="w-full" @submit="attemptLogin()">
-					<FormVInput name="email" type="email" rules="emailExists" label="Email" v-model="credentials.email"
-						class="my-6" />
-					<FormVInput name="password" type="password" rules="required" label="Password"
-						v-model="credentials.password" class="my-6" />
+					<FormVInput
+						name="email"
+						type="email"
+						rules="emailExists"
+						label="Email"
+						v-model="credentials.email"
+						class="my-6"
+					/>
+					<FormVInput
+						name="password"
+						type="password"
+						rules="required"
+						label="Password"
+						v-model="credentials.password"
+						class="my-6"
+					/>
 					<FormVButton class="w-full mb-6" type="submit">Login</FormVButton>
 				</VForm>
 
 				<!-- <a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button">New? <span
 						class="purple-txt">Register Here</span></a> -->
-				<a @click.prevent="movePanel('request')"
-					class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">Reset Password</a>
-				<div v-if="error" class="text-red-500 uppercase tracking-wide font-bold" style="font-size: 10px;">{{ error
-				}}</div>
+				<a @click.prevent="movePanel('request')" class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">
+					Reset Password
+				</a>
+				<div v-if="error" class="text-red-500 uppercase tracking-wide font-bold" style="font-size: 10px">
+					{{ error }}
+				</div>
 			</div>
 			<div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
 				<AccountPasswordRequest />
@@ -93,4 +105,3 @@ function movePanel(val: string) {
 	}
 }
 </style>
-

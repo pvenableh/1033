@@ -39,20 +39,35 @@ const filteredAnnouncements = computed(() => {
 </script>
 <template>
 	<div class="insight announcements">
-		<h1 class="relative insight__label">Announcements: <UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }" class="absolute top-[-10px] scale-90">{{ announcements.length }}</UBadge> </h1>
+		<h1 class="relative insight__label">
+			Announcements:
+			<UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }" class="absolute top-[-10px] scale-90">
+				{{ announcements.length }}
+			</UBadge>
+		</h1>
 
 		<div v-if="pending">Loading</div>
 		<div v-if="announcements" class="my-4">
-			<nuxt-link v-for="(item, index) in filteredAnnouncements" :key="index" class="relative uppercase  inline-block w-full relative mb-5" :to="'/announcements/email/' + item.url">
+			<nuxt-link
+				v-for="(item, index) in filteredAnnouncements"
+				:key="index"
+				class="relative uppercase inline-block w-full relative mb-5"
+				:to="'/announcements/email/' + item.url"
+			>
 				<h3 class="leading-4 uppercase">
-					{{ item.title }} <UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />
+					{{ item.title }}
+					<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />
 				</h3>
 				<h5 class="text-xs opacity-75 mt-[2px] leading-4">{{ item.subtitle }}</h5>
-				<p class="uppercase text-xs mt-[2px] leading-4"><span class="opacity-50">Sent on:</span> {{  getFriendlyDate(item.date_sent) }}</p>
+				<p class="uppercase text-xs mt-[2px] leading-4">
+					<span class="opacity-50">Sent on:</span>
+					{{ getFriendlyDate(item.date_sent) }}
+				</p>
 			</nuxt-link>
 		</div>
 		<div class="w-full flex items-center justify-center mt-8">
-			<nuxt-link to="/announcements/" class="insight__link">View All Announcements
+			<nuxt-link to="/announcements/" class="insight__link">
+				View All Announcements
 				<UIcon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>

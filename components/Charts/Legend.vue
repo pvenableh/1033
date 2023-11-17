@@ -20,7 +20,7 @@ export default {
 		subtitle: {
 			type: String,
 			default: null,
-		}
+		},
 	},
 };
 </script>
