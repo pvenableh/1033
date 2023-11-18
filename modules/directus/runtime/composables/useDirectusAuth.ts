@@ -28,7 +28,7 @@ export default function useDirectusAuth<DirectusSchema extends object>() {
 		const response = await $directus.login(email, password);
 
 		const returnPath = route.query.redirect?.toString();
-		const redirect = returnPath ? returnPath : '/account/';
+		const redirect = returnPath ? returnPath : '/';
 
 		_loggedIn.set(true);
 

@@ -118,7 +118,13 @@ function minutes(files) {
 			</div>
 		</div>
 		<div v-if="pastMeetings" class="w-full" :class="{ 'mt-4': !futureMeetings.length }">
-			<p class="insight__subtitle">You have attended <span class="font-bold">{{ attendance }}</span> out of <span class="font-bold">{{ pastMeetings.length }}</span> meetings.</p>
+			<p class="insight__subtitle">
+				You have attended
+				<span class="font-bold">{{ attendance }}</span>
+				out of
+				<span class="font-bold">{{ pastMeetings.length }}</span>
+				meetings.
+			</p>
 			<h1 class="insight__label mt-6 mb-4">Recent Meetings:</h1>
 			<div v-for="(item, index) in pastMeetings.slice(0, 5)" :key="index" class="relative uppercase mb-8">
 				<h4 class="uppercase font-bold tracking-wide">

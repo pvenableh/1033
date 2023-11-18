@@ -54,7 +54,7 @@ export default defineNuxtConfig({
 			redirect: {
 				login: '/auth/signin', // Path to redirect when login is required
 				logout: '/auth/logout', // Path to redirect after logout
-				home: '/account', // Path to redirect after successful login
+				home: '/dashboard', // Path to redirect after successful login
 				resetPassword: '/auth/reset-password', // Path to redirect for password reset
 				callback: '/auth/callback', // Path to redirect after login with provider
 			},
@@ -72,6 +72,7 @@ export default defineNuxtConfig({
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/
 	colorMode: {
+		preference: 'light',
 		classSuffix: '', // This is so we play nice with TailwindCSS
 	},
 
@@ -85,7 +86,7 @@ export default defineNuxtConfig({
 
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-		name: 'hue',
+		name: '1033 Lenox',
 	},
 
 	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works

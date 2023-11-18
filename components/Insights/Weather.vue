@@ -41,7 +41,7 @@ function generateIcon(code) {
 	} else {
 		isIcon.value = false;
 	}
-};
+}
 </script>
 <template>
 	<div class="hidden sm:inline-block weather">
@@ -50,7 +50,9 @@ function generateIcon(code) {
 			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
 			{{ weather.weather[0].main }}
-			<span v-if="isIcon" class="weather-icon"><UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0].icon)" class="drop-shadow"/></span>
+			<span v-if="isIcon" class="weather-icon">
+				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0].icon)" class="drop-shadow" />
+			</span>
 			<img
 				v-else
 				:src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
@@ -70,7 +72,8 @@ function generateIcon(code) {
 	&__stats {
 		font-size: 12px;
 
-		img, .weather-icon {
+		img,
+		.weather-icon {
 			color: var(--pink);
 			font-size: 20px;
 			line-height: 30px;

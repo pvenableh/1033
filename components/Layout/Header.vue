@@ -16,7 +16,7 @@ const avatar = computed(() => {
 });
 </script>
 <template>
-	<div class="relative w-full flex items-center justify-center px-4 md:px-6 header">
+	<div class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header">
 		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		<nuxt-link to="/">
 			<Logo />
@@ -39,6 +39,11 @@ const avatar = computed(() => {
 </template>
 
 <style>
+.header {
+	background: #eeeeee;
+	border-bottom: solid 1px rgba(55, 55, 55, 0.05);
+	box-shadow: -1px 2px 10px rgba(0, 0, 0, 0.05);
+}
 .logo {
 	width: 320px;
 	max-width: 380px;
@@ -292,15 +297,18 @@ const avatar = computed(() => {
 
 @keyframes logo {
 	0% {
-		opacity: 0.4;
+		opacity: 0.9;
+		fill: #666666;
 	}
 
 	50% {
 		opacity: 1;
+		fill: var(--cyan);
 	}
 
 	100% {
-		opacity: 0.4;
+		opacity: 0.9;
+		fill: #666666;
 	}
 }
 </style>
