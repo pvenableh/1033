@@ -48,11 +48,12 @@ const filteredAnnouncements = computed(() => {
 
 		<div v-if="pending">Loading</div>
 		<div v-if="announcements" class="my-4">
-			<nuxt-link
+			<a
 				v-for="(item, index) in filteredAnnouncements"
 				:key="index"
 				class="relative uppercase inline-block w-full relative mb-5"
-				:to="'/announcements/email/' + item.url"
+				:href="'https://1033lenox.com/announcements/email/' + item.url"
+				target="_blank"
 			>
 				<h3 class="leading-4 uppercase font-bold tracking-wide">
 					{{ item.title }}
@@ -63,7 +64,7 @@ const filteredAnnouncements = computed(() => {
 					<span class="opacity-50">Sent on:</span>
 					{{ getFriendlyDate(item.date_sent) }}
 				</p>
-			</nuxt-link>
+			</a>
 		</div>
 		<div class="w-full flex items-center justify-center mt-8">
 			<nuxt-link to="/announcements/" class="insight__link">

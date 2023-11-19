@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-const { params, path } = useRoute();
+const { params } = useRoute();
 const unit = ref(null);
 
 const {

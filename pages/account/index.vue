@@ -25,6 +25,7 @@
 const { user } = useDirectusAuth();
 
 definePageMeta({
+	layout: 'auth',
 	middleware: ['auth'],
 });
 

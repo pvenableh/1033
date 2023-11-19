@@ -1,5 +1,6 @@
 <script setup>
 definePageMeta({
+	layout: 'auth',
 	middleware: ['auth'],
 });
 
@@ -42,11 +43,12 @@ const filteredAnnouncements = computed(() => {
 		<div class="w-full flex flex-row items-start justify-center relative">
 			<div class="pr-4 pl-4 lg:pl-10 w-full max-w-xl announcements">
 				<div v-if="announcements" class="my-4">
-					<nuxt-link
+					<a
 						v-for="(item, index) in filteredAnnouncements"
 						:key="index"
 						class="relative uppercase inline-block w-full relative mb-12 announcement__card"
-						:to="'/announcements/email/' + item.url"
+						:href="'https://1033lenox.com/announcements/email/' + item.url"
+						target="_blank"
 					>
 						<h3 class="leading-4 uppercase">
 							{{ item.title }}
@@ -57,7 +59,7 @@ const filteredAnnouncements = computed(() => {
 							<span class="opacity-50">Sent on:</span>
 							{{ getFriendlyDate(item.date_sent) }}
 						</p>
-					</nuxt-link>
+					</a>
 				</div>
 			</div>
 		</div>
