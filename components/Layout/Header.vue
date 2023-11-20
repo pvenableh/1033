@@ -1,4 +1,26 @@
 <script setup>
+const previousScrollTop = ref(0);
+const isRetracted = ref(false);
+
+const manageNavBarAnimations = () => {
+	const header = document.querySelector('header');
+	const scrollTop = document.documentElement.scrollTop;
+
+	if (scrollTop > previousScrollTop.value || !previousScrollTop.value) {
+		isRetracted.value = true;
+		console.log('scrolling down');
+	} else {
+		isRetracted.value = false;
+		console.log('scrolling up');
+	}
+
+	previousScrollTop.value = scrollTop;
+};
+
+onMounted(() => {
+	window.addEventListener('scroll', manageNavBarAnimations);
+});
+
 const { user } = useDirectusAuth();
 
 const avatar = computed(() => {
@@ -16,7 +38,7 @@ const avatar = computed(() => {
 });
 </script>
 <template>
-	<div class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header">
+	<header class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header" :class="{ 'retracted': isRetracted }">
 		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		<nuxt-link to="/">
 			<Logo />
@@ -28,22 +50,28 @@ const avatar = computed(() => {
 				chip-position="top-right"
 				size="sm"
 				:src="avatar"
-				:alt="user?.first_name + ' ' + user?.last_name"
-			/>
+				:alt="user?.first_name + ' ' + user?.last_name" />
 		</div>
 		<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
 			<UAvatar icon="i-heroicons-user" size="sm" />
 		</div>
 		<!-- <DarkModeToggle /> -->
-	</div>
+	</header>
 </template>
 
 <style>
-.header {
+header {
 	background: #eeeeee;
 	border-bottom: solid 1px rgba(55, 55, 55, 0.05);
 	box-shadow: -1px 2px 10px rgba(0, 0, 0, 0.05);
+	transition: transform 0.25s var(--curve);
 }
+
+header.retracted {
+	transform: translateY(-100px);
+
+}
+
 .logo {
 	width: 320px;
 	max-width: 380px;
