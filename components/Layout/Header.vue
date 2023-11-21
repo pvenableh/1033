@@ -6,12 +6,10 @@ const manageNavBarAnimations = () => {
 	const header = document.querySelector('header');
 	const scrollTop = document.documentElement.scrollTop;
 
-	if (scrollTop > previousScrollTop.value || !previousScrollTop.value) {
+	if (scrollTop > previousScrollTop.value && scrollTop >= 10) {
 		isRetracted.value = true;
-		console.log('scrolling down');
 	} else {
 		isRetracted.value = false;
-		console.log('scrolling up');
 	}
 
 	previousScrollTop.value = scrollTop;
