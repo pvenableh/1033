@@ -74,6 +74,34 @@ function getFriendlyDate(dateString: string, { monthAbbr = {} } = {}): string {
 	return formatted;
 }
 
+function getFriendlyDateTwo(dateString: string, { monthAbbr = {} } = {}): string {
+	const d = new Date(dateString.replace(/-/g, '\/'));
+	const year = d.getFullYear();
+	const date = d.getDate();
+
+	const dateSuffix = (date: number): string => {
+		if (date > 3 && date < 21) return 'th';
+
+		switch (date % 10) {
+			case 1:
+				return 'st';
+			case 2:
+				return 'nd';
+			case 3:
+				return 'rd';
+			default:
+				return 'th';
+		}
+	};
+
+	const monthIndex = d.getMonth();
+
+	const monthName = monthAbbr ? monthsAbbr[monthIndex] : months[monthIndex];
+
+	const formatted = `${monthName} ${date}${dateSuffix(date)}, ${year}`;
+	return formatted;
+}
+
 function destructureDate(date: string): Record<string, number | string> {
 	const d = new Date(date);
 	const year = d.getFullYear();
@@ -137,6 +165,7 @@ function getDay(dateString: string): string {
 export {
 	getRelativeTime,
 	getFriendlyDate,
+	getFriendlyDateTwo,
 	greetUser,
 	toDateTime,
 	subtractDates as subtractDates,

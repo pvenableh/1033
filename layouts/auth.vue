@@ -1,7 +1,5 @@
 <template>
-	<div
-		class="min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative"
-	>
+	<div class="min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative">
 		<div class="w-full flex items-center justify-center flex-col min-h-screen page__content">
 			<LayoutHeader class="" />
 			<div class="w-full mx-auto min-h-screen relative px-4 md:px-6">

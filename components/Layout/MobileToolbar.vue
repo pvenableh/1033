@@ -1,8 +1,8 @@
 <template>
 	<div id="mobile-toolbar" class="mobile-toolbar flex flex-row items-center justify-center">
 		<nuxt-link to="/">
-			<UIcon name="i-heroicons-home-modern" />
-			<h5>Home</h5>
+			<UIcon name="i-heroicons-squares-2x2" />
+			<h5>Dashboard</h5>
 		</nuxt-link>
 		<nuxt-link to="/account">
 			<UIcon name="i-heroicons-identification" />

@@ -36,7 +36,10 @@ const avatar = computed(() => {
 });
 </script>
 <template>
-	<header class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header" :class="{ 'retracted': isRetracted }">
+	<header
+		class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header"
+		:class="{ retracted: isRetracted }"
+	>
 		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		<nuxt-link to="/">
 			<Logo />
@@ -48,7 +51,8 @@ const avatar = computed(() => {
 				chip-position="top-right"
 				size="sm"
 				:src="avatar"
-				:alt="user?.first_name + ' ' + user?.last_name" />
+				:alt="user?.first_name + ' ' + user?.last_name"
+			/>
 		</div>
 		<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
 			<UAvatar icon="i-heroicons-user" size="sm" />
@@ -67,7 +71,6 @@ header {
 
 header.retracted {
 	transform: translateY(-100px);
-
 }
 
 .logo {
