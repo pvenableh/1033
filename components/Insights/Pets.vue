@@ -22,7 +22,7 @@ const icon = computed(() => {
 </script>
 <template>
 	<div class="flex flex-row mb-2 pet">
-		<div v-if="pet.image" class="w-20 h-20 bg-no-repeat bg-center bg-contain bg-black pet__image"
+		<div v-if="pet.image" class="w-10 h-10 rounded-full bg-no-repeat bg-center bg-contain bg-black pet__image"
 			:style="'background-image: url(https://admin.1033lenox.com/assets/' + pet.image + '?key=medium)'"></div>
 		<div v-else class="w-10 h-10 rounded-full flex items-center justify-center pet__icon">
 			<UIcon :name="icon" />

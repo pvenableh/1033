@@ -39,7 +39,7 @@ const tenants = filterTenants(props.user.units);
 
 			<InsightsTenant v-for="(tenant, index2) in tenants" :key="index2" :tenant="tenant" />
 			<div class="my-4">
-				<h3 class="uppercase tracking-wide text-sm">
+				<h3 class="uppercase tracking-wide text-sm mb-2">
 					<span class="opacity-50">Vehicles: </span>
 					<span v-if="unit.units_id.vehicles.length === 0">No vehicles registered.</span>
 				</h3>
@@ -48,7 +48,7 @@ const tenants = filterTenants(props.user.units);
 				</div>
 			</div>
 			<div class="my-4">
-				<h3 class="uppercase text-sm tracking-wide">
+				<h3 class="uppercase text-sm tracking-wide mb-2">
 					<span class="opacity-50">Pets:</span>
 					<span v-if="unit.units_id.pets.length === 0">No pets registered.</span>
 				</h3>
