@@ -118,7 +118,7 @@ function minutes(files) {
 			</div>
 		</div>
 		<div v-if="pastMeetings" class="w-full" :class="{ 'mt-4': !futureMeetings.length }">
-			<p class="insight__subtitle">
+			<p class="font-handwritten">
 				You have attended
 				<span class="font-bold">{{ attendance }}</span>
 				out of

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 const { _loggedIn } = useDirectusAuth();
-console.log(_loggedIn.get());
 
 definePageMeta({
 	layout() {

@@ -4,8 +4,8 @@ import { openScreen, loader, closeScreen } from '~/composables/useScreen';
 const { login } = useDirectusAuth();
 
 const credentials = reactive({
-	email: 'peter@huestudios.com',
-	password: 'p195pr',
+	email: '',
+	password: '',
 });
 
 const loading = ref(false);
@@ -45,7 +45,7 @@ function movePanel(val: string) {
 		<transition-group name="list" tag="div" class="login-panels">
 			<div v-if="panel === 'register'" key="1" class="flex items-center justify-center flex-col login-panel">
 				<!-- <AccountRegister /> -->
-				<a @click.prevent="movePanel('login')" class="cursor-pointer login-panel__nav-button purple-txt">Login</a>
+				<a @click.prevent="movePanel('login')" class="cursor-pointer login-panel__nav-button">Login</a>
 			</div>
 			<div class="flex items-center justify-center flex-col login-panel" v-if="panel === 'login'" key="2">
 				<p class="text-xs uppercase tracking-wide">This platform is accessible by invitation only.</p>

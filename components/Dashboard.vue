@@ -92,9 +92,9 @@ const boardMember = getBoardMemberByYear(props.user, '2023');
 	&__link {
 		font-size: 12px;
 		line-height: 15px;
-		color: var(--white);
-		background: var(--blue);
-		@apply font-bold uppercase tracking-wider px-6 py-2 rounded-3xl;
+		/* color: var(--white);
+		background: var(--blue); */
+		@apply font-bold uppercase tracking-wider px-6 py-2;
 
 		span {
 			margin-bottom: -2px;
