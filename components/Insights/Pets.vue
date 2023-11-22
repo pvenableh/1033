@@ -28,11 +28,11 @@ const icon = computed(() => {
 			<UIcon :name="icon" />
 		</div>
 		<div class="text-xs uppercase ml-4 pl-2 pet__stats">
-			<h3 class="uppercase tracking-wide text-sm">
+			<h3 class="uppercase tracking-wide">
 				<span class="opacity-50">{{ pet.category }}:</span>
 				{{ pet.name }}
 			</h3>
-			<h5 v-if="pet.breed" class="uppercase tracking-wide text-sm">
+			<h5 v-if="pet.breed" class="uppercase tracking-wide">
 				<span class="opacity-50">Breed:</span>
 				{{ pet.breed }}
 			</h5>
