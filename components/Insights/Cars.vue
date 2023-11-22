@@ -13,8 +13,8 @@ const props = defineProps({
 			:style="'background-image: url(https://admin.1033lenox.com/assets/' + car.image + '?key=small)'"
 		></div>
 		<div class="text-xs uppercase ml-4 pl-2 car__stats">
-			<h3>{{ car.make }} {{ car.model }}</h3>
-			<h5>License plate: {{ car.license_plate }}</h5>
+			<h3 class="uppercase tracking-wide">{{ car.make }} {{ car.model }}</h3>
+			<h5 class="uppercase tracking-wide">License plate: {{ car.license_plate }}</h5>
 		</div>
 	</div>
 </template>
