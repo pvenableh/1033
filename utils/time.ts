@@ -75,7 +75,7 @@ function getFriendlyDate(dateString: string, { monthAbbr = {} } = {}): string {
 }
 
 function getFriendlyDateTwo(dateString: string, { monthAbbr = {} } = {}): string {
-	const d = new Date(dateString.replace(/-/g, '\/'));
+	const d = new Date(dateString.replace(/-/g, '/'));
 	const year = d.getFullYear();
 	const date = d.getDate();
 
@@ -122,6 +122,40 @@ function greetUser(): string {
 	return 'Good evening';
 }
 
+function isPastOrFuture(inputDate: string | number | Date) {
+	const now = new Date();
+	const dateToCheck = new Date(inputDate);
+
+	if (dateToCheck < now) {
+		return 'past';
+	} else {
+		return 'future';
+	}
+}
+
+function formatDueDate(date1: string | number | Date) {
+	date1 = new Date(date1);
+	const date2 = new Date();
+
+	let diff = date1.getTime() - date2.getTime();
+	const isPastDue = diff < 0;
+	diff = Math.abs(diff); // Take the absolute value to handle past due dates
+
+	// Convert the difference to days, hours, and minutes
+	const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+	diff -= days * (24 * 60 * 60 * 1000);
+	const hours = Math.floor(diff / (60 * 60 * 1000));
+	diff -= hours * (60 * 60 * 1000);
+	const minutes = Math.floor(diff / (60 * 1000));
+
+	// Format the string based on whether it is past due or not
+	if (isPastDue) {
+		return `This task is past due by ${days} days, ${hours} hours, and ${minutes} minutes.`;
+	} else {
+		return `This is due in ${days} days, ${hours} hours, and ${minutes} minutes.`;
+	}
+}
+
 function subtractDates(date1: string | number | Date, date2: string | number | Date, unit?: string): number {
 	if (isNaN(date1 as number) || isNaN(date2 as number)) {
 		date1 = new Date(date1);
@@ -164,6 +198,8 @@ function getDay(dateString: string): string {
 
 export {
 	getRelativeTime,
+	formatDueDate,
+	isPastOrFuture,
 	getFriendlyDate,
 	getFriendlyDateTwo,
 	greetUser,

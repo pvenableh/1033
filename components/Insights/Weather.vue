@@ -50,7 +50,7 @@ function generateIcon(code) {
 			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
 			{{ weather.weather[0].main }}
-			<span v-if="isIcon" class="weather-icon">
+			<!-- <span v-if="isIcon" class="weather-icon">
 				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0].icon)" class="drop-shadow" />
 			</span>
 			<img
@@ -58,7 +58,7 @@ function generateIcon(code) {
 				:src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
 				:alt="weather.weather[0].description"
 				class="hidden sm:inline-block"
-			/>
+			/> -->
 		</h5>
 	</div>
 </template>

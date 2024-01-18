@@ -1,17 +1,13 @@
 <template>
-	<div
-		v-if="!user"
-		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home"
-	>
+	<div v-if="!user"
+		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home">
 		<h1 class="-mt-28 mb-6 text-center temp-heading" style="max-width: 450px">
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
 			: a boutique community in Miami Beach focused on the local, active lifestyle.
 		</h1>
-		<img
-			src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
-			class="mt-8 mb-8 px-8"
-		/>
+		<img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
+			class="mt-8 mb-8 px-8" />
 		<nuxt-link to="/auth/signin">
 			<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Login</FormVButton>
 		</nuxt-link>

@@ -9,6 +9,12 @@ function stripHTML(original: string | undefined): string | undefined {
 	else return original.replace(/(<([^>]+)>)/gi, '');
 }
 
+// Slugify a string for hyphens and underscores
+function getFirstLetter(str: string | undefined): string | undefined {
+	if (!str) return;
+	return str[0];
+}
+
 function truncateString(str: string | undefined, num: number): string | undefined {
 	if (!str) return;
 
@@ -99,6 +105,7 @@ function calculateReadTime(str: string | undefined, wordsPerMinute = 200): strin
 export {
 	generateId,
 	stripHTML,
+	getFirstLetter,
 	truncateHTML,
 	truncateString,
 	maybePluralize,

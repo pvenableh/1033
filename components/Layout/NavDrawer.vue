@@ -53,6 +53,7 @@ const onLogout = async () => {
 	top: 0px;
 	z-index: 30;
 	background: rgba(0, 0, 0, 0.75);
+	box-shadow: 1px 2px 20px rgba(0, 0, 0, 0.25);
 	/* transform: translateX(110%); */
 	transition: 0.55s var(--curve);
 	@apply shadow-lg max-w-md;
@@ -64,8 +65,10 @@ const onLogout = async () => {
 	}
 	.lenox-icon {
 		position: absolute;
-		top: 25%;
+		top: -20%;
 		opacity: 0.05;
+		left: 10%;
+		width: 80%;
 		filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.95));
 	}
 	&__menu {

@@ -17,7 +17,7 @@ const log = useLogger();
 
 export default defineNuxtModule({
 	meta: {
-		name: 'agencyos-nuxt-directus',
+		name: 'nuxt-directus',
 		configKey: 'directus',
 		compatibility: {
 			nuxt: '^3.0.0',
@@ -53,7 +53,7 @@ export default defineNuxtModule({
 		const { resolve } = createResolver(import.meta.url);
 		const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url));
 
-		console.log("Step 2");
+		console.log('Step 2');
 
 		// Auto-import Directus SDK rest commands
 		const commands = [
@@ -134,7 +134,7 @@ export default defineNuxtModule({
 
 			// Utils
 		];
-		console.log("Step 3");
+		console.log('Step 3');
 		commands.forEach((name) => {
 			addImports({
 				name,
@@ -148,20 +148,20 @@ export default defineNuxtModule({
 
 		// Initialize the module options
 		nuxt.options.runtimeConfig.public.directus = defu(nuxt.options.runtimeConfig.public.directus, moduleOptions);
-		console.log("Step 4");
+		console.log('Step 4');
 		// Add plugins
 		const restPlugin = resolve(runtimeDir, './plugins/directus');
 		const authPlugin = resolve(runtimeDir, './plugins/auth');
 		addPlugin(restPlugin, { append: true });
 		addPlugin(authPlugin, { append: true });
-		console.log("Step 5");
+		console.log('Step 5');
 		// Add composables directory
 		const composables = resolve(runtimeDir, 'composables');
 		addImportsDir(composables);
-		console.log("Step 6");
+		console.log('Step 6');
 		// ** Build Logic **
 		const directus = createDirectus<Schema>(moduleOptions.rest.baseUrl).with(rest());
-		console.log("Step 7");
+		console.log('Step 7');
 		// Handle Redirects
 		// const redirects = await directus.request(readItems('redirects'));
 

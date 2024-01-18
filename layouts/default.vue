@@ -9,7 +9,7 @@
 			<LayoutMobileToolbar />
 			<LayoutNavButton @click="isOpen = true" />
 		</div>
-		<USlideover v-model="isOpen">
+		<USlideover v-model="isOpen" class="shadow-lg">
 			<LayoutNavDrawer :class="{ opened: isOpen }" @click="isOpen = false" />
 		</USlideover>
 	</div>
