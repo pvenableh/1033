@@ -1,4 +1,9 @@
 <script setup>
+definePageMeta({
+	layout: 'auth',
+	middleware: ['auth'],
+});
+
 const openTaskModal = ref(false);
 </script>
 <template>
