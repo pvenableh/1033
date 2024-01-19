@@ -181,7 +181,7 @@ const groupedData = computed(() => {
 	}
 
 	&__col-inner {
-		max-wdith: 375px;
+		max-width: 375px;
 		border: thin solid rgba(0, 0, 0, 0.05);
 		@apply w-full flex flex-col items-center justify-start px-4 py-4 min-h-screen;
 	}
