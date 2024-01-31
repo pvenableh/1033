@@ -65,6 +65,7 @@ function generateIcon(code) {
 <style>
 .weather {
 	@apply scale-75 sm:scale-75 md:scale-100;
+
 	&__intro {
 		font-size: 10px;
 	}
@@ -79,11 +80,10 @@ function generateIcon(code) {
 			line-height: 30px;
 			width: 30px;
 			height: 30px;
-			background: rgba(50, 50, 50, 0.15);
-			right: -33px;
-			top: -5px;
+			right: -38px;
+			top: -7px;
 			text-shadow: 0 2px 5px rgba(0, 0, 0, 1);
-			@apply absolute rounded-full inline-flex items-center justify-center;
+			@apply absolute rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
 		}
 	}
 }

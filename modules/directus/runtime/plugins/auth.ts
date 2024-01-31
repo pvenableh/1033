@@ -2,6 +2,8 @@ import type { RestClient, AuthenticationClient } from '@directus/sdk';
 import type { Schema } from '~/types/schema';
 
 import auth from '../middleware/auth';
+import guest from '../middleware/guest';
+import common from '../middleware/common';
 
 import {
 	defineNuxtPlugin,
@@ -20,13 +22,13 @@ export default defineNuxtPlugin(async () => {
 	try {
 		const config = useRuntimeConfig().public.directus;
 
-
+		addRouteMiddleware('common', common, { global: true });
 
 		addRouteMiddleware('auth', auth, {
 			global: config.auth.enableGlobalAuthMiddleware,
 		});
 
-
+		addRouteMiddleware('guest', guest);
 
 		const initialized = useState('directus-auth-initialized', () => false);
 
@@ -41,7 +43,7 @@ export default defineNuxtPlugin(async () => {
 			if (token) {
 				await fetchUser({});
 			} else {
-				const isCallback = path === '/account/callback';
+				const isCallback = path === '/auth/callback';
 				const isLoggedIn = _loggedIn.get() === 'true';
 
 				if (isCallback || isLoggedIn) {

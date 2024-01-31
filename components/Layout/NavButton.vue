@@ -45,12 +45,13 @@
 			position: absolute;
 			height: 1px;
 			width: 100%;
-			background: var(--grey);
+		
 			border-radius: 2px;
 			opacity: 1;
 			left: 0;
 			transform: rotate(0deg);
 			transition: 0.25s var(--curve);
+			@apply bg-gray-700 dark:bg-gray-400;
 		}
 
 		span:nth-child(1) {

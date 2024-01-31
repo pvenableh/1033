@@ -38,11 +38,11 @@ const avatar = computed(() => {
 		chip-color="sky"
 		:chip-text="text"
 		chip-position="top-right"
-		size="sm"
+		:size="size"
 		:src="avatar"
 		:alt="user?.first_name + ' ' + user?.last_name"
 	/>
-	<UAvatar v-else size="sm" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
+	<UAvatar v-else :size="size" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
 </template>
 
 <style></style>

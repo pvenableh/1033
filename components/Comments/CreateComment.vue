@@ -50,7 +50,7 @@ async function connectComment(commentId) {
 </script>
 <template>
 	<div class="relative w-full flex items-center justify-center flex-row">
-		<AccountAvatar />
+		<AccountAvatar size="xs" />
 		<div class="flex-grow relative">
 			<input
 				v-model="comment"

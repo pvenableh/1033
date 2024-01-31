@@ -17,7 +17,7 @@ const log = useLogger();
 
 export default defineNuxtModule({
 	meta: {
-		name: 'nuxt-directus',
+		name: 'agencyos-nuxt-directus',
 		configKey: 'directus',
 		compatibility: {
 			nuxt: '^3.0.0',
@@ -32,10 +32,10 @@ export default defineNuxtModule({
 				enabled: true,
 				enableGlobalAuthMiddleware: false,
 				redirect: {
-					home: '/',
-					login: '/auth/signin',
-					logout: '/auth/logout',
-					resetPassword: '/auth/signin',
+					home: '/home',
+					login: '/auth/login',
+					logout: '/auth/login',
+					resetPassword: '/auth/reset-password',
 					callback: '/auth/callback',
 				},
 			},
@@ -52,8 +52,6 @@ export default defineNuxtModule({
 		// ** Runtime Logic **
 		const { resolve } = createResolver(import.meta.url);
 		const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url));
-
-		console.log('Step 2');
 
 		// Auto-import Directus SDK rest commands
 		const commands = [
@@ -95,7 +93,6 @@ export default defineNuxtModule({
 			// We're not autoimporting these because we're using the authentication composable
 			// 'login',
 			// 'logout',
-			'passwordRequest',
 			'passwordReset',
 			'resetPassword',
 			'readProviders',
@@ -134,7 +131,7 @@ export default defineNuxtModule({
 
 			// Utils
 		];
-		console.log('Step 3');
+
 		commands.forEach((name) => {
 			addImports({
 				name,
@@ -148,53 +145,53 @@ export default defineNuxtModule({
 
 		// Initialize the module options
 		nuxt.options.runtimeConfig.public.directus = defu(nuxt.options.runtimeConfig.public.directus, moduleOptions);
-		console.log('Step 4');
+
 		// Add plugins
 		const restPlugin = resolve(runtimeDir, './plugins/directus');
 		const authPlugin = resolve(runtimeDir, './plugins/auth');
 		addPlugin(restPlugin, { append: true });
 		addPlugin(authPlugin, { append: true });
-		console.log('Step 5');
+
 		// Add composables directory
 		const composables = resolve(runtimeDir, 'composables');
 		addImportsDir(composables);
-		console.log('Step 6');
+
 		// ** Build Logic **
 		const directus = createDirectus<Schema>(moduleOptions.rest.baseUrl).with(rest());
-		console.log('Step 7');
+
 		// Handle Redirects
-		// const redirects = await directus.request(readItems('redirects'));
+		const redirects = await directus.request(readItems('redirects'));
 
-		// for (const redirect of redirects) {
-		// 	let responseCode = redirect.response_code ? parseInt(redirect.response_code as any) : 301;
+		for (const redirect of redirects) {
+			let responseCode = redirect.response_code ? parseInt(redirect.response_code as any) : 301;
 
-		// 	if (responseCode !== 301 && responseCode !== 302) {
-		// 		responseCode = 301;
-		// 	}
+			if (responseCode !== 301 && responseCode !== 302) {
+				responseCode = 301;
+			}
 
-		// 	// Add the redirect to the route rules
-		// 	// https://nuxt.com/docs/guide/concepts/rendering#route-rules
-		// 	extendRouteRules(redirect.url_old as string, {
-		// 		redirect: {
-		// 			to: redirect.url_new,
-		// 			statusCode: responseCode as 301 | 302,
-		// 		},
-		// 	});
-		// }
+			// Add the redirect to the route rules
+			// https://nuxt.com/docs/guide/concepts/rendering#route-rules
+			extendRouteRules(redirect.url_old as string, {
+				redirect: {
+					to: redirect.url_new,
+					statusCode: responseCode as 301 | 302,
+				},
+			});
+		}
 
-		// log.success(`${redirects.length} Redirects loaded`);
+		log.success(`${redirects.length} Redirects loaded`);
 
-		// for (const redirect of redirects) {
-		// 	log.info(`  • ${redirect.response_code}`, `From: ${redirect.url_old}`, `To: ${redirect.url_new}`);
-		// }
+		for (const redirect of redirects) {
+			log.info(`  • ${redirect.response_code}`, `From: ${redirect.url_old}`, `To: ${redirect.url_new}`);
+		}
 
 		// Add Globals
-		// const globals = await directus.request<Omit<Globals, 'id' | 'url'>>(readSingleton('globals'));
-		// nuxt.options.appConfig.globals = defu(nuxt.options.appConfig.globals, globals);
-		// log.success('Globals loaded into appConfig');
+		const globals = await directus.request<Omit<Globals, 'id' | 'url'>>(readSingleton('globals'));
+		nuxt.options.appConfig.globals = defu(nuxt.options.appConfig.globals, globals);
+		log.success('Globals loaded into appConfig');
 
 		// Add title template to the app head for use with useHead composable
-		// nuxt.options.app.head.titleTemplate = `%s - ${globals?.title ?? 'Agency OS'}`;
+		nuxt.options.app.head.titleTemplate = `%s  ${globals?.title ?? '1033 Lenox'}`;
 
 		log.success(`Directus Module Loaded`);
 	},

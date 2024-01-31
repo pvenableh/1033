@@ -5,6 +5,7 @@
 html, body {
   color: var(--darkGrey);
   scroll-behavior: smooth;
+  @apply font-bold;
 }
 *:focus {
   outline: 0 !important;

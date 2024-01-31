@@ -21,16 +21,19 @@
   --breakpoint-medium: 768px;
   --breakpoint-large: 1024px;
   --breakpoint-xlarge: 1280px;
-  --bold-font: 'Proxima Nova W01 Regular', 'Helvetica Neue', Helvetica, Roboto,
+  --font-bold: 'Proxima Nova W01 Regular', 'Helvetica Neue', Helvetica, Roboto,
     Arial, sans-serif;
-  --body-font: 'Proxima Nova W01 Light', 'Helvetica Neue', Helvetica, Roboto,
+  --font-display: 'Proxima Nova W01 Light', 'Helvetica Neue', Helvetica, Roboto,
     Arial, sans-serif;
-  --light-font: 'Proxima Nova W01 Thin"', 'Helvetica Neue', Helvetica, Roboto,
+    --font-sans: 'Proxima Nova W01 Light', 'Helvetica Neue', Helvetica, Roboto,
     Arial, sans-serif;
-  --serif-font: 'Bauer Bodoni W01 Roman', 'Times New Roman', Times, serif;
+  --font-light: 'Proxima Nova W01 Thin"', 'Helvetica Neue', Helvetica, Roboto,
+    Arial, sans-serif;
+  --font-serif: 'Bauer Bodoni W01 Roman', 'Times New Roman', Times, serif;
   --bounce: cubic-bezier(0.205, 0.47, 0.36, 1.385);
   --curve: cubic-bezier(0.65, 0, 0.45, 1);
   --bounce2: cubic-bezier(0.175, 0.885, 0.32, 1.275);
   --hoverEasing: cubic-bezier(0.23, 1, 0.32, 1);
   --returnEasing: cubic-bezier(0.445, 0.05, 0.55, 0.95);
+  --border-radius-button: 30px;
 }

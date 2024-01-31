@@ -37,19 +37,21 @@ const avatar = computed(() => {
 </script>
 <template>
 	<header
-		class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 header"
+		class="w-full flex items-center justify-center px-4 md:px-6 sticky top-0 left-0 z-40 dark:bg-gray-900 transition-all header"
 		:class="{ retracted: isRetracted }"
 	>
 		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		<nuxt-link to="/">
 			<Logo />
 		</nuxt-link>
-		<nuxt-link to="/tasks" class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
-			<AccountAvatar v-if="user" text="12" />
+		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
+		<nuxt-link to="/tasks" class="scale-75 sm:scale-100 inline-block ">
+			<AccountAvatar v-if="user" text="12"/>
 			<UAvatar v-else icon="i-heroicons-user" size="sm" />
 		</nuxt-link>
-
-		<DarkModeToggle />
+		<DarkModeToggle class="inline-block mt-0"/>
+	</div>
+		
 	</header>
 </template>
 

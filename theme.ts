@@ -2,32 +2,27 @@ export interface Theme {
 	primary: string;
 	gray: string;
 	borderRadius: 'none' | 'sm' | 'base' | 'md' | 'lg' | 'xl' | 'full';
-	googleFonts: {
-		[key: string]: boolean | number[];
-	};
 	fonts: {
 		display: string;
 		sans: string;
+		body: string;
+		bold: string;
 		code: string;
 		signature: string;
 	};
 }
 
 export const theme = {
-	primary: 'violet',
-	gray: 'slate',
-	borderRadius: 'lg',
-	googleFonts: {
-		Inter: true,
-		'Fira Code': true,
-		Poppins: [400, 500, 600, 700, 800, 900],
-		'Nothing You Could Do': true,
-	},
+	primary: 'turquoise',
+	gray: 'zinc',
+	borderRadius: 'full',
 	fonts: {
-		display: 'Poppins',
-		sans: 'Inter',
+		display: 'Bauer Bodoni W01 Roman',
+		sans: 'Proxima Nova W01 Light',
+		body: 'Proxima Nova W01 Light',
+		bold: 'Proxima Nova W01 Regular',
 		code: 'Fira Code',
-		signature: 'Nothing You Could Do',
+		signature: 'Gaegu',
 	},
 } as Theme;
 

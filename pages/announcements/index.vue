@@ -12,12 +12,14 @@ const { data: announcements } = await useAsyncData('announcements', () => {
 				status: {
 					_eq: 'sent',
 				},
+				date_sent: {
+					_nnull: true
+				}
 			},
 			sort: '-date_sent',
 		}),
 	);
 });
-
 const filteredAnnouncements = computed(() => {
 	let possibleStrings = ['Minutes', 'Agenda', 'Board Meeting'];
 
@@ -25,7 +27,6 @@ const filteredAnnouncements = computed(() => {
 		.map((item) => {
 			if (item.tags) {
 				if (!possibleStrings.some((possibleString) => item.tags.includes(possibleString))) {
-					console.log(item.tags);
 					return item;
 				}
 

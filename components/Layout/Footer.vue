@@ -1,6 +1,6 @@
 <template>
 	<div
-		class="w-full flex flex-col md:flex-row flex-wrap items-center justify-start sm:justify-center px-4 md:px-6 pb-10 mt-16 md:mt-20 footer"
+		class="w-full flex flex-col md:flex-row flex-wrap items-center justify-start sm:justify-center px-4 md:px-6 pb-10 mt-16 md:mt-20 text-gray-700 dark:text-gray-400 footer"
 	>
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link to="/">Home</nuxt-link>
@@ -73,7 +73,7 @@ const { user, logout } = useDirectusAuth();
 
 		a {
 			font-size: 10px;
-			color: var(--grey);
+		
 			@apply uppercase tracking-widest py-1 mb-1 w-full;
 		}
 		a:hover,
@@ -98,17 +98,14 @@ h5.web-designer {
 
 	a {
 		font-size: 10px;
-		color: var(--black);
-
 		svg {
 			width: 35px;
 			height: auto;
 			display: inline;
-			fill: rgba(0, 0, 0, 0.75);
 			stroke: none;
 			margin-top: -11px;
 			margin-left: 3px;
-
+			@apply fill-gray-700 dark:fill-gray-400; 
 			path {
 				transition: all 0.3s linear;
 			}
@@ -136,8 +133,6 @@ h5.web-designer {
 
 h5.copyright {
 	font-size: 9px;
-
-	color: var(--black);
 	margin-top: 0px;
 	margin-bottom: 50px;
 	letter-spacing: 0.3em;

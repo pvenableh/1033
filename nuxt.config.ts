@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 			enabled: true,
 			enableGlobalAuthMiddleware: false, // Enable auth middleware on every page
 			userFields: [
-				'id,first_name,last_name,email,token,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.image,units.units_id.people.people_id.mailing_address,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.bio,units.units_id.people.people_id.board_member.experience,units.units_id.people.people_id.board_member.year,units.units_id.people.people_id.board_member.icon,units.units_id.people.people_id.board_member.image,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish,units.units_id.people.people_id.leases.file',
+				'id,role,first_name,last_name,email,token,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.image,units.units_id.people.people_id.mailing_address,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.bio,units.units_id.people.people_id.board_member.experience,units.units_id.people.people_id.board_member.year,units.units_id.people.people_id.board_member.icon,units.units_id.people.people_id.board_member.image,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish,units.units_id.people.people_id.leases.file',
 			], // Select user fields
 			redirect: {
 				login: '/auth/signin', // Path to redirect when login is required
@@ -71,9 +71,9 @@ export default defineNuxtConfig({
 	devtools: { enabled: false },
 
 	ui: {
-		icon: {
-			dynamic: true,
-		},
+		primary: 'cyan',
+		gray: 'zinc',
+		icons: 'all',
 	},
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/

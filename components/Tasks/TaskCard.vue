@@ -5,9 +5,9 @@ const props = defineProps({
 		default: null,
 	},
 });
+
 const alert = computed(() => {
 	if (props.task.due_date && props.task.category !== 'Completed') {
-		console.log(isPastOrFuture(props.task.due_date));
 		if (isPastOrFuture(props.task.due_date) === 'past') {
 			return true;
 		} else {
@@ -17,9 +17,14 @@ const alert = computed(() => {
 		return false;
 	}
 });
+const editable = ref(false);
+
+function makeEditable() {
+      editable.value = !editable.value;
+}
 </script>
 <template>
-	<div class="w-full flex flex-col items-center justify-between task-card" :class="{ alert: alert }">
+	<div class="w-full flex flex-col items-center justify-between bg-white dark:bg-gray-900 task-card" :class="{ alert: alert }">
 		<div class="relative w-full flex flex-col items-start justify-start" :data-id="task.id">
 			<UPopover mode="hover" :popper="{ placement: 'left', arrow: true }" class="absolute right-[0px] top-[0px]">
 				<UIcon name="i-heroicons-information-circle" />
@@ -36,34 +41,58 @@ const alert = computed(() => {
 					</div>
 				</template>
 			</UPopover>
-			<div class="w-full flex flex-row task-card__category">
+			<div class="w-full flex flex-row mb-2 task-card__category">
 				<p class="font-bold uppercase inline-block" :class="slugify(task.category)">{{ task.category }}</p>
 				<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" />
 			</div>
 
 			<h3 class="uppercase task-card__title">{{ task.title }}</h3>
-
-			<div class="task-card__description" v-html="task.description"></div>
+			<UTextarea class="task-card__description"  v-model="task.description" :disabled="editable" @dblclick="makeEditable()" />
+		
+			<input :disabled="!editable" placeholder="Editable input">
+   			 <p :contentEditable="editable">Editable paragraph</p>
 			<div class="flex flex-row items-center justify-between w-full">
+				<div class="w-full flex flex-row items-center justify-between task-card__due">
+					<h5
+						v-if="task.due_date && task.category !== 'Completed'"
+						class="uppercase leading-4"
+						:class="{ 'alert font-bold': alert }"
+					>
+						<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
+						Due {{ getRelativeTime(task.due_date) }}
+						<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
+					</h5>
+					<h5 v-if="task.category === 'Completed'" class="uppercase">
+						Completed on {{ getFriendlyDateThree(task.date_updated) }}
+					</h5>
+					<UAvatar
+						v-if="task.category !== 'Completed' && !task.due_date"
+						icon="i-heroicons-calendar-days"
+						size="xs"
+						class="shadow border"
+					/>
+				</div>
 				<div v-if="task.assigned_to.length" class="task-card__people">
 					<UTooltip
 						v-for="(user, index) in task.assigned_to"
 						:key="index"
 						:text="user.directus_users_id.first_name + ' ' + user.directus_users_id.last_name"
+						class="task-card__people-item"
 					>
-						<Avatar :key="index" :user="user.directus_users_id" size="xs" />
+						<Avatar :key="index" :user="user.directus_users_id" size="xs" class="task-card__people-avatar" />
 					</UTooltip>
 				</div>
-				<h5 v-if="task.due_date" class="uppercase task-card__due">Due {{ getRelativeTime(task.due_date) }}</h5>
+				<TasksTaskAssign v-else :task="task" />
 			</div>
 		</div>
+		<div class="w-full border-t mt-4"></div>
 		<CommentsContainer :item="task.id" collection="tasks" />
 	</div>
 </template>
 <style>
 .task-card {
 	animation: updated 0.35s var(--curve);
-	background: #f9f9f9;
+
 	@apply p-4 rounded-md  shadow-lg mb-6;
 
 	&__category {
@@ -91,8 +120,11 @@ const alert = computed(() => {
 		@apply font-bold;
 	}
 	&__due {
-		font-size: 12px;
+		font-size: 10px;
 		@apply font-bold;
+		.alert {
+			@apply text-red-500;
+		}
 	}
 	&__description {
 		font-size: 12px;
@@ -105,6 +137,12 @@ const alert = computed(() => {
 	}
 	&__people {
 		@apply inline-flex flex-row-reverse justify-end uppercase;
+		&-item {
+			@apply -me-1.5 first:me-0;
+		}
+		&-avatar {
+			@apply ring-2 ring-white dark:ring-gray-900;
+		}
 	}
 	/* &:hover {
 		cursor: grab;
@@ -120,17 +158,17 @@ const alert = computed(() => {
 @keyframes updated {
 	0% {
 		transform: scale(1);
-		background: var(--white);
+		background: #f9f9f9;
 	}
 
 	50% {
 		transform: scale(1.02);
-		background: var(--cyan);
+		background: var(--white);
 	}
 
 	to {
 		transform: scale(1);
-		background: var(--white);
+		background: #f9f9f9;
 	}
 }
 </style>

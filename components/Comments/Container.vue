@@ -111,17 +111,17 @@ const commentsTotal = computed(() => {
 });
 </script>
 <template>
-	<div :id="'comments-container-' + item.id" class="w-full comments-container">
+	<div :id="'comments-container-' + item.id" class="w-full mt-4 comments-container">
 		<div
 			class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
 			style="font-size: 8px"
 		>
-			<div v-if="comments.history.length > 0" class="flex flex-row items-center justify-center">
+			<div class="flex flex-row items-center justify-center">
 				<UToggle
-					color="gray"
-					on-icon="i-heroicons-check-20-solid"
-					off-icon="i-heroicons-x-mark-20-solid"
 					v-model="showComments"
+					color="gray"
+					on-icon="i-heroicons-chat-bubble-left-right-solid"
+					off-icon="i-heroicons-x-mark-20-solid"
 				/>
 				<p class="ml-2">
 					{{ showComments ? 'Hide ' + commentsTotal + ' Comments' : 'Show ' + commentsTotal + ' Comments' }}
@@ -130,13 +130,13 @@ const commentsTotal = computed(() => {
 		</div>
 
 		<transition name="fade">
-			<div v-if="showComments">
+			<div v-if="showComments" class="mt-6">
 				<CommentsCreateComment v-if="user" :item="item" :collection="collection" class="my-3" />
 				<transition-group name="fade" tag="div" class="w-full flex items-start justify-start flex-col">
 					<CommentsComment
-						v-for="item in comments.history"
-						:key="item.id"
-						:comment="item"
+						v-for="(comment, index) in comments.history"
+						:key="index"
+						:comment="comment"
 						:collection="collection"
 						class="my-2"
 					/>

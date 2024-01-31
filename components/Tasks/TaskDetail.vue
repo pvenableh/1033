@@ -19,7 +19,14 @@ const props = defineProps({
 	},
 });
 
-const state = ref({});
+const state = ref({
+	id: '',
+	title: '',
+	description: '',
+	category: '',
+	due_date: '',
+	project: '',
+});
 
 if (props.action === 'create') {
 	state.value = {
@@ -76,19 +83,19 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 </script>
 
 <template>
-	<div class="w-full h-full">
+	<div class="w-full h-full p-6">
 		<UForm :validate="validate" :state="state" class="space-y-4" @submit="onSubmit">
 			<UFormGroup label="Status" name="category">
-				<USelect v-model="state.category" :options="['Scheduled', 'In Progress', 'Completed']" />
+				<USelect v-model="state.category" :options="['Scheduled', 'In Progress', 'Completed']" required/>
 			</UFormGroup>
 			<UFormGroup label="Title" name="title">
-				<UInput v-model="state.title" />
+				<UInput v-model="state.title" required />
 			</UFormGroup>
 			<UFormGroup label="Description" name="description">
 				<UTextarea v-model="state.description" />
 			</UFormGroup>
 			<UFormGroup label="Due Date" name="due_date">
-				<UInput v-model="state.due_date" type="datetime-local" />
+				<UInput v-model="state.due_date" type="datetime-local"/>
 			</UFormGroup>
 			<UButton type="submit">Submit</UButton>
 		</UForm>

@@ -1,4 +1,5 @@
 <script setup>
+import { isTemplateMiddleOrTemplateTail } from 'typescript';
 import draggable from 'vuedraggable';
 
 const config = useRuntimeConfig();
@@ -42,10 +43,9 @@ onMounted(async () => {
 	}
 
 	function receiveMessage(message) {
-		console.log(message);
 		const data = JSON.parse(message.data);
-
 		if (data.type == 'auth' && data.status == 'ok') {
+			console.log(user.value.id)
 			connection.send(
 				JSON.stringify({
 					type: 'subscribe',
@@ -54,6 +54,8 @@ onMounted(async () => {
 						fields: [
 							'*,user_created.first_name,user_created.last_name,user_updated.first_name,user_updated.last_name,assigned_to.directus_users_id.id,assigned_to.directus_users_id.first_name,assigned_to.directus_users_id.last_name,assigned_to.directus_users_id.avatar,assigned_to.directus_users_id.email',
 						],
+						
+					
 						sort: 'date_created',
 					},
 				}),
@@ -107,17 +109,9 @@ function updateTasks(category, event) {
 }
 
 async function sendUpdate(item) {
-	let updatedItem = {
-		category: item.category,
-		user_updated: user.value.id,
-		date_completed: null,
-	};
+	console.log(item.assigned_to);
 
-	if (item.category === 'Completed') {
-		updatedItem.date_completed = new Date().toISOString();
-	}
-	console.log(updatedItem);
-	await useDirectus(updateItem('tasks', item.id, updatedItem));
+	await useDirectus(updateItem('tasks', item.id, item));
 }
 
 const groupedData = computed(() => {
@@ -132,8 +126,20 @@ const groupedData = computed(() => {
 		if (!categories[item.category]) {
 			categories[item.category] = [];
 		}
-
-		categories[item.category].push(item);
+		if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
+			categories[item.category].push(item);
+		} else {
+			if(item.assigned_to.length > 0) {
+				item.assigned_to.forEach((person) => {
+					if(person.directus_users_id.id === user.value.id) {
+						categories[item.category].push(item);
+					}
+				})
+			} else {
+				console.log('no assigned user.')
+			}
+		} 
+		
 	});
 
 	return categories;
@@ -182,8 +188,8 @@ const groupedData = computed(() => {
 
 	&__col-inner {
 		max-width: 375px;
-		border: thin solid rgba(0, 0, 0, 0.05);
-		@apply w-full flex flex-col items-center justify-start px-4 py-4 min-h-screen;
+		/* border: thin solid rgba(0, 0, 0, 0.05); */
+		@apply border border-gray-900/5 dark:border-gray-900/50 w-full flex flex-col items-center justify-start px-4 py-4 min-h-screen;
 	}
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-	<div id="mobile-toolbar" class="mobile-toolbar flex flex-row items-center justify-center">
+	<div id="mobile-toolbar" class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900">
 		<nuxt-link to="/dashboard">
 			<UIcon name="i-heroicons-squares-2x2" />
 			<h5>Dashboard</h5>
@@ -21,7 +21,7 @@
 	left: 0px;
 	width: 100%;
 	height: 50px;
-	background: #eeeeee;
+	
 	border-top: solid 1px rgba(55, 55, 55, 0.05);
 	padding-right: 33.333333%;
 	overflow: hidden;
@@ -35,8 +35,8 @@
 	a {
 		width: 50%;
 		height: 50px;
-		border-right: thin solid var(--white);
-		@apply relative flex flex-col items-center justify-center;
+		/* border-right: thin solid var(--white); */
+		@apply relative flex flex-col items-center justify-center border-r border-white dark:border-gray-700;
 
 		svg {
 			height: 20px;
