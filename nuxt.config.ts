@@ -76,7 +76,7 @@ export default defineNuxtConfig({
 	ui: {
 		primary: 'cyan',
 		gray: 'zinc',
-		icons: 'all',
+		icons: {},
 	},
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/
