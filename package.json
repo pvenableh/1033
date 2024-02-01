@@ -48,7 +48,7 @@
 		"typescript": "5.3.3",
 		"uuid": "9.0.1",
 		"v-perfect-signature": "1.4.0",
-		"vue": "3.3.6",
+		"vue": "^3.3.11",
 		"vue-tsc": "1.8.19"
 	},
 	"dependencies": {
