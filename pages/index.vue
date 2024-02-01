@@ -66,7 +66,7 @@ const { x, y } = useMouse({ touch: false })
 		bottom: 0px;
 		/* color: #cccccc; */
 		@apply uppercase tracking-wide;
-
+		max-width: 400px;
 		@media (min-width: theme('screens.md')) {
 			max-width: 400px;
 		}
