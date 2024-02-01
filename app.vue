@@ -12,11 +12,11 @@
 // });
 </script>
 <template>
-	<NuxtLayout>
-		<NuxtLoadingIndicator
+	<NuxtLoadingIndicator
 			color="repeating-linear-gradient(to right,#FF99DD
     0%,#94a3b8 100%)"
 		/>
-		<NuxtPage class=""/>
+	<NuxtLayout>
+		<NuxtPage />
 	</NuxtLayout>
 </template>

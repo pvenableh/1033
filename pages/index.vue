@@ -2,19 +2,19 @@
 	<div v-if="!user"
 		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home">
 
-		<h1 class="-mt-28 mb-12 text-center temp-heading" style="max-width: 450px">
+		<h1 class="-mt-28 mb-12 text-center temp-heading" style="max-width: 500px">
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
 			: a boutique community in Miami Beach focused on the local, active lifestyle.
 		</h1>
 		<div class="w-full h-[300px] relative flex items-center justify-center">
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[10px] ml-12 "/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[70px] w-auto -top-[2px] -ml-28 -scale-x-100" :style="{  marginRight: -x/60 + 'px' }"/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[90px] w-auto top-[0px] ml-20 -scale-x-100" :style="{  marginRight: -x/50 + 'px' }"/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[70px] w-auto top-[3px] mr-32" :style="{  marginLeft: -x/30 + 'px' }"/>
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[50px] sm:top-[10px] ml-12 "/>
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[70px] w-auto top-[55px] sm:-top-[2px] -ml-28 -scale-x-100" :style="{  marginRight: -x/60 + 'px' }"/>
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] sm:h-[90px] w-auto top-[55px] sm:top-[0px] ml-20 -scale-x-100" :style="{  marginRight: -x/50 + 'px' }"/>
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[50px] sm:h-[70px] w-auto top-[60px] sm:top-[3px] mr-32" :style="{  marginLeft: -x/30 + 'px' }"/>
 			<img ref="movableElement"
 				src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
-				class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]  transition-transform"
+				class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]  transition-transform building" 
 				:style="{ marginTop: -y/40 + 'px', marginLeft: -x/20 + 'px' }" />
 		</div>
 		<nuxt-link to="/auth/signin">
@@ -44,7 +44,20 @@ const { x, y } = useMouse({ touch: false })
 .home {
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */
+	.building 
+	{
+		max-width: 350px;
+		@media (min-width: theme('screens.sm')) {
+			max-width: 575px;
+		}
+		@media (min-width: theme('screens.md')) {
+			max-width: 575px;
+		}
 
+		@media (min-width: theme('screens.lg')) {
+			max-width: 600px;
+		}
+	}
 	.temp-heading {
 		font-size: 12px;
 		/* background: linear-gradient(-45deg, #cccccc, #666666);

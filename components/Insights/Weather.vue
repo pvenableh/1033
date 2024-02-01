@@ -7,7 +7,7 @@ const isIcon = ref(true);
 
 function generateIcon(code) {
 	if (code === '01d') {
-		return 'i-wi-day-sunny';
+		return 'i-fluent-weather-sunny-48-regular';
 	} else if (code === '01n') {
 		return 'i-wi-night-clear';
 	} else if (code === '02d') {
@@ -45,8 +45,10 @@ function generateIcon(code) {
 </script>
 <template>
 	<div class="hidden sm:inline-block weather">
+		
 		<h5 class="uppercase tracking-wide weather__intro"></h5>
 		<h5 class="uppercase tracking-wide relative weather__stats">
+			
 			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
 			{{ weather.weather[0].main }}
