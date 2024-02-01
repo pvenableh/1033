@@ -2,7 +2,9 @@
 // import { theme } from './theme';
 
 export default defineNuxtConfig({
-	ssr: true,
+	nitro: {
+		preset: 'vercel-edge',
+	},
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
