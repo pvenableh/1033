@@ -2,7 +2,7 @@
 	<div v-if="!user"
 		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home">
 
-		<h1 class="-mt-28 mb-12 text-center temp-heading" style="max-width: 500px">
+		<h1 class="-mt-28 mb-12 text-center temp-heading" >
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
 			: a boutique community in Miami Beach focused on the local, active lifestyle.
@@ -65,14 +65,14 @@ const { x, y } = useMouse({ touch: false })
 		-webkit-text-fill-color: transparent; */
 		bottom: 0px;
 		/* color: #cccccc; */
-		@apply uppercase tracking-wider;
+		@apply uppercase tracking-wide;
 
 		@media (min-width: theme('screens.md')) {
 			max-width: 400px;
 		}
 
 		@media (min-width: theme('screens.lg')) {
-			max-width: 600px;
+			max-width: 440px;
 		}
 	}
 

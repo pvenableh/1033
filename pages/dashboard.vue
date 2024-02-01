@@ -14,23 +14,7 @@ definePageMeta({
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */
 
-	.temp-heading {
-		font-size: 12px;
-		/* background: linear-gradient(-45deg, #cccccc, #666666);
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent; */
-		bottom: 0px;
-		/* color: #cccccc; */
-		@apply uppercase tracking-wider;
-
-		@media (min-width: theme('screens.md')) {
-			max-width: 400px;
-		}
-
-		@media (min-width: theme('screens.lg')) {
-			max-width: 600px;
-		}
-	}
+	
 
 	.logo {
 		max-width: 400px;
