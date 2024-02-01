@@ -45,9 +45,9 @@ const avatar = computed(() => {
 			<Logo />
 		</nuxt-link>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
-		<nuxt-link to="/tasks" class="scale-75 sm:scale-100 inline-block ">
-			<AccountAvatar v-if="user" text="12"/>
-			<UAvatar v-else icon="i-heroicons-user" size="sm" />
+		<nuxt-link to="/tasks" class="scale-75 sm:scale-100 inline-block">
+			<AccountAvatar v-if="user" text="12" class="mr-2"/>
+			<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-2"/>
 		</nuxt-link>
 		<DarkModeToggle class="inline-block mt-0"/>
 	</div>
