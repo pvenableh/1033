@@ -1,5 +1,6 @@
 node_modules
 admin
+pnpm-lock.yaml
 *.log*
 .nuxt
 .nitro
@@ -15,3 +16,4 @@ dist
 .directus
 .directus/data
 .directus/uploads
+
