@@ -12,6 +12,7 @@ const loading = ref(false);
 const error = ref(null);
 
 async function attemptLogin() {
+	console.log('test')
 	loader.value = true;
 	openScreen();
 	const { email, password } = unref(credentials);
