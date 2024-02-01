@@ -3,6 +3,9 @@
 export default defineAppConfig({
 	// theme,
 	ui: {
+		icons: {
+			dynamic: true
+		},
 		strategy: 'override',
 		primary: 'turquoise',
 		gray: 'zinc',
