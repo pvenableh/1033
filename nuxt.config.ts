@@ -74,8 +74,6 @@ export default defineNuxtConfig({
 	devtools: { enabled: false },
 
 	ui: {
-		primary: 'cyan',
-		gray: 'zinc',
 		icons: {},
 	},
 

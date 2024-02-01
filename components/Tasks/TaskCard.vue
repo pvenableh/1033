@@ -47,7 +47,7 @@ function makeEditable() {
 			</div>
 
 			<h3 class="uppercase task-card__title">{{ task.title }}</h3>
-			<UTextarea class="task-card__description"  v-model="task.description" :disabled="editable" @dblclick="makeEditable()" />
+			<!-- <UTextarea class="task-card__description"  v-model="task.description" :disabled="editable" @dblclick="makeEditable()" /> -->
 			<div class="task-card__description" v-html="task.description"></div>
 			<!-- <input :disabled="!editable" placeholder="Editable input">
    			 <p :contentEditable="editable">Editable paragraph</p> -->

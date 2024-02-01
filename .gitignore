@@ -1,6 +1,5 @@
 node_modules
 admin
-pnpm-lock.yaml
 *.log*
 .nuxt
 .nitro
