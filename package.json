@@ -55,9 +55,9 @@
 		"@nuxt/image": "1.1.0",
 		"@nuxtjs/plausible": "^0.2.4",
 		"@sendgrid/mail": "^7.7.0",
-		"@vee-validate/rules": "^4.12.4",
+		"@vee-validate/rules": "^4.12.5",
 		"chart.js": "^4.4.1",
-		"vee-validate": "^4.12.4",
+		"vee-validate": "^4.12.5",
 		"vue-chartjs": "^5.3.0",
 		"vuedraggable": "^4.1.0"
 	},
