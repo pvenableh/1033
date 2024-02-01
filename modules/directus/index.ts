@@ -25,8 +25,8 @@ export default defineNuxtModule({
 
 		defaults: {
 			rest: {
-				baseUrl: 'http://localhost:8055',
-				nuxtBaseUrl: 'http://localhost:3000',
+				baseUrl: 'https://admin.1033lenox.com',
+				nuxtBaseUrl: 'https://1033-next.vercel.app',
 			},
 			auth: {
 				enabled: true,

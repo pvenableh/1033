@@ -2,10 +2,10 @@
 // import { theme } from './theme';
 
 export default defineNuxtConfig({
-	// ssr: true,
-	nitro: {
-		preset: 'vercel-edge',
-	},
+	ssr: true,
+	// nitro: {
+	// 	preset: 'vercel-edge',
+	// },
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
@@ -32,10 +32,10 @@ export default defineNuxtConfig({
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
 
-	experimental: {
-		componentIslands: true,
-		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-	},
+	// experimental: {
+	// 	componentIslands: true,
+	// 	asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+	// },
 
 	runtimeConfig: {
 		public: {
@@ -81,7 +81,7 @@ export default defineNuxtConfig({
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/
 	colorMode: {
-		preference: 'light',
+		preference: 'dark',
 		classSuffix: '', // This is so we play nice with TailwindCSS
 	},
 
