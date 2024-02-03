@@ -20,7 +20,7 @@
 	text-align: center;
 	cursor: pointer;
 	transition: 0.475s var(--curve);
-	height: 50px;
+	height: 65px;
 	@media (min-width: theme('screens.sm')) {
 		/* right: 35px; */
 	}
@@ -30,7 +30,7 @@
   } */
 	#nav-icon {
 		width: 45px;
-		height: 50px;
+		height: 65px;
 		position: relative;
 		margin: 0px auto 0px;
 		transform: rotate(0deg);
@@ -55,7 +55,7 @@
 		}
 
 		span:nth-child(1) {
-			top: 21px;
+			top: 28px;
 			/* transform-origin: left center;
 
 			@media (min-width: theme('screens.lg')) {
@@ -70,7 +70,7 @@
 		}
 
 		span:nth-child(3) {
-			top: 29px;
+			top: 36px;
 			transform-origin: left center;
 			/*
 			@media (min-width: theme('screens.lg')) {

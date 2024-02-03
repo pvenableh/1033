@@ -1,14 +1,14 @@
 <template>
 	<div class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative">
-		<div class="w-full flex items-center justify-center flex-col min-h-screen page__content">
+	
 			<LayoutHeader />
-			<div class="w-full mx-auto min-h-screen relative px-4 md:px-6">
+	
 				<slot />
-			</div>
+		
 			<LayoutFooter />
 			<LayoutMobileToolbar />
 			<LayoutNavButton @click="isOpen = true" />
-		</div>
+		
 		<USlideover v-model="isOpen" class="shadow-lg">
 			<LayoutNavDrawer :class="{ opened: isOpen }" @click="isOpen = false" />
 		</USlideover>

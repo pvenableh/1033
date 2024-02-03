@@ -42,7 +42,7 @@ function movePanel(val: string) {
 </script>
 
 <template>
-	<div class="flex items-center justify-center flex-col login">
+	<div class="flex items-center justify-center flex-col px-12 login">
 		<transition-group name="list" tag="div" class="login-panels">
 			<div v-if="panel === 'register'" key="1" class="flex items-center justify-center flex-col login-panel">
 				<!-- <AccountRegister /> -->
@@ -93,7 +93,7 @@ function movePanel(val: string) {
 }
 
 .login-panel {
-	width: 350px;
+	width: 325px;
 	height: 450px;
 
 	&__nav-button {

@@ -62,7 +62,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 				category: event.data.category,
 				due_date: event.data.due_date,
 				project: event.data.project,
-				user_created: user?.id,
+				
 			}),
 		);
 		console.log(result);

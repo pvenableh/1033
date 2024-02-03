@@ -20,7 +20,7 @@
 	bottom: 0px;
 	left: 0px;
 	width: 100%;
-	height: 50px;
+	height: 65px;
 	
 	border-top: solid 1px rgba(55, 55, 55, 0.05);
 	padding-right: 33.333333%;
