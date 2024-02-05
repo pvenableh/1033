@@ -86,10 +86,6 @@ const { data: announcement } = await useFetch(url);
 
 email.value = announcement.value.data[0];
 
-// onMounted(async () => {
-	
-// })
-
 </script>
 <style>
 .email {
@@ -124,7 +120,9 @@ email.value = announcement.value.data[0];
 		line-height: 1.2em;
 		font-size: 16px;
 		text-transform: uppercase;
-		@apply text-center tracking-wide font-bold;
+		font-family: var(--font-bold) !important;
+		font-weight: 900;
+		@apply text-center tracking-wide;
 	}
 
 	&__title.red {
@@ -137,7 +135,9 @@ email.value = announcement.value.data[0];
 		text-transform: uppercase;
 		padding-bottom: 20px;
 		padding-top: 10px;
-		@apply text-center tracking-wide font-bold;
+		font-family: var(--font-bold) !important;
+		font-weight: 900;
+		@apply text-center tracking-wide;
 	}
 
 	&__content {
@@ -153,6 +153,15 @@ email.value = announcement.value.data[0];
 			/* font-family: var(--bold-font); */
 		}
 
+		a:link,
+		a:visited {
+			color: var(--blue) !important;
+		}
+
+		a:hover {
+			color: var(--gray);
+		}
+
 		ul,
 		ol {
 			padding-left: 30px !important;
@@ -160,8 +169,9 @@ email.value = announcement.value.data[0];
 
 		b,
 		strong {
-			font-family: var(--bold-font);
-			@apply font-bold;
+
+			font-family: var(--font-bold) !important;
+			font-weight: 900;
 		}
 
 		li {
