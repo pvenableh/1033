@@ -7,7 +7,7 @@ const isIcon = ref(true);
 
 function generateIcon(code) {
 	if (code === '01d') {
-		return 'i-fluent-weather-sunny-48-regular';
+		return 'i-wi-day-sunny';
 	} else if (code === '01n') {
 		return 'i-wi-night-clear';
 	} else if (code === '02d') {
@@ -45,22 +45,18 @@ function generateIcon(code) {
 </script>
 <template>
 	<div class="hidden sm:inline-block weather">
-		
+
 		<h5 class="uppercase tracking-wide weather__intro"></h5>
 		<h5 class="uppercase tracking-wide relative weather__stats">
-			
+
 			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
 			{{ weather.weather[0].main }}
 			<span v-if="isIcon" class="weather-icon">
 				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0].icon)" class="drop-shadow" />
 			</span>
-			<img
-				v-else
-				:src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
-				:alt="weather.weather[0].description"
-				class="hidden sm:inline-block"
-			/>
+			<img v-else :src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
+				:alt="weather.weather[0].description" class="hidden sm:inline-block" />
 		</h5>
 	</div>
 </template>

@@ -6,31 +6,38 @@ const { user } = useDirectusAuth();
 const { x, y } = useMouse({ touch: false })
 </script>
 <template>
-	<div 
+	<div
 		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home">
 
-		<h1 v-if="!user" class="-mt-28 mb-12 text-center temp-heading" >
+		<h1 v-if="!user" class="-mt-28 mb-12 text-center temp-heading">
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
 			: a boutique community in Miami Beach focused on the local, active lifestyle.
+			<UIcon name="i-meteocons-clear-day" class="h-20 w-20 block" />
 		</h1>
-		<h1 v-else class="-mt-28 mb-12 text-center temp-heading" >
+		<h1 v-else class="-mt-28 mb-12 text-center temp-heading">
 			{{ greetUser() }}
-				<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
-					{{ user.first_name }}.
-				</span>
+			<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
+				{{ user.first_name }}.
+			</span>
 			<span class="font-bold"> Welcome to 1033 Lenox</span>
-		
+			<UIcon name="i-wi-day-sunny" size="md" />
+
 		</h1>
 		<div class="w-full h-[190px] sm:h-[300px] relative flex items-center justify-center">
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[50px] sm:top-[10px] ml-12 "/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[70px] w-auto top-[55px] sm:-top-[2px] -ml-28 -scale-x-100" :style="{  marginRight: -x/60 + 'px' }"/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] sm:h-[90px] w-auto top-[55px] sm:top-[0px] ml-20 -scale-x-100" :style="{  marginRight: -x/50 + 'px' }"/>
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[50px] sm:h-[70px] w-auto top-[60px] sm:top-[3px] mr-32" :style="{  marginLeft: -x/30 + 'px' }"/>
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[50px] sm:top-[10px] ml-12 " />
+			<img src="~/assets/img/palm-tree.png"
+				class="absolute h-[70px] w-auto top-[55px] sm:-top-[2px] -ml-28 -scale-x-100"
+				:style="{ marginRight: -x / 60 + 'px' }" />
+			<img src="~/assets/img/palm-tree.png"
+				class="absolute h-[60px] sm:h-[90px] w-auto top-[55px] sm:top-[0px] ml-20 -scale-x-100"
+				:style="{ marginRight: -x / 50 + 'px' }" />
+			<img src="~/assets/img/palm-tree.png" class="absolute h-[50px] sm:h-[70px] w-auto top-[60px] sm:top-[3px] mr-32"
+				:style="{ marginLeft: -x / 30 + 'px' }" />
 			<img ref="movableElement"
 				src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
-				class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]  transition-transform building" 
-				:style="{ marginTop: -y/40 + 'px', marginLeft: -x/20 + 'px' }" />
+				class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)]  transition-transform building"
+				:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }" />
 		</div>
 		<nuxt-link v-if="!user" to="/auth/signin">
 			<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Login</FormVButton>
@@ -44,14 +51,16 @@ const { x, y } = useMouse({ touch: false })
 
 <style>
 .home {
+
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */
-	.building 
-	{
+	.building {
 		max-width: 350px;
+
 		@media (min-width: theme('screens.sm')) {
 			max-width: 575px;
 		}
+
 		@media (min-width: theme('screens.md')) {
 			max-width: 575px;
 		}
@@ -60,6 +69,7 @@ const { x, y } = useMouse({ touch: false })
 			max-width: 600px;
 		}
 	}
+
 	.temp-heading {
 		font-size: 12px;
 		/* background: linear-gradient(-45deg, #cccccc, #666666);
@@ -69,6 +79,7 @@ const { x, y } = useMouse({ touch: false })
 		/* color: #cccccc; */
 		@apply uppercase tracking-wide;
 		max-width: 400px;
+
 		@media (min-width: theme('screens.md')) {
 			max-width: 400px;
 		}

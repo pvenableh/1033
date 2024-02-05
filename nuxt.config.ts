@@ -74,7 +74,7 @@ export default defineNuxtConfig({
 	devtools: { enabled: false },
 
 	ui: {
-		icons: 'all',
+		icons: ['heroicons', 'wi', 'meteocons'],
 	},
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/
