@@ -1,9 +1,6 @@
 <template>
 	<div class="max-w-3xl px-6 py-12 mx-auto space-y-8">
-		<NuxtLink
-			class="flex items-center font-bold text-primary-600 hover:text-primary-800 "
-			to="/"
-		>
+		<NuxtLink class="flex items-center font-bold text-primary-600 hover:text-primary-800 " to="/">
 			<span class="mr-2 text-xl">←</span>
 			Back to Home Page
 		</NuxtLink>
@@ -34,6 +31,10 @@
 
 <script setup>
 const { params } = useRoute();
+definePageMeta({
+	layout: 'auth',
+	middleware: ['auth'],
+});
 const unit = ref(null);
 
 const {
