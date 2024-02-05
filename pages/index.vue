@@ -13,7 +13,6 @@ const { x, y } = useMouse({ touch: false })
 			Welcome to
 			<span class="font-bold">1033 Lenox</span>
 			: a boutique community in Miami Beach focused on the local, active lifestyle.
-			<UIcon name="i-meteocons-clear-day" class="h-20 w-20 block" />
 		</h1>
 		<h1 v-else class="-mt-28 mb-12 text-center temp-heading">
 			{{ greetUser() }}
@@ -21,7 +20,6 @@ const { x, y } = useMouse({ touch: false })
 				{{ user.first_name }}.
 			</span>
 			<span class="font-bold"> Welcome to 1033 Lenox</span>
-			<UIcon name="i-wi-day-sunny" size="md" />
 
 		</h1>
 		<div class="w-full h-[190px] sm:h-[300px] relative flex items-center justify-center">
