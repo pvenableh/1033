@@ -122,9 +122,10 @@ async function updateParent() {
 </script>
 <template>
 	<div class="w-full flex items-start justify-between flex-col task-card__people">
-		<h3 class="uppercase mt-6 tracking-wide font-bold text-[10px]">Assign Users to Task:</h3>
-		<div class="w-full flex items-center justify-between flex-row">
+		<h3 class="uppercase mt-6 mb-2 tracking-wide font-bold text-[8px] border-b w-full">Assign Users to Task:</h3>
+		<div class="w-full flex items-start justify-between flex-row">
 			<div
+				v-if="availableUsers.length"
 				class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
 				style="font-size: 8px"
 			>
@@ -141,7 +142,7 @@ async function updateParent() {
 				</div>
 			</div>
 
-			<div v-if="users.history.length" class="flex flex-row">
+			<div v-if="users.history.length" class="flex flex-row flex-wrap items-end justify-end w-full">
 				<UTooltip
 					v-for="(user, index) in users.history"
 					:key="index"
@@ -149,7 +150,7 @@ async function updateParent() {
 					class="mr-1 task-card__people-item cursor-pointer"
 					@click="assignUser('delete', user.id)"
 				>
-					<Avatar :key="index" :user="user.directus_users_id" size="sm" class="border task-card__people-avatar" />
+					<Avatar :key="index" :user="user.directus_users_id" size="xs" class="border task-card__people-avatar" />
 				</UTooltip>
 			</div>
 		</div>

@@ -97,8 +97,7 @@ function updateTasks(category, event) {
 		if (movedTask) {
 			movedTask.category = category;
 		}
-		console.log('updatedTasks');
-		console.log(movedTask);
+
 		sendUpdate(movedTask);
 	}
 
@@ -113,7 +112,6 @@ function updateTasks(category, event) {
 
 async function sendUpdate(item) {
 	const result = await useDirectus(updateItem('tasks', item.id, item));
-	console.log(result);
 }
 
 const groupedData = computed(() => {
@@ -128,6 +126,9 @@ const groupedData = computed(() => {
 		if (!categories[item.category]) {
 			categories[item.category] = [];
 		}
+
+		console.log(user.value);
+		console.log('looking for user role');
 
 		if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
 			categories[item.category].push(item);

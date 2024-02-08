@@ -31,7 +31,11 @@
 				Bullet List
 			</button>
 		</floating-menu>
-		<editor-content :editor="editor" class="rounded-md border p-2 pb-4 dark:text-white min-h-12" />
+		<editor-content
+			:editor="editor"
+			class="rounded-md border p-2 pb-4 dark:text-white text-[14px] min-h-12 transition-all duration-200"
+			:class="{ 'px-0 pt-0 border-none': disabled }"
+		/>
 	</div>
 </template>
 <script>
@@ -49,6 +53,10 @@ export default {
 		modelValue: {
 			type: String,
 			default: '',
+		},
+		disabled: {
+			type: Boolean,
+			default: false,
 		},
 	},
 
@@ -80,6 +88,7 @@ export default {
 		this.editor = new Editor({
 			extensions: [StarterKit],
 			content: this.modelValue,
+			editable: !this.disabled,
 			onUpdate: () => {
 				// HTML
 				this.$emit('update:modelValue', this.editor.getHTML());

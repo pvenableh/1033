@@ -27,9 +27,14 @@ function makeEditable() {
 	editable.value = !editable.value;
 }
 
-function editableFunction() {
-	console.log('here');
-}
+// function editableFunction() {
+// 	console.log('here');
+// }
+
+const state = ref({
+	title: props.task.title,
+	description: props.task.description,
+});
 </script>
 <template>
 	<div
@@ -38,26 +43,11 @@ function editableFunction() {
 		:data-id="task.id"
 	>
 		<div class="relative w-full flex flex-col items-start justify-start">
-			<UButton
-				icon="i-heroicons-pencil-square"
-				size="xs"
-				color="gray"
-				variant="solid"
-				:trailing="true"
-				class="absolute right-[0px] -top-[2px]"
-				@click.prevent="openModal(task, 'update')"
-			/>
-
-			<div class="w-full flex flex-row mb-2 task-card__category">
-				<p class="uppercase inline-block font-bold tracking-wide" :class="slugify(task.category)">
-					{{ task.category }}
-				</p>
-				<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" />
-			</div>
-
-			<h3 class="uppercase relative task-card__title">
-				<UPopover mode="hover" :popper="{ placement: 'bottom', arrow: true }" class="inline-block mr-1">
-					<UIcon name="i-heroicons-information-circle-solid" />
+			<div class="absolute right-[0px] -top-[2px]">
+				<UIcon name="i-heroicons-pencil-square" class="cursor-pointer mr-2" @click.prevent="makeEditable" />
+				<!-- @click.prevent="openModal(task, 'update')" -->
+				<UPopover mode="hover" :popper="{ placement: 'bottom', arrow: true }" class="inline-block mr-[4px] -mb-[5px]">
+					<UIcon name="i-heroicons-information-circle" />
 					<template #panel>
 						<div class="p-4 task-card__created">
 							<p v-if="task.date_updated" class="mb-1">
@@ -71,12 +61,9 @@ function editableFunction() {
 						</div>
 					</template>
 				</UPopover>
-				{{ task.title }}
-			</h3>
+			</div>
 
-			<div class="task-card__description" v-html="task.description"></div>
-
-			<div class="w-full flex flex-row items-center justify-between task-card__due">
+			<div class="w-full flex flex-row items-center justify-between font-bold task-card__due">
 				<h5
 					v-if="task.due_date && task.category !== 'Completed'"
 					class="uppercase leading-4"
@@ -96,7 +83,19 @@ function editableFunction() {
 					class="shadow border"
 				/>
 			</div>
+			<div class="w-full flex flex-row my-4 task-card__category">
+				<p class="uppercase inline-block font-bold tracking-wide" :class="slugify(task.category)">
+					{{ task.category }}
+				</p>
+				<!-- <UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" /> -->
+			</div>
+			<h3 class="uppercase relative flex items-center justify-center task-card__title">
+				{{ task.title }}
+			</h3>
 
+			<!-- <div class="task-card__description" v-html="task.description"></div> -->
+			<h3 class="w-full uppercase mt-2 pb-0 mb-1 tracking-wide font-bold text-[8px] border-b">Description:</h3>
+			<FormTiptap v-model="state.description" class="w-full" :disabled="!editable" />
 			<TasksUsers :item="task.id" collection="tasks" />
 		</div>
 		<CommentsContainer :item="task.id" collection="tasks" />
@@ -109,6 +108,8 @@ function editableFunction() {
 	@apply p-4 rounded-md shadow-lg mb-6;
 
 	&__category {
+		font-weight: bolder;
+		font-family: var(--font-bold);
 		p {
 			background: var(--lightGrey);
 			color: var(--white);
@@ -138,8 +139,9 @@ function editableFunction() {
 	}
 
 	&__due {
-		font-size: 10px;
-		@apply font-bold;
+		font-size: 12px;
+		font-weight: bolder;
+		font-family: var(--font-bold);
 
 		.alert {
 			@apply text-red-500;

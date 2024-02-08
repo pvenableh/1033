@@ -114,7 +114,8 @@ const commentsTotal = computed(() => {
 });
 </script>
 <template>
-	<div :id="'comments-container-' + item.id" class="w-full mt-4 comments-container">
+	<div :id="'comments-container-' + item.id" class="w-full comments-container">
+		<h3 class="w-full border-b uppercase mb-2 tracking-wide font-bold text-[8px]">Comments:</h3>
 		<div
 			class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
 			style="font-size: 8px"
