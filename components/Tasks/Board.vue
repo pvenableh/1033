@@ -126,23 +126,23 @@ const groupedData = computed(() => {
 		if (!categories[item.category]) {
 			categories[item.category] = [];
 		}
-
+		categories[item.category].push(item);
 		console.log(user.value);
 		console.log('looking for user role');
 
-		if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
-			categories[item.category].push(item);
-		} else {
-			if (item.assigned_to.length > 0) {
-				item.assigned_to.forEach((person) => {
-					if (person.directus_users_id.id === user.value.id) {
-						categories[item.category].push(item);
-					}
-				});
-			} else {
-				console.log('no assigned user.');
-			}
-		}
+		// if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
+		// 	categories[item.category].push(item);
+		// } else {
+		// 	if (item.assigned_to.length > 0) {
+		// 		item.assigned_to.forEach((person) => {
+		// 			if (person.directus_users_id.id === user.value.id) {
+		// 				categories[item.category].push(item);
+		// 			}
+		// 		});
+		// 	} else {
+		// 		console.log('no assigned user.');
+		// 	}
+		// }
 	});
 
 	return categories;
