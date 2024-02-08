@@ -45,7 +45,6 @@ export default defineNuxtConfig({
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
 	},
-
 	// Directus Configuration
 	directus: {
 		rest: {

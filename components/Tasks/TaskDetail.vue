@@ -1,4 +1,7 @@
+<!-- eslint-disable no-console -->
 <script setup lang="ts">
+import { isOpen, closeModal } from '~/composables/useTaskModal';
+
 const { user } = useDirectusAuth();
 
 const props = defineProps({
@@ -11,6 +14,7 @@ const props = defineProps({
 			category: '',
 			due_date: '',
 			project: '',
+			assigned_to: [],
 		}),
 	},
 	action: {
@@ -26,22 +30,22 @@ const state = ref({
 	category: '',
 	due_date: '',
 	project: '',
+	assigned_to: [],
 });
 
 if (props.action === 'create') {
-	state.value = {
-		category: 'Scheduled',
-	};
+	state.value.category = 'Scheduled';
 }
 
 if (props.action === 'update') {
 	state.value = {
-		id: props.id,
-		title: props.title,
-		description: props.description,
-		category: props.category,
-		due_date: props.due_date,
-		project: props.project,
+		id: props.task.id,
+		title: props.task.title,
+		description: props.task.description,
+		category: props.task.category,
+		due_date: props.task.due_date,
+		project: props.task.project,
+		assigned_to: props.task.assigned_to,
 	};
 }
 
@@ -53,31 +57,37 @@ const validate = (state: any): FormError[] => {
 };
 
 async function onSubmit(event: FormSubmitEvent<any>) {
-	if (props.action === 'create') {
-		const result = await useDirectus(
-			createItem('tasks', {
-				status: 'published',
-				title: event.data.title,
-				description: event.data.description,
-				category: event.data.category,
-				due_date: event.data.due_date,
-				project: event.data.project,
-				
-			}),
-		);
-		console.log(result);
-	} else if (props.action === 'update') {
-		const result = await useDirectus(
-			updateItem('tasks', props.id, {
-				title: event.data.title,
-				description: event.data.description,
-				category: event.data.category,
-				due_date: event.data.due_date,
-				project: event.data.project,
-				user_updated: user?.id,
-			}),
-		);
-		console.log(result);
+	if (user?.value.id) {
+		if (props.action === 'create') {
+			const result = await useDirectus(
+				createItem('tasks', {
+					status: 'published',
+					title: event.data.title,
+					description: event.data.description,
+					category: event.data.category,
+					due_date: event.data.due_date,
+					project: event.data.project,
+					user_created: user.value.id,
+				}),
+			);
+
+			console.log(result);
+		} else if (props.action === 'update') {
+			const result = await useDirectus(
+				updateItem('tasks', props.task.id, {
+					title: event.data.title,
+					description: event.data.description,
+					category: event.data.category,
+					due_date: event.data.due_date,
+					project: event.data.project,
+					user_updated: user.value.id,
+				}),
+			);
+
+			console.log(result);
+		}
+	} else {
+		await navigateTo('/auth/signin');
 	}
 }
 </script>
@@ -86,17 +96,18 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 	<div class="w-full h-full p-6">
 		<UForm :validate="validate" :state="state" class="space-y-4" @submit="onSubmit">
 			<UFormGroup label="Status" name="category">
-				<USelect v-model="state.category" :options="['Scheduled', 'In Progress', 'Completed']" required/>
+				<USelect v-model="state.category" :options="['Pending', 'Scheduled', 'In Progress', 'Completed']" required />
 			</UFormGroup>
 			<UFormGroup label="Title" name="title">
 				<UInput v-model="state.title" required />
 			</UFormGroup>
 			<UFormGroup label="Description" name="description">
-				<UTextarea v-model="state.description" />
+				<FormTiptap v-model="state.description" />
 			</UFormGroup>
 			<UFormGroup label="Due Date" name="due_date">
-				<UInput v-model="state.due_date" type="datetime-local"/>
+				<UInput v-model="state.due_date" type="datetime-local" />
 			</UFormGroup>
+
 			<UButton type="submit">Submit</UButton>
 		</UForm>
 	</div>

@@ -8,6 +8,10 @@ const props = defineProps({
 		type: String,
 		default: '',
 	},
+	parent: {
+		type: String,
+		default: '',
+	},
 });
 
 const { user } = useDirectusAuth();
@@ -45,7 +49,12 @@ async function connectComment(commentId) {
 				comments_id: commentId,
 			}),
 		);
+		updateParent();
 	}
+}
+
+async function updateParent() {
+	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
 }
 </script>
 <template>

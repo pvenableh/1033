@@ -1,5 +1,4 @@
 <script setup>
-import { isTemplateMiddleOrTemplateTail } from 'typescript';
 import draggable from 'vuedraggable';
 
 const config = useRuntimeConfig();
@@ -23,18 +22,18 @@ onMounted(async () => {
 	}
 
 	function updateTasks(data) {
-		const cards = document.querySelectorAll('.task-card');
+		// const cards = document.querySelectorAll('.task-card');
 
-		cards.forEach((element) => {
-			element.classList.remove('updated');
-		});
+		// cards.forEach((element) => {
+		// 	element.classList.remove('updated');
+		// });
 
 		for (const task of data) {
 			const index = tasks.value.history.findIndex((item) => item.id == task.id);
 
-			const card = document.getElementById('task-' + task.id);
+			// const card = document.getElementById('task-' + task.id);
 
-			card.classList.add('updated');
+			// card.classList.add('updated');
 
 			if (index > -1) {
 				tasks.value.history[index] = task;
@@ -44,24 +43,23 @@ onMounted(async () => {
 
 	function receiveMessage(message) {
 		const data = JSON.parse(message.data);
+
 		if (data.type == 'auth' && data.status == 'ok') {
-			console.log(user.value.id)
 			connection.send(
 				JSON.stringify({
 					type: 'subscribe',
 					collection: 'tasks',
 					query: {
 						fields: [
-							'*,user_created.first_name,user_created.last_name,user_updated.first_name,user_updated.last_name,assigned_to.directus_users_id.id,assigned_to.directus_users_id.first_name,assigned_to.directus_users_id.last_name,assigned_to.directus_users_id.avatar,assigned_to.directus_users_id.email',
+							'*,user_created.id,user_created.first_name,user_created.last_name,user_updated.id,user_updated.first_name,user_updated.last_name',
 						],
-						
-					
+
 						sort: 'date_created',
 					},
 				}),
 			);
 		}
-
+		// ,comments.id,comments.comments_id.id,comments.comments_id.comment,comments.comments_id.user.id,comments.comments_id.user.first_name,comments.comments_id.user.last_name,comments.comments_id.user.avatar,comments.comments_id.user.email,assign_to.*,assigned_to.directus_users_id.id
 		if (data.type == 'subscription' && data.event == 'init') {
 			for (const message of data.data) {
 				tasks.value.history.push(message);
@@ -74,6 +72,10 @@ onMounted(async () => {
 
 		if (data.type == 'subscription' && data.event == 'update') {
 			updateTasks(data.data);
+		}
+
+		if (data.type == 'ping') {
+			connection.send(JSON.stringify({ type: 'pong' }));
 		}
 	}
 });
@@ -95,7 +97,8 @@ function updateTasks(category, event) {
 		if (movedTask) {
 			movedTask.category = category;
 		}
-
+		console.log('updatedTasks');
+		console.log(movedTask);
 		sendUpdate(movedTask);
 	}
 
@@ -109,9 +112,8 @@ function updateTasks(category, event) {
 }
 
 async function sendUpdate(item) {
-	console.log(item.assigned_to);
-
-	await useDirectus(updateItem('tasks', item.id, item));
+	const result = await useDirectus(updateItem('tasks', item.id, item));
+	console.log(result);
 }
 
 const groupedData = computed(() => {
@@ -126,20 +128,20 @@ const groupedData = computed(() => {
 		if (!categories[item.category]) {
 			categories[item.category] = [];
 		}
+
 		if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
 			categories[item.category].push(item);
 		} else {
-			if(item.assigned_to.length > 0) {
+			if (item.assigned_to.length > 0) {
 				item.assigned_to.forEach((person) => {
-					if(person.directus_users_id.id === user.value.id) {
+					if (person.directus_users_id.id === user.value.id) {
 						categories[item.category].push(item);
 					}
-				})
+				});
 			} else {
-				console.log('no assigned user.')
+				console.log('no assigned user.');
 			}
-		} 
-		
+		}
 	});
 
 	return categories;

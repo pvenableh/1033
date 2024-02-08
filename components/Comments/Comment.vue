@@ -61,10 +61,11 @@ const avatar = computed(() => {
 		font-size: 14px;
 		word-break: break-word;
 		word-wrap: break-word;
-		@apply py-4 px-4 shadow-inner;
+		@apply py-2 px-3 shadow-inner;
 
 		&-name {
 			font-size: 10px;
+			line-height: 10px;
 			@apply font-bold;
 		}
 	}

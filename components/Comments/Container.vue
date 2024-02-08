@@ -58,7 +58,7 @@ onMounted(async () => {
 					collection: 'tasks_comments',
 					query: {
 						fields: [
-							'comments_id.*,comments_id.user.id,comments_id.user.first_name,comments_id.user.last_name,comments_id.user.avatar,comments_id.user.email,user.phone',
+							'comments_id.*,comments_id.user.id,comments_id.user.first_name,comments_id.user.last_name,comments_id.user.avatar,comments_id.user.email',
 						],
 						filter: {
 							tasks_id: {
@@ -99,6 +99,9 @@ onMounted(async () => {
 		// 		return new Date(b.date_created) - new Date(a.date_created);
 		// 	});
 		// }
+		if (data.type == 'ping') {
+			connection.send(JSON.stringify({ type: 'pong' }));
+		}
 	}
 });
 
@@ -131,7 +134,7 @@ const commentsTotal = computed(() => {
 
 		<transition name="fade">
 			<div v-if="showComments" class="mt-6">
-				<CommentsCreateComment v-if="user" :item="item" :collection="collection" class="my-3" />
+				<CommentsCreateComment v-if="user" :item="item" :collection="collection" :parent="item" class="my-3" />
 				<transition-group name="fade" tag="div" class="w-full flex items-start justify-start flex-col">
 					<CommentsComment
 						v-for="(comment, index) in comments.history"
