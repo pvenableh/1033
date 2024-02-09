@@ -1,6 +1,6 @@
 <!-- eslint-disable no-console -->
 <script setup>
-import { openModal } from '~/composables/useTaskModal';
+import { onClickOutside } from '@vueuse/core';
 
 const props = defineProps({
 	task: {
@@ -21,30 +21,79 @@ const alert = computed(() => {
 	}
 });
 
+const isOpen = ref(false);
+
+const taskImage = ref(null);
+
 const editable = ref(false);
 
 function makeEditable() {
 	editable.value = !editable.value;
 }
 
-// function editableFunction() {
-// 	console.log('here');
-// }
-
 const state = ref({
 	title: props.task.title,
 	description: props.task.description,
+	file: props.task.file,
+	files: props.task.files,
 });
+
+async function updateTask() {
+	const result = await useDirectus(updateItem('tasks', props.task?.id, state.value));
+	console.log(result);
+	editable.value = false;
+}
+
+const taskCard = ref(null);
+
+onClickOutside(taskCard, (event) => {
+	if (editable.value) {
+		console.log(event);
+		updateTask();
+	}
+});
+
+const handleDelete = (file) => {
+	console.log('handleDelete', file);
+	console.log(file);
+	// state.files.value = files;
+};
+
+const handleSuccess = (files) => {
+	console.log(files);
+	// state.files.value = files;
+};
+
+const minimize = ref(false);
+
+if (props.task.category === 'Completed') {
+	minimize.value = true;
+}
 </script>
 <template>
 	<div
+		ref="taskCard"
 		class="w-full flex flex-col items-center justify-between border bg-white dark:border-gray-800 dark:bg-gray-900 task-card"
-		:class="{ alert: alert }"
+		:class="{ minimize: minimize }"
 		:data-id="task.id"
 	>
-		<div class="relative w-full flex flex-col items-start justify-start">
-			<div class="absolute right-[0px] -top-[2px]">
-				<UIcon name="i-heroicons-pencil-square" class="cursor-pointer mr-2" @click.prevent="makeEditable" />
+		<div class="relative w-full flex flex-col items-start justify-start px-4 bg-white">
+			<div class="absolute right-4 -top-[2px]">
+				<UIcon
+					v-if="!minimize && task.category === 'Completed'"
+					name="i-heroicons-arrows-pointing-in"
+					class="cursor-pointer mr-2"
+					@click.prevent="minimize = !minimize"
+				/>
+				<UIcon
+					v-else-if="minimize && task.category === 'Completed'"
+					name="i-heroicons-arrows-pointing-out"
+					class="cursor-pointer mr-2"
+					@click.prevent="minimize = !minimize"
+				/>
+				<UIcon v-if="editable" name="i-heroicons-lock-open" class="cursor-pointer mr-2" @click.prevent="updateTask" />
+				<UIcon v-else name="i-heroicons-lock-closed" class="cursor-pointer mr-2" @click.prevent="makeEditable" />
+
 				<!-- @click.prevent="openModal(task, 'update')" -->
 				<UPopover mode="hover" :popper="{ placement: 'bottom', arrow: true }" class="inline-block mr-[4px] -mb-[5px]">
 					<UIcon name="i-heroicons-information-circle" />
@@ -83,33 +132,59 @@ const state = ref({
 					class="shadow border"
 				/>
 			</div>
-			<div class="w-full flex flex-row my-4 task-card__category">
+			<div class="w-full flex flex-row mt-4 mb-1 task-card__category">
 				<p class="uppercase inline-block font-bold tracking-wide" :class="slugify(task.category)">
 					{{ task.category }}
 				</p>
 				<!-- <UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" /> -->
 			</div>
-			<h3 class="uppercase relative flex items-center justify-center task-card__title">
-				{{ task.title }}
-			</h3>
+			<!-- <h3 class="uppercase relative flex items-center justify-center task-card__title">
+				{{ state.title }}
+			</h3> -->
+			<UInput
+				v-model="state.title"
+				class="w-full uppercase relative flex items-center justify-center task-card__title p-0 border-none outline-0 shadow-none"
+				:disabled="!editable"
+				:class="{ editable: editable }"
+			/>
 
 			<!-- <div class="task-card__description" v-html="task.description"></div> -->
 			<h3 class="w-full uppercase mt-2 pb-0 mb-1 tracking-wide font-bold text-[8px] border-b">Description:</h3>
 			<FormTiptap v-model="state.description" class="w-full" :disabled="!editable" />
-			<TasksUsers :item="task.id" collection="tasks" />
 		</div>
-		<CommentsContainer :item="task.id" collection="tasks" />
+		<!-- <div class="w-full relative">
+			<TasksUsers :item="task.id" collection="tasks" />
+			<CommentsContainer :item="task.id" collection="tasks" />
+		</div> -->
+		<TasksTaskCardFooter :item="task.id" collection="tasks" :comments-total="task.comments.length" />
+		<!-- <UModal v-model="isOpen">
+			<div class="p-4 rounded-none">
+				<img
+					:src="`https://admin.1033lenox.com/assets/${state.file}?key=large`"
+					:alt="'Task: ' + state.title"
+					class=""
+				/>
+			</div>
+		</UModal>-->
 	</div>
 </template>
 <style>
+.task-card.minimize {
+	box-shadow: 0px -2px 12px rgba(0, 0, 0, 0.1);
+	@apply h-28 transition-all duration-200 -mt-14 first:mt-0 first:shadow z-10;
+}
+.task-card.minimize:hover {
+	@apply -mt-8 first:mt-0;
+}
 .task-card {
 	animation: updated 0.35s var(--curve);
-
-	@apply p-4 rounded-md shadow-lg mb-6;
+	background: var(--white);
+	@apply pt-4 rounded-md shadow-lg mb-8 overflow-hidden;
 
 	&__category {
 		font-weight: bolder;
 		font-family: var(--font-bold);
+
 		p {
 			background: var(--lightGrey);
 			color: var(--white);
@@ -134,8 +209,19 @@ const state = ref({
 	}
 
 	&__title {
-		fonts-size: 16px;
+		font-size: 18px;
 		@apply font-bold pb-1;
+		input {
+			font-size: 18px;
+
+			box-shadow: none !important;
+			@apply w-full px-0 transition-all duration-200 border border-white;
+		}
+		&.editable {
+			input {
+				@apply border px-2 border-gray-200;
+			}
+		}
 	}
 
 	&__due {

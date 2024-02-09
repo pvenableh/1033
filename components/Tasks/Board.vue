@@ -51,7 +51,7 @@ onMounted(async () => {
 					collection: 'tasks',
 					query: {
 						fields: [
-							'*,user_created.id,user_created.first_name,user_created.last_name,user_updated.id,user_updated.first_name,user_updated.last_name',
+							'*,user_created.id,user_created.first_name,user_created.last_name,user_updated.id,user_updated.first_name,user_updated.last_name,file',
 						],
 
 						sort: 'date_created',
@@ -60,6 +60,7 @@ onMounted(async () => {
 			);
 		}
 		// ,comments.id,comments.comments_id.id,comments.comments_id.comment,comments.comments_id.user.id,comments.comments_id.user.first_name,comments.comments_id.user.last_name,comments.comments_id.user.avatar,comments.comments_id.user.email,assign_to.*,assigned_to.directus_users_id.id
+
 		if (data.type == 'subscription' && data.event == 'init') {
 			for (const message of data.data) {
 				tasks.value.history.push(message);

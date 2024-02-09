@@ -82,7 +82,18 @@ export default {
 
 			this.editor.commands.setContent(value, false);
 		},
+		disabled(newValue) {
+			if (this.editor) {
+				this.editor.options.editable = !newValue;
+			}
+		},
 	},
+
+	// watch(() => props.disabled, (newValue) => {
+	// 		if (editor.value) {
+	// 			editor.value.options.editable = !newValue;
+	// 		}
+	// 	});
 
 	mounted() {
 		this.editor = new Editor({
@@ -109,7 +120,12 @@ export default {
 	> * + * {
 		margin-top: 0.75em;
 	}
-
+	h1 {
+		font-size: 18px;
+	}
+	h2 {
+		font-size: 16px;
+	}
 	strong {
 		font-weight: 900;
 		font-family: var(--font-bold);

@@ -104,49 +104,19 @@ onMounted(async () => {
 		}
 	}
 });
-
-const commentsTotal = computed(() => {
-	if (comments.value.history.length > 0) {
-		return comments.value.history.length;
-	} else {
-		return '';
-	}
-});
 </script>
 <template>
-	<div :id="'comments-container-' + item.id" class="w-full comments-container">
-		<!-- <h3 class="w-full border-b uppercase mb-2 tracking-wide font-bold text-[8px]">Comments:</h3>
-		<div
-			class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
-			style="font-size: 8px"
-		>
-			<div class="flex flex-row items-center justify-center">
-				<UToggle
-					v-model="showComments"
-					color="gray"
-					on-icon="i-heroicons-chat-bubble-left-right-solid"
-					off-icon="i-heroicons-x-mark-20-solid"
-				/>
-				<p class="ml-2">
-					{{ showComments ? 'Hide ' + commentsTotal + ' Comments' : 'Show ' + commentsTotal + ' Comments' }}
-				</p>
-			</div>
-		</div> -->
-
-		<transition name="fade">
-			<div v-if="showComments" class="mt-6">
-				<CommentsCreateComment v-if="user" :item="item" :collection="collection" :parent="item" class="my-3" />
-				<transition-group name="fade" tag="div" class="w-full flex items-start justify-start flex-col">
-					<CommentsComment
-						v-for="(comment, index) in comments.history"
-						:key="index"
-						:comment="comment"
-						:collection="collection"
-						class="my-2"
-					/>
-				</transition-group>
-			</div>
-		</transition>
+	<div :id="'comments-container-' + item.id" class="w-full comments-container p-4">
+		<CommentsCreateComment v-if="user" :item="item" :collection="collection" :parent="item" class="my-3" />
+		<transition-group name="fade" tag="div" class="w-full flex items-start justify-start flex-col">
+			<CommentsComment
+				v-for="(comment, index) in comments.history"
+				:key="index"
+				:comment="comment"
+				:collection="collection"
+				class="my-2"
+			/>
+		</transition-group>
 	</div>
 </template>
 <style></style>

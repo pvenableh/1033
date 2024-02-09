@@ -12,6 +12,10 @@ const props = defineProps({
 		type: String,
 		default: 'tasks',
 	},
+	commentsTotal: {
+		type: Number,
+		default: 0,
+	},
 });
 
 const { data: allUsers } = await useAsyncData('users', () => {
@@ -24,7 +28,6 @@ const { data: allUsers } = await useAsyncData('users', () => {
 
 const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
-const showUsers = ref(false);
 
 const users = ref({
 	history: [],
@@ -119,42 +122,68 @@ async function assignUser(action, id) {
 async function updateParent() {
 	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
 }
+
+const showComments = ref(false);
+const showUsers = ref(false);
+const showFiles = ref(false);
+
+function toggleUsers() {
+	showComments.value = false;
+	showFiles.value = false;
+	showUsers.value = !showUsers.value;
+}
+
+function toggleComments() {
+	showUsers.value = false;
+	showFiles.value = false;
+	showComments.value = !showComments.value;
+}
+
+function toggleFiles() {
+	showUsers.value = false;
+	showComments.value = false;
+	showFiles.value = !showFiles.value;
+}
 </script>
 <template>
-	<div class="flex items-start justify-between flex-col task-card__people">
-		<!-- <h3 class="uppercase mt-6 mb-2 tracking-wide font-bold text-[8px] border-b w-full">Assigned Users:</h3> -->
-		<div v-if="users.history.length" class="flex flex-row flex-wrap items-end justify-end w-full">
+	<div class="w-full flex items-start justify-between flex-col relative task-card__footer">
+		<div v-if="users.history.length" class="mb-2 flex flex-row flex-wrap items-center justify-start w-full px-4 my-3">
+			<h3 class="uppercase leading-4 mb-2 tracking-wide font-bold border-b text-[8px] w-full">Assigned Users:</h3>
 			<UTooltip
 				v-for="(user, index) in users.history"
 				:key="index"
 				:text="user.directus_users_id.first_name + ' ' + user.directus_users_id.last_name"
-				class="mr-1 task-card__people-item cursor-pointer"
+				class="transition duration-200 mr-1 task-card__people-item cursor-pointer"
 				@click="assignUser('delete', user.id)"
 			>
 				<Avatar :key="index" :user="user.directus_users_id" size="xs" class="border task-card__people-avatar" />
 			</UTooltip>
 		</div>
-		<div class="w-full flex items-start justify-between flex-row">
-			<div
-				v-if="availableUsers.length"
-				class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
-				style="font-size: 8px"
-			>
-				<div class="flex flex-row items-center justify-center">
-					<UToggle
-						v-model="showUsers"
-						color="gray"
-						on-icon="i-heroicons-users-solid"
-						off-icon="i-heroicons-x-mark-20-solid"
-					/>
-					<p class="ml-2">
-						{{ showUsers ? 'Hide ' + availableUsers.length + ' Users' : 'Show ' + availableUsers.length + ' Users' }}
-					</p>
-				</div>
+		<div class="w-full flex items-start justify-between flex-row task-card__footer-toolbar">
+			<div class="task-card__footer-button" @click="toggleUsers">
+				<h5>
+					Users
+					<span class="chip">{{ availableUsers.length }}</span>
+				</h5>
+			</div>
+			<div class="task-card__footer-button" @click="toggleComments">
+				<h5>
+					Comments
+					<span class="chip">{{ commentsTotal }}</span>
+				</h5>
+			</div>
+			<div class="task-card__footer-button" @click="toggleFiles">
+				<h5>
+					Files
+					<span class="chip">2</span>
+				</h5>
 			</div>
 		</div>
+		<div class="w-full task-card__comments" :class="{ visible: showComments }">
+			<TasksComments :item="item" collection="tasks" />
+		</div>
 		<div class="w-full task-card__people-selection" :class="{ visible: showUsers }">
-			<div class="w-full flex flex-row flex-wrap py-2">
+			<div v-if="availableUsers.length" class="w-full flex flex-row flex-wrap p-4">
 				<div
 					v-for="(user, index) in availableUsers"
 					:key="index"
@@ -162,11 +191,17 @@ async function updateParent() {
 					@click="assignUser('create', user.id)"
 				>
 					<!-- <Avatar :user="user" size="sm" class="" /> -->
-					<UBadge color="gray" variant="solid" class="text-[10px] font-bold">
+					<UBadge color="gray" variant="solid" class="text-[10px] font-bold shadow-inner">
 						{{ user.first_name }} {{ user.last_name }}
 					</UBadge>
 				</div>
 			</div>
+			<div v-else class="w-full flex flex-row flex-wrap p-4">
+				<h5 class="uppercase text-[12px] tracking-wide">No available users.</h5>
+			</div>
+		</div>
+		<div class="task-card__files" :class="{ visible: showFiles }">
+			<TasksFiles :item="item" collection="tasks" />
 		</div>
 	</div>
 </template>
@@ -187,6 +222,43 @@ async function updateParent() {
 	}
 	&-selection.visible {
 		max-height: 300px;
+	}
+}
+.task-card__comments {
+	transition: max-height 0.35s ease-in-out;
+	overflow: hidden;
+	max-height: 0;
+	&.visible {
+		max-height: 800px;
+	}
+}
+.task-card__files {
+	transition: max-height 0.35s ease-in-out;
+	overflow: hidden;
+	max-height: 0;
+
+	&.visible {
+		max-height: 300px;
+	}
+}
+.task-card__footer {
+	&-toolbar {
+		background: #f6f6f6;
+		@apply shadow-sm;
+	}
+	&-button {
+		cursor: pointer;
+		transition: all 0.35s ease-in-out;
+		@apply uppercase text-[10px] text-center w-1/3 py-3 border-b border-t;
+		h5 {
+			@apply relative inline-block;
+		}
+		.chip {
+			@apply bg-sky-500 text-white rounded-full px-[.3rem] py-0.5 text-[8px] scale-90;
+		}
+	}
+	&-button:nth-of-type(2) {
+		@apply border-l border-r;
 	}
 }
 </style>
