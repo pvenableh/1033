@@ -244,12 +244,12 @@ function toggleFiles() {
 .task-card__footer {
 	&-toolbar {
 		background: #f6f6f6;
-		@apply shadow-sm;
+		@apply shadow-sm dark:bg-gray-800;
 	}
 	&-button {
 		cursor: pointer;
 		transition: all 0.35s ease-in-out;
-		@apply uppercase text-[10px] text-center w-1/3 py-3 border-b border-t;
+		@apply uppercase text-[10px] text-center w-1/3 py-3 border-b border-t dark:border-gray-700;
 		h5 {
 			@apply relative inline-block;
 		}

@@ -73,11 +73,11 @@ if (props.task.category === 'Completed') {
 <template>
 	<div
 		ref="taskCard"
-		class="w-full flex flex-col items-center justify-between border bg-white dark:border-gray-800 dark:bg-gray-900 task-card"
+		class="w-full flex flex-col items-center justify-between border bg-white dark:border-gray-700 dark:bg-gray-900 task-card"
 		:class="{ minimize: minimize }"
 		:data-id="task.id"
 	>
-		<div class="relative w-full flex flex-col items-start justify-start px-4 bg-white">
+		<div class="relative w-full flex flex-col items-start justify-start px-4 bg-white dark:bg-gray-900">
 			<div class="absolute right-4 -top-[2px]">
 				<UIcon
 					v-if="!minimize && task.category === 'Completed'"
@@ -215,11 +215,11 @@ if (props.task.category === 'Completed') {
 			font-size: 18px;
 
 			box-shadow: none !important;
-			@apply w-full px-0 transition-all duration-200 border border-white;
+			@apply w-full px-0 transition-all duration-200 border border-white dark:bg-gray-900;
 		}
 		&.editable {
 			input {
-				@apply border px-2 border-gray-200;
+				@apply border px-2 border-gray-200 dark:bg-gray-900;
 			}
 		}
 	}
@@ -266,7 +266,7 @@ if (props.task.category === 'Completed') {
 	@apply border-2 border-red-500;
 }
 
-.updated {
+/* .updated {
 	animation: updated 0.35s var(--curve);
 }
 
@@ -285,5 +285,5 @@ if (props.task.category === 'Completed') {
 		transform: scale(1);
 		background: #f9f9f9;
 	}
-}
+} */
 </style>

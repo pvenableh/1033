@@ -148,46 +148,115 @@ const groupedData = computed(() => {
 
 	return categories;
 });
+
+const currentPanel = ref(0);
+
+function changePanel(index, duration = 400) {
+	const element = document.getElementById('tasks-board__container');
+	// element.scrollLeft += distance;
+	console.log(index);
+	const distance = (index - currentPanel.value) * 350;
+	const start = element.scrollLeft;
+	console.log(distance);
+	const startTime = performance.now();
+
+	function scroll(timestamp) {
+		const elapsed = timestamp - startTime;
+		const progress = Math.min(elapsed / duration, 1);
+		element.scrollLeft = start + distance * progress;
+
+		if (progress < 1) {
+			requestAnimationFrame(scroll);
+		}
+	}
+
+	requestAnimationFrame(scroll);
+	currentPanel.value = index;
+}
 </script>
 <template>
-	<div class="flex flex-row w-full items-start justify-center tasks-board">
+	<div class="w-full flex flex-row flex-wrap w-full items-start justify-center tasks-board">
+		<div class="w-full mt-12 mb-8 text-center uppercase tracking-wide font-bold text-sm">{{ tasks }}</div>
 		<h1 class="hidden">{{ draggingInfo }}</h1>
-		<div v-for="(items, category) in groupedData" :key="category" class="tasks-board__col flex-1">
-			<h2 class="w-full relative uppercase tracking-wide font-bold text-sm">
-				{{ category }}
-				<UBadge
-					v-if="items.length"
-					size="xs"
-					color="gray"
-					:ui="{ rounded: 'rounded-full' }"
-					class="absolute top-[-10px] scale-90"
-				>
-					{{ items.length }}
-				</UBadge>
-			</h2>
-			<draggable
-				:disabled="!enabled"
-				:list="items"
-				tag="div"
-				group="tasks"
-				class="tasks-board__col-inner"
-				ghost-class="ghost"
-				@change="updateTasks(category, $event)"
-				@start="dragging = true"
-				@end="dragging = false"
+
+		<div class="w-full lg:hidden flex flex-row items-center justify-center tasks-board__nav">
+			<div
+				v-for="(items, category, index) in groupedData"
+				:key="index"
+				class="w-1/4 border text-center py-3"
+				@click="changePanel(index)"
 			>
-				<template #item="{ element: task }">
-					<TasksTaskCard :id="'task-' + task.id" :key="task.id" :task="task" />
-				</template>
-			</draggable>
+				<h5 class="uppercase tracking-wide text-[10px] font-bold">
+					{{ category }}
+					<UBadge
+						v-if="items.length"
+						size="xs"
+						color="gray"
+						:ui="{ rounded: 'rounded-full' }"
+						class="absolute top-[-10px] scale-90"
+					>
+						{{ items.length }}
+					</UBadge>
+				</h5>
+			</div>
+		</div>
+		<div
+			id="tasks-board__container"
+			class="w-full flex flex-row flex-nowrap items-start justify-center tasks-board__container"
+		>
+			<div class="tasks-board__container-inner">
+				<div
+					v-for="(items, category) in groupedData"
+					:key="category"
+					class="tasks-board__col flex-1"
+					:id="slugify(category)"
+				>
+					<h2 class="w-full relative uppercase tracking-wide font-bold text-sm hidden lg:block">
+						{{ category }}
+						<UBadge
+							v-if="items.length"
+							size="xs"
+							color="gray"
+							:ui="{ rounded: 'rounded-full' }"
+							class="absolute top-[-10px] scale-90"
+						>
+							{{ items.length }}
+						</UBadge>
+					</h2>
+					<draggable
+						:disabled="!enabled"
+						:list="items"
+						tag="div"
+						group="tasks"
+						class="tasks-board__col-inner"
+						ghost-class="ghost"
+						@change="updateTasks(category, $event)"
+						@start="dragging = true"
+						@end="dragging = false"
+					>
+						<template #item="{ element: task }">
+							<TasksTaskCard v-if="items.length > 0" :id="'task-' + task.id" :key="task.id" :task="task" />
+							<h5 v-else>No {{ category }} tasks.</h5>
+						</template>
+					</draggable>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
 <style>
 .tasks-board {
+	&__container {
+		white-space: nowrap;
+		@apply w-full flex flex-row flex-nowrap items-start justify-start overflow-x-scroll;
+		&-inner {
+			width: 400%;
+			@apply lg:w-full flex flex-row flex-nowrap items-start justify-start;
+		}
+	}
 	&__col {
-		max-width: 375px;
-		@apply w-full min-h-screen flex flex-col items-center justify-start;
+		width: 350px;
+		@apply lg:w-full lg:max-w-[375px] lg:min-h-screen flex flex-col items-center justify-start;
 	}
 
 	&__col-inner {

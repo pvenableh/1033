@@ -7,7 +7,7 @@ definePageMeta({
 });
 </script>
 <template>
-	<div class="w-full">
+	<div class="w-full px-0">
 		<h1 class="w-full mt-12 mb-8 text-center uppercase tracking-wide font-bold text-sm">Tasks</h1>
 		<div class="w-full flex itesm-center justify-center pb-12">
 			<UButton label="Create Task" class="uppercase tracking-wide font-bold" color="gray" @click="openModal" />
