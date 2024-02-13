@@ -1,14 +1,15 @@
 <template>
-	<div class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative">
-	
-			<LayoutHeader />
-	
-				<slot />
-		
-			<LayoutFooter />
-			<LayoutMobileToolbar />
-			<LayoutNavButton @click="isOpen = true" />
-		
+	<div
+		class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative"
+	>
+		<LayoutHeader />
+
+		<slot />
+
+		<LayoutFooter />
+		<LayoutMobileToolbar />
+		<LayoutNavButton @click="isOpen = true" />
+
 		<USlideover v-model="isOpen" class="shadow-lg">
 			<LayoutNavDrawer :class="{ opened: isOpen }" @click="isOpen = false" />
 		</USlideover>
@@ -16,7 +17,6 @@
 </template>
 <script setup lang="ts">
 const isOpen = ref(false);
-
 </script>
 <style>
 .page {

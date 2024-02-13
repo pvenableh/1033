@@ -110,14 +110,14 @@ async function updateParent() {
 </script>
 <template>
 	<div class="w-full">
-		<FormVUpload
+		<!-- <FormVUpload
 			v-model="files.history"
 			:directusFiles="true"
 			:multiple="true"
 			folder-id="464c11ad-93ed-42c0-9df3-3000097fc8d5"
 			@success="handleSuccess"
 			@delete="handleDelete"
-		/>
+		/> -->
 		{{ files.history }}
 	</div>
 </template>

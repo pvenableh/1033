@@ -1,12 +1,10 @@
 <script setup>
 import { isOpen, taskModalData, taskModalAction } from '~/composables/useTaskModal';
+
 definePageMeta({
 	layout: 'auth',
 	middleware: ['auth'],
 });
-
-
-
 </script>
 <template>
 	<div class="w-full">
@@ -17,6 +15,8 @@ definePageMeta({
 				<TasksTaskDetail :action="taskModalAction" :task="taskModalData" />
 			</UModal>
 		</div>
-		<TasksBoard />
+		<client-only>
+			<TasksBoard />
+		</client-only>
 	</div>
 </template>
