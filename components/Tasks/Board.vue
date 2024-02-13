@@ -131,19 +131,19 @@ const groupedData = computed(() => {
 		console.log(user.value);
 		console.log('looking for user role');
 
-		// if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
-		// 	categories[item.category].push(item);
-		// } else {
-		// 	if (item.assigned_to.length > 0) {
-		// 		item.assigned_to.forEach((person) => {
-		// 			if (person.directus_users_id.id === user.value.id) {
-		// 				categories[item.category].push(item);
-		// 			}
-		// 		});
-		// 	} else {
-		// 		console.log('no assigned user.');
-		// 	}
-		// }
+		if (user.value && user.value.role === '7913bfde-8ec9-4c51-8ecf-7efdb160a36d') {
+			categories[item.category].push(item);
+		} else {
+			if (item.assigned_to.length > 0) {
+				item.assigned_to.forEach((person) => {
+					if (person.directus_users_id.id === user.value.id) {
+						categories[item.category].push(item);
+					}
+				});
+			} else {
+				console.log('no assigned user.');
+			}
+		}
 	});
 
 	return categories;
@@ -176,7 +176,6 @@ function changePanel(index, duration = 400) {
 </script>
 <template>
 	<div class="w-full flex flex-row flex-wrap w-full items-start justify-center tasks-board">
-		<div class="w-full mt-12 mb-8 text-center uppercase tracking-wide font-bold text-sm">{{ tasks }}</div>
 		<h1 class="hidden">{{ draggingInfo }}</h1>
 
 		<div class="w-full lg:hidden flex flex-row items-center justify-center tasks-board__nav">
