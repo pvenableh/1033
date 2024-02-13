@@ -6,6 +6,7 @@ const url = ref(config.public.websocketUrl);
 
 const tasks = ref([]);
 onMounted(async () => {
+	console.log(access_token.value);
 	const connection = new WebSocket(url.value);
 	await connection.addEventListener('open', () => authenticate(access_token.value));
 	await connection.addEventListener('message', (message) => receiveMessage(message));

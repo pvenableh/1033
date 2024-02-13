@@ -40,7 +40,7 @@ export default defineNuxtConfig({
 	runtimeConfig: {
 		public: {
 			websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || 'wss://admin.1033lenox.com/websocket',
-			staticToken: process.env.DIRECTUS_SERVER_TOKEN || 'MqVldbhUTkLd1HKBO_bE_hy2O2J8cq74',
+			staticToken: process.env.DIRECTUS_SERVER_TOKEN || 'cb66quXi2vneyEhG8OtAFJ1jOIO31Pff',
 			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
