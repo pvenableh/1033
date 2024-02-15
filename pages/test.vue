@@ -5,6 +5,7 @@ const url = ref(config.public.websocketUrl);
 // const { user } = useDirectusAuth();
 
 const tasks = ref([]);
+
 onMounted(async () => {
 	console.log(access_token.value);
 	const connection = new WebSocket(url.value);
@@ -19,6 +20,7 @@ onMounted(async () => {
 	function updateTasks(data) {
 		for (const task of data) {
 			const index = tasks.value.findIndex((item) => item.id == task.id);
+
 			if (index > -1) {
 				tasks.value[index] = task;
 			}

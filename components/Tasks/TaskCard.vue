@@ -77,8 +77,12 @@ if (props.task.category === 'Completed') {
 		:class="{ minimize: minimize }"
 		:data-id="task.id"
 	>
-		<div class="relative w-full flex flex-col items-start justify-start px-4 bg-white dark:bg-gray-900">
-			<div class="absolute right-4 -top-[2px]">
+		<div v-if="alert" class="w-full bg-red-500 p-2 text-white uppercase text-xs">
+			<UIcon name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
+			Due {{ getRelativeTime(task.due_date) }}
+		</div>
+		<div class="pt-4 relative w-full flex flex-col items-start justify-start px-4 bg-white dark:bg-gray-900">
+			<div class="absolute right-4 top-4">
 				<UIcon
 					v-if="!minimize && task.category === 'Completed'"
 					name="i-heroicons-arrows-pointing-in"
@@ -119,7 +123,8 @@ if (props.task.category === 'Completed') {
 					:class="{ 'alert font-bold': alert }"
 				>
 					<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
-					Due {{ getRelativeTime(task.due_date) }}
+					Due: {{ format(task.due_date, 'ddd MMM D @ h:mmA') }}
+					<!-- <span class="block italic font-bold"></span> -->
 					<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
 				</h5>
 				<h5 v-if="task.category === 'Completed'" class="uppercase">
@@ -179,7 +184,7 @@ if (props.task.category === 'Completed') {
 .task-card {
 	animation: updated 0.35s var(--curve);
 	background: var(--white);
-	@apply pt-4 rounded-md shadow-lg mb-8 overflow-hidden;
+	@apply rounded-md shadow-lg mb-8 overflow-hidden;
 
 	&__category {
 		font-weight: bolder;

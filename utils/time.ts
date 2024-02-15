@@ -1,3 +1,5 @@
+import { format } from '@formkit/tempo';
+
 const months: string[] = [
 	'January',
 	'February',
@@ -225,6 +227,7 @@ function getDay(dateString: string): string {
 }
 
 export {
+	format,
 	getRelativeTime,
 	formatDueDate,
 	isPastOrFuture,

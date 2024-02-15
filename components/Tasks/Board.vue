@@ -7,36 +7,28 @@ const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
 const { user } = useDirectusAuth();
 
-const tasks = ref({
-	history: [],
-	new: '',
-});
+// const tasks = ref({
+// 	history: [],
+// 	new: '',
+// });
+
+const tasks = ref([]);
 
 onMounted(async () => {
 	const connection = new WebSocket(url.value);
-	await connection.addEventListener('open', () => authenticate(access_token.value));
-	await connection.addEventListener('message', (message) => receiveMessage(message));
+	connection.addEventListener('open', () => authenticate(access_token.value));
+	connection.addEventListener('message', (message) => receiveMessage(message));
 
 	function authenticate() {
 		connection.send(JSON.stringify({ type: 'auth', access_token: access_token.value }));
 	}
 
 	function updateTasks(data) {
-		// const cards = document.querySelectorAll('.task-card');
-
-		// cards.forEach((element) => {
-		// 	element.classList.remove('updated');
-		// });
-
 		for (const task of data) {
-			const index = tasks.value.history.findIndex((item) => item.id == task.id);
-
-			// const card = document.getElementById('task-' + task.id);
-
-			// card.classList.add('updated');
+			const index = tasks.value.findIndex((item) => item.id == task.id);
 
 			if (index > -1) {
-				tasks.value.history[index] = task;
+				tasks.value[index] = task;
 			}
 		}
 	}
@@ -59,16 +51,15 @@ onMounted(async () => {
 				}),
 			);
 		}
-		// ,comments.id,comments.comments_id.id,comments.comments_id.comment,comments.comments_id.user.id,comments.comments_id.user.first_name,comments.comments_id.user.last_name,comments.comments_id.user.avatar,comments.comments_id.user.email,assign_to.*,assigned_to.directus_users_id.id
 
 		if (data.type == 'subscription' && data.event == 'init') {
 			for (const message of data.data) {
-				tasks.value.history.push(message);
+				tasks.value.push(message);
 			}
 		}
 
 		if (data.type == 'subscription' && data.event == 'create') {
-			tasks.value.history.push(data.data[0]);
+			tasks.value.push(data.data[0]);
 		}
 
 		if (data.type == 'subscription' && data.event == 'update') {
@@ -93,7 +84,7 @@ const draggingInfo = computed(() => {
 
 function updateTasks(category, event) {
 	if (event.added) {
-		const movedTask = tasks.value.history.find((task) => task.id === event.added.element.id);
+		const movedTask = tasks.value.find((task) => task.id === event.added.element.id);
 
 		if (movedTask) {
 			movedTask.category = category;
@@ -103,7 +94,7 @@ function updateTasks(category, event) {
 	}
 
 	if (event.moved) {
-		const movedTask = tasks.value.history.find((task) => task.id === event.moved.element.id);
+		const movedTask = tasks.value.find((task) => task.id === event.moved.element.id);
 
 		if (movedTask) {
 			movedTask.category = category;
@@ -123,11 +114,11 @@ const groupedData = computed(() => {
 		return acc;
 	}, {});
 
-	tasks.value.history.forEach((item) => {
+	tasks.value.forEach((item) => {
 		if (!categories[item.category]) {
 			categories[item.category] = [];
 		}
-		categories[item.category].push(item);
+
 		console.log(user.value);
 		console.log('looking for user role');
 
@@ -153,11 +144,8 @@ const currentPanel = ref(0);
 
 function changePanel(index, duration = 400) {
 	const element = document.getElementById('tasks-board__container');
-	// element.scrollLeft += distance;
-	console.log(index);
 	const distance = (index - currentPanel.value) * 350;
 	const start = element.scrollLeft;
-	console.log(distance);
 	const startTime = performance.now();
 
 	function scroll(timestamp) {
@@ -175,7 +163,7 @@ function changePanel(index, duration = 400) {
 }
 </script>
 <template>
-	<div class="w-full flex flex-row flex-wrap w-full items-start justify-center tasks-board">
+	<div class="flex flex-row flex-wrap w-full items-center justify-center tasks-board">
 		<h1 class="hidden">{{ draggingInfo }}</h1>
 
 		<div class="w-full lg:hidden flex flex-row items-center justify-center tasks-board__nav">
@@ -201,7 +189,7 @@ function changePanel(index, duration = 400) {
 		</div>
 		<div
 			id="tasks-board__container"
-			class="w-full flex flex-row flex-nowrap items-start justify-center tasks-board__container"
+			class="w-full flex flex-row flex-nowrap items-center justify-center tasks-board__container"
 		>
 			<div class="tasks-board__container-inner">
 				<div
@@ -247,10 +235,10 @@ function changePanel(index, duration = 400) {
 .tasks-board {
 	&__container {
 		white-space: nowrap;
-		@apply w-full flex flex-row flex-nowrap items-start justify-start overflow-x-scroll;
+		@apply w-full flex flex-row flex-nowrap items-start justify-start overflow-x-scroll lg:overflow-visible;
 		&-inner {
 			width: 400%;
-			@apply lg:w-full flex flex-row flex-nowrap items-start justify-start;
+			@apply lg:w-full flex flex-row flex-nowrap items-start justify-start lg:justify-center lg:items-center;
 		}
 	}
 	&__col {

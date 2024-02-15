@@ -14,7 +14,6 @@ const props = defineProps({
 			category: '',
 			due_date: '',
 			project: '',
-			assigned_to: [],
 		}),
 	},
 	action: {
@@ -24,28 +23,25 @@ const props = defineProps({
 });
 
 const state = ref({
-	id: '',
 	title: '',
 	description: '',
 	category: '',
 	due_date: '',
 	project: '',
-	assigned_to: [],
 });
 
 if (props.action === 'create') {
 	state.value.category = 'Scheduled';
+	state.value.due_date = format(new Date(), 'YYYY-MM-DD') + 'T17:00';
 }
 
 if (props.action === 'update') {
 	state.value = {
-		id: props.task.id,
 		title: props.task.title,
 		description: props.task.description,
 		category: props.task.category,
 		due_date: props.task.due_date,
 		project: props.task.project,
-		assigned_to: props.task.assigned_to,
 	};
 }
 
@@ -59,6 +55,8 @@ const validate = (state: any): FormError[] => {
 async function onSubmit(event: FormSubmitEvent<any>) {
 	if (user?.value.id) {
 		if (props.action === 'create') {
+			console.log(event.data.title);
+
 			const result = await useDirectus(
 				createItem('tasks', {
 					status: 'published',
@@ -66,8 +64,6 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 					description: event.data.description,
 					category: event.data.category,
 					due_date: event.data.due_date,
-					project: event.data.project,
-					user_created: user.value.id,
 				}),
 			);
 
