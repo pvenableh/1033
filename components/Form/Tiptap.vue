@@ -33,7 +33,7 @@
 		</floating-menu>
 		<editor-content
 			:editor="editor"
-			class="rounded-md border p-2 pb-4 dark:text-white text-[14px] min-h-12 transition-all duration-200"
+			class="rounded-md border p-2 pb-4 dark:text-white text-[14px] min-h-12 transition-all duration-200 tiptap-container"
 			:class="{ 'px-0 pt-0 border-none': disabled }"
 		/>
 	</div>

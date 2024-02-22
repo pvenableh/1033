@@ -84,7 +84,7 @@ async function updateParent() {
 	border-radius: 18px;
 	background: rgb(245, 245, 245);
 	font-size: 14px;
-	@apply px-4 border-none shadow-inner;
+	@apply px-4 border-none shadow-inner dark:bg-black dark:text-white;
 	padding-right: 40px;
 }
 .post-btn {

@@ -10,11 +10,11 @@ export interface UploadProps {
 
 const props = withDefaults(defineProps<UploadProps>(), {
 	modelValue: () => [],
-	multiple: false,
+	multiple: true,
 	sizeLimitMb: 5, // 5mb file size limit by default
 	accept: 'image/*',
 	folderId: null,
-	directusFiles: false,
+	directusFiles: true,
 });
 
 const emit = defineEmits(['update:modelValue', 'error', 'success', 'delete']);

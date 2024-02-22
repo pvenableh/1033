@@ -1,7 +1,7 @@
 <script setup>
 const config = useRuntimeConfig();
 const { user } = useDirectusAuth();
-// const adminUrl = config.public.adminUrl;
+const adminUrl = config.public.adminUrl;
 
 const props = defineProps({
 	item: {
@@ -91,6 +91,7 @@ async function addFile(action, id) {
 				tasks_id: props.item,
 			}),
 		);
+		console.log(result);
 	} else if (action === 'delete') {
 		const result = await useDirectus(deleteItem('tasks_files', id));
 
@@ -99,6 +100,7 @@ async function addFile(action, id) {
 		if (index !== -1) {
 			files.value.history.splice(index, 1);
 		}
+		console.log(result);
 	}
 
 	updateParent();
@@ -107,18 +109,40 @@ async function addFile(action, id) {
 async function updateParent() {
 	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
 }
+
+function handleDelete(file) {
+	console.log('handleDelete', file);
+	addFile('delete', file.id);
+}
+
+function handleSuccess(file) {
+	console.log(file);
+
+	if (file.length > 0) {
+		for (const f of file) {
+			addFile('create', f.id);
+		}
+	}
+}
 </script>
 <template>
 	<div class="w-full">
-		<!-- <FormVUpload
-			v-model="files.history"
-			:directusFiles="true"
+		<FormVUpload
+			:directus-files="true"
 			:multiple="true"
 			folder-id="464c11ad-93ed-42c0-9df3-3000097fc8d5"
 			@success="handleSuccess"
 			@delete="handleDelete"
-		/> -->
-		{{ files.history }}
+		/>
+		<div class="">
+			<img
+				v-for="file in files.history"
+				:key="file.id"
+				:src="`${adminUrl}/assets/${file.directus_files_id}`"
+				:alt="file.directus_files_id.id"
+				class="w-20 h-20"
+			/>
+		</div>
 	</div>
 </template>
 <style></style>

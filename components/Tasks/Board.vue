@@ -43,7 +43,7 @@ onMounted(async () => {
 					collection: 'tasks',
 					query: {
 						fields: [
-							'*,user_created.id,user_created.first_name,user_created.last_name,user_updated.id,user_updated.first_name,user_updated.last_name,file',
+							'*,user_created.id,user_created.first_name,user_created.last_name,user_updated.id,user_updated.first_name,user_updated.last_name,files.*',
 						],
 
 						sort: 'date_created',
@@ -238,7 +238,7 @@ function changePanel(index, duration = 400) {
 		@apply w-full flex flex-row flex-nowrap items-start justify-start overflow-x-scroll lg:overflow-visible;
 		&-inner {
 			width: 400%;
-			@apply lg:w-full flex flex-row flex-nowrap items-start justify-start lg:justify-center lg:items-center;
+			@apply lg:w-full flex flex-row flex-nowrap items-start justify-start lg:justify-center lg:items-start;
 		}
 	}
 	&__col {

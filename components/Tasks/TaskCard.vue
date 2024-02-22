@@ -155,7 +155,12 @@ if (props.task.category === 'Completed') {
 
 			<!-- <div class="task-card__description" v-html="task.description"></div> -->
 			<h3 class="w-full uppercase mt-2 pb-0 mb-1 tracking-wide font-bold text-[8px] border-b">Description:</h3>
-			<FormTiptap v-model="state.description" class="w-full" :disabled="!editable" />
+			<FormTiptap
+				v-model="state.description"
+				class="w-full task-card__description"
+				:disabled="!editable"
+				:class="{ editable: editable }"
+			/>
 		</div>
 		<!-- <div class="w-full relative">
 			<TasksUsers :item="task.id" collection="tasks" />
@@ -220,11 +225,11 @@ if (props.task.category === 'Completed') {
 			font-size: 18px;
 
 			box-shadow: none !important;
-			@apply w-full px-0 transition-all duration-200 border border-white dark:bg-gray-900;
+			@apply w-full px-0 transition-all duration-200 border border-white dark:bg-gray-900 dark:border-gray-900;
 		}
 		&.editable {
 			input {
-				@apply border px-2 border-gray-200 dark:bg-gray-900;
+				@apply border px-2 border-gray-200 dark:bg-gray-900 dark:border-gray-800;
 			}
 		}
 	}
@@ -242,7 +247,11 @@ if (props.task.category === 'Completed') {
 	&__description {
 		font-size: 12px;
 		@apply w-full pb-2;
-
+		&.editable {
+			.tiptap-container {
+				@apply border border-gray-200 dark:bg-gray-900 dark:border-gray-800;
+			}
+		}
 		strong {
 			font-weight: 900;
 			font-family: var(--font-bold);
