@@ -19,7 +19,7 @@ export default defineNuxtConfig({
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
 	modules: [
-		// '@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
+		'@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
 		'@nuxt/devtools', // https://devtools.nuxtjs.org/
 		'@nuxt/image',
 		'@nuxt/ui',
@@ -27,15 +27,15 @@ export default defineNuxtConfig({
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-icon', // https://github.com/nuxt-modules/icon
-		// 'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
-		// 'nuxt-simple-sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
-		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
+		'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
+		'@nuxtjs/sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
+		'@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
 
-	// experimental: {
-	// 	componentIslands: true,
-	// 	asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-	// },
+	experimental: {
+		componentIslands: true,
+		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+	},
 
 	runtimeConfig: {
 		public: {
@@ -90,10 +90,10 @@ export default defineNuxtConfig({
 		},
 	},
 
-	// site: {
-	// 	url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-	// 	name: '1033 Lenox',
-	// },
+	site: {
+		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+		name: '1033 Lenox',
+	},
 
 	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
 	// sitemap: {

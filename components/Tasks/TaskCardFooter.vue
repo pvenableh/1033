@@ -238,7 +238,7 @@ function toggleFiles() {
 	max-height: 0;
 
 	&.visible {
-		max-height: 300px;
+		max-height: 3000px;
 	}
 }
 .task-card__footer {

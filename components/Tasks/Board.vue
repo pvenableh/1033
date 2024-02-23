@@ -195,8 +195,8 @@ function changePanel(index, duration = 400) {
 				<div
 					v-for="(items, category) in groupedData"
 					:key="category"
-					class="tasks-board__col flex-1"
 					:id="slugify(category)"
+					class="tasks-board__col flex-1"
 				>
 					<h2 class="w-full relative uppercase tracking-wide font-bold text-sm hidden lg:block">
 						{{ category }}
@@ -222,8 +222,7 @@ function changePanel(index, duration = 400) {
 						@end="dragging = false"
 					>
 						<template #item="{ element: task }">
-							<TasksTaskCard v-if="items.length > 0" :id="'task-' + task.id" :key="task.id" :task="task" />
-							<h5 v-else>No {{ category }} tasks.</h5>
+							<TasksTaskCard :id="'task-' + task.id" :key="task.id" :task="task" />
 						</template>
 					</draggable>
 				</div>

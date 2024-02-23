@@ -1,6 +1,5 @@
 import { defineNuxtRouteMiddleware, useRuntimeConfig, navigateTo, useDirectusAuth } from '#imports';
 
-
 export default defineNuxtRouteMiddleware((to) => {
 	const config = useRuntimeConfig().public.directus;
 

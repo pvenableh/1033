@@ -30,7 +30,7 @@ definePageMeta({
 });
 
 const avatar = computed(() => {
-	if (user.value.avatar) {
+	if (user.value?.avatar) {
 		return 'https://admin.1033lenox.com/assets/' + user.value.avatar + '?key=medium';
 	} else {
 		return (

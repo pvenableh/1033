@@ -52,7 +52,7 @@ onMounted(async () => {
 					type: 'subscribe',
 					collection: 'tasks_files',
 					query: {
-						fields: ['directus_files_id.*'],
+						fields: ['id,directus_files_id.*'],
 						filter: {
 							tasks_id: {
 								_eq: props.item,
@@ -100,7 +100,6 @@ async function addFile(action, id) {
 		if (index !== -1) {
 			files.value.history.splice(index, 1);
 		}
-		console.log(result);
 	}
 
 	updateParent();
@@ -108,11 +107,13 @@ async function addFile(action, id) {
 
 async function updateParent() {
 	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
+
+	console.log(result);
 }
 
 function handleDelete(file) {
 	console.log('handleDelete', file);
-	addFile('delete', file.id);
+	addFile('delete', file);
 }
 
 function handleSuccess(file) {
@@ -128,21 +129,23 @@ function handleSuccess(file) {
 <template>
 	<div class="w-full">
 		<FormVUpload
-			:directus-files="true"
+			v-model="files.history"
+			:flatten="true"
 			:multiple="true"
 			folder-id="464c11ad-93ed-42c0-9df3-3000097fc8d5"
 			@success="handleSuccess"
 			@delete="handleDelete"
 		/>
-		<div class="">
+		<!-- <div class="flex flex-row flex-wrap items-start justify-start">
 			<img
 				v-for="file in files.history"
 				:key="file.id"
-				:src="`${adminUrl}/assets/${file.directus_files_id}`"
+				:src="`${adminUrl}/assets/${file.directus_files_id.id}?key=small`"
 				:alt="file.directus_files_id.id"
-				class="w-20 h-20"
+				@click="showImage(file.directus_files_id.id)"
+				class="w-20 h-20 mr-2 mb-2 border"
 			/>
-		</div>
+		</div> -->
 	</div>
 </template>
 <style></style>

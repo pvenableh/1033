@@ -85,6 +85,9 @@
 </template>
 
 <script setup>
+definePageMeta({
+	layout: 'auth',
+});
 const { params, path } = useRoute();
 const {
 	data: projects,

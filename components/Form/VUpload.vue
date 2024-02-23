@@ -6,40 +6,44 @@ export interface UploadProps {
 	sizeLimitMb?: number;
 	accept?: string;
 	folderId?: string | null | undefined;
+	flatten?: boolean;
 }
 
 const props = withDefaults(defineProps<UploadProps>(), {
 	modelValue: () => [],
-	multiple: true,
+	multiple: false,
 	sizeLimitMb: 5, // 5mb file size limit by default
 	accept: 'image/*',
 	folderId: null,
-	directusFiles: true,
+	flatten: false,
 });
 
-const emit = defineEmits(['update:modelValue', 'error', 'success', 'delete']);
+console.log(props.flatten);
+
+const emit = defineEmits(['update:modelValue', 'error', 'success']);
 
 const { dragging, onDragEnter, onDragLeave, onDrop } = useDragging();
 const { uploading, error, onSelect, processUpload } = useUpload();
 
-const files = ref([]);
+// const files = computed(() => {
+// 	if (props.flatten) {
+// 		return props.modelValue.map((item) => item.directus_files_id);
+// 	} else {
+// 		return props.modelValue;
+// 	}
+// });
 
-if (props.directusFiles) {
-	files.value = props.modelValue.map((file) => {
-		return { id: file.directus_files_id };
-	});
-} else {
-	files.value = props.modelValue;
-}
+const files = ref(props.modelValue);
 
 function deleteImage(index: number) {
-	files.value = files.value.filter((image, i) => {
-		emit('delete', image);
-		i !== index;
-	});
+	// const updatedFiles = props.modelValue.filter((_, i) => i !== index);
 
-	console.log('here is where delete emits');
-	emit('update:modelValue', files.value);
+	// emit('update:modelValue', updatedFiles);
+	// console.log(files.value[index]);
+	// console.log(files.value);
+	const fileId = files.value[index].id; // or however you access the file ID
+
+	emit('delete', fileId);
 }
 
 // Composable for drag and drop
@@ -116,8 +120,6 @@ function useUpload() {
 			}
 
 			// Emit success event
-			console.log('here is where it emits success');
-
 			emit('success', files.value);
 		} catch (e: any) {
 			error.value = e.message;
@@ -168,7 +170,7 @@ function useUpload() {
 </script>
 <template>
 	<fieldset>
-		<VLabel v-if="label" :label="label" />
+		<FormVLabel v-if="label" :label="label" />
 		<!-- Dropzone -->
 		<div
 			v-if="multiple ? true : files.length === 0"
@@ -219,23 +221,32 @@ function useUpload() {
 					v-if="uploading"
 					class="absolute inset-0 flex items-center justify-center bg-white rounded-md bg-opacity-70 dark:bg-gray-800 dark:bg-opacity-90"
 				>
-					<VLoading class="w-16 h-16 text-primary dark:text-primary" />
+					<FormVLoading class="w-16 h-16 text-primary dark:text-primary" />
 				</div>
 			</transition>
 		</div>
 		<!-- Show an alert if there's an error  -->
-		<VAlert v-if="error" type="error" class="mt-2">{{ error }}</VAlert>
+		<FormVAlert v-if="error" type="error" class="mt-2">{{ error }}</FormVAlert>
 		<!-- File List -->
+
 		<ul class="mt-2 space-y-2">
 			<li v-for="(file, fileIdx) in files" :key="file.id">
 				<div class="relative flex items-center px-4 py-2 rounded-md bg-gray-50 dark:bg-gray-800">
-					<NuxtImg :src="file.id" class="object-contain w-12 h-12 mr-4 dark:brightness-90" />
-					<span class="sm:text-sm dark:text-gray-200">{{ file.filename_download }}</span>
+					<NuxtImg
+						v-if="flatten"
+						:src="file.directus_files_id.id"
+						class="object-contain w-12 h-12 mr-4 dark:brightness-90"
+					/>
+					<NuxtImg v-else :src="file.id" class="object-contain w-12 h-12 mr-4 dark:brightness-90" />
+					<span v-if="flatten" class="sm:text-sm dark:text-gray-200">
+						{{ file.directus_files_id.filename_download }}
+					</span>
+					<span v-else class="sm:text-sm dark:text-gray-200">{{ file.filename_download }}</span>
 					<span class="flex ml-auto cursor-pointer">
 						<button @click="deleteImage(fileIdx)">
-							<Icon
-								name="heroicons:trash"
-								class="w-5 h-5 text-red-500 stroke-current hover:text-red-600 flex-shrink-none"
+							<UIcon
+								name="i-heroicons-trash"
+								class="w-4 h-4 text-sky-500 stroke-current hover:text-red-600 flex-shrink-none"
 							/>
 						</button>
 					</span>

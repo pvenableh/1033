@@ -10,7 +10,6 @@
 <script setup>
 definePageMeta({
 	layout: 'auth',
-	middleware: ['auth'],
 });
 
 // const { data: page } = await useAsyncData('page', () => {

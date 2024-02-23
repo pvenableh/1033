@@ -14,8 +14,6 @@ definePageMeta({
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */
 
-	
-
 	.logo {
 		max-width: 400px;
 		@apply px-6 mt-8;

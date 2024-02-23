@@ -31,10 +31,12 @@
 
 <script setup>
 const { params } = useRoute();
+
 definePageMeta({
-	layout: 'default',
-	middleware: ['guest'],
+	layout: 'auth',
+	middleware: ['auth'],
 });
+
 const unit = ref(null);
 
 const {
