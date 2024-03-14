@@ -1,26 +1,54 @@
 import sgMail from '@sendgrid/mail';
-import { readFileSync } from 'fs';
+import axios from 'axios';
 
 sgMail.setApiKey('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');
+
+async function getFileBase64(url: string) {
+	const response = await axios.get(url, {
+		responseType: 'arraybuffer',
+	});
+
+	return Buffer.from(response.data).toString('base64');
+}
+
+async function createAttachmentObject(url: string) {
+	const base64Data = await getFileBase64(url);
+
+	return {
+		content: base64Data,
+		filename: 'filename.pdf', // You might want to dynamically determine or set a meaningful filename
+		type: 'application/pdf', // Set the MIME type based on your file's type
+		disposition: 'attachment',
+		content_id: 'myContentId', // Optional: Use if you want to reference the content in your email's HTML body
+	};
+}
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
+
+	let attachment: {
+		content: string;
+		filename: string; // You might want to dynamically determine or set a meaningful filename
+		type: string; // Set the MIME type based on your file's type
+		disposition: string;
+		content_id: string;
+	} | null = null;
+
 	const messages = [];
-	let attachment = [];
 
 	if (body.data.data.attachment) {
 		const file = 'https://admin.1033lenox.com/assets/' + body.data.data.attachment;
-		const file64 = readFileSync(file, 'base64');
+		attachment = await createAttachmentObject(file);
 
-		attachment = [
-			{
-				content: file64,
-				filename: 'index.pdf',
-				type: 'application/pdf',
-				disposition: 'attachment',
-			},
-		];
+		// attachment = [
+		// 	{
+		// 		content: file64,
+		// 		filename: 'index.pdf',
+		// 		type: 'application/pdf',
+		// 		disposition: 'attachment',
+		// 	},
+		// ];
 	}
 
 	recipients.forEach((element) => {

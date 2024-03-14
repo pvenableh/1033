@@ -62,6 +62,7 @@
 		"@nuxtjs/plausible": "^0.2.4",
 		"@sendgrid/mail": "^7.7.0",
 		"@vee-validate/rules": "^4.12.5",
+		"axios": "^1.6.7",
 		"chart.js": "^4.4.1",
 		"nuxt-og-image": "3.0.0-rc.23",
 		"vee-validate": "^4.12.5",
