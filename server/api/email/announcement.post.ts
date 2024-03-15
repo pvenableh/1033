@@ -1,15 +1,15 @@
 import sgMail from '@sendgrid/mail';
 
+sgMail.setApiKey('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');
+
 export default defineEventHandler(async (event) => {
-	const config = useRuntimeConfig();
-	sgMail.setApiKey('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');
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 	const messages = [];
 
 	recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
-			messages.push({
+			const message = {
 				personalizations: [
 					{
 						to: [
@@ -51,7 +51,9 @@ export default defineEventHandler(async (event) => {
 					closing: body.data.data.closing,
 				},
 				categories: ['1033 Lenox', 'announcements'],
-			});
+			};
+
+			messages.push(message);
 		}
 	});
 
