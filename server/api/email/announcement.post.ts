@@ -10,14 +10,23 @@ export default defineEventHandler(async (event) => {
 	let attachments = [];
 
 	if (files.length > 0) {
-		await files.forEach((file) => {
-			attachments.push({
-				filename: file.directus_files_id.title,
-				type: file.directus_files_id.type,
-				content: 'https://admin.1033lenox.com/assets/' + file.directus_files_id.id,
-				disposition: 'attachment',
-			});
-		}, []);
+		const fetchAndConvertFiles = async () => {
+			return Promise.all(
+				files.map(async (file) => {
+					const response = await fetch('https://admin.1033lenox.com/assets/' + file.directus_files_id.id);
+					const buffer = await response.buffer();
+					const base64 = buffer.toString('base64');
+					return {
+						filename: file.directus_files_id.title,
+						type: file.directus_files_id.type,
+						content: base64,
+						disposition: 'attachment',
+					};
+				}),
+			);
+		};
+
+		attachments = await fetchAndConvertFiles();
 	}
 
 	await recipients.forEach((element) => {
@@ -66,9 +75,9 @@ export default defineEventHandler(async (event) => {
 				categories: ['1033 Lenox', 'announcements'],
 			};
 
-			// if (attachments.length > 0) {
-			// 	message.attachments = attachments;
-			// }
+			if (attachments.length > 0) {
+				message.attachments = attachments;
+			}
 
 			messages.push(message);
 		}
