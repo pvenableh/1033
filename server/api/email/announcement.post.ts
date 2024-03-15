@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
 			return Promise.all(
 				files.map(async (file) => {
 					const response = await fetch('https://admin.1033lenox.com/assets/' + file.directus_files_id.id);
-					const buffer = await response.buffer();
+					const arrayBuffer = await response.arrayBuffer(); // Use arrayBuffer() instead of buffer()
+					const buffer = Buffer.from(arrayBuffer); // Convert ArrayBuffer to Buffer
 					const base64 = buffer.toString('base64');
 					return {
 						filename: file.directus_files_id.title,
