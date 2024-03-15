@@ -7,15 +7,18 @@ export default defineEventHandler(async (event) => {
 	const recipients = body.data.recipients;
 	const messages = [];
 	const files = body.data.attachments;
+	let attachments = [];
 
 	await recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
-			const attachments = files.map((file) => ({
-				filename: file.title,
-				type: file.type,
-				content: 'https://admin.1033lenox.com/assets/' + file.id,
-				disposition: 'attachment',
-			}));
+			if (files.length > 0) {
+				attachments = files.map((file) => ({
+					filename: file.title,
+					type: file.type,
+					content: 'https://admin.1033lenox.com/assets/' + file.id,
+					disposition: 'attachment',
+				}));
+			}
 
 			const message = {
 				personalizations: [
@@ -54,7 +57,7 @@ export default defineEventHandler(async (event) => {
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
-					content: body.data.data.content,
+					content: attachments,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 				},
