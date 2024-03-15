@@ -98,7 +98,9 @@ export default defineEventHandler(async (event) => {
 	});
 
 	sgMail.send(messages).then(
-		() => {},
+		() => {
+			console.log('Email sent');
+		},
 		(error) => {
 			console.error(error);
 
