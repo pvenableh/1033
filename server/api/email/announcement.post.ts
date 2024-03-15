@@ -66,9 +66,9 @@ export default defineEventHandler(async (event) => {
 				categories: ['1033 Lenox', 'announcements'],
 			};
 
-			if (attachments.length > 0) {
-				message.attachments = attachments;
-			}
+			// if (attachments.length > 0) {
+			// 	message.attachments = attachments;
+			// }
 
 			messages.push(message);
 		}
