@@ -3,26 +3,6 @@ import axios from 'axios';
 
 sgMail.setApiKey('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');
 
-async function getFileBase64(url: string) {
-	const response = await axios.get(url, {
-		responseType: 'arraybuffer',
-	});
-
-	return Buffer.from(response.data).toString('base64');
-}
-
-async function createAttachmentObject(url: string) {
-	const base64Data = await getFileBase64(url);
-
-	return {
-		content: base64Data,
-		filename: 'filename.pdf', // You might want to dynamically determine or set a meaningful filename
-		type: 'application/pdf', // Set the MIME type based on your file's type
-		disposition: 'attachment',
-		content_id: 'myContentId', // Optional: Use if you want to reference the content in your email's HTML body
-	};
-}
-
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
@@ -36,6 +16,27 @@ export default defineEventHandler(async (event) => {
 	} | null = null;
 
 	const messages = [];
+
+	async function getFileBase64(url: string) {
+		const response = await axios.get(url, {
+			responseType: 'arraybuffer',
+		});
+
+		console.log(response);
+		return Buffer.from(response.data).toString('base64');
+	}
+
+	async function createAttachmentObject(url: string) {
+		const base64Data = await getFileBase64(url);
+		console.log(base64Data);
+		return {
+			content: base64Data,
+			filename: 'filename.pdf', // You might want to dynamically determine or set a meaningful filename
+			type: 'application/pdf', // Set the MIME type based on your file's type
+			disposition: 'attachment',
+			content_id: 'myContentId', // Optional: Use if you want to reference the content in your email's HTML body
+		};
+	}
 
 	if (body.data.data.attachment) {
 		const file = 'https://admin.1033lenox.com/assets/' + body.data.data.attachment;
