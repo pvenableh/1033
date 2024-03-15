@@ -9,17 +9,18 @@ export default defineEventHandler(async (event) => {
 	const files = body.data.attachments;
 	let attachments = [];
 
+	await files.forEach((file) => {
+		attachments.push({
+			file: file,
+			filename: file.title,
+			type: file.type,
+			content: 'https://admin.1033lenox.com/assets/' + file.id,
+			disposition: 'attachment',
+		});
+	}, []);
+
 	await recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
-			if (files.length > 0) {
-				attachments = files.map((file) => ({
-					filename: file.title,
-					type: file.type,
-					content: 'https://admin.1033lenox.com/assets/' + file.id,
-					disposition: 'attachment',
-				}));
-			}
-
 			const message = {
 				personalizations: [
 					{
