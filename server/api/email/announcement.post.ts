@@ -6,6 +6,7 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 	const messages = [];
+	let attachments = [];
 
 	recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
@@ -46,7 +47,7 @@ export default defineEventHandler(async (event) => {
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
-					content: body.data.data.content,
+					content: body.data.data.content + body.data.data.attachment,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 				},
