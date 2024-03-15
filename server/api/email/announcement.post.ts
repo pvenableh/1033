@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
 	await recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
 			const attachments = files.map((file) => ({
-				filename: file.filename,
+				filename: file.title,
 				type: file.type,
-				content: file.content,
+				content: 'https://admin.1033lenox.com/assets/' + file.id,
 				disposition: 'attachment',
 			}));
 
@@ -59,7 +59,6 @@ export default defineEventHandler(async (event) => {
 					closing: body.data.data.closing,
 				},
 				categories: ['1033 Lenox', 'announcements'],
-				attachments: attachments,
 			};
 
 			messages.push(message);
@@ -71,7 +70,7 @@ export default defineEventHandler(async (event) => {
 		.then((res) => {
 			console.log(res);
 			console.log('emails sent successfully!');
-			return messages;
+			return attachments;
 		})
 		.catch((error) => {
 			console.log(error);
