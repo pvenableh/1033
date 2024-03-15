@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
-					content: attachments,
+					content: body.data.data.content,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 				},
