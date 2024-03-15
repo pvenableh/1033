@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
-					content: body.data.data.content + body.data.data,
+					content: body.data.data,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 				},
@@ -63,21 +63,10 @@ export default defineEventHandler(async (event) => {
 		.then((res) => {
 			console.log(res);
 			console.log('emails sent successfully!');
-			return res;
+			return messages;
 		})
 		.catch((error) => {
 			console.log(error);
 			return error;
 		});
-
-	//     sgMail.send(messages).then((res) => {
-	//         console.log(res)
-	//     }, error => {
-	//         console.error(error)
-	//         if (error.response) {
-	//             console.error(error.response.body)
-	//             const error = error.response.body
-	//         }
-	//   })
-	console.log(sgRequest);
 });
