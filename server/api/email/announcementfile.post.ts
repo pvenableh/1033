@@ -7,13 +7,7 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 
-	let attachment: {
-		content: string;
-		filename: string; // You might want to dynamically determine or set a meaningful filename
-		type: string; // Set the MIME type based on your file's type
-		disposition: string;
-		content_id: string;
-	} | null = null;
+	let attachment = null;
 
 	const messages = [];
 
@@ -39,6 +33,7 @@ export default defineEventHandler(async (event) => {
 	}
 
 	if (body.data.data.attachment) {
+		console.log(body.data.data.attachment);
 		const file = 'https://admin.1033lenox.com/assets/' + body.data.data.attachment;
 		attachment = await createAttachmentObject(file);
 
