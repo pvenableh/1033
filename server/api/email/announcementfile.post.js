@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 
 	const messages = [];
 
-	async function getFileBase64(url: string) {
+	async function getFileBase64(url) {
 		const response = await axios.get(url, {
 			responseType: 'arraybuffer',
 		});
@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 		return Buffer.from(response.data).toString('base64');
 	}
 
-	async function createAttachmentObject(url: string) {
+	async function createAttachmentObject(url) {
 		const base64Data = await getFileBase64(url);
 		console.log(base64Data);
 		return {
@@ -34,22 +34,18 @@ export default defineEventHandler(async (event) => {
 
 	if (body.data.data.attachment) {
 		console.log(body.data.data.attachment);
-		const file = 'https://admin.1033lenox.com/assets/' + body.data.data.attachment;
-		attachment = await createAttachmentObject(file);
 
-		// attachment = [
-		// 	{
-		// 		content: file64,
-		// 		filename: 'index.pdf',
-		// 		type: 'application/pdf',
-		// 		disposition: 'attachment',
-		// 	},
-		// ];
+		try {
+			const file = 'https://admin.1033lenox.com/assets/' + body.data.data.attachment;
+			attachment = await createAttachmentObject(file);
+		} catch (error) {
+			console.error('Error creating attachment:', error);
+		}
 	}
 
 	recipients.forEach((element) => {
 		if (element.people_id.email && element.people_id.unit.length > 0) {
-			messages.push({
+			const message = {
 				personalizations: [
 					{
 						to: [
@@ -91,8 +87,13 @@ export default defineEventHandler(async (event) => {
 					closing: body.data.data.closing,
 				},
 				categories: ['1033 Lenox', 'announcements'],
-				attachments: [attachment],
-			});
+			};
+
+			if (attachment) {
+				message.attachments = [attachment];
+			}
+
+			messages.push(message);
 		}
 	});
 
