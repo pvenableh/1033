@@ -6,10 +6,12 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 	const messages = [];
-	const files = body.data.attachments;
+	let files = [];
 	let attachments = [];
 
-	if (files.length > 0) {
+	if (body.data.attachments.length > 0) {
+		files = body.data.attachments;
+
 		const fetchAndConvertFiles = async () => {
 			return Promise.all(
 				files.map(async (file) => {
