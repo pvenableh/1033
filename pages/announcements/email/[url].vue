@@ -8,16 +8,22 @@
 				</a>
 			</div>
 			<div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
-				<p style="
-						font-weight: 900;
-						line-height: 1.1em;
-						font-size: 10px;
-						text-transform: uppercase;
-						letter-spacing: 0.07em;
-						padding-bottom: 30px;
-					">
-					🛡 Official Communication of the Lenox Plaza Association 🛡
-				</p>
+				<div class="flex flex-row items-center justify-center mb-6">
+					<p>🛡</p>
+					<p
+						class="text-center px-2"
+						style="
+							font-weight: 900;
+							line-height: 1.1em;
+							font-size: 10px;
+							text-transform: uppercase;
+							letter-spacing: 0.07em;
+						"
+					>
+						Official Communication of the Lenox Plaza Association
+					</p>
+					<p>🛡</p>
+				</div>
 				<h3 class="email__title" :class="{ red: email.urgent }">
 					<span v-if="email.urgent">🚨</span>
 					<span v-else></span>
@@ -64,8 +70,10 @@
 					&copy; {{ new Date().getFullYear() }} LENOX PLAZA ASSOCIATION INC.
 				</h5>
 				<div class="w-full">
-					<img src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
-						alt="1033 Lenox Ave Building" />
+					<img
+						src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
+						alt="1033 Lenox Ave Building"
+					/>
 				</div>
 			</div>
 		</div>
@@ -85,7 +93,6 @@ const url = 'https://admin.1033lenox.com/items/announcements?filter[url][_eq]=' 
 const { data: announcement } = await useFetch(url);
 
 email.value = announcement.value.data[0];
-
 </script>
 <style>
 .email {
@@ -95,7 +102,8 @@ email.value = announcement.value.data[0];
 	padding: 0 10px;
 	color: var(--black);
 
-	@media (min-width: 400px) {}
+	@media (min-width: 400px) {
+	}
 
 	&__border {
 		background: #555555;
@@ -169,7 +177,6 @@ email.value = announcement.value.data[0];
 
 		b,
 		strong {
-
 			font-family: var(--font-bold) !important;
 			font-weight: 900;
 		}
