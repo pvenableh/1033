@@ -1,11 +1,15 @@
 <template>
-	<div class="max-w-3xl px-6 py-12 mx-auto space-y-8">
+	<div class="max-w-3xl px-6 ppt-6 pb-12 mx-auto">
 		<h1 class="page__content-title">Corporate Documents</h1>
-		<div v-for="(file, index) in filteredData" :key="index" class="shadow border rounded p-6 mb-4 flex flex-col">
-			<h5 class="uppercase tracking-wide">{{ file.title }}</h5>
+		<div v-for="(file, index) in page.files" :key="index" class="shadow-lg border rounded p-6 mb-4 flex flex-col">
+			<h5 class="uppercase tracking-wide text-center">{{ file.directus_files_id.title }}</h5>
 			<div class="w-full flex items-center justify-center mt-4">
-				<UButton :to="'https://admin.1033lenox.com/assets/' + file.id" target="_blank" class="button uppercase test">
-					<span class="text-black px-4">Download {{ getSubstringAfterSlash(file.type) }}</span>
+				<UButton
+					:to="'https://admin.1033lenox.com/assets/' + file.directus_files_id.id"
+					target="_blank"
+					class="button uppercase test"
+				>
+					<span class="text-black px-4">Download {{ getSubstringAfterSlash(file.directus_files_id.type) }}</span>
 				</UButton>
 			</div>
 		</div>
@@ -22,18 +26,12 @@ const {
 	data: page,
 	pending,
 	error,
-} = await useAsyncData('page', () => {
-	return useDirectus(readFiles());
-});
-
-const filteredData = computed(() => {
-	return page.value.filter((item) => {
-		if (item.tags !== null && item.tags.length > 0) {
-			return item.tags.some((tag) => tag === 'corporation document');
-		} else {
-			return false;
-		}
-	});
+} = await useAsyncData('corporation', () => {
+	return useDirectus(
+		readItems('corporation', {
+			fields: ['*.*.*'],
+		}),
+	);
 });
 
 function getSubstringAfterSlash(str) {
