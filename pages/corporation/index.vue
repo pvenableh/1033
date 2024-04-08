@@ -4,7 +4,7 @@
 		<div v-for="(file, index) in filteredData" :key="index" class="shadow border rounded p-6 mb-4 flex flex-col">
 			<h5 class="uppercase tracking-wide">{{ file.title }}</h5>
 			<div class="w-full flex items-center justify-center mt-4">
-				<UButton :href="'https://admin.1033lenox.com/assets/' + file.id" target="_blank" class="button uppercase">
+				<UButton :to="'https://admin.1033lenox.com/assets/' + file.id" target="_blank" class="button uppercase">
 					<span class="text-black px-4">Download {{ getSubstringAfterSlash(file.type) }}</span>
 				</UButton>
 			</div>
