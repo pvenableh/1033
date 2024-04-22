@@ -9,7 +9,7 @@ export default defineEventHandler(async (event) => {
 	let files = [];
 	let attachments = [];
 
-	if (body.data.attachments.length > 0) {
+	if (body.data.attachments) {
 		files = body.data.attachments;
 
 		const fetchAndConvertFiles = async () => {
@@ -33,7 +33,13 @@ export default defineEventHandler(async (event) => {
 	}
 
 	await recipients.forEach((element) => {
-		if (element.people_id.email && element.people_id.unit.length > 0) {
+		if (element.people_id.email) {
+			let unit;
+
+			if (element.people_id.unit.length > 0) {
+				unit = element.people_id.unit[0].units_id.number;
+			}
+
 			const message = {
 				personalizations: [
 					{
@@ -67,7 +73,7 @@ export default defineEventHandler(async (event) => {
 				],
 				dynamicTemplateData: {
 					first_name: element.people_id.first_name,
-					unit: element.people_id.unit[0].units_id.number,
+					unit: unit,
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
