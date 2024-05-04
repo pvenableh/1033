@@ -93,6 +93,11 @@ const url = 'https://admin.1033lenox.com/items/announcements?filter[url][_eq]=' 
 const { data: announcement } = await useFetch(url);
 
 email.value = announcement.value.data[0];
+
+useHead({
+	title: email.value.title + ' - 1033 Lenox Announcement',
+	// meta: [{ name: 'description', content: 'My amazing site.' }],
+});
 </script>
 <style>
 .email {
