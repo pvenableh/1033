@@ -1,20 +1,13 @@
 <script setup>
-const {
-	data: newsletters,
-	pending,
-	error,
-} = await useAsyncData('newsletters', () => {
-	return useDirectus(
-		readItems('newsletters', {
-			fields: ['*'],
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const newsletters = await readItems('newsletters', {
+	fields: ['*'],
 });
 </script>
 <template>
 	<div class="insight newsletter">
 		<h1 class="insight__label">Latest Newsletter:</h1>
-		<div v-if="pending">Loading</div>
 		<a
 			v-if="newsletters"
 			class="relative uppercase mb-4 inline-block w-full p-6 newsletter__cover"
@@ -32,7 +25,6 @@ const {
 				<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-3px] opacity-75" />
 			</span>
 		</a>
-		<div v-if="error">Error</div>
 	</div>
 </template>
 <style>

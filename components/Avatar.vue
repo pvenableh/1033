@@ -1,9 +1,8 @@
 <script setup>
+const config = useRuntimeConfig();
+const { user } = useDirectusAuth();
+
 const props = defineProps({
-	user: {
-		type: Object,
-		default: null,
-	},
 	chip: {
 		type: Boolean,
 		default: false,
@@ -16,21 +15,36 @@ const props = defineProps({
 		type: String,
 		default: 'sm',
 	},
+	avatar: {
+		type: String,
+		default: null,
+	},
 });
 
-const avatar = computed(() => {
-	if (props.user.avatar) {
-		return 'https://admin.1033lenox.com/assets/' + props.user.avatar + '?key=medium';
-	} else {
-		return (
-			'https://ui-avatars.com/api/?name=' +
-			props.user?.first_name +
-			' ' +
-			props.user?.last_name +
-			'&background=eeeeee&color=00bfff'
-		);
-	}
-});
+watch(
+	user,
+	(newValue, oldValue) => {
+		if (props.avatar) {
+			avatarSource.value = `${config.public.assetsUrl}${props.avatar}?key=medium`;
+		} else {
+			if (newValue) {
+				if (newValue.avatar) {
+					avatarSource.value = `${config.public.assetsUrl}${newValue.avatar}?key=medium`;
+				} else {
+					// Using template literals for clarity and to handle possible undefined values gracefully
+					avatarSource.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+						newValue.first_name + ' ' + newValue.last_name,
+					)}&background=eeeeee&color=00bfff`;
+				}
+			} else {
+				avatarSource.value = 'https://ui-avatars.com/api/?name=Unknown%20User&background=eeeeee&color=00bfff';
+			}
+		}
+	},
+	{
+		immediate: true, // This ensures the watcher runs immediately with the initial value
+	},
+);
 </script>
 <template>
 	<UAvatar
@@ -39,10 +53,10 @@ const avatar = computed(() => {
 		:chip-text="text"
 		chip-position="top-right"
 		:size="size"
-		:src="avatar"
+		:src="avatarSource"
 		:alt="user?.first_name + ' ' + user?.last_name"
 	/>
-	<UAvatar v-else :size="size" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
+	<UAvatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
 </template>
 
 <style></style>

@@ -4,26 +4,25 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const { data: announcements } = await useAsyncData('announcements', () => {
-	return useDirectus(
-		readItems('announcements', {
-			fields: ['*'],
-			filter: {
-				status: {
-					_eq: 'sent',
-				},
-				date_sent: {
-					_nnull: true
-				}
-			},
-			sort: '-date_sent',
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const announcements = await readItems('announcements', {
+	fields: ['*'],
+	filter: {
+		status: {
+			_eq: 'sent',
+		},
+		date_sent: {
+			_nnull: true,
+		},
+	},
+	sort: '-date_sent',
 });
+
 const filteredAnnouncements = computed(() => {
 	let possibleStrings = ['Minutes', 'Agenda', 'Board Meeting'];
 
-	return announcements.value
+	return announcements
 		.map((item) => {
 			if (item.tags) {
 				if (!possibleStrings.some((possibleString) => item.tags.includes(possibleString))) {

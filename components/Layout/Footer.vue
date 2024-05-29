@@ -16,7 +16,7 @@
 		</div>
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link v-if="user" to="/account">Account</nuxt-link>
-			<a v-if="user" @click.prevent="logout()" class="cursor-pointer">Logout</a>
+			<AccountLogout v-if="user" />
 			<nuxt-link v-else to="/auth/signin">Login</nuxt-link>
 		</div>
 		<div class="w-full flex items-center justify-center flex-col sm:flex-row my-12 footer__contact-info">
@@ -73,7 +73,7 @@ const { user, logout } = useDirectusAuth();
 
 		a {
 			font-size: 10px;
-		
+
 			@apply uppercase tracking-widest py-1 mb-1 w-full;
 		}
 		a:hover,
@@ -105,7 +105,7 @@ h5.web-designer {
 			stroke: none;
 			margin-top: -11px;
 			margin-left: 3px;
-			@apply fill-gray-700 dark:fill-gray-400; 
+			@apply fill-gray-700 dark:fill-gray-400;
 			path {
 				transition: all 0.3s linear;
 			}

@@ -1,17 +1,16 @@
 <template>
-	<div @click.prevent="logout()" class="relative z-0 cursor-pointer logout-btn">Logout</div>
+	<a class="cursor-pointer" @click.prevent="handleLogout">Logout</a>
 </template>
 <script setup>
-// import { navigateTo } from '#imports';
-
 const { logout } = useDirectusAuth();
 
-// const onSubmit = async () => {
-// 	logout();
-// 	return navigateTo('/', { replace: true });
-// };
+const handleLogout = async () => {
+	try {
+		const result = await logout();
+		return await navigateTo('/', { replace: true });
+	} catch (error) {
+		console.error(error);
+	}
+};
 </script>
-<style scoped lang="postcss">
-.logout {
-}
-</style>
+<style></style>

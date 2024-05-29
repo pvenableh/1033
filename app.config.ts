@@ -1,14 +1,13 @@
-// import { theme } from '~/theme';
+import { theme } from '~/theme';
 
 export default defineAppConfig({
-	// theme,
+	theme,
 	ui: {
 		strategy: 'override',
-		primary: 'turquoise',
+		primary: 'zinc',
 		gray: 'zinc',
 		borderRadius: 'full',
 		notifications: {
-			// Show toasts at the top right of the screen
 			position: 'top-0 right-0 bottom-auto left-auto',
 		},
 		card: {
@@ -21,18 +20,17 @@ export default defineAppConfig({
 		},
 
 		button: {
-			base: 'hover:scale-105 active:hover:scale-95 transition duration-150 uppercase tracking-wide',
+			base: 'hover:scale-100 active:hover:scale-100 transition duration-150 uppercase tracking-wide text-center focus:border-0 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-75 active:border-0 active:outline-none active:ring-1 active:ring-gray-300 tracking-wider',
 			font: 'font-bold',
-			rounded: 'rounded-large',
+
 			default: {
-			
 				size: 'lg',
-				loadingIcon: 'material-symbols:sync-rounded',
+				loadingIcon: 'i-heroicons-arrow-path',
 			},
 			color: {
 				white: {
-				  solid: 'bg-white dark:bg-gray-900'
-				}
+					solid: 'bg-white dark:bg-gray-900',
+				},
 			},
 		},
 		badge: {
@@ -41,17 +39,17 @@ export default defineAppConfig({
 		formGroup: {
 			label: {
 				base: 'uppercase block font-medium text-gray-700 dark:text-gray-200 tracking-widest',
-			  },
+			},
 		},
 		input: {
-			base: 'rounded-large relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 focus:ring-gray-300 border-0',
+			base: 'rounded-none relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 focus:ring-gray-300 border border-gray-50 focus:border focus:border-cyan-200 focus:outline-none focus:ring-1 focus:ring-gray-300 disabled:cursor-not-allowed disabled:opacity-75 active:border active:outline-none active:ring-1 active:ring-gray-300 active:border active:border-gray-300',
 			default: {
-				loadingIcon: 'material-symbols:sync-rounded',
+				loadingIcon: 'i-heroicons-arrow-path',
 			},
 			// rounded: `rounded-${theme.borderRadius}`,
 		},
 		select: {
-			base: 'rounded-large relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 focous:ring-gray-300 border-0',
+			base: 'rounded-input relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 focous:ring-gray-300 border-0',
 			// rounded: `rounded-${theme.borderRadius}`,
 			default: {
 				loadingIcon: 'material-symbols:sync-rounded',
@@ -63,15 +61,23 @@ export default defineAppConfig({
 			rounded: 'rounded-lg',
 		},
 		selectMenu: {
-			rounded: 'rounded-large relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 ring-gray-300 border-0',
+			rounded:
+				'rounded-input relative block w-full disabled:cursor-not-allowed disabled:opacity-75 focus:ring-1 ring-gray-300 border-0',
 			default: {
 				selectedIcon: 'material-symbols:fitbit-check-small-rounded',
 			},
 		},
 		notification: {
+			title: 'text-sm font-bold text-white dark:text-gray-900',
+			description: 'text-xs text-white dark:text-gray-900',
+			icon: {
+				color: 'text-primary-500 dark:text-gray-900',
+			},
+			background: 'bg-gray-800 dark:bg-primary-600 ',
 			default: {
 				closeButton: {
-					icon: 'i-octicon-x-24',
+					color: 'primary-300',
+					icon: 'i-heroicons-x-circle',
 				},
 			},
 		},

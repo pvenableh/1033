@@ -88,22 +88,17 @@
 definePageMeta({
 	layout: 'auth',
 });
-const { params, path } = useRoute();
-const {
-	data: projects,
-	pending,
-	error,
-} = await useAsyncData('projects', () => {
-	return useDirectus(
-		readItems('projects', {
-			filter: {
-				url: {
-					_eq: params.url,
-				},
-			},
-			fields: ['id,title,category,description,url,vendors.vendors_projects_id.vendors_id.*,events.*,documents.*'],
-		}),
-	);
+
+const { params } = useRoute();
+const { readItems } = useDirectusItems();
+
+const projects = await readItems('projects', {
+	filter: {
+		url: {
+			_eq: params.url,
+		},
+	},
+	fields: ['id,title,category,description,url,vendors.vendors_projects_id.vendors_id.*,events.*,documents.*'],
 });
 
 const project = ref(projects[0]);
