@@ -52,14 +52,14 @@ const mailtoLink = computed(() => {
 			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-6 mb-6 lg:mt-12">Paint and Railings</h1>
 
 			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">Our Goal:</h3>
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">📈 Our Goal:</h3>
 				<p>
 					Focus on the return on our investment with the 40 YR construction. We want to increase property values, rental
 					rates, lower insurance, increase longevity, and create an overall better living experience.
 				</p>
 			</div>
 			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col mt-6">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">Your Vote:</h3>
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">🗳️ Your Vote:</h3>
 				<p class="">
 					View the rendered design options below with the various color schemes. After review, submit your vote before
 					Friday May 31st, 2024.
