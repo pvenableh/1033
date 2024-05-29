@@ -48,21 +48,22 @@ const mailtoLink = computed(() => {
 </script>
 <template>
 	<div class="flex items-center justify-center flex-col w-full renderings">
-		<div class="w-full mb-12 renderings__intro">
-			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-6 mb-6 lg:mt-12">Paint and Railings</h1>
+		<div class="w-full mb-12 max-w-[500px] lg:max-w-[1000px] px-2 lg:px-0 renderings__intro">
+			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-10 mb-8 lg:mt-12">Paint and Railings</h1>
 
-			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col">
+			<div class="w-full flex items-start justify-start flex-col">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">📈 Our Goal:</h3>
 				<p>
 					Focus on the return on our investment with the 40 YR construction. We want to increase property values, rental
 					rates, lower insurance, increase longevity, and create an overall better living experience.
 				</p>
 			</div>
-			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col mt-6">
+			<div class="w-full flex items-start justify-start flex-col mt-6">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">🗳️ Your Vote:</h3>
 				<p class="">
-					View the rendered design options below with the various color schemes. After review, submit your vote before
-					Friday May 31st, 2024.
+					View the rendered design options below with the various color schemes. After review, submit your vote.
+					<span class="font-bold text-red-400">Votes MUST be submitted before 6PM on Friday May 31st, 2024</span>
+					.
 				</p>
 			</div>
 		</div>
