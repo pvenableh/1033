@@ -82,7 +82,10 @@ const mailtoLink = computed(() => {
 						<span class="opacity-50 inline-block ml-3">Gate Color:</span>
 						{{ selectedImage.gate_color }}
 					</p>
-					<p class="lg:w-1/2 text-right uppercase text-[10px] mb-1 leading-4 max-w-[1200px] text-red-500">
+					<p
+						v-if="selectedImage.extra_cost"
+						class="hidden lg:flex lg:w-1/2 text-right uppercase text-[10px] mb-1 leading-4 max-w-[1200px] text-red-500"
+					>
 						<span class="inline-block ml-3">Extra Cost:</span>
 						{{ selectedImage.extra_cost }}
 					</p>
