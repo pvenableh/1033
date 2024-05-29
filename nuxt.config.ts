@@ -94,7 +94,7 @@ export default defineNuxtConfig({
 
 	// Color Mode Configuration - https://color-mode.nuxtjs.org/
 	colorMode: {
-		preference: 'dark',
+		preference: 'system',
 		classSuffix: '', // This is so we play nice with TailwindCSS
 	},
 

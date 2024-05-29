@@ -1,222 +1,191 @@
 <script setup>
-definePageMeta({
-	layout: 'email',
+// definePageMeta({
+// 	layout: 'email',
+// });
+
+const { readItems } = useDirectusItems();
+
+const renderings = await readItems('renderings', {
+	fields: ['*'],
 });
 
-const selectedOption = ref(null);
-
-const renderings = ref([
-	{
-		id: '74d30830-73d7-40b2-a170-6cb2c76737bf',
-		status: 'published',
-		sort: 1,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:55:28.332Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:45:05.686Z',
-		title: 'Option 1',
-		building_color: 'White',
-		gate_color: 'Black',
-		image: 'c29bf74d-3729-4da7-bccb-31042041f12f',
-		cost: '6785.71',
-		extra_cost: null,
-		description: null,
-		railings_color: 'Black',
-	},
-	{
-		id: '4d456884-d7b1-4dd7-94a3-48e882b3a056',
-		status: 'draft',
-		sort: 2,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:56:37.573Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:48:37.573Z',
-		title: 'Option 2',
-		building_color: 'White',
-		gate_color: 'Grey',
-		image: '1f2d3c26-95e1-4b1e-9030-d2cd8b7cccc9',
-		cost: '6785.71',
-		extra_cost: '$300 + TBD Cost to paint entry gates grey',
-		description: null,
-		railings_color: 'Grey',
-	},
-	{
-		id: '9ea256b7-6db1-4270-a4ca-5ccb92a32539',
-		status: 'published',
-		sort: 3,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:57:38.193Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:48:43.651Z',
-		title: 'Option 3',
-		building_color: 'White with Grey Top',
-		gate_color: 'Black',
-		image: '828c98ec-91ca-4f99-831a-3efab8824175',
-		cost: '6785.71',
-		extra_cost: null,
-		description: null,
-		railings_color: 'Black',
-	},
-	{
-		id: '1afb145f-de94-46c2-8acf-496cd05a487d',
-		status: 'published',
-		sort: 4,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:57:55.031Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:48:49.159Z',
-		title: 'Option 4',
-		building_color: 'White with Grey Top',
-		gate_color: 'Grey',
-		image: '828c98ec-91ca-4f99-831a-3efab8824175',
-		cost: '6785.71',
-		extra_cost: '$300 + TBD Cost to paint entry gates grey',
-		description: null,
-		railings_color: 'Grey',
-	},
-	{
-		id: 'b802c4a3-31ef-48db-adc3-489acfbdba74',
-		status: 'published',
-		sort: 5,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:59:41.793Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:49:16.813Z',
-		title: 'Option 5',
-		building_color: 'White with Grey Top and Bottom',
-		gate_color: 'Black',
-		image: '828c98ec-91ca-4f99-831a-3efab8824175',
-		cost: '6785.71',
-		extra_cost: null,
-		description: null,
-		railings_color: 'Black',
-	},
-	{
-		id: 'f9f38c66-9d4b-4a4a-a659-a98eaf80f815',
-		status: 'published',
-		sort: 6,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T14:59:04.510Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:49:41.298Z',
-		title: 'Option 6',
-		building_color: 'White with Grey Top and Bottom',
-		gate_color: 'Grey',
-		image: 'ae20f7fd-4fae-4ab4-9387-6c8c38f3750c',
-		cost: '6785.71',
-		extra_cost: '$300 + TBD Cost to paint entry gates grey',
-		description: null,
-		railings_color: 'Grey',
-	},
-	{
-		id: '026324ab-6149-440a-9a64-46762044c4d1',
-		status: 'published',
-		sort: 7,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T15:43:20.852Z',
-		user_updated: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_updated: '2024-05-29T15:50:20.638Z',
-		title: 'Option 9',
-		building_color: 'White with Grey Top and Bottom',
-		gate_color: 'Black',
-		image: '0a71c613-effa-4d30-82d1-ede7c370133f',
-		cost: '6785.71',
-		extra_cost: ' $12,500 - $14,000/unit for glass railings',
-		description: null,
-		railings_color: 'Glass',
-	},
-	{
-		id: 'cb400f0f-c287-4eb3-a09b-ef17d2ce3c28',
-		status: 'draft',
-		sort: 8,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T15:51:40.927Z',
-		user_updated: null,
-		date_updated: null,
-		title: 'Option 8',
-		building_color: 'White with Grey Top',
-		gate_color: 'Black',
-		image: '6811b678-d53f-468d-b2a9-be5a00600a68',
-		cost: '6785.71',
-		extra_cost: ' $12,500 - $14,000/unit for glass railings',
-		description: null,
-		railings_color: 'Glass',
-	},
-	{
-		id: '6c90f419-8ba0-4f1f-a8c1-45c9652dc5cb',
-		status: 'draft',
-		sort: 9,
-		user_created: '7c04ac8d-9a56-47da-b66d-7c5044268252',
-		date_created: '2024-05-29T15:51:02.464Z',
-		user_updated: null,
-		date_updated: null,
-		title: 'Option 7',
-		building_color: 'White',
-		gate_color: 'Black',
-		image: '99fcff7d-9177-4fd8-a37d-f90a3f0b5cf0',
-		cost: '6785.71',
-		extra_cost: ' $12,500 - $14,000/unit for glass railings',
-		description: null,
-		railings_color: 'Glass',
-	},
-]);
-
-const selectedImage = ref('');
+const selectedItem = ref({});
+const selectedImage = ref({});
 const isOpen = ref(false);
+const isVoteOpen = ref(false);
 
 function toggleModal(image) {
 	if (isOpen.value) {
 		isOpen.value = false;
-		selectedImage.value = '';
+		selectedImage.value = {};
 	} else {
 		isOpen.value = true;
-		selectedImage.value = '/images/' + image;
+		selectedImage.value = image;
 	}
 }
+
+function toggleVote(item) {
+	if (isVoteOpen.value) {
+		isVoteOpen.value = false;
+		selectedItem.value = {};
+	} else {
+		isVoteOpen.value = true;
+		selectedItem.value = item;
+	}
+}
+
+const mailtoLink = computed(() => {
+	if (selectedItem?.value) {
+		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
+
+		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;
+
+		return `mailto:huestudios.com@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
+	} else {
+		return '';
+	}
+});
 </script>
 <template>
-	<div class="flex items-center justify-center flex-col renderings">
-		<UModal v-model="isOpen">
-			<img :src="selectedImage" alt="1033 Lenox Design Rendering" />
+	<div class="flex items-center justify-center flex-col w-full renderings">
+		<div class="w-full mb-12 renderings__intro">
+			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-6 mb-6 lg:mt-12">Paint and Railings</h1>
+
+			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col">
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">Our Goal:</h3>
+				<p>
+					Focus on the return on our investment with the 40 YR construction. We want to increase property values, rental
+					rates, lower insurance, increase longevity, and create an overall better living experience.
+				</p>
+			</div>
+			<div class="w-full px-6 max-w-[1000px] flex items-start justify-start flex-col mt-6">
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">Your Vote:</h3>
+				<p class="">
+					View the rendered design options below with the various color schemes. After review, submit your vote before
+					Friday May 31st, 2024.
+				</p>
+			</div>
+		</div>
+		<UModal v-model="isOpen" fullscreen>
+			<div class="w-full h-full flex items-center justify-center flex-col p-2 lg:p-12 relative" @click="isOpen = false">
+				<UIcon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
+				<h5 class="w-full uppercase font-bold mt-3 leading-4 max-w-[1200px]">
+					<span class="opacity-50">DESIGN:</span>
+					{{ selectedImage.title }}
+				</h5>
+				<div class="w-full flex flex-row items-center justify-between">
+					<p class="w-full uppercase text-[10px] mb-1 leading-4 max-w-[1200px]">
+						<span class="opacity-50">Building Color:</span>
+						{{ selectedImage.building_color }}
+						<span class="opacity-50 inline-block ml-3">Railing COLOR:</span>
+						{{ selectedImage.railings_color }}
+						<span class="opacity-50 inline-block ml-3">Gate Color:</span>
+						{{ selectedImage.gate_color }}
+					</p>
+					<p class="lg:w-1/2 text-right uppercase text-[10px] mb-1 leading-4 max-w-[1200px] text-red-500">
+						<span class="inline-block ml-3">Extra Cost:</span>
+						{{ selectedImage.extra_cost }}
+					</p>
+				</div>
+				<img
+					:src="'https://admin.1033lenox.com/assets/' + selectedImage.image + '?key=large'"
+					alt="1033 Lenox Design Rendering"
+					class="w-full h-auto max-w-[1200px]"
+				/>
+			</div>
 		</UModal>
 		<div
 			v-for="(item, index) in renderings"
 			:key="index"
-			class="flex items-center justify-center flex-col md:flex-row renderings__item"
+			class="flex items-center justify-center flex-col lg:items-start lg:flex-row w-full mb-20 renderings__item"
 		>
-			<div class="w-full md:w-1/2 max-w-[450px] cursor-pointer" @click="toggleModal('OPT-1A.jpg')">
-				<img src="/images/OPT-1A.jpg" :alt="item.title" class="w-full" />
+			<div class="w-full lg:w-1/2 max-w-[500px] relative cursor-pointer" @click="toggleModal(item)">
+				<img
+					:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
+					:alt="item.title"
+					class="w-full"
+				/>
+				<UIcon
+					name="i-heroicons-magnifying-glass-plus"
+					class="text-white cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]"
+				/>
 			</div>
-			<div class="w-full md:pl-6 renderings__item-caption">
-				<h3 class="renderings__item-title">
+			<div class="w-full flex items-start justify-start flex-col max-w-[500px] lg:pl-6 renderings__item-caption">
+				<h3 class="w-full mt-2 lg:mt-0 renderings__item-title">
 					<span class="label">Design:</span>
 					{{ item.title }}
 				</h3>
-				<h4 class="renderings__item-subtitle">
-					<span class="label">Building Color:</span>
-					{{ item.building_color }}
-				</h4>
-				<h4 class="renderings__item-subtitle">
-					<span class="label">Railing Color:</span>
-					{{ item.railings_color }}
-				</h4>
-				<h4 class="renderings__item-subtitle">
-					<span class="label">Gate Color:</span>
-					{{ item.gate_color }}
-				</h4>
-				<h4 class="renderings__item-subtitle">
-					<span class="label">Cost:</span>
-					${{ item.cost }} / unit
-				</h4>
-				<h4 v-if="item.extra_cost" class="renderings__item-subtitle">
-					<span class="label">Extra Cost:</span>
-					{{ item.extra_cost }}
-				</h4>
-				<UButton @click="selectedOption = item">Select {{ item.title }}</UButton>
+				<ul class="list-disc ml-6 uppercase my-2 text-sm font-bold">
+					<li class="renderings__item-subtitle">
+						<span class="label">Building Color:</span>
+						{{ item.building_color }}
+					</li>
+					<li class="renderings__item-subtitle">
+						<span class="label">Railing Color:</span>
+						{{ item.railings_color }}
+					</li>
+					<li class="renderings__item-subtitle">
+						<span class="label">Gate Color:</span>
+						{{ item.gate_color }}
+					</li>
+					<li v-if="item.cost" class="renderings__item-subtitle">
+						<span class="label">Cost:</span>
+						${{ item.cost }}
+						<span class="opacity-50">per unit</span>
+					</li>
+					<li v-if="item.extra_cost" class="text-red-500 renderings__item-subtitle">
+						<span class="">Extra Cost:</span>
+						{{ item.extra_cost }}
+						<span class="">per unit</span>
+					</li>
+				</ul>
+				<UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
+					Vote for {{ item.title }}
+				</UButton>
 			</div>
 		</div>
-
-		<!-- <Ballot :option="selectedOption" /> -->
+		<UModal v-model="isVoteOpen">
+			<div class="py-8 px-6 relative">
+				<UIcon
+					name="i-heroicons-x-circle"
+					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
+					@click="toggleVote()"
+				/>
+				<h3 class="uppercase font-bold mb-2">Submit Your Vote!</h3>
+				<p class="text-sm">
+					This is to confirm that you are voting for
+					<strong>{{ selectedItem.title }}</strong>
+					which includes:
+				</p>
+				<ul class="list-disc ml-6 uppercase my-2 text-sm font-bold">
+					<li>
+						<span class="opacity-50">Building Color:</span>
+						{{ selectedItem.building_color }}
+					</li>
+					<li>
+						<span class="opacity-50">Railing Color:</span>
+						{{ selectedItem.railings_color }}
+					</li>
+					<li>
+						<span class="opacity-50">Gate Color:</span>
+						{{ selectedItem.gate_color }}
+					</li>
+				</ul>
+				<p v-if="selectedItem.cost" class="text-sm mb-2">
+					The cost is ${{ selectedItem.cost }} per unit
+					<span v-if="!selectedItem.extra_cost">.</span>
+					<span v-else class="text-red-500">plus {{ selectedItem.extra_cost }}.</span>
+				</p>
+				<p v-else class="text-sm mb-2">
+					The cost is
+					<span class="text-red-500">{{ selectedItem.extra_cost }}.</span>
+				</p>
+				<p class="text-sm mb-4">Click the button below to send your vote by email to the board.</p>
+				<UButton :to="mailtoLink" color="sky" class="tracking-wide">
+					Send Email Vote for {{ selectedItem.title }}
+				</UButton>
+			</div>
+		</UModal>
 	</div>
 </template>
 <style scoped>
@@ -226,6 +195,7 @@ function toggleModal(image) {
 		&-caption {
 		}
 		&-title {
+			border-bottom: thin solid rgba(0, 0, 0, 0.25);
 			font-size: 22px;
 			@apply uppercase tracking-wide;
 		}

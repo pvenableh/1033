@@ -2,7 +2,7 @@
 	<div
 		id="nav-drawer"
 		ref="navDrawerRef"
-		class="flex items-center justify-center flex-col nav-drawer"
+		class="flex items-center justify-center flex-col bg-white bg-opacity-75 dark:bg-gray-800 dark:text-white nav-drawer"
 		@click="closeNavDrawer"
 	>
 		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
@@ -60,9 +60,9 @@ onClickOutside(navDrawerRef, () => {
 	right: 0%;
 	top: 0px;
 	z-index: 50;
-	background: var(--white);
+	/* background: var(--white);
 	background: rgba(208, 208, 208, 0.5);
-	background: rgba(255, 255, 255, 0.75);
+	background: rgba(255, 255, 255, 0.75); */
 	transform: translateX(100%);
 	transition: 0.35s var(--curve);
 	width: 100%;
