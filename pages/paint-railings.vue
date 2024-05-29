@@ -40,7 +40,7 @@ const mailtoLink = computed(() => {
 
 		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;
 
-		return `mailto:huestudios.com@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
+		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 	} else {
 		return '';
 	}
