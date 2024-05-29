@@ -1,22 +1,67 @@
 <script setup lang="ts">
-// const { _loggedIn } = useDirectusAuth();
-
-// definePageMeta({
-// 	layout() {
-// 		if (_loggedIn.get()) {
-// 			return 'auth';
-// 		} else {
-// 			return 'default';
-// 		}
-// 	},
-// });
+const links = ref([
+	{
+		name: 'Home',
+		type: ['footer', 'drawer'],
+		to: '/',
+		icon: 'i-heroicons-home',
+	},
+	{
+		name: 'Meetings',
+		type: ['footer', 'drawer'],
+		to: '/meetings',
+		icon: 'i-heroicons-identification',
+	},
+	{
+		name: 'Announcements',
+		type: ['footer', 'toolbar', 'drawer'],
+		to: '/announcements',
+		icon: 'i-heroicons-identification',
+	},
+	{
+		name: 'Projects',
+		type: ['footer', 'drawer'],
+		to: '/projects',
+		icon: 'i-heroicons-identification',
+	},
+	{
+		name: 'Rules / Regulations',
+		type: ['footer', 'drawer'],
+		to: '/rules-regulations',
+		icon: 'i-heroicons-identification',
+	},
+	{
+		name: 'By-Laws',
+		type: ['footer', 'drawer'],
+		to: '/documents',
+		icon: 'i-heroicons-identification',
+	},
+	{
+		name: 'Dashboard',
+		type: ['footer', 'toolbar', 'drawer'],
+		to: '/dashboard',
+		icon: 'i-heroicons-squares-2x2',
+	},
+]);
 </script>
 <template>
-	<NuxtLayout>
+	<NuxtLayout :links="links">
 		<NuxtPage />
 	</NuxtLayout>
 	<NuxtLoadingIndicator
 		color="repeating-linear-gradient(to right,#FF99DD
     0%,#94a3b8 100%)"
 	/>
+	<UNotifications />
 </template>
+<style>
+.page-content {
+	transition: all 0.25s var(--curve);
+
+	.nuxt-page {
+		min-height: calc(90vh - 100px);
+		z-index: 5;
+		position: relative;
+	}
+}
+</style>

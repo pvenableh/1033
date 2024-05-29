@@ -15,8 +15,8 @@
 				<a href="#nine">Amendment</a>
 			</div>
 			<div
-				v-if="doc.document"
-				v-html="doc.document"
+				v-if="page.document"
+				v-html="page.document"
 				class="pr-4 pl-4 lg:pl-10 w-full flex-grow scroll-smooth page__content-body by-laws"
 			></div>
 		</div>
@@ -29,20 +29,12 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const doc = ref(null);
+const { readItems } = useDirectusItems();
 
-const {
-	data: page,
-	pending,
-	error,
-} = await useAsyncData('page', () => {
-	return useDirectus(
-		readItems('by_laws', {
-			fields: ['*'],
-		}),
-	);
+const page = await readItems('by_laws', {
+	fields: ['*'],
 });
 
-doc.value = page.value;
+console.log(page);
 </script>
 <style></style>

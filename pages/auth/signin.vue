@@ -1,42 +1,7 @@
 <script setup lang="ts">
-import { openScreen, loader, closeScreen } from '~/composables/useScreen';
-
-const { login } = useDirectusAuth();
-
-const credentials = reactive({
-	email: '',
-	password: '',
-});
-
-const loading = ref(false);
-const error = ref(null);
-
-async function attemptLogin() {
-	console.log('test')
-	loader.value = true;
-	openScreen();
-	const { email, password } = unref(credentials);
-	loading.value = true;
-	error.value = null;
-
-	try {
-		// Be careful when using the login function because you have to pass the email and password as arguments.
-		loader.value = false;
-		closeScreen();
-		await login(email, password);
-	} catch (err: any) {
-		error.value = err.message;
-	}
-
-	loader.value = false;
-	closeScreen();
-	loading.value = false;
-}
-
 const panel = ref('login');
 
 function movePanel(val: string) {
-	console.log(val);
 	panel.value = val;
 }
 </script>
@@ -46,42 +11,34 @@ function movePanel(val: string) {
 		<transition-group name="list" tag="div" class="login-panels">
 			<div v-if="panel === 'register'" key="1" class="flex items-center justify-center flex-col login-panel">
 				<!-- <AccountRegister /> -->
-				<a @click.prevent="movePanel('login')" class="cursor-pointer login-panel__nav-button">Login</a>
+				<a class="cursor-pointer login-panel__nav-button" @click.prevent="movePanel('login')">Login</a>
 			</div>
-			<div class="flex items-center justify-center flex-col login-panel" v-if="panel === 'login'" key="2">
-				<p class="text-xs uppercase tracking-wide">This platform is accessible by invitation only.</p>
-				<VForm class="w-full" @submit="attemptLogin()">
-					<FormVInput
-						name="email"
-						type="email"
-						rules="emailExists"
-						label="Email"
-						v-model="credentials.email"
-						class="my-6"
-					/>
-					<FormVInput
-						name="password"
-						type="password"
-						rules="required"
-						label="Password"
-						v-model="credentials.password"
-						class="my-6"
-					/>
-					<FormVButton class="w-full mb-6" type="submit">Login</FormVButton>
-				</VForm>
+			<div v-if="panel === 'login'" key="2" class="flex items-center justify-center flex-col login-panel">
+				<p
+					v-motion="{
+						initial: {
+							y: -100,
+							opacity: 0,
+						},
+						enter: {
+							y: 0,
+							opacity: 1,
+						},
+					}"
+					class="text-xs uppercase tracking-wide mb-4"
+				>
+					This platform is accessible by invitation only.
+				</p>
+
+				<AccountLoginForm />
 
 				<!-- <a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button">New? <span
 						class="purple-txt">Register Here</span></a> -->
-				<a @click.prevent="movePanel('request')" class="cursor-pointer login-panel__nav-button reset purple-txt mt-4">
-					Reset Password
-				</a>
-				<div v-if="error" class="text-red-500 uppercase tracking-wide font-bold" style="font-size: 10px">
-					{{ error }}
-				</div>
+				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('request')">Reset Password</a>
 			</div>
 			<div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
 				<AccountPasswordRequest />
-				<a @click.prevent="movePanel('login')" class="cursor-pointer login-panel__nav-button">Login</a>
+				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('login')">Login</a>
 			</div>
 		</transition-group>
 	</div>

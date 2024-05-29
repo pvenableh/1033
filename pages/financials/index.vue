@@ -12,13 +12,5 @@ definePageMeta({
 	layout: 'auth',
 	middleware: ['auth'],
 });
-
-// const { data: page } = await useAsyncData('page', () => {
-// 	return useDirectus(
-// 		readItems('rules', {
-// 			fields: ['*'],
-// 		}),
-// 	);
-// });
 </script>
 <style></style>

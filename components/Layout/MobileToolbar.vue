@@ -1,19 +1,28 @@
+<script setup>
+const props = defineProps({
+	links: {
+		type: Array,
+		default: () => [],
+	},
+});
+</script>
 <template>
-	<div id="mobile-toolbar" class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900">
-		<nuxt-link to="/dashboard">
-			<UIcon name="i-heroicons-squares-2x2" />
-			<h5>Dashboard</h5>
+	<div
+		id="mobile-toolbar"
+		class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900"
+	>
+		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
+			<UIcon :name="link.icon" />
+			<h5>{{ link.name }}</h5>
 		</nuxt-link>
-		<nuxt-link to="/account">
-			<UIcon name="i-heroicons-identification" />
-			<h5>Account</h5>
-		</nuxt-link>
+
+		<LayoutNavButton />
 		<div class="indicator">
 			<span></span>
 		</div>
 	</div>
 </template>
-<script setup></script>
+
 <style scoped>
 .mobile-toolbar {
 	position: fixed;
@@ -21,7 +30,7 @@
 	left: 0px;
 	width: 100%;
 	height: 65px;
-	
+
 	border-top: solid 1px rgba(55, 55, 55, 0.05);
 	padding-right: 33.333333%;
 	overflow: hidden;

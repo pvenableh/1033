@@ -17,24 +17,18 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {
-	data: meetings,
-	pending,
-	error,
-} = await useAsyncData('meetings', () => {
-	return useDirectus(
-		readItems('meetings', {
-			fields: [
-				'id,status,title,category,description,date,time,files.directus_files_id.id,files.directus_files_id.tags,files.directus_files_id.description,files.directus_files_id.title,url,presentations.*,people.people_id.unit.units_id.number,people.people_id.board_member.status,people.people_id.first_name,people.people_id.last_name,people.people_id.email,people.people_id.board_member.title,people.people_id.board_member.start,people.people_id.board_member.finish,people.people_id.board_member.person',
-			],
-			sort: '-date',
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const meetings = await readItems('meetings', {
+	fields: [
+		'id,status,title,category,description,date,time,files.directus_files_id.id,files.directus_files_id.tags,files.directus_files_id.description,files.directus_files_id.title,url,presentations.*,people.people_id.unit.units_id.number,people.people_id.board_member.status,people.people_id.first_name,people.people_id.last_name,people.people_id.email,people.people_id.board_member.title,people.people_id.board_member.start,people.people_id.board_member.finish,people.people_id.board_member.person',
+	],
+	sort: '-date',
 });
 
 const pastMeetings = computed(() => {
 	if (meetings) {
-		return meetings.value.filter((meeting) => {
+		return meetings.filter((meeting) => {
 			return new Date(meeting.date) < new Date();
 		});
 	} else {
@@ -44,7 +38,7 @@ const pastMeetings = computed(() => {
 
 const futureMeetings = computed(() => {
 	if (meetings) {
-		return meetings.value.filter((meeting) => {
+		return meetings.filter((meeting) => {
 			return new Date(meeting.date) >= new Date();
 		});
 	} else {

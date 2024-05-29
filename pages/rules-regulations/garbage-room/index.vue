@@ -14,17 +14,15 @@
 </template>
 
 <script setup>
-const { data: rules } = await useAsyncData('rules', () => {
-	return useDirectus(
-		readItems('rules', {
-			fields: ['*'],
-			filter: {
-				url: {
-					_eq: 'trash-recycling',
-				},
-			},
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const page = await readItems('rules', {
+	fields: ['*'],
+	filter: {
+		url: {
+			_eq: 'trash-recycling',
+		},
+	},
 });
 </script>
 <style>

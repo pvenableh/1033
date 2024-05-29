@@ -24,11 +24,10 @@
 <script setup>
 import { loader } from '~~/composables/useScreen';
 </script>
-<style scoped>
+<style>
 .screen {
 	background-color: rgba(48, 54, 64, 0.4);
 	opacity: 0.999999;
-	transition: 0.25s var(--curve);
 	top: 0px;
 	left: 0px;
 	backdrop-filter: blur(2px);
@@ -39,7 +38,17 @@ import { loader } from '~~/composables/useScreen';
 		background-color: rgba(255, 255, 255, 0.5);
 	}
 }
-/* .screen.open {
-  visibility: visible;
-} */
+.screen-enter-from {
+	opacity: 0;
+}
+
+.screen-enter-active,
+.screen-leave-active {
+	transition: all 0.35s var(--curve);
+}
+
+.screen-enter,
+.screen-leave-to {
+	opacity: 0;
+}
 </style>

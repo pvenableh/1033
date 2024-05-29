@@ -1,20 +1,14 @@
 <script setup>
-const {
-	data: board,
-	pending,
-	error,
-} = await useAsyncData('board', () => {
-	return useDirectus(
-		readItems('board_member', {
-			fields: ['*,person.*'],
-			filter: {
-				status: {
-					_eq: 'published',
-				},
-			},
-			sort: 'sort',
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const board = await readItems('board_member', {
+	fields: ['*,person.*'],
+	filter: {
+		status: {
+			_eq: 'published',
+		},
+	},
+	sort: 'sort',
 });
 </script>
 <template>

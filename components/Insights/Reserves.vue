@@ -18,18 +18,16 @@
 	</div>
 </template>
 <script setup>
-const { data, pending, error } = await useAsyncData('data', () => {
-	return useDirectus(
-		readItems('reserves', {
-			fields: ['*'],
-			sort: 'date',
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const data = await readItems('reserves', {
+	fields: ['*'],
+	sort: 'date',
 });
 
-const labels = data.value.map((reserve) => new Date(reserve.date).toLocaleString('default', { month: 'short' }));
+const labels = data.map((reserve) => new Date(reserve.date).toLocaleString('default', { month: 'short' }));
 
-const amounts = data.value.map((reserve) =>
+const amounts = data.map((reserve) =>
 	reserve.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
 );
 
@@ -37,22 +35,14 @@ const currentAmount = amounts[amounts.length - 1];
 
 const percentage = computed(() => {
 	const amount = ((currentAmount - amounts[0]) / currentAmount) * 100;
-	console.log(amount);
 	return Math.round(amount * 100) / 100;
 });
 
 const percentageChange = computed(() => {
-	console.log(percentage.value);
-	console.log(percentage > 0.0);
-
 	if (percentage.value > 0) {
-		return (
-			'Increase Since ' + new Date(data.value[0].date).toLocaleString('default', { month: 'long', year: 'numeric' })
-		);
+		return 'Increase Since ' + new Date(data[0].date).toLocaleString('default', { month: 'long', year: 'numeric' });
 	} else {
-		return (
-			'Decrease Since ' + new Date(data.value[0].date).toLocaleString('default', { month: 'long', year: 'numeric' })
-		);
+		return 'Decrease Since ' + new Date(data[0].date).toLocaleString('default', { month: 'long', year: 'numeric' });
 	}
 });
 </script>

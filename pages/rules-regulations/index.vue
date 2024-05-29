@@ -22,12 +22,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const { data: page } = await useAsyncData('page', () => {
-	return useDirectus(
-		readItems('rules', {
-			fields: ['*'],
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const page = await readItems('rules', {
+	fields: ['*'],
 });
 </script>
 <style></style>

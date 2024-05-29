@@ -1,5 +1,16 @@
+<script setup>
+import { openScreen } from '~~/composables/useScreen';
+
+function sideMenuToggle() {
+	// const element = document.getElementById('nav-btn')
+	// element.classList.toggle('open')
+	const navToggle = document.getElementById('nav-drawer-toggle');
+	navToggle.checked = !navToggle.checked;
+	openScreen();
+}
+</script>
 <template>
-	<div id="nav-btn">
+	<div id="nav-btn" @click.prevent="sideMenuToggle()">
 		<div id="nav-icon">
 			<span></span>
 			<span></span>
@@ -7,7 +18,6 @@
 		</div>
 	</div>
 </template>
-<script setup></script>
 <style scoped>
 #nav-btn {
 	bottom: 0px;
@@ -45,7 +55,7 @@
 			position: absolute;
 			height: 1px;
 			width: 100%;
-		
+
 			border-radius: 2px;
 			opacity: 1;
 			left: 0;

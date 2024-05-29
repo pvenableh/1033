@@ -1,137 +1,164 @@
 <template>
-	<div class="flex items-center justify-center flex-col nav-drawer">
-		<div class="w-full nav-drawer__menu-box p-4 relative">
-			<!-- <XIcon class="cursor-pointer h-8 heroicon-sw-1.2 close-btn" /> -->
-			<!-- <Icon color="var(--white)" class="lenox-icon" /> -->
-			<ul class="w-full nav-drawer__menu outline-0 text-center">
-				<li class="outline-0"><nuxt-link to="/">Home</nuxt-link></li>
-				<li>
-					<nuxt-link to="/meetings/">Meetings</nuxt-link>
+	<div
+		id="nav-drawer"
+		ref="navDrawerRef"
+		class="flex items-center justify-center flex-col nav-drawer"
+		@click="closeNavDrawer"
+	>
+		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
+			<UIcon
+				name="i-heroicons-x-mark"
+				class="cursor-pointer h-6 w-6 -ml-[5px] -mt-[10px] mb-[10px] heroicon-sw-1.2 close-btn"
+			/>
+			<ul tabindex="0" class="nav-drawer__menu">
+				<li v-for="(link, index) in links" :key="index">
+					<nuxt-link :to="link.to">{{ link.name }}</nuxt-link>
 				</li>
-				<li>
-					<nuxt-link to="/announcements/">Announcements</nuxt-link>
+				<li v-if="user">
+					<nuxt-link to="/account">Account</nuxt-link>
 				</li>
-				<li>
-					<nuxt-link to="/projects/">Projects</nuxt-link>
+				<li v-if="user">
+					<AccountLogout />
 				</li>
-				<li>
-					<nuxt-link to="/rules-regulations/">Rules / Regulations</nuxt-link>
-				</li>
-				<li>
-					<nuxt-link to="/documents/">By-Laws</nuxt-link>
-				</li>
-				<li v-if="!user">
+				<li v-else>
 					<nuxt-link to="/auth/signin">Login</nuxt-link>
-				</li>
-				<li v-if="user">
-					<nuxt-link to="/account/">Account</nuxt-link>
-				</li>
-				<li v-if="user">
-					<a @click.prevent="onLogout()" class="cursor-pointer">Logout</a>
 				</li>
 			</ul>
 		</div>
 	</div>
 </template>
 <script setup>
-import { navigateTo } from '#imports';
+const { user } = useDirectusAuth();
 
-const { logout, user } = useDirectusAuth();
+import { onClickOutside } from '@vueuse/core';
+import { closeScreen } from '~~/composables/useScreen';
 
-const onLogout = async () => {
-	logout();
-	return navigateTo('/');
-};
+const props = defineProps({
+	links: {
+		type: Array,
+		default: () => [],
+	},
+});
+
+const navDrawerRef = ref(null);
+
+function closeNavDrawer() {
+	const element = document.getElementById('nav-drawer-toggle');
+	element.checked = false;
+	closeScreen();
+}
+
+onClickOutside(navDrawerRef, () => {
+	closeNavDrawer();
+});
 </script>
-<style>
+<style scoped>
 .nav-drawer {
 	min-height: 100vh;
 	max-height: 100vh;
-	width: 100%;
 	position: fixed;
-	right: 0px;
+	right: 0%;
 	top: 0px;
 	z-index: 50;
-	background: rgba(0, 0, 0, 0.75);
-	box-shadow: 1px 2px 20px rgba(0, 0, 0, 0.25);
-	/* transform: translateX(110%); */
-	transition: 0.55s var(--curve);
-	@apply shadow-lg max-w-md;
+	background: var(--white);
+	background: rgba(208, 208, 208, 0.5);
+	background: rgba(255, 255, 255, 0.75);
+	transform: translateX(100%);
+	transition: 0.35s var(--curve);
+	width: 100%;
+	max-width: 500px;
+	backdrop-filter: blur(10px);
+	@apply shadow-lg;
 
 	.close-btn {
 		/* right: 0px;
-    top: 0px;
-    @apply absolute; */
+	  top: 0px;
+	  @apply absolute; */
 	}
-	.lenox-icon {
-		position: absolute;
-		top: -20%;
-		opacity: 0.05;
-		left: 10%;
-		width: 80%;
-		filter: drop-shadow(0px 0px 10px rgba(255, 255, 255, 0.95));
+
+	&__menu-box {
 	}
+
 	&__menu {
+		@apply overflow-hidden;
+
 		li {
-			transform: translateX(50px);
 			opacity: 0;
-			transition: 0.55s var(--curve);
+			transform: translateX(50px) translateZ(-9.7rem);
+			transition: all 0.4s var(--curve);
 			@apply my-1;
 
-			a {
-				color: var(--white);
+			a,
+			label {
 				font-size: 13px;
 				letter-spacing: 0.3em;
 				@apply block uppercase py-1;
 			}
 
 			a.router-link-exact-active {
-				color: var(--blue);
-				letter-spacing: 0.6em;
-				@apply font-bold cursor-default;
+				color: var(--cyan2);
+				@apply font-bold;
 			}
 		}
-
-		a:hover {
-			letter-spacing: 0.6em;
-		}
-
-		li:nth-of-type(2) {
-			transition-delay: 0.075s;
-		}
-
-		li:nth-of-type(3) {
-			transition-delay: 0.125s;
-		}
-
-		li:nth-of-type(4) {
-			transition-delay: 0.15s;
-		}
-
-		li:nth-of-type(5) {
-			transition-delay: 0.17s;
-		}
-
-		li:nth-of-type(6) {
-			transition-delay: 0.18s;
-		}
 	}
 }
 
-.nav-drawer.opened {
+#nav-drawer-toggle:checked ~ .nav-drawer {
 	transform: translateX(0%);
 
-	.nav-drawer__bg {
-		right: 0px;
-		width: 110vw;
+	li {
+		opacity: 1;
+		transform: translateX(0%) translateZ(0rem);
 	}
 
-	.nav-drawer__menu {
-		li {
-			transform: translateX(0px);
-			opacity: 1;
-			@apply my-1;
-		}
+	li:nth-of-type(1) {
+		transition-delay: 0.045s;
+	}
+
+	li:nth-of-type(2) {
+		transition-delay: 0.06s;
+	}
+
+	li:nth-of-type(3) {
+		transition-delay: 0.075s;
+	}
+
+	li:nth-of-type(4) {
+		transition-delay: 0.09s;
+	}
+
+	li:nth-of-type(5) {
+		transition-delay: 0.105s;
+	}
+
+	li:nth-of-type(6) {
+		transition-delay: 0.12s;
+	}
+
+	li:nth-of-type(7) {
+		transition-delay: 0.135s;
+	}
+
+	li:nth-of-type(8) {
+		transition-delay: 0.15s;
+	}
+	li:nth-of-type(9) {
+		transition-delay: 0.165s;
+	}
+	li:nth-of-type(10) {
+		transition-delay: 0.18s;
 	}
 }
+
+#nav-drawer-toggle:checked ~ .page-content {
+	/* transform: matrix(1, 0, 0, 1, 8, 0); */
+	transform: translateX(8px);
+	filter: blur(2px);
+}
+
+/* #nav-drawer-toggle:checked ~ .nav-drawer > .nav-drawer-overlay {
+	background: rgba(48, 54, 64, 0.4);
+	opacity: 0.999999;
+	visibility: visible;
+  } */
 </style>

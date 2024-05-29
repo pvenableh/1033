@@ -1,26 +1,21 @@
 <script setup>
-const {
-	data: announcements,
-	pending,
-	error,
-} = await useAsyncData('announcements', () => {
-	return useDirectus(
-		readItems('announcements', {
-			fields: ['*'],
-			filter: {
-				status: {
-					_eq: 'sent',
-				},
-			},
-			sort: '-date_sent',
-			limit: 7,
-		}),
-	);
+const { readItems } = useDirectusItems();
+
+const announcements = await readItems('announcements', {
+	fields: ['*'],
+	filter: {
+		status: {
+			_eq: 'sent',
+		},
+	},
+	sort: '-date_sent',
+	limit: 7,
 });
+
 const filteredAnnouncements = computed(() => {
 	let possibleStrings = ['Minutes', 'Agenda', 'Board Meeting'];
 
-	return announcements.value
+	return announcements
 		.map((item) => {
 			if (item.tags) {
 				if (!possibleStrings.some((possibleString) => item.tags.includes(possibleString))) {

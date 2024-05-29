@@ -5,6 +5,10 @@ definePageMeta({
 	layout: 'auth',
 	middleware: ['auth'],
 });
+
+useHead({
+	title: 'Tasks',
+});
 </script>
 <template>
 	<div class="w-full px-0">

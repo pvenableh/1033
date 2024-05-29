@@ -1,7 +1,7 @@
 @import './tailwind.css';
 @import './fonts.css';
 @import './variables.css';
-
+@import './page.css';
 html, body {
   color: var(--darkGrey);
   scroll-behavior: smooth;
