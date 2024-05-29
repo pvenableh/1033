@@ -2,7 +2,7 @@
 const links = ref([
 	{
 		name: 'Home',
-		type: ['footer', 'drawer'],
+		type: ['footer', 'toolbar', 'drawer'],
 		to: '/',
 		icon: 'i-heroicons-home',
 	},
@@ -38,7 +38,7 @@ const links = ref([
 	},
 	{
 		name: 'Dashboard',
-		type: ['footer', 'toolbar', 'drawer'],
+		type: ['footer', 'drawer'],
 		to: '/dashboard',
 		icon: 'i-heroicons-squares-2x2',
 	},

@@ -22,16 +22,8 @@
 // 	middleware: ['auth'],
 // });
 
-const {
-	data: page,
-	pending,
-	error,
-} = await useAsyncData('corporation', () => {
-	return useDirectus(
-		readItems('corporation', {
-			fields: ['*.*.*'],
-		}),
-	);
+const page = await readItems('corporation', {
+	fields: ['*.*.*'],
 });
 
 function getSubstringAfterSlash(str) {

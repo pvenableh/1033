@@ -7,7 +7,9 @@ definePageMeta({
 });
 </script>
 <template>
-	<div class="min-h-screen flex items-center justify-center"><p>Coming Soon</p></div>
+	<div class="min-h-screen flex items-center justify-center">
+		<p class="text-sm tracking-wide uppercase">Coming Soon</p>
+	</div>
 	<!-- <Dashboard :user="user" /> -->
 </template>
 <style>
