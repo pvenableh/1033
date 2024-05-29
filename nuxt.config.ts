@@ -29,6 +29,7 @@ export default defineNuxtConfig({
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-directus-next',
 		'nuxt-icon', // https://github.com/nuxt-modules/icon
+		'@nuxtjs/plausible',
 		'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
 		'@nuxtjs/sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
@@ -47,6 +48,9 @@ export default defineNuxtConfig({
 			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
+	},
+	plausible: {
+		domain: '1033lenox.com',
 	},
 	// Directus Configuration
 	directus: {
