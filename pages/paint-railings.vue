@@ -21,6 +21,7 @@ function toggleModal(image) {
 	} else {
 		isOpen.value = true;
 		selectedImage.value = image;
+		useTrackEvent(image.title + ' Image Clicked');
 	}
 }
 
@@ -31,11 +32,13 @@ function toggleVote(item) {
 	} else {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
+		useTrackEvent(title.title + ' Vote Button Clicked');
 	}
 }
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
+		useTrackEvent(selectedItem.value.title + ' Submit Button Clicked');
 		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
 
 		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;
@@ -150,8 +153,8 @@ const mailtoLink = computed(() => {
 				<UButton
 					color="sky"
 					class="mt-2 lg:mt-5 tracking-wide"
-					@click="toggleVote(item)"
 					:class="'plausible-event-name=Vote+Button+Clicked+' + item.title"
+					@click="toggleVote(item)"
 				>
 					Vote for {{ item.title }}
 				</UButton>
