@@ -3,19 +3,17 @@
 
 export default defineNuxtConfig({
 	ssr: true,
-	cors: true,
+
 	nitro: {
 		preset: 'vercel-edge',
 	},
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
-	components: [
-		// Disable prefixing base components with `Base`
-		// { path: '~/components/base', pathPrefix: false },
-		// Auto import components from `~/components`
-		'~/components',
-	],
+	components: {
+		global: true,
+		dirs: ['~/components'],
+	},
 
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
@@ -52,7 +50,7 @@ export default defineNuxtConfig({
 	plausible: {
 		domain: '1033lenox.com',
 	},
-	// Directus Configuration
+
 	directus: {
 		url: process.env.DIRECTUS_URL,
 		moduleConfig: {
@@ -67,42 +65,19 @@ export default defineNuxtConfig({
 				redirectTo: '/auth/signin',
 			},
 		},
-		// rest: {
-		// 	baseUrl: process.env.DIRECTUS_URL,
-		// 	nuxtBaseUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-		// },
-		// auth: {
-		// 	enabled: true,
-		// 	enableGlobalAuthMiddleware: false, // Enable auth middleware on every page
-		// 	userFields: [
-		// 		'id,role,first_name,last_name,email,token,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.image,units.units_id.people.people_id.mailing_address,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.bio,units.units_id.people.people_id.board_member.experience,units.units_id.people.people_id.board_member.year,units.units_id.people.people_id.board_member.icon,units.units_id.people.people_id.board_member.image,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish,units.units_id.people.people_id.leases.file',
-		// 	], // Select user fields
-		// 	redirect: {
-		// 		login: '/auth/signin', // Path to redirect when login is required
-		// 		logout: '/auth/logout', // Path to redirect after logout
-		// 		home: '/dashboard', // Path to redirect after successful login
-		// 		resetPassword: '/auth/reset-password', // Path to redirect for password reset
-		// 		callback: '/auth/callback', // Path to redirect after login with provider
-		// 	},
-		// },
 	},
 
-	plugins: ['~/plugins/veevalidate-components.ts', '~/plugins/veevalidate-rules.ts'],
-
-	// Nuxt DevTools - https://devtools.nuxtjs.org/
-	devtools: { enabled: false },
+	devtools: { enabled: true },
 
 	ui: {
 		icons: ['heroicons', 'wi', 'meteocons'],
 	},
 
-	// Color Mode Configuration - https://color-mode.nuxtjs.org/
 	colorMode: {
 		preference: 'system',
-		classSuffix: '', // This is so we play nice with TailwindCSS
+		classSuffix: '',
 	},
 
-	// Image Configuration - https://image.nuxt.com/providers/directus
 	image: {
 		provider: 'directus',
 		directus: {
@@ -129,6 +104,14 @@ export default defineNuxtConfig({
 	// 		},
 	// 	},
 	// },
+	// icon: {
+	// 	customCollections: [
+	// 		{
+	// 			prefix: 'building',
+	// 			dir: './assets/icons',
+	// 		},
+	// 	],
+	// },
 
 	postcss: {
 		plugins: {
@@ -140,6 +123,6 @@ export default defineNuxtConfig({
 	},
 
 	build: {
-		transpile: ['chart.js', 'v-perfect-signature', '@vee-validate/rules', '@sendgrid/mail'],
+		transpile: ['chart.js', '@sendgrid/mail'],
 	},
 });
