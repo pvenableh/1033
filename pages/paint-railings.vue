@@ -74,7 +74,7 @@ const mailtoLink = computed(() => {
 					<span class="opacity-50">DESIGN:</span>
 					{{ selectedImage.title }}
 				</h5>
-				<div class="w-full flex flex-row items-center justify-between">
+				<div class="w-full max-w-[1200px] flex flex-row items-center justify-between">
 					<p class="w-full uppercase text-[10px] mb-1 leading-4 max-w-[1200px]">
 						<span class="opacity-50">Building Color:</span>
 						{{ selectedImage.building_color }}
