@@ -5,34 +5,55 @@ sgMail.setApiKey('SG.33tfJzB6TcuhxlAqZF8f9g.MpOZtqAptJWkJPalpHKFG7qg5CbDgz8lWgoK
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
-	const messages = [];
-	let files = [];
-	let attachments = [];
+	const messages:
+		| sgMail.MailDataRequired
+		| sgMail.MailDataRequired[]
+		| {
+				personalizations: { to: { email: any }[]; bcc: { email: string }[] }[];
+				from: { email: string; name: string };
+				template_id: string;
+				replyTo: { email: string; name: string };
+				subject: string;
+				content: { type: string; value: string }[];
+				dynamicTemplateData: {
+					first_name: string;
+					unit: any;
+					title: any;
+					subtitle: any;
+					urgent: any;
+					content: any;
+					url: any;
+					closing: any;
+				};
+				categories: string[];
+		  }[] = [];
+	// let files = [];
+	// let attachments = [];
 
-	if (body.data.attachments) {
-		files = body.data.attachments;
+	// if (body.data.attachments) {
+	// 	files = body.data.attachments;
 
-		const fetchAndConvertFiles = async () => {
-			return Promise.all(
-				files.map(async (file) => {
-					const response = await fetch('https://admin.1033lenox.com/assets/' + file.directus_files_id.id);
-					const arrayBuffer = await response.arrayBuffer(); // Use arrayBuffer() instead of buffer()
-					const buffer = Buffer.from(arrayBuffer); // Convert ArrayBuffer to Buffer
-					const base64 = buffer.toString('base64');
-					return {
-						filename: file.directus_files_id.title,
-						type: file.directus_files_id.type,
-						content: base64,
-						disposition: 'attachment',
-					};
-				}),
-			);
-		};
+	// 	const fetchAndConvertFiles = async () => {
+	// 		return Promise.all(
+	// 			files.map(async (file) => {
+	// 				const response = await fetch('https://admin.1033lenox.com/assets/' + file.directus_files_id.id);
+	// 				const arrayBuffer = await response.arrayBuffer(); // Use arrayBuffer() instead of buffer()
+	// 				const buffer = Buffer.from(arrayBuffer); // Convert ArrayBuffer to Buffer
+	// 				const base64 = buffer.toString('base64');
+	// 				return {
+	// 					filename: file.directus_files_id.title,
+	// 					type: file.directus_files_id.type,
+	// 					content: base64,
+	// 					disposition: 'attachment',
+	// 				};
+	// 			}),
+	// 		);
+	// 	};
 
-		attachments = await fetchAndConvertFiles();
-	}
+	// 	attachments = await fetchAndConvertFiles();
+	// }
 
-	await recipients.forEach((element) => {
+	await recipients.forEach((element: { people_id: { email: any; unit: string | any[]; first_name: string } }) => {
 		if (element.people_id.email) {
 			let unit;
 
@@ -84,9 +105,9 @@ export default defineEventHandler(async (event) => {
 				categories: ['1033 Lenox', 'announcements'],
 			};
 
-			if (attachments.length > 0) {
-				message.attachments = attachments;
-			}
+			// if (attachments.length > 0) {
+			// 	message.attachments = attachments;
+			// }
 
 			messages.push(message);
 		}
