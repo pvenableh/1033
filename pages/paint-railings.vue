@@ -103,7 +103,11 @@ const mailtoLink = computed(() => {
 			:key="index"
 			class="flex items-center justify-center flex-col lg:items-start lg:flex-row w-full mb-20 renderings__item"
 		>
-			<div class="w-full lg:w-1/2 max-w-[500px] relative cursor-pointer" @click="toggleModal(item)">
+			<div
+				class="w-full lg:w-1/2 max-w-[500px] relative cursor-pointer plausible-event-name=Button+Click"
+				:class="'plausible-event-name=Image+Clicked+' + item.title"
+				@click="toggleModal(item)"
+			>
 				<img
 					:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 					:alt="item.title"
@@ -143,7 +147,12 @@ const mailtoLink = computed(() => {
 						<span class="">per unit</span>
 					</li>
 				</ul>
-				<UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
+				<UButton
+					color="sky"
+					class="mt-2 lg:mt-5 tracking-wide"
+					@click="toggleVote(item)"
+					:class="'plausible-event-name=Vote+Button+Clicked+' + item.title"
+				>
 					Vote for {{ item.title }}
 				</UButton>
 			</div>
@@ -185,7 +194,12 @@ const mailtoLink = computed(() => {
 					<span class="text-red-500">{{ selectedItem.extra_cost }}.</span>
 				</p>
 				<p class="text-sm mb-4">Click the button below to send your vote by email to the board.</p>
-				<UButton :to="mailtoLink" color="sky" class="tracking-wide">
+				<UButton
+					:to="mailtoLink"
+					color="sky"
+					class="tracking-wide"
+					:class="'plausible-event-name=Email+Button+Clicked+' + selectedItem.title"
+				>
 					Send Email Vote for {{ selectedItem.title }}
 				</UButton>
 			</div>
