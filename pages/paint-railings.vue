@@ -32,7 +32,7 @@ function toggleVote(item) {
 	} else {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
-		useTrackEvent(title.title + ' Vote Button Clicked');
+		useTrackEvent(item.title + ' Vote Button Clicked');
 	}
 }
 
