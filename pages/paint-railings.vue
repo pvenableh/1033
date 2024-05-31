@@ -8,6 +8,7 @@ const { readItems } = useDirectusItems();
 
 const renderings = await readItems('renderings', {
 	fields: ['*'],
+	limit: 1,
 });
 
 const selectedItem = ref({});
@@ -67,20 +68,14 @@ const mailtoLink = computed(() => {
 		<div class="w-full mb-12 max-w-[500px] lg:max-w-[1000px] px-2 lg:px-0 renderings__intro">
 			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-10 mb-8 lg:mt-12">Paint and Railings</h1>
 
-			<div class="w-full flex items-start justify-start flex-col">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">📈 Our Goal:</h3>
-				<p>
-					Focus on the return on our investment with the 40 YR construction. We want to increase property values, rental
-					rates, lower insurance, increase longevity, and create an overall better living experience.
-				</p>
-			</div>
-			<div class="w-full flex items-start justify-start flex-col mt-6">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6">🗳️ Your Vote:</h3>
-				<p class="">
-					View the rendered design options below with the various color schemes. After review, submit your vote.
-					<span class="font-bold text-red-400">Votes MUST be submitted before 6PM on Friday May 31st, 2024</span>
-					.
-				</p>
+			<div class="w-full flex items-center justify-start flex-col mt-6 px-4">
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-4 text-center">
+					Time to Celebrate the transformation! 🎉🕺🏻💃🏻🍾
+				</h3>
+				<p class="w-full mb-4 text-center">✅ The Vote is in!</p>
+				<p class="w-full mb-4">88% of owners voted and the majority voted for Design Option 1.</p>
+				<p class="w-full mb-4">We cannot wait to see our boutique building come to life!</p>
+				<p class="w-full">We are very thankful for you cooperation and participation in the voting process.</p>
 			</div>
 		</div>
 		<UModal v-model="isOpen" fullscreen>
@@ -159,12 +154,12 @@ const mailtoLink = computed(() => {
 						<span class="">per unit</span>
 					</li>
 				</ul>
-				<UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
+				<!-- <UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
 					Vote for {{ item.title }}
-				</UButton>
+				</UButton> -->
 			</div>
 		</div>
-		<UModal v-model="isVoteOpen">
+		<!-- <UModal v-model="isVoteOpen">
 			<div class="py-8 px-6 relative">
 				<UIcon
 					name="i-heroicons-x-circle"
@@ -205,7 +200,7 @@ const mailtoLink = computed(() => {
 					Send Email Vote for {{ selectedItem.title }}
 				</UButton>
 			</div>
-		</UModal>
+		</UModal> -->
 	</div>
 </template>
 <style scoped>
