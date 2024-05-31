@@ -57,7 +57,7 @@ const links = ref([
 <style>
 .page-content {
 	transition: all 0.25s var(--curve);
-
+	@apply w-full;
 	.nuxt-page {
 		min-height: calc(90vh - 100px);
 		z-index: 5;
