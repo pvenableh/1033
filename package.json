@@ -47,7 +47,6 @@
 		"stripe": "^14.22.0",
 		"typescript": "^5.4.3",
 		"uuid": "^9.0.1",
-		"vue": "^3.4.27",
 		"vue-tsc": "^2.0.7"
 	},
 	"dependencies": {
@@ -56,9 +55,9 @@
 		"chart.js": "^4.4.3",
 		"nuxt-gtag": "^2.0.6",
 		"sharp": "^0.33.3",
-		"yup": "^1.4.0",
 		"vue-chartjs": "^5.3.1",
-		"vuedraggable": "^4.1.0"
+		"vuedraggable": "^4.1.0",
+		"yup": "^1.4.0"
 	},
 	"packageManager": "pnpm@8.6.0",
 	"engines": {

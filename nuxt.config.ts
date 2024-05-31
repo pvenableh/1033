@@ -18,18 +18,19 @@ export default defineNuxtConfig({
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
 	modules: [
-		'@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
-		'@nuxt/devtools', // https://devtools.nuxtjs.org/
+		// https://formkit.com/getting-started/installation#with-nuxt
+		'@formkit/nuxt', // https://devtools.nuxtjs.org/
+		'@nuxt/devtools',
 		'@nuxt/image',
 		'@nuxt/ui',
-		'@nuxtjs/color-mode',
-		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
-		'@vueuse/nuxt', // https://vueuse.org/
-		'nuxt-directus-next',
-		'nuxt-icon', // https://github.com/nuxt-modules/icon
-		'nuxt-gtag',
-		// '@nuxtjs/plausible',
+		'@nuxtjs/color-mode', // https://motion.vueuse.org/nuxt.html
+		'@vueuse/motion/nuxt', // https://vueuse.org/
+		'@vueuse/nuxt',
+		'nuxt-directus-next', // https://github.com/nuxt-modules/icon
+		'nuxt-icon', // '@nuxtjs/plausible',
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
+		'nuxt-gtag',
+		'@nuxtjs/seo',
 	],
 
 	// experimental: {
@@ -46,6 +47,13 @@ export default defineNuxtConfig({
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
 	},
+
+	// site: {
+	// 	url: 'https://1033lenox.com',
+	// 	name: 'Awesome Site',
+	// 	description: 'Welcome to my awesome site!',
+	// 	defaultLocale: 'en', // not needed if you have @nuxtjs/i18n installed
+	// },
 
 	gtag: {
 		id: 'G-JTR8V7XBN1',
@@ -88,6 +96,8 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 		name: '1033 Lenox',
+		description: 'Welcome to 1033 Lenox: a boutique community in Miami Beach focused on the local active, lifestyle.',
+		defaultLocale: 'en',
 	},
 
 	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
