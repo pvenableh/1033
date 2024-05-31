@@ -2,6 +2,7 @@
 // definePageMeta({
 // 	layout: 'email',
 // });
+import { track } from '@vercel/analytics';
 
 const { readItems } = useDirectusItems();
 
@@ -21,6 +22,7 @@ function toggleModal(image) {
 	} else {
 		isOpen.value = true;
 		selectedImage.value = image;
+		track(image.title + ' Image Clicked');
 	}
 }
 
@@ -31,11 +33,13 @@ function toggleVote(item) {
 	} else {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
+		track(item.title + ' Vote Button Clicked');
 	}
 }
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
+		track(selectedItem.value.title + ' Mailto Link Clicked');
 		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
 
 		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;
