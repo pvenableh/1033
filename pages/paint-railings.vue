@@ -2,7 +2,7 @@
 // definePageMeta({
 // 	layout: 'email',
 // });
-import { track } from '@vercel/analytics';
+const { gtag } = useGtag();
 
 const { readItems } = useDirectusItems();
 
@@ -22,7 +22,11 @@ function toggleModal(image) {
 	} else {
 		isOpen.value = true;
 		selectedImage.value = image;
-		track(image.title + ' Image Clicked');
+
+		gtag('event', 'click', {
+			element: 'Image',
+			name: image.title,
+		});
 	}
 }
 
@@ -33,13 +37,21 @@ function toggleVote(item) {
 	} else {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
-		track(item.title + ' Vote Button Clicked');
+
+		gtag('event', 'click', {
+			element: 'Vote Button',
+			name: item.title,
+		});
 	}
 }
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
-		track(selectedItem.value.title + ' Mailto Link Clicked');
+		gtag('event', 'click', {
+			element: 'Mailto Vote Button',
+			name: selectedItem.value.title,
+		});
+
 		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
 
 		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;

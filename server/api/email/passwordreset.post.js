@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import sgMail from '@sendgrid/mail';
 import { Buffer } from 'buffer';
 
