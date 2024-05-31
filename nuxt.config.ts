@@ -10,10 +10,10 @@ export default defineNuxtConfig({
 	app: {
 		pageTransition: { name: 'page', mode: 'out-in' },
 	},
-	components: {
-		global: true,
-		dirs: ['~/components'],
-	},
+	// components: {
+	// 	global: true,
+	// 	dirs: ['~/components'],
+	// },
 
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
@@ -29,15 +29,13 @@ export default defineNuxtConfig({
 		'nuxt-icon', // https://github.com/nuxt-modules/icon
 		'nuxt-gtag',
 		// '@nuxtjs/plausible',
-		'nuxt-schema-org', // https://nuxtseo.com/schema-org/guides/quick-setup
-		'@nuxtjs/sitemap', // https://nuxtseo.com/sitemap/getting-started/how-it-works
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
 
-	experimental: {
-		componentIslands: true,
-		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-	},
+	// experimental: {
+	// 	componentIslands: true,
+	// 	asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+	// },
 
 	runtimeConfig: {
 		public: {
