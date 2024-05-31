@@ -32,30 +32,23 @@ const props = defineProps({
 	},
 });
 
-// Debugging: Log the props to check the received links
-console.log('Received links:', props.links);
-
 const headerLinks = computed(() => {
 	const filtered = props.links.filter((link) => link.type.includes('header'));
-	console.log('Header Links:', filtered); // Debugging
 	return filtered;
 });
 
 const footerLinks = computed(() => {
 	const filtered = props.links.filter((link) => link.type.includes('footer'));
-	console.log('Footer Links:', filtered); // Debugging
 	return filtered;
 });
 
 const toolbarLinks = computed(() => {
 	const filtered = props.links.filter((link) => link.type.includes('toolbar'));
-	console.log('Toolbar Links:', filtered); // Debugging
 	return filtered;
 });
 
 const drawerLinks = computed(() => {
 	const filtered = props.links.filter((link) => link.type.includes('drawer'));
-	console.log('Drawer Links:', filtered); // Debugging
 	return filtered;
 });
 </script>

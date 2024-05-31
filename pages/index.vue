@@ -7,12 +7,12 @@ const { x, y } = useMouse({ touch: false });
 	<div
 		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home"
 	>
-		<h1 v-if="!user" class="-mt-28 mb-12 text-center temp-heading">
+		<h1 v-if="!user" class="-mt-28 mb-12 text-center px-8 temp-heading">
 			Welcome to
-			<span class="font-bold">1033 Lenox</span>
-			: a boutique community in Miami Beach focused on the local, active lifestyle.
+			<span class="font-bold">1033 Lenox:</span>
+			a boutique community in Miami Beach focused on the local, active lifestyle.
 		</h1>
-		<h1 v-else class="-mt-28 mb-12 text-center temp-heading">
+		<h1 v-else class="-mt-28 mb-12 text-center px-6 temp-heading">
 			{{ greetUser() }}
 			<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
 				{{ user.first_name }}.
