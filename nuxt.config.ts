@@ -33,10 +33,10 @@ export default defineNuxtConfig({
 		'@nuxtjs/seo',
 	],
 
-	// experimental: {
-	// 	componentIslands: true,
-	// 	asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
-	// },
+	experimental: {
+		// componentIslands: true,
+		asyncContext: true, // https://nuxt.com/docs/guide/going-further/experimental-features#asynccontext
+	},
 
 	runtimeConfig: {
 		public: {
@@ -47,13 +47,6 @@ export default defineNuxtConfig({
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
 	},
-
-	// site: {
-	// 	url: 'https://1033lenox.com',
-	// 	name: 'Awesome Site',
-	// 	description: 'Welcome to my awesome site!',
-	// 	defaultLocale: 'en', // not needed if you have @nuxtjs/i18n installed
-	// },
 
 	gtag: {
 		id: 'G-JTR8V7XBN1',
@@ -75,7 +68,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	devtools: { enabled: true },
+	devtools: { enabled: false },
 
 	ui: {
 		icons: ['heroicons', 'wi', 'meteocons'],
@@ -100,20 +93,6 @@ export default defineNuxtConfig({
 		defaultLocale: 'en',
 	},
 
-	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
-	// sitemap: {
-	// 	sitemaps: {
-	// 		pages: {
-	// 			exclude: ['/posts/**', '/help/**'],
-	// 		},
-	// 		posts: {
-	// 			include: ['/posts/**'],
-	// 		},
-	// 		help: {
-	// 			include: ['/help/**'],
-	// 		},
-	// 	},
-	// },
 	// icon: {
 	// 	customCollections: [
 	// 		{
