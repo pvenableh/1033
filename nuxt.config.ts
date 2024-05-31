@@ -30,7 +30,7 @@ export default defineNuxtConfig({
 		'nuxt-icon', // '@nuxtjs/plausible',
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 		'nuxt-gtag',
-		'@nuxtjs/seo',
+		// '@nuxtjs/seo',
 	],
 
 	experimental: {
@@ -86,12 +86,12 @@ export default defineNuxtConfig({
 		},
 	},
 
-	site: {
-		url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-		name: '1033 Lenox',
-		description: 'Welcome to 1033 Lenox: a boutique community in Miami Beach focused on the local active, lifestyle.',
-		defaultLocale: 'en',
-	},
+	// site: {
+	// 	url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
+	// 	name: '1033 Lenox',
+	// 	description: 'Welcome to 1033 Lenox: a boutique community in Miami Beach focused on the local active, lifestyle.',
+	// 	defaultLocale: 'en',
+	// },
 
 	// icon: {
 	// 	customCollections: [
