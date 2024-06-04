@@ -25,8 +25,8 @@ function toggleModal(image) {
 		selectedImage.value = image;
 
 		gtag('event', 'click', {
-			element: 'Image',
-			name: image.title,
+			event_category: 'Image',
+			event_label: image.title,
 		});
 	}
 }
