@@ -5,10 +5,7 @@
 		</h1>
 
 		<div class="w-full max-w-2xl rule">
-			<div v-for="(rule, index) in rules" :key="index">
-				<h3 :id="rule.url">{{ rule.title }}</h3>
-				<div v-html="rule.description"></div>
-			</div>
+			<div v-html="page[0].description"></div>
 		</div>
 	</div>
 </template>
@@ -18,6 +15,7 @@ const { readItems } = useDirectusItems();
 
 const page = await readItems('rules', {
 	fields: ['*'],
+	limit: 1,
 	filter: {
 		url: {
 			_eq: 'trash-recycling',

@@ -40,8 +40,8 @@ function toggleVote(item) {
 		selectedItem.value = item;
 
 		gtag('event', 'click', {
-			element: 'Vote Button',
-			name: item.title,
+			event_category: 'Vote Button',
+			event_label: item.title,
 		});
 	}
 }
@@ -49,8 +49,8 @@ function toggleVote(item) {
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
 		gtag('event', 'click', {
-			element: 'Mailto Vote Button',
-			name: selectedItem.value.title,
+			event_category: 'Mailto Vote Button',
+			event_label: selectedItem.value.title,
 		});
 
 		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
