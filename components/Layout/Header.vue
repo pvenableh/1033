@@ -45,7 +45,7 @@ const avatar = computed(() => {
 		</div>
 		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		<nuxt-link to="/">
-			<Logo />
+			<NewLogo class="new-logo" />
 		</nuxt-link>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
 			<nuxt-link to="/tasks" class="scale-75 sm:scale-100 inline-block">
@@ -71,27 +71,27 @@ header.retracted {
 	transform: translateY(-100px);
 }
 
-.logo {
-	width: 280px;
+.new-logo {
+	width: 200px;
 	max-width: 380px;
-	@apply px-6 py-4 lg:py-6;
+	@apply px-6 py-2;
 
 	/* filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5)); */
-	@media (min-width: theme('screens.sm')) {
-		width: 320px;
+	/* @media (min-width: theme('screens.sm')) {
+		width: 120px;
 	}
 
 	@media (min-width: theme('screens.md')) {
-		width: 380px;
-	}
+		width: 180px;
+	} */
 
-	path {
+	/* path {
 		opacity: 0.4;
 		animation-name: logo;
 		animation-duration: 5s;
 		animation-timing-function: var(--curve);
 		animation-iteration-count: infinite;
-	}
+	} */
 
 	path:nth-of-type(1) {
 		animation-delay: 0.1s;
