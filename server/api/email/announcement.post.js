@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import sgMail from '@sendgrid/mail';
 
-sgMail.setApiKey('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');
+sgMail.setApiKey('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');
 
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
