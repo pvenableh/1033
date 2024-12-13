@@ -25,7 +25,7 @@ export default defineNuxtConfig({
 		[
 			'@nuxt/ui',
 			{
-				icons: ['heroicons', 'wi', 'meteocons'],
+				icons: ['heroicons', 'wi', 'meteocons', 'material-symbols'],
 			},
 		],
 		'@nuxtjs/color-mode',

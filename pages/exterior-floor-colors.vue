@@ -1,6 +1,8 @@
 <script setup>
 const { gtag } = useGtag();
 
+import confetti from 'canvas-confetti';
+
 const renderings = ref([
 	{
 		id: 1,
@@ -14,31 +16,28 @@ const renderings = ref([
 	},
 ]);
 
-const selectedItem = ref({});
-const selectedImage = ref({});
-const isOpen = ref(false);
-const isVoteOpen = ref(false);
-
-function toggleModal(image) {
-	if (isOpen.value) {
-		isOpen.value = false;
-		selectedImage.value = {};
-	} else {
-		isOpen.value = true;
-		selectedImage.value = image;
-
-		gtag('event', 'click', {
-			event_category: 'Image',
-			event_label: image.title,
-		});
-	}
+function randomInRange(min, max) {
+	return Math.random() * (max - min) + min;
 }
+
+const launchConfetti = () => {
+	confetti({
+		angle: randomInRange(55, 125),
+		spread: randomInRange(50, 70),
+		particleCount: randomInRange(50, 100),
+		origin: { y: 0.6 },
+	});
+};
+
+const selectedItem = ref({});
+const isVoteOpen = ref(false);
 
 function toggleVote(item) {
 	if (isVoteOpen.value) {
 		isVoteOpen.value = false;
 		selectedItem.value = {};
 	} else {
+		launchConfetti();
 		isVoteOpen.value = true;
 		selectedItem.value = item;
 
@@ -47,6 +46,37 @@ function toggleVote(item) {
 			event_label: item.title,
 		});
 	}
+}
+
+function closeVote() {
+	isVoteOpen.value = false;
+	selectedItem.value = {};
+}
+
+function makeUppercase(title) {
+	if (!title) return '';
+	return title.toUpperCase();
+}
+
+var duration = 15 * 1000;
+var animationEnd = Date.now() + duration;
+var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+function sendConfetti() {
+	isVoteOpen.value = false;
+	selectedItem.value = {};
+	var interval = setInterval(function () {
+		var timeLeft = animationEnd - Date.now();
+
+		if (timeLeft <= 0) {
+			return clearInterval(interval);
+		}
+
+		var particleCount = 50 * (timeLeft / duration);
+		// since particles fall down, start a bit higher than random
+		confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
+		confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
+	}, 250);
 }
 
 const mailtoLink = computed(() => {
@@ -58,7 +88,7 @@ const mailtoLink = computed(() => {
 
 		const encodedSubject = `1033 Lenox Floor Color Vote: ${selectedItem.value.title}`;
 
-		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${selectedItem.value.title.toUpperCase()} for the color of the exterior floors. Please let me know if you need any additional information.`;
+		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the color of the exterior floors. Please let me know if you need any additional information.`;
 
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 	} else {
@@ -71,9 +101,12 @@ const mailtoLink = computed(() => {
 		<div class="w-full mb-8 max-w-[500px] lg:max-w-[1000px] px-2 lg:px-0 renderings__intro">
 			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-10 mb-8 lg:mt-12">Exterior Floors</h1>
 
-			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[575px] mx-auto">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-4 text-center">🗳️ Submit Your Vote:</h3>
-				<ul class="w-full list-disc list-inside text-left">
+			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[450px] mx-auto">
+				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-6 text-center">
+					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
+					Submit Your Vote:
+				</h3>
+				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5">
 					<li class="w-full mb-2">View the options below</li>
 					<li class="w-full mb-2">Select your option</li>
 
@@ -82,7 +115,7 @@ const mailtoLink = computed(() => {
 						board.
 					</li>
 				</ul>
-				<p class="w-full mt-6 mb-2">
+				<p class="w-full mt-6 mb-2 text-[14px] leading-5">
 					Please note that your vote it due by:
 					<span class="font-bold">Tuesday December 17th, 2024 at 11:59PM EST.</span>
 				</p>
@@ -124,7 +157,7 @@ const mailtoLink = computed(() => {
 				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
-					@click="toggleVote()"
+					@click="closeVote()"
 				/>
 				<p class="text-sm">
 					This is to confirm that you are voting for:
@@ -137,6 +170,7 @@ const mailtoLink = computed(() => {
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
 					:to="mailtoLink"
+					@click="sendConfetti()"
 					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700"
 					:style="'background-image: url(https://admin.1033lenox.com/assets/' + selectedItem.image + '?key=medium-png)'"
 				>
