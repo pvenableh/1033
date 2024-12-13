@@ -71,7 +71,7 @@ const mailtoLink = computed(() => {
 		<div class="w-full mb-8 max-w-[500px] lg:max-w-[1000px] px-2 lg:px-0 renderings__intro">
 			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-10 mb-8 lg:mt-12">Exterior Floors</h1>
 
-			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[600px]">
+			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[575px] mx-auto">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-4 text-center">🗳️ Submit Your Vote:</h3>
 				<ul class="w-full list-disc list-inside text-left">
 					<li class="w-full mb-2">View the options below</li>
