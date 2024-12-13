@@ -128,9 +128,9 @@ const mailtoLink = computed(() => {
 				/>
 				<p class="text-sm">
 					This is to confirm that you are voting for:
-					<span class="ml-8 block text-lg uppercase mt-2">
+					<span class="block text-lg uppercase mt-2">
 						Option {{ selectedItem.id }}:
-						<strong>{{ selectedItem.title }}</strong>
+						<strong class="font-bold">{{ selectedItem.title }}</strong>
 					</span>
 				</p>
 
