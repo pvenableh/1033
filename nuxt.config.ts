@@ -85,7 +85,7 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	colorMode: {
-		preference: 'system',
+		preference: 'light',
 		classSuffix: '',
 	},
 
