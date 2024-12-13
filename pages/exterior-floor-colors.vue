@@ -84,7 +84,7 @@ const mailtoLink = computed(() => {
 				</ul>
 				<p class="w-full mt-6 mb-2">
 					Please note that your vote it due by:
-					<span class="font-bold">Tuesday December 17th, 2024 at 11:59PM EST</span>
+					<span class="font-bold">Tuesday December 17th, 2024 at 11:59PM EST.</span>
 				</p>
 			</div>
 		</div>
