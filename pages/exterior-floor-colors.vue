@@ -70,7 +70,7 @@ function sendConfetti() {
 		description: 'Email created successfully',
 		color: 'green',
 	});
-	setInterval(function () {
+	var interval = setInterval(function () {
 		var timeLeft = animationEnd - Date.now();
 
 		if (timeLeft <= 0) {
