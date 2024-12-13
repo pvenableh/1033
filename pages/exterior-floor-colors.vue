@@ -2,7 +2,7 @@
 const { gtag } = useGtag();
 
 import confetti from 'canvas-confetti';
-
+const toast = useToast();
 const renderings = ref([
 	{
 		id: 1,
@@ -65,7 +65,12 @@ var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 function sendConfetti() {
 	isVoteOpen.value = false;
 	selectedItem.value = {};
-	var interval = setInterval(function () {
+	toast.add({
+		title: 'Success',
+		description: 'Email created successfully',
+		color: 'green',
+	});
+	setInterval(function () {
 		var timeLeft = animationEnd - Date.now();
 
 		if (timeLeft <= 0) {
@@ -107,12 +112,18 @@ const mailtoLink = computed(() => {
 					Submit Your Vote:
 				</h3>
 				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5">
-					<li class="w-full mb-2">View the options below</li>
-					<li class="w-full mb-2">Select your option</li>
+					<li class="w-full mb-2">
+						<strong class="font-bold">View</strong>
+						the options below
+					</li>
+					<li class="w-full mb-2">
+						<strong class="font-bold">Select</strong>
+						your option
+					</li>
 
 					<li class="w-full">
-						Submit your vote from there to open a new email with your selected choice that you can send directly to the
-						board.
+						<strong class="font-bold">Submit</strong>
+						your vote from there to open a new email with your selected choice that you can send directly to the board.
 					</li>
 				</ul>
 				<p class="w-full mt-6 mb-2 text-[14px] leading-5">
@@ -170,6 +181,8 @@ const mailtoLink = computed(() => {
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
 					:to="mailtoLink"
+					target="_blank"
+					rel="noopener noreferrer"
 					@click="sendConfetti()"
 					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700"
 					:style="'background-image: url(https://admin.1033lenox.com/assets/' + selectedItem.image + '?key=medium-png)'"
