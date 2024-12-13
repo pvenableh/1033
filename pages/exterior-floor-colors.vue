@@ -51,6 +51,7 @@ function toggleVote(item) {
 function closeVote() {
 	isVoteOpen.value = false;
 	selectedItem.value = {};
+	sendConfetti();
 }
 
 function makeUppercase(title) {
@@ -182,7 +183,6 @@ const mailtoLink = computed(() => {
 				<nuxt-link
 					:to="mailtoLink"
 					target="_blank"
-					rel="noopener noreferrer"
 					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700"
 					:style="'background-image: url(https://admin.1033lenox.com/assets/' + selectedItem.image + '?key=medium-png)'"
 				>
