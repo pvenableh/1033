@@ -51,7 +51,6 @@ function toggleVote(item) {
 function closeVote() {
 	isVoteOpen.value = false;
 	selectedItem.value = {};
-	sendConfetti();
 }
 
 function makeUppercase(title) {
@@ -66,11 +65,7 @@ var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 function sendConfetti() {
 	isVoteOpen.value = false;
 	selectedItem.value = {};
-	toast.add({
-		title: 'Success',
-		description: 'Email created successfully',
-		color: 'green',
-	});
+
 	var interval = setInterval(function () {
 		var timeLeft = animationEnd - Date.now();
 
@@ -87,20 +82,32 @@ function sendConfetti() {
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
+		const encodedSubject = `1033 Lenox Floor Color Vote: ${selectedItem.value.title}`;
+
+		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the color of the exterior floors. Please let me know if you need any additional information.`;
+
 		gtag('event', 'click', {
 			event_category: 'Mailto Vote Button',
 			event_label: selectedItem.value.title,
 		});
-
-		const encodedSubject = `1033 Lenox Floor Color Vote: ${selectedItem.value.title}`;
-
-		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the color of the exterior floors. Please let me know if you need any additional information.`;
 
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 	} else {
 		return '';
 	}
 });
+
+function openExternalLink() {
+	console.log(mailtoLink.value);
+	window.open(mailtoLink.value, '_blank'); // Opens the link in a new tab
+	toast.add({
+		title: 'Success',
+		description: 'Email created successfully',
+		color: 'green',
+		timeout: 8000,
+	});
+	sendConfetti();
+}
 </script>
 <template>
 	<div class="flex items-center justify-center flex-col w-full renderings">
@@ -181,9 +188,8 @@ const mailtoLink = computed(() => {
 
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
-					:to="mailtoLink"
-					target="_blank"
-					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700"
+					@click.prevent="openExternalLink()"
+					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700 cursor-pointer"
 					:style="'background-image: url(https://admin.1033lenox.com/assets/' + selectedItem.image + '?key=medium-png)'"
 				>
 					Send Email Vote for {{ selectedItem.title }}
