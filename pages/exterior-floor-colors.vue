@@ -6,7 +6,7 @@ const toast = useToast();
 const renderings = ref([
 	{
 		id: 1,
-		title: 'Light Slate',
+		title: 'Bluestone',
 		image: '4d4036a1-a449-47e9-bf30-78562f1b235a',
 	},
 	{
@@ -140,35 +140,46 @@ function openExternalLink() {
 				</p>
 			</div>
 		</div>
-		<div class="w-full flex flex-col sm:flex-row items-center justify-center gap-8">
-			<div
-				v-for="(item, index) in renderings"
-				:key="index"
-				class="flex items-center justify-center flex-col w-full max-w-[250px] mb-8 border border-gray-200 shadow-lg renderings__item"
-			>
-				<div class="w-full max-w-[250px] relative">
-					<img
-						:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
-						:alt="item.title"
-						class="w-full"
-					/>
-				</div>
-				<div class="w-full flex items-center justify-center flex-col max-w-[500px] renderings__item-caption">
-					<h3 class="w-full my-6 text-center renderings__item-title">
-						<span class="label">Option {{ item.id }}:</span>
-						{{ item.title }}
-					</h3>
+		<div class="pb-8 renderings__list">
+			<div class="w-full md:w-auto flex flex-row items-start justify-around gap-8 max-w-[500px]">
+				<div
+					v-for="(item, index) in renderings"
+					:key="index"
+					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg renderings__item"
+				>
+					<div class="relative renderings__item-image">
+						<img
+							:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
+							:alt="item.title"
+							class="w-full"
+						/>
+					</div>
+					<div class="w-full flex items-center justify-center flex-col max-w-[500px] renderings__item-caption">
+						<h3 class="w-full my-6 text-center leading-4 renderings__item-title">
+							<span class="label">Option {{ item.id }}:</span>
+							<span class="font-bold block">{{ item.title }}</span>
+						</h3>
 
-					<UButton
-						color="gray"
-						variant="outline"
-						:ui="{ rounded: 'rounded-sm' }"
-						class="mb-6 tracking-wide"
-						@click="toggleVote(item)"
-					>
-						Vote for {{ item.title }}
-					</UButton>
+						<UButton
+							color="gray"
+							variant="outline"
+							:ui="{ rounded: 'rounded-sm' }"
+							class="mb-6 tracking-wide leading-4 flex flex-col text-[12px]"
+							@click="toggleVote(item)"
+						>
+							Vote for
+							<span class="font-bold block">{{ item.title }}</span>
+						</UButton>
+					</div>
 				</div>
+			</div>
+			<div class="">
+				<p class="uppercase text-[9px]">Color samples in walkway:</p>
+				<img
+					src="https://admin.1033lenox.com/assets/d5ceaa72-63ca-44fe-abc7-ef38a76e15d4?key=medium"
+					alt="Bluestone"
+					class="w-full max-w-[480px] xl:max-w-[528px] xl:w-[528px] shadow-lg"
+				/>
 			</div>
 		</div>
 		<UModal v-model="isVoteOpen">
@@ -200,9 +211,36 @@ function openExternalLink() {
 </template>
 <style scoped>
 .renderings {
+	&__list {
+		flex-direction: column;
+		@apply w-full flex items-center justify-center gap-8 px-2;
+		@media (min-width: 600px) {
+			flex-direction: row;
+			align-items: flex-start;
+		}
+		@media (min-width: theme('screens.lg')) {
+		}
+	}
 	&__item {
-		@apply px-0;
+		max-width: 220px;
+		@apply px-0 w-full;
+		@media (min-width: 600px) {
+			/* flex-direction: row; */
+		}
+		@media (min-width: theme('screens.md')) {
+			max-width: 175px;
+		}
+		@media (min-width: theme('screens.lg')) {
+			max-width: 200px;
+		}
+		@media (min-width: theme('screens.xl')) {
+			max-width: 250px;
+		}
+		button {
+			@apply w-full;
+		}
 		&-caption {
+			@apply px-3;
 		}
 		&-title {
 			font-size: 16px;
@@ -213,6 +251,15 @@ function openExternalLink() {
 		}
 		.label {
 			@apply opacity-50;
+		}
+		&-image {
+			@apply w-full;
+			@media (min-width: 600px) {
+				flex-direction: row;
+			}
+			@media (min-width: theme('screens.lg')) {
+				max-width: 250px;
+			}
 		}
 	}
 }
