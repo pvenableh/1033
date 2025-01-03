@@ -20,12 +20,14 @@ export default defineEventHandler(async (event) => {
 		if (element.people_id.email) {
 			let unit = null;
 			let vehicles = [];
+			let spot = [];
 
 			// Check if the unit exists and has vehicles
 			if (element.people_id.unit.length > 0) {
 				unit = element.people_id.unit[0].units_id.number;
 
 				if (element.people_id.unit[0].units_id.vehicles.length > 0) {
+					spot = element.people_id.unit[0].units_id.vehicles[0].parking_spot;
 					// Extract and format vehicle data
 					vehicles = element.people_id.unit[0].units_id.vehicles.map((vehicle) => ({
 						make: vehicle.make,
@@ -78,6 +80,7 @@ export default defineEventHandler(async (event) => {
 					content: body.data.data.content,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
+					spot: spot,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
