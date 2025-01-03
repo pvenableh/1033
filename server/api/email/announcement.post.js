@@ -11,8 +11,10 @@ export default defineEventHandler(async (event) => {
 	let templateId;
 
 	if (body.data.template === 'Parking') {
+		console.log('Parking');
 		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
 	} else {
+		console.log('Announcement');
 		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
 	}
 
@@ -58,7 +60,7 @@ export default defineEventHandler(async (event) => {
 					email: 'mail@1033lenox.com',
 					name: '1033 Lenox',
 				},
-				template_id: templateId,
+				template_id: 'd-ef1bd1a336a341e6a85751e04227b9d3',
 				replyTo: {
 					email: 'lenoxplazaboard@gmail.com',
 					name: '1033 Lenox',
@@ -81,6 +83,7 @@ export default defineEventHandler(async (event) => {
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 					spot: spot,
+					template: body.data.template + ' : ' + templateId,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
