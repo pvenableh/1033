@@ -20,7 +20,6 @@ export default defineEventHandler(async (event) => {
 		if (element.people_id.email) {
 			let unit = null;
 			let vehicles = [];
-			let spot = [];
 
 			// Check if the unit exists and has vehicles
 			if (element.people_id.unit.length > 0) {
@@ -80,8 +79,7 @@ export default defineEventHandler(async (event) => {
 					content: body.data.data.content,
 					url: body.data.data.url,
 					closing: body.data.data.closing,
-					spot: spot,
-					template: body.data.template + ' : ' + templateId,
+					spot: element.people_id.parking_spot,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
