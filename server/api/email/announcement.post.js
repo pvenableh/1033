@@ -8,13 +8,13 @@ export default defineEventHandler(async (event) => {
 	const recipients = body.data.recipients;
 	const messages = [];
 
-	let templateId;
+	// let templateId;
 
-	if (body.data.data.template === 'Parking') {
-		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
-	} else {
-		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
-	}
+	// if (body.data.data.template === 'Parking') {
+	// 	templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
+	// } else {
+	// 	templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
+	// }
 
 	for (const element of recipients) {
 		if (element.people_id.email) {
@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 					spot: spot,
-					template: templateId,
+					// template: templateId,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
