@@ -10,11 +10,9 @@ export default defineEventHandler(async (event) => {
 
 	let templateId;
 
-	if (body.data.template === 'Parking') {
-		console.log('Parking');
+	if (body.data.data.template === 'Parking') {
 		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
 	} else {
-		console.log('Announcement');
 		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
 	}
 
@@ -83,7 +81,7 @@ export default defineEventHandler(async (event) => {
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 					spot: spot,
-					template: body.data.template + ' : ' + templateId,
+					template: body.data.data.template,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
