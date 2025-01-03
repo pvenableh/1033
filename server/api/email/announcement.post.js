@@ -8,12 +8,33 @@ export default defineEventHandler(async (event) => {
 	const recipients = body.data.recipients;
 	const messages = [];
 
+	let templateId;
+
+	if (body.data.template === 'Parking') {
+		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
+	} else {
+		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
+	}
+
 	for (const element of recipients) {
 		if (element.people_id.email) {
-			let unit;
+			let unit = null;
+			let vehicles = [];
 
+			// Check if the unit exists and has vehicles
 			if (element.people_id.unit.length > 0) {
 				unit = element.people_id.unit[0].units_id.number;
+
+				if (element.people_id.unit[0].units_id.vehicles.length > 0) {
+					// Extract and format vehicle data
+					vehicles = element.people_id.unit[0].units_id.vehicles.map((vehicle) => ({
+						make: vehicle.make,
+						model: vehicle.model,
+						color: vehicle.color,
+						license_plate: vehicle.license_plate,
+						parking_spot: vehicle.parking_spot,
+					}));
+				}
 			}
 
 			const message = {
@@ -35,7 +56,7 @@ export default defineEventHandler(async (event) => {
 					email: 'mail@1033lenox.com',
 					name: '1033 Lenox',
 				},
-				template_id: 'd-035e7712976d45aaa5143d8a1042aee7',
+				template_id: templateId,
 				replyTo: {
 					email: 'lenoxplazaboard@gmail.com',
 					name: '1033 Lenox',
@@ -50,6 +71,7 @@ export default defineEventHandler(async (event) => {
 				dynamicTemplateData: {
 					first_name: element.people_id.first_name,
 					unit: unit,
+					vehicles: vehicles,
 					title: body.data.data.title,
 					subtitle: body.data.data.subtitle,
 					urgent: body.data.data.urgent,
