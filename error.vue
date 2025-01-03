@@ -1,8 +1,4 @@
 <script setup lang="ts">
-definePageMeta({
-	layout: 'default',
-});
-
 const config = useRuntimeConfig();
 const isDev = config.public.dev || false;
 
@@ -18,7 +14,7 @@ const { x, y } = useMouse({ touch: false });
 </script>
 
 <template>
-	<div class="min-h-screen bg-gray-100 flex items-center justify-center px-4">
+	<div class="min-h-screen flex items-center justify-center px-4">
 		<div class="max-w-lg w-full text-center">
 			<div class="w-full h-[190px] sm:h-[300px] relative flex items-center justify-center">
 				<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[50px] sm:top-[10px] ml-12" />
