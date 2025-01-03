@@ -81,7 +81,7 @@ export default defineEventHandler(async (event) => {
 					url: body.data.data.url,
 					closing: body.data.data.closing,
 					spot: spot,
-					template: body.data.data.template,
+					template: templateId,
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
