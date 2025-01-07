@@ -78,19 +78,20 @@
 					icon="heroicons:x-mark"
 					@click="closeSpotDetails"
 					variant="ghost"
-					class="h-12 w-12 absolute top-0 right-0 hidden md:flex items-center justify-center"
+					class="h-12 w-12 absolute top-0 right-0 hidden lg:flex items-center justify-center"
 					:ui="{ rounded: 'rounded-full' }"
 				/>
 				<div class="flex flex-col w-full items-start justify-start py-4">
 					<h3 class="border-b border-gray-200 mb-2 pb-2">
+						<Icon name="Parking" class="h-4 w-4 inline-block" />
 						Parking Spot:
 						<strong class="font-bold">{{ selectedSpot.number }}</strong>
 					</h3>
 					<h3 v-if="selectedSpot.unit" class="">Unit: {{ selectedSpot.unit }}</h3>
 					<p v-else class="w-full">No Unit Assigned</p>
 				</div>
-				<div class="flex flex-col md:flex-row w-full items-start justify-start text-[12px]">
-					<div v-if="selectedSpot.vehicles.length" class="w-full md:w-1/2 flex flex-col items-start">
+				<div class="flex flex-col lg:flex-row w-full items-start justify-start text-[12px]">
+					<div v-if="selectedSpot.vehicles.length" class="w-full lg:w-1/2 mt-6 lg:mt-0 flex flex-col items-start">
 						<h4>Vehicles:</h4>
 						<div
 							v-for="vehicle in selectedSpot.vehicles"
@@ -102,9 +103,9 @@
 							<p class="mr-1">🚗 {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }}</p>
 						</div>
 					</div>
-					<p v-else class="w-full md:w-1/2">No Vehicles Assigned</p>
+					<p v-else class="w-full lg:w-1/2 mt-6 lg:mt-0 text-center lg:text-left">No Vehicles Assigned</p>
 
-					<div v-if="selectedSpot.residents.length" class="w-full md:w-1/2 flex flex-col items-start">
+					<div v-if="selectedSpot.residents.length" class="w-full lg:w-1/2 mt-12 lg:mt-0 flex flex-col items-start">
 						<h4>Residents:</h4>
 
 						<div
@@ -422,13 +423,13 @@ onClickOutside(spotDetailsRef, () => {
 	/* transition:
 		transform 0.3s ease-out,
 		opacity 0.3s ease-out;*/
-	@apply flex items-center justify-center flex-col;
+	@apply flex items-center justify-start flex-col pt-10;
 	&__inner {
 		touch-action: pan-x;
-		max-width: 800px;
-		@apply p-20 bg-white w-full mx-20 relative;
+		max-width: 600px;
+		@apply px-4 md:p-20 bg-white w-full mx-20 relative;
 		h3 {
-			@apply w-full text-[18px] leading-[20px];
+			@apply w-full text-[18px] leading-[20px] text-center md:text-left;
 		}
 
 		h4 {

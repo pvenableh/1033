@@ -69,12 +69,15 @@ header {
 
 header.retracted {
 	transform: translateY(-100px);
+	@media (min-width: theme('screens.lg')) {
+		transform: translateY(0px);
+	}
 }
 
 .new-logo {
-	width: 200px;
+	width: 130px;
 	max-width: 380px;
-	@apply px-6 py-2;
+	@apply px-6 py-3;
 
 	/* filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5)); */
 	/* @media (min-width: theme('screens.sm')) {
