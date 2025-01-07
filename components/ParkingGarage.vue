@@ -266,7 +266,7 @@ onClickOutside(spotDetailsRef, () => {
 	width: 100%;
 	max-width: 800px;
 	position: relative; /* For absolute positioning of center area and gates */
-	@apply relative  border-gray-100 border;
+	@apply relative  border-gray-100 dark:border-gray-600 border;
 	@media (min-width: theme('screens.lg')) {
 		width: 80%;
 	}
@@ -315,7 +315,7 @@ onClickOutside(spotDetailsRef, () => {
 	@media (min-width: theme('screens.lg')) {
 		flex-direction: column;
 	}
-	@apply border border-gray-100 dark:border-gray-500;
+	@apply border border-gray-100 dark:border-gray-700;
 	&__number {
 		font-size: 12px;
 		line-height: 14px;
@@ -378,7 +378,7 @@ onClickOutside(spotDetailsRef, () => {
 	align-items: center;
 	padding: 5px;
 	font-size: 9px;
-	@apply border-t border-gray-600;
+	@apply border-t border-gray-600 dark:border-gray-200;
 	@media (min-width: theme('screens.sm')) {
 		font-size: 10px;
 	}
@@ -398,7 +398,7 @@ onClickOutside(spotDetailsRef, () => {
 	align-items: center;
 	padding: 5px;
 	font-size: 9px;
-	@apply border-t border-gray-600;
+	@apply border-t border-gray-600 dark:border-gray-200;
 	@media (min-width: theme('screens.sm')) {
 		font-size: 10px;
 	}
@@ -416,18 +416,16 @@ onClickOutside(spotDetailsRef, () => {
 	height: 80svh;
 	transform: translateY(100%); /* Start hidden */
 	z-index: 100;
-	background: rgba(255, 255, 255, 1);
-	backdrop-filter: blur(10px);
 	box-shadow: 0px -10px 20px rgba(0, 0, 0, 0.1);
 	border-radius: 20px 20px 0 0;
 	/* transition:
 		transform 0.3s ease-out,
 		opacity 0.3s ease-out;*/
-	@apply flex items-center justify-start flex-col pt-10;
+	@apply flex items-center justify-start flex-col pt-10 bg-white dark:bg-neutral-900;
 	&__inner {
 		touch-action: pan-x;
 		max-width: 600px;
-		@apply px-4 md:p-20 bg-white w-full mx-20 relative;
+		@apply px-4 md:p-20  w-full mx-20 relative;
 		h3 {
 			@apply w-full text-[18px] leading-[20px] text-center md:text-left;
 		}
