@@ -68,6 +68,7 @@
 			<div class="north-gate">NORTH GATE</div>
 			<div class="south-gate">SOUTH GATE</div>
 		</div>
+
 		<div
 			ref="spotDetailsRef"
 			v-if="isSpotDetailsVisible"
@@ -92,32 +93,58 @@
 				</div>
 				<div class="flex flex-col lg:flex-row w-full items-start justify-start text-[12px]">
 					<div v-if="selectedSpot.vehicles.length" class="w-full lg:w-1/2 mt-6 lg:mt-0 flex flex-col items-start">
-						<h4>Vehicles:</h4>
+						<h4 class="mb-4">Vehicles:</h4>
 						<div
 							v-for="vehicle in selectedSpot.vehicles"
 							:key="vehicle.license_plate"
-							class="flex items-center justify-center flex-row my-1"
+							class="w-full flex items-center justify-start flex-co my-4 relative"
 						>
-							<div class="h-[10px] w-2 bg-gray-200 mr-1 hidden"></div>
-
-							<p class="mr-1">🚗 {{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }}</p>
+							<div class="flex flex-col items-start">
+								<p class="w-full mr-1">
+									<span v-if="vehicle.category === 'Car'" class="">🚙</span>
+									<span v-else-if="vehicle.category === 'Scooter'" class="">🛵</span>
+									<span v-else-if="vehicle.category === 'Motorcycle'" class="">🏍️</span>
+									<span v-else-if="vehicle.category === 'Van'" class="">🚐</span>
+									<span v-else class="">🚗</span>
+									{{ vehicle.make }} {{ vehicle.model }} {{ vehicle.license_plate }}
+								</p>
+								<div class="w-full">
+									<span
+										v-if="vehicle.category"
+										class="absolute left-[16px] -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5"
+									>
+										{{ vehicle.category }}
+									</span>
+									<UButton
+										size="xs"
+										class="block padding-0 scale-75"
+										variant="outline"
+										label="image"
+										color="primary"
+										:ui="{ rounded: 'rounded-full' }"
+										@click.prevent="showVehicleImage(vehicle.image)"
+									></UButton>
+								</div>
+							</div>
 						</div>
 					</div>
 					<p v-else class="w-full lg:w-1/2 mt-6 lg:mt-0 text-center lg:text-left">No Vehicles Assigned</p>
 
 					<div v-if="selectedSpot.residents.length" class="w-full lg:w-1/2 mt-12 lg:mt-0 flex flex-col items-start">
-						<h4>Residents:</h4>
+						<h4 class="mb-4">Residents:</h4>
 
 						<div
 							v-for="resident in selectedSpot.residents"
 							:key="resident.email"
-							class="flex items-center justify-center flex-row my-1"
+							class="flex items-center justify-start flex-row my-4 relative"
 						>
-							<div class="h-[10px] w-2 bg-gray-200 mr-1 hidden"></div>
-							<UBadge size="sm" :color="resident.category === 'Tenant' ? 'sky' : 'gray'" class="text-[8px] mr-1">
+							<span
+								v-if="resident.category"
+								class="absolute left-0 -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5"
+							>
 								{{ resident.category }}
-							</UBadge>
-							<p class="mr-1">{{ resident.first_name }} {{ resident.last_name }}</p>
+							</span>
+							<p class="mr-1 leading-4">{{ resident.first_name }} {{ resident.last_name }}</p>
 
 							<UButton
 								v-if="resident.email"
@@ -139,12 +166,27 @@
 								icon="heroicons:phone"
 								size="xs"
 							/>
+							<UButton
+								v-if="resident.phone"
+								variant="ghost"
+								class="h-5 w-5 flex items-center justify-center"
+								:ui="{ rounded: 'rounded-full' }"
+								:to="'sms:' + resident.phone"
+								target="_blank"
+								icon="heroicons:chat-bubble-left"
+								size="xs"
+							/>
 						</div>
 					</div>
 					<p v-else class="w-full md:w-1/2">No Residents Assigned</p>
 				</div>
 			</div>
 		</div>
+		<UModal v-model="vehicleImageModal">
+			<div class="p-0">
+				<img :src="'https://admin.1033lenox.com/assets/' + vehicleImage + '?key=large'" />
+			</div>
+		</UModal>
 	</div>
 </template>
 
@@ -155,7 +197,14 @@ import { onClickOutside } from '@vueuse/core';
 const selectedSpot = ref(null);
 const isSpotDetailsVisible = ref(false);
 const spotDetailsRef = ref(null);
-const containerRef = ref(null); // New ref for the container
+const containerRef = ref(null);
+const vehicleImageModal = ref(false);
+const vehicleImage = ref('');
+
+const showVehicleImage = (image) => {
+	vehicleImage.value = image;
+	vehicleImageModal.value = true;
+};
 
 const { isSwipingDown } = useSwipe(containerRef, {
 	minSwipeDistance: 50,
@@ -171,18 +220,15 @@ watch(isSwipingDown, (swiping) => {
 
 const units = await readItems('units', {
 	fields: [
-		'*,vehicles.make,vehicles.model,vehicles.license_plate,vehicles.color,people.people_id.status,people.people_id.first_name,people.people_id.last_name,people.people_id.category,people.people_id.phone,people.people_id.email',
+		'*,vehicles.make,vehicles.model,vehicles.license_plate,vehicles.color,vehicles.image,vehicles.category,people.people_id.status,people.people_id.first_name,people.people_id.last_name,people.people_id.category,people.people_id.phone,people.people_id.email',
 	],
 	filter: {
 		status: {
 			_eq: 'published',
 		},
 		people: {
-			// Filter on the 'people' relation
 			people_id: {
-				// Filter on the 'people_id' related collection
 				status: {
-					// Filter on the 'status' field within 'people_id'
 					_eq: 'published',
 				},
 			},
@@ -204,6 +250,8 @@ const getSpotInfo = computed(() => (spotNumber) => {
 				model: v.model,
 				licensePlate: v.licensePlate,
 				color: v.color,
+				image: v.image,
+				category: v.category,
 			})) || [],
 		residents:
 			unit.people
@@ -415,7 +463,7 @@ onClickOutside(spotDetailsRef, () => {
 	padding: 1rem;
 	height: 80svh;
 	transform: translateY(100%); /* Start hidden */
-	z-index: 100;
+	z-index: 30;
 	box-shadow: 0px -10px 20px rgba(0, 0, 0, 0.1);
 	border-radius: 20px 20px 0 0;
 	/* transition:
