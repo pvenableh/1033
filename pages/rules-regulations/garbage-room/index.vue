@@ -4,7 +4,7 @@
 			Garbage Room Reminders
 		</h1>
 
-		<div class="w-full max-w-2xl rule">
+		<div class="w-full max-w-2xl px-6 rule">
 			<div v-html="page[0].description"></div>
 		</div>
 	</div>
@@ -26,6 +26,9 @@ const page = await readItems('rules', {
 <style>
 .rule {
 	@media (min-width: theme('screens.lg')) {
+	}
+	strong {
+		@apply font-bold;
 	}
 
 	h1 {
@@ -49,8 +52,8 @@ const page = await readItems('rules', {
 	}
 
 	p {
-		line-height: 1.8em;
-		@apply my-2;
+		line-height: 1.4em;
+		@apply my-3;
 	}
 
 	ol,
@@ -59,7 +62,8 @@ const page = await readItems('rules', {
 		list-style-type: disc;
 
 		li {
-			@apply pl-2 my-2;
+			line-height: 1.4em;
+			@apply pl-2 my-3;
 		}
 	}
 
