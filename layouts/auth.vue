@@ -47,7 +47,7 @@ const handleRequestSubmitted = () => {
 		<transition name="screen">
 			<LayoutScreen v-if="screen" />
 		</transition>
-		<!-- Floating Action Button -->
+		<!-- Floating Action Butto
 		<UButton
 			icon="i-heroicons-wrench-screwdriver"
 			size="lg"
@@ -56,7 +56,7 @@ const handleRequestSubmitted = () => {
 			@click="isModalOpen = true"
 		>
 			Maintenance Request
-		</UButton>
+		</UButton> -->
 
 		<!-- Maintenance Request Modal -->
 		<UModal v-model="isModalOpen" :ui="{ width: 'max-w-3xl' }">
