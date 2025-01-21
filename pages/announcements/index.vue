@@ -15,6 +15,9 @@ const announcements = await readItems('announcements', {
 		date_sent: {
 			_nnull: true,
 		},
+		private: {
+			_eq: false,
+		},
 	},
 	sort: '-date_sent',
 });
