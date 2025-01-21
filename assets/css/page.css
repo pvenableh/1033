@@ -11,7 +11,7 @@
 
 	&__nav {
 		width: 250px;
-		@apply pt-10 mt-10 top-0;
+		@apply pt-10 mt-10 top-10;
 		display: none;
 
 		@media (min-width: theme('screens.lg')) {

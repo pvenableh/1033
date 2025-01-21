@@ -43,7 +43,7 @@ const loading = ref(false);
 const emailTouched = ref(false);
 
 const state = reactive({
-	email: 'peter@huestudios.com',
+	email: '',
 });
 
 const validate = async (state: any): Promise<FormError[]> => {
@@ -80,7 +80,7 @@ const validate = async (state: any): Promise<FormError[]> => {
 
 function submit() {
 	openScreen();
-	passwordRequest(state.email, 'https://huestudios.company/auth/password-reset');
+	passwordRequest(state.email, 'https://1033lenox.com/auth/password-reset');
 	closeScreen();
 	toast.add({ title: 'An email was sent to ' + state.email + '.' });
 }
