@@ -6,12 +6,19 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 
+	let templateId;
+	if (body.data.template === 'Parking') {
+		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
+	} else {
+		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
+	}
+
 	const messages = recipients
 		.map((element) => {
 			if (!element.people_id.email) return null;
-
-			const unit = element.people_id.unit?.[0]?.units_id.number || null;
-			const spot = element.people_id.unit?.[0]?.units_id.parking_spot || null;
+			console.log(element);
+			const unit = element.people_id.unit?.[0]?.units_id?.number ?? null;
+			const spot = element.people_id.unit?.[0]?.units_id?.parking_spot ?? null;
 			const vehicles =
 				element.people_id.unit?.[0]?.units_id.vehicles?.map((vehicle) => ({
 					make: vehicle.make,
@@ -31,7 +38,7 @@ export default defineEventHandler(async (event) => {
 					email: 'mail@1033lenox.com',
 					name: '1033 Lenox',
 				},
-				template_id: 'd-ef1bd1a336a341e6a85751e04227b9d3',
+				template_id: templateId,
 				replyTo: {
 					email: 'lenoxplazaboard@gmail.com',
 					name: '1033 Lenox',
