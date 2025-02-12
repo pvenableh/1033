@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
 			const unit = element.people_id.unit?.[0]?.units_id?.number ?? null;
 			const spot = element.people_id.unit?.[0]?.units_id?.parking_spot ?? null;
 			const vehicles =
-				element.people_id.unit?.[0]?.units_id.vehicles?.map((vehicle) => ({
+				element.people_id.unit?.[0]?.units_id?.vehicles?.map((vehicle) => ({
 					make: vehicle.make,
 					model: vehicle.model,
 					color: vehicle.color,
 					license_plate: vehicle.license_plate,
-				})) || [];
+				})) ?? [];
 
 			return {
 				personalizations: [
