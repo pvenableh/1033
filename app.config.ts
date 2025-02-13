@@ -40,7 +40,7 @@ export default defineAppConfig({
 		formGroup: {
 			base: 'ring-0 focus:ring-0 outline-none focus:outline-none',
 			label: {
-				base: 'uppercase block font-medium text-gray-500 dark:text-gray-200 tracking-wider',
+				base: 'uppercase block font-medium text-gray-700 dark:text-gray-200 tracking-wider text-[12px] leading-3',
 			},
 		},
 		input: {

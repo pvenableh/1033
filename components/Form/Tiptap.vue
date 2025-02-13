@@ -131,9 +131,13 @@ export default {
 		font-family: var(--font-bold);
 	}
 
-	ul,
-	ol {
+	ul {
 		list-style-type: disc;
+		padding: 0 1rem;
+	}
+
+	ol {
+		list-style-type: decimal;
 		padding: 0 1rem;
 	}
 
