@@ -124,7 +124,7 @@ const onSubmit = handleSubmit(async (values) => {
 				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col"
 			>
 				<h5 class="uppercase tracking-wider font-bold w-full text-center">40YR {{ category }} Submission</h5>
-				<p class="leading-3 text-[12px] mb-4 mt-1 w-full text-justify max-w-[300px] mx-auto">
+				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
 					Complete the form below to submit a question for the general contractor to review.
 				</p>
 				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
@@ -181,11 +181,11 @@ const onSubmit = handleSubmit(async (values) => {
 					<div class="flex justify-end space-x-3 pt-4 w-full">
 						<UButton type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
 						<UButton type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
-							{{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
+							{{ isSubmitting ? 'Submitting...' : 'Submit' }}
 						</UButton>
 					</div>
 				</form>
-				<UButton @click="handleNext" color="primary">Next</UButton>
+				<!-- <UButton @click="handleNext" color="primary">Next</UButton> -->
 			</div>
 			<div v-else class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
