@@ -148,7 +148,7 @@ const onSubmit = handleSubmit(async (values) => {
 		>
 			<div
 				v-if="panel === '1'"
-				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col"
+				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] overflow-y-scroll flex items-center justify-center flex-col"
 			>
 				<h5 class="uppercase tracking-wider font-bold w-full text-center">40YR {{ category }} Submission</h5>
 				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
@@ -205,7 +205,7 @@ const onSubmit = handleSubmit(async (values) => {
 						</template>
 					</UFormGroup>
 
-					<div class="flex justify-end space-x-3 pt-4 w-full">
+					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
 						<UButton type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
 						<UButton type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 							{{ isSubmitting ? 'Submitting...' : 'Submit' }}
