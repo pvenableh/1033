@@ -43,7 +43,9 @@ const avatar = computed(() => {
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 -mt-[4px] inline-block sm:hidden mt-0">
 			<DarkModeToggle class="" />
 		</div>
-		<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
+		<client-only>
+			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
+		</client-only>
 		<nuxt-link to="/">
 			<NewLogo class="new-logo" />
 		</nuxt-link>

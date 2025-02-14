@@ -24,7 +24,11 @@ const validationSchema = yup.object({
 	email: yup.string().email('Please enter a valid email').required('Email is required'),
 	unit: yup.string().required('Unit selection is required'),
 	subject: yup.string().required('Subject is required'),
-	description: yup.string().required('Description is required').min(10, 'Description must be at least 10 characters'),
+	description: yup
+		.string()
+		.required('Description is required')
+		.min(10, 'Description must be at least 10 characters')
+		.max(1000, 'Description cannot exceed 1000 characters'),
 });
 
 // Initialize form with validation schema
@@ -74,7 +78,25 @@ const handleReset = () => {
 	resetForm();
 };
 
+const handleLimitExceeded = (isExceeded) => {
+	// Example: disable your form submit button
+
+	// Or show a warning message
+	if (isExceeded) {
+		toast.add({
+			title: 'Character limit exceeded',
+			description: 'Please reduce the text length to continue',
+			color: 'red',
+		});
+	}
+};
+
 const onSubmit = handleSubmit(async (values) => {
+	if (Object.keys(errors).length > 0) {
+		console.error('Validation failed:', errors);
+		return; // Stop execution if there are errors
+	}
+
 	try {
 		isSubmitting.value = true;
 
@@ -121,7 +143,7 @@ const onSubmit = handleSubmit(async (values) => {
 		>
 			<div
 				v-if="panel === '1'"
-				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col"
+				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] overflow-y-scroll flex items-center justify-center flex-col"
 			>
 				<h5 class="uppercase tracking-wider font-bold w-full text-center">40YR {{ category }} Submission</h5>
 				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
@@ -169,7 +191,10 @@ const onSubmit = handleSubmit(async (values) => {
 						<TipTap
 							v-model="description"
 							placeholder="Please provide detailed information about your request"
-							rows="4"
+							rows="5"
+							:character-limit="1000"
+							:show-char-count="true"
+							@limit-exceeded="handleLimitExceeded"
 						/>
 						<template #error>
 							<p class="error-class">

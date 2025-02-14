@@ -53,13 +53,27 @@
 					</template>
 				</UPopover>
 			</div>
-			<UButton
-				@click="$refs.fileInput.click()"
-				size="xs"
-				variant="ghost"
-				icon="i-heroicons-paper-clip"
-				class="px-1 mr-2 transform scale-75"
-			/>
+
+			<div class="flex items-center gap-2">
+				<!-- Character count display -->
+				<span
+					v-if="showCharCount"
+					class="text-xs"
+					:class="{
+						'text-red-500': characterCount > characterLimit && characterLimit > 0,
+						'text-gray-500': characterCount <= characterLimit || characterLimit === 0,
+					}"
+				>
+					{{ characterCount }} / {{ characterLimit }}
+				</span>
+				<UButton
+					@click="$refs.fileInput.click()"
+					size="xs"
+					variant="ghost"
+					icon="i-heroicons-paper-clip"
+					class="px-1 mr-2 transform scale-75"
+				/>
+			</div>
 			<input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
 		</div>
 
@@ -95,6 +109,7 @@ import { Extension } from '@tiptap/core';
 import { Plugin } from '@tiptap/pm/state';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
+import CharacterCount from '@tiptap/extension-character-count';
 const { processUpload, validateFiles, MAX_FILES } = useFileUpload();
 const { updateFile } = useDirectusFiles();
 // import { Mention } from '@tiptap/extension-mention';
@@ -138,6 +153,14 @@ const props = defineProps({
 			collection: null,
 			itemId: null,
 		}),
+	},
+	characterLimit: {
+		type: Number,
+		default: 1000, // 0 means no limit
+	},
+	showCharCount: {
+		type: Boolean,
+		default: true,
 	},
 });
 
@@ -666,6 +689,10 @@ watch(
 	},
 );
 
+const characterCount = computed(() => {
+	return editor.value?.storage.characterCount.characters() ?? 0;
+});
+
 onMounted(() => {
 	editor.value = new Editor({
 		extensions: [
@@ -679,13 +706,22 @@ onMounted(() => {
 			}),
 			CustomImage,
 			FileUpload,
+			CharacterCount,
 			// CustomMention,
 		],
 		content: props.modelValue,
 		editable: !props.disabled,
 		onUpdate: () => {
-			emit('update:modelValue', editor.value.getHTML());
+			if (editor.value) {
+				const content = editor.value.getHTML();
+				const currentCount = editor.value.storage.characterCount.characters();
+				const isExceeded = props.characterLimit > 0 && currentCount > props.characterLimit;
+
+				emit('update:modelValue', content);
+				emit('limitExceeded', isExceeded);
+			}
 		},
+
 		onBlur: ({ event }) => {
 			emit('blur', event);
 		},
@@ -708,6 +744,23 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
+/* .character-count {
+	transition: color 0.2s ease;
+}
+
+.character-count.over-limit {
+	animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.5;
+	}
+} */
 .tiptap {
 	> * + * {
 		margin-top: 0.75em;
