@@ -17,6 +17,7 @@ export default defineEventHandler(async (event) => {
 				hour: 'numeric',
 				minute: 'numeric',
 				hour12: true,
+				timeZone: 'America/New_York',
 			})
 			.replace(',', '')
 			.replace(',', ' @');
