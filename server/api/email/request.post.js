@@ -76,6 +76,7 @@ export default defineEventHandler(async (event) => {
 					email: 'mail@1033lenox.com',
 					name: '1033 Lenox',
 				},
+				categories: ['1033 Lenox', 'requests'],
 			},
 			{
 				from: {
@@ -90,6 +91,7 @@ export default defineEventHandler(async (event) => {
 				],
 				templateId: 'd-4222ef386310401583b8c55c384432f8',
 				dynamicTemplateData: userTemplateData,
+				categories: ['1033 Lenox', 'requests'],
 			},
 		];
 
