@@ -57,6 +57,10 @@ const formattedOptions = computed(() => {
 		.sort((a, b) => parseInt(a.label) - parseInt(b.label));
 });
 
+const selectedUnit = computed(() => {
+	return units.find((unit) => unit.id === unit.value);
+});
+
 const categories = ref(['Structural', 'Electrical', 'Paint', 'Windows and Doors', 'Other']);
 const category = 'question';
 const direction = ref('forward');
@@ -87,13 +91,16 @@ const onSubmit = handleSubmit(async (values) => {
 			date_created: new Date().toISOString(),
 		});
 
+		const unitDetails = units.find((u) => u.id === values.unit);
+		const unitNumber = unitDetails?.number || values.unit;
+
 		const emailResponse = await useFetch('/api/email/request', {
 			method: 'POST',
 			body: {
 				id: request.id,
 				name: values.name,
 				email: values.email,
-				unit: values.unit,
+				unit: unitNumber,
 				subject: values.subject,
 				description: values.description,
 				category: 'question',
