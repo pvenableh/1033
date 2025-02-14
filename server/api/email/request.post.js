@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
 				dynamicTemplateData: mainTemplateData,
 				personalizations: [
 					{
-						to: [{ email: 'peter@huestudios.com' }],
+						to: [{ name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com' }],
 						bcc: [{ email: 'huestudios.com@gmail.com' }],
 					},
 				],
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
 				},
 				personalizations: [
 					{
-						to: [{ email: requestData.email }],
+						to: [{ name: firstName || requestData.name, email: requestData.email }],
 						bcc: [{ email: 'huestudios.com@gmail.com' }],
 					},
 				],
