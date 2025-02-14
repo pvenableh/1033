@@ -101,10 +101,10 @@ const onSubmit = handleSubmit(async (values) => {
 				date_created: request.date_created,
 			},
 		});
-
-		if (!emailResponse.ok) {
-			throw new Error('Failed to send email notification');
-		}
+		console.log(emailResponse);
+		// if (!emailResponse.ok) {
+		// 	throw new Error('Failed to send email notification');
+		// }
 
 		// Show success message
 		useToast().add({
