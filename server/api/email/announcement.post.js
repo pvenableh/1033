@@ -55,6 +55,10 @@ export default defineEventHandler(async (event) => {
 					closing: body.data.data.closing,
 					spot,
 				},
+				custom_args: {
+					announcement_id: String(body.data.data.id),
+					recipient_email: element.people_id.email,
+				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
 		})
