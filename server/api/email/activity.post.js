@@ -13,18 +13,19 @@ export default defineEventHandler(async (event) => {
 			return { message: 'No matching events found' };
 		}
 
-		// Get Directus instance
-		const directus = useDirectus();
+		const { directus } = useDirectusAuth();
 
-		const testItems = await directus.items('announcements').readByQuery({});
+		const testItems = await directus.request(readItems('announcements'));
 		console.log(testItems);
 
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
-			const person = await directus.items('people').readByQuery({
-				filter: { email: { _eq: email } },
-			});
+			const person = await directus.request(
+				readItems('people', {
+					filter: { email: { _eq: email } },
+				}),
+			);
 
 			console.log(person);
 
@@ -35,13 +36,15 @@ export default defineEventHandler(async (event) => {
 			}
 			console.log(directus);
 			// Log email activity in Directus (access person.data directly)
-			await directus.items('email_activity').createOne({
-				person: person.data.id, // Access id directly
-				event: eventData.event,
-				email: email,
-				sg_message_id: eventData.sg_message_id,
-				announcement: eventData.announcement_id,
-			});
+			await directus.request(
+				createItem('email_activity', {
+					person: person.data.id, // Access id directly
+					event: eventData.event,
+					email: email,
+					sg_message_id: eventData.sg_message_id,
+					announcement: eventData.announcement_id,
+				}),
+			);
 		}
 
 		return { message: 'Processed successfully' };
