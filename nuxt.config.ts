@@ -34,7 +34,7 @@ export default defineNuxtConfig({
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-directus-next',
-		// 'nuxt-gtag',
+		['nuxt-gtag', { id: 'G-JTR8V7XBN1' }],
 		// '@nuxtjs/plausible',
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
@@ -54,10 +54,6 @@ export default defineNuxtConfig({
 			directusUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 		},
 	},
-
-	//  gtag: {
-	// 					id: 'G-JTR8V7XBN1',
-	// 	},
 
 	directus: {
 		url: process.env.DIRECTUS_URL,
