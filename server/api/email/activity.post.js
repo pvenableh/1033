@@ -16,6 +16,9 @@ export default defineEventHandler(async (event) => {
 		// Get Directus instance
 		const directus = useDirectus();
 
+		const testItems = await directus.items('announcements').readByQuery({});
+		console.log(testItems);
+
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
@@ -28,7 +31,7 @@ export default defineEventHandler(async (event) => {
 				console.warn(`User not found: ${email}`);
 				continue;
 			}
-
+			console.log(directus);
 			// Log email activity in Directus (access person.data directly)
 			await directus.items('email_activity').createOne({
 				person: person.data.id, // Access id directly
