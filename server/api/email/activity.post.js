@@ -13,28 +13,27 @@ export default defineEventHandler(async (event) => {
 			return { message: 'No matching events found' };
 		}
 
-		// Import Directus SDK or use your Nuxt Directus composable
-		const { readItems, createItem } = useDirectusItems(); // Ensure you have this composable set up
+		// Get Directus instance
+		const directus = useDirectus();
 
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
 			// Check if user exists
-			const person = await readItems('people', {
+			const person = await directus.items('people').readByQuery({
 				filter: { email: { _eq: email } },
 			});
 
-			if (!person.data || person.data.length === 0) {
+			if (!person?.data || person.data.length === 0) {
 				console.warn(`User not found: ${email}`);
 				continue;
 			}
 
 			// Log email activity in Directus
-			await createItem('email_activity', {
-				person: person?.data[0]?.id,
+			await directus.items('email_activity').createOne({
+				person: person.data[0]?.id,
 				event: eventData.event,
 				email: email,
-				date_created: eventData.timestamp,
 				sg_message_id: eventData.sg_message_id,
 				announcement: eventData.announcement_id,
 			});
