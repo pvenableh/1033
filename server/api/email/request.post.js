@@ -49,8 +49,9 @@ export default defineEventHandler(async (event) => {
 				name: requestData.name || 'N/A',
 				email: requestData.email || 'N/A',
 				unit: requestData.unit || 'N/A',
+				phone: requestData.phone || 'N/A',
 			},
-			contactPreference: requestData.contact_preference || 'Not specified',
+			preference: requestData.preference || 'Not specified',
 			name: requestData.name,
 			unit: requestData.unit,
 		};
@@ -69,7 +70,11 @@ export default defineEventHandler(async (event) => {
 				personalizations: [
 					{
 						to: [{ name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com' }],
-						bcc: [{ email: 'huestudios.com@gmail.com' }],
+						bcc: [
+							{ email: 'huestudios.com@gmail.com' },
+							{ email: 'valentin@vteconsultingllc.com' },
+							{ email: 'camila@huestudios.com' },
+						],
 					},
 				],
 				from: {

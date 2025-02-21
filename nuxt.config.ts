@@ -137,7 +137,16 @@ export default defineNuxtConfig({
 	},
 
 	build: {
-		transpile: ['chart.js', 'vue-chartjs', '@sendgrid/mail', 'swiper', 'gsap', '@vueuse/core', 'v-calendar'],
+		transpile: [
+			'chart.js',
+			'@yeger/vue-masonry-wall',
+			'vue-chartjs',
+			'@sendgrid/mail',
+			'swiper',
+			'gsap',
+			'@vueuse/core',
+			'v-calendar',
+		],
 	},
 
 	compatibilityDate: '2025-01-07',

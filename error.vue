@@ -35,7 +35,7 @@ const { x, y } = useMouse({ touch: false });
 				/>
 				<img
 					ref="movableElement"
-					src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=medium"
+					src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=medium"
 					class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)] transition-transform building"
 					:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }"
 				/>

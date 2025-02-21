@@ -5,58 +5,105 @@ const weather = await $fetch(
 
 const isIcon = ref(true);
 
-function generateIcon(code) {
-	if (code === '01d') {
-		return 'i-wi-day-sunny';
-	} else if (code === '01n') {
-		return 'i-wi-night-clear';
-	} else if (code === '02d') {
-		return 'i-wi-day-cloudy';
-	} else if (code === '02n') {
-		return 'i-wi-night-alt-cloudy';
-	} else if (code === '03d') {
-		return 'i-wi-cloudy';
-	} else if (code === '03n') {
-		return 'i-wi-cloudy';
-	} else if (code === '04d') {
-		return 'i-wi-cloud';
-	} else if (code === '04n') {
-		return 'i-wi-night-alt-cloudy-high';
-	} else if (code === '09d') {
-		return 'i-wi-showers';
-	} else if (code === '09n') {
-		return 'i-wi-night-showers';
-	} else if (code === '10d') {
-		return 'i-wi-rain';
-	} else if (code === '10n') {
-		return 'i-wi-night-alt-rain';
-	} else if (code === '11d') {
-		return 'i-wi-thunderstorm';
-	} else if (code === '11n') {
-		return 'i-wi-night-alt-thunderstorm';
-	} else if (code === '50d') {
-		return 'i-wi-fog';
-	} else if (code === '50n') {
-		return 'i-wi-fog';
-	} else {
+function generateIcon(weatherData) {
+	// Check if we have weather data
+	if (!weatherData || !weatherData.id) {
 		isIcon.value = false;
+		return null;
 	}
+
+	const id = weatherData.id;
+	const isDay = weatherData.icon?.includes('d');
+
+	// Thunderstorm
+	if (id >= 200 && id < 300) {
+		return isDay ? 'i-wi-day-thunderstorm' : 'i-wi-night-alt-thunderstorm';
+	}
+
+	// Drizzle
+	if (id >= 300 && id < 400) {
+		return isDay ? 'i-wi-day-sprinkle' : 'i-wi-night-alt-sprinkle';
+	}
+
+	// Rain
+	if (id >= 500 && id < 600) {
+		if (id === 511) return 'i-wi-sleet'; // Freezing rain
+		return isDay ? 'i-wi-day-rain' : 'i-wi-night-alt-rain';
+	}
+
+	// Snow
+	if (id >= 600 && id < 700) {
+		return isDay ? 'i-wi-day-snow' : 'i-wi-night-alt-snow';
+	}
+
+	// Atmosphere (fog, mist, etc)
+	if (id >= 700 && id < 800) {
+		switch (id) {
+			case 701:
+				return 'i-wi-fog';
+			case 721:
+				return 'i-wi-day-haze';
+			case 731:
+				return 'i-wi-dust';
+			case 741:
+				return 'i-wi-fog';
+			case 751:
+				return 'i-wi-sandstorm';
+			case 761:
+				return 'i-wi-dust';
+			case 762:
+				return 'i-wi-volcano';
+			case 771:
+				return 'i-wi-strong-wind';
+			case 781:
+				return 'i-wi-tornado';
+			default:
+				return 'i-wi-fog';
+		}
+	}
+
+	// Clear
+	if (id === 800) {
+		return isDay ? 'i-wi-day-sunny' : 'i-wi-night-clear';
+	}
+
+	// Clouds
+	if (id > 800) {
+		if (id === 801) {
+			// Few clouds
+			return isDay ? 'i-wi-day-sunny-overcast' : 'i-wi-night-alt-partly-cloudy';
+		}
+		if (id === 802) {
+			// Scattered clouds
+			return isDay ? 'i-wi-day-cloudy' : 'i-wi-night-alt-cloudy';
+		}
+		if (id === 803 || id === 804) {
+			// Broken or overcast clouds
+			return 'i-wi-cloudy';
+		}
+	}
+
+	// Fallback
+	isIcon.value = false;
+	return null;
 }
 </script>
 <template>
 	<div class="hidden sm:inline-block weather">
-
 		<h5 class="uppercase tracking-wide weather__intro"></h5>
 		<h5 class="uppercase tracking-wide relative weather__stats">
-
 			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
 			/
 			{{ weather.weather[0].main }}
 			<span v-if="isIcon" class="weather-icon">
-				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0].icon)" class="drop-shadow" />
+				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0])" class="drop-shadow" />
 			</span>
-			<img v-else :src="'https://openweathermap.org/img/wn/' + weather.weather[0].icon + '.png'"
-				:alt="weather.weather[0].description" class="hidden sm:inline-block" />
+			<img
+				v-else
+				:src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`"
+				:alt="weather.weather[0].description"
+				class="hidden sm:inline-block"
+			/>
 		</h5>
 	</div>
 </template>

@@ -18,11 +18,10 @@ const launchConfetti = () => {
 	});
 };
 
-// Define validation schema
 const validationSchema = yup.object({
 	name: yup.string().required('Name is required'),
 	email: yup.string().email('Please enter a valid email').required('Email is required'),
-	unit: yup.string().required('Unit is required'),
+	contact_preference: yup.string().required('Required'),
 	subject: yup.string().required('Subject is required'),
 	description: yup.string().required('Description is required').min(10, 'Description must be at least 10 characters'),
 });
@@ -35,8 +34,10 @@ const { handleSubmit, resetForm } = useForm({
 // Setup individual field validation
 const { value: name, errorMessage: nameError } = useField('name');
 const { value: email, errorMessage: emailError } = useField('email');
+const { value: phone } = useField('phone');
 const { value: unit, errorMessage: unitError } = useField('unit');
 const { value: subject, errorMessage: subjectError } = useField('subject');
+const { value: contact_preference, errorMessage: preferenceError } = useField('contact_preference');
 const { value: description, errorMessage: descriptionError } = useField('description');
 
 const units = await readItems('units', {
@@ -57,10 +58,39 @@ const formattedOptions = computed(() => {
 		.sort((a, b) => parseInt(a.label) - parseInt(b.label));
 });
 
-const categories = ref(['Structural', 'Electrical', 'Paint', 'Windows and Doors', 'Other']);
+const categories = ref(['General', 'Purchase / Sale', 'Rental', 'Other']);
 const category = 'question';
 const direction = ref('forward');
 const panel = ref('1');
+
+const availablePreferenceOptions = ref(['Email', 'Phone', 'Text']);
+
+onMounted(() => {
+	watch(
+		[phone, email],
+		([newPhone, newEmail]) => {
+			const hasPhone = newPhone && newPhone.trim() !== '';
+			const hasEmail = newEmail && newEmail.trim() !== '';
+
+			if (hasPhone && hasEmail) {
+				availablePreferenceOptions.value = ['Email', 'Phone', 'Text'];
+			} else if (hasPhone && !hasEmail) {
+				availablePreferenceOptions.value = ['Phone', 'Text'];
+				// Only change preference if it's currently set to Email
+				if (contact_preference.value === 'Email') {
+					contact_preference.value = 'Phone';
+				}
+			} else if (!hasPhone && hasEmail) {
+				availablePreferenceOptions.value = ['Email'];
+				contact_preference.value = 'Email';
+			} else if (!hasPhone && !hasEmail) {
+				// If both are empty, keep all options but don't reset the preference
+				availablePreferenceOptions.value = ['Email', 'Phone', 'Text'];
+			}
+		},
+		{ immediate: false }, // Don't run immediately
+	);
+});
 
 const handleNext = () => {
 	direction.value = 'forward';
@@ -82,7 +112,7 @@ const onSubmit = handleSubmit(async (values) => {
 		const request = await createItem('requests', {
 			...values,
 			status: 'published',
-			category: 'question',
+			category: 'inquiry',
 			priority: 'medium',
 			date_created: new Date().toISOString(),
 		});
@@ -94,16 +124,34 @@ const onSubmit = handleSubmit(async (values) => {
 		const unitNumber = unitDetails?.number || values.unit;
 		console.log('Unit number for email:', unitNumber);
 
+		console.log(values);
+		console.log({
+			id: request.id,
+			name: values.name,
+			email: values.email,
+			phone: values.phone,
+			unit: unitNumber,
+			subject: values.subject,
+			description: values.description,
+			permission: values.permission,
+			preference: values.contact_preference,
+			category: 'inquiry',
+			priority: 'medium',
+			date_created: request.date_created,
+		});
 		const emailResponse = await useFetch('/api/email/request', {
 			method: 'POST',
 			body: {
 				id: request.id,
 				name: values.name,
 				email: values.email,
+				phone: values.phone,
 				unit: unitNumber,
 				subject: values.subject,
 				description: values.description,
-				category: 'question',
+				permission: values.permission,
+				preference: values.contact_preference,
+				category: 'inquiry',
 				priority: 'medium',
 				date_created: request.date_created,
 			},
@@ -134,9 +182,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-	<div
-		class="w-full max-w-[650px] px-4 py-10 mx-auto relative overflow-hidden flex items-center justify-center flex-col"
-	>
+	<div class="w-full max-w-[650px] py-10 mx-auto relative flex items-center justify-center flex-col">
 		<TransitionGroup
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"
@@ -146,13 +192,10 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
 			mode="out-in"
 		>
-			<div
-				v-if="panel === '1'"
-				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] overflow-y-scroll flex items-center justify-center flex-col"
-			>
-				<h5 class="uppercase tracking-wider font-bold w-full text-center">40YR {{ category }} Submission</h5>
+			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
+				<h5 class="uppercase tracking-wider font-bold w-full text-center">Submit your Inquiry</h5>
 				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
-					Complete the form below to submit a question for the general contractor to review.
+					Complete the form below to submit an inquiry to 1033 Lenox.
 				</p>
 				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
 					<div class="grid sm:grid-cols-2 gap-4 w-full">
@@ -163,21 +206,29 @@ const onSubmit = handleSubmit(async (values) => {
 							<UInput v-model="email" type="email" placeholder="name@domain.com" />
 						</UFormGroup>
 					</div>
-					<div class="grid sm:grid-cols-2 gap-4">
+					<div class="grid grid-cols-2 gap-4 w-full">
+						<UFormGroup label="Phone">
+							<UInput v-model="phone" type="text" placeholder="(555) 555-5555" />
+						</UFormGroup>
+						<UFormGroup label="Contact me by:" required :error="preferenceError">
+							<USelect
+								v-model="contact_preference"
+								:options="availablePreferenceOptions"
+								:disabled="availablePreferenceOptions.length === 1"
+							/>
+						</UFormGroup>
+					</div>
+					<div class="grid grid-cols-2 gap-4">
 						<UFormGroup label="Subject" required :error="subjectError">
 							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
 						</UFormGroup>
-						<UFormGroup label="Unit" required :error="unitError">
-							<USelect v-model="unit" :options="formattedOptions" placeholder="Select your unit" />
+						<UFormGroup label="Unit" :error="unitError">
+							<USelect v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
 						</UFormGroup>
 					</div>
 					<!-- Description -->
 					<UFormGroup label="Description" required :error="descriptionError">
-						<TipTap
-							v-model="description"
-							placeholder="Please provide detailed information about your request"
-							rows="4"
-						/>
+						<TipTap v-model="description" :allow-uploads="false" rows="4" />
 					</UFormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
@@ -189,7 +240,7 @@ const onSubmit = handleSubmit(async (values) => {
 				</form>
 				<!-- <UButton @click="handleNext" color="primary">Next</UButton> -->
 			</div>
-			<div v-else class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col">
+			<div v-else class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
 					Thank you
 					<span v-if="name" class="font-bold text-[var(--cyan)]">{{ name.split(' ')[0] }}</span>

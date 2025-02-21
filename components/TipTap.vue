@@ -58,15 +58,17 @@
 				<!-- Character count display -->
 				<span
 					v-if="showCharCount"
-					class="text-xs"
+					class="text-[10px]"
 					:class="{
 						'text-red-500': characterCount > characterLimit && characterLimit > 0,
 						'text-gray-500': characterCount <= characterLimit || characterLimit === 0,
+						'px-1 mr-2': !allowUploads,
 					}"
 				>
 					{{ characterCount }} / {{ characterLimit }}
 				</span>
 				<UButton
+					v-if="allowUploads"
 					@click="$refs.fileInput.click()"
 					size="xs"
 					variant="ghost"
@@ -159,6 +161,10 @@ const props = defineProps({
 		default: 1000, // 0 means no limit
 	},
 	showCharCount: {
+		type: Boolean,
+		default: true,
+	},
+	allowUploads: {
 		type: Boolean,
 		default: true,
 	},

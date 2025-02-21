@@ -2,57 +2,160 @@
 const { user } = useDirectusAuth();
 
 const { x, y } = useMouse({ touch: false });
+
+const { readSingleton } = useDirectusItems();
+
+const features = await readSingleton('features', {
+	fields: [
+		'featured_images.directus_files_id.id',
+		'featured_images.directus_files_id.title',
+		'featured_images.directus_files_id.width', // Add this
+		'featured_images.directus_files_id.height', // Add this
+		'featured_images.directus_files_id.filename_download',
+	],
+});
+
+const config = useRuntimeConfig();
+const directusUrl = config.public.directusUrl;
+
+const transformedImages = computed(() => {
+	if (!features.featured_images) return [];
+
+	return features.featured_images.map((item) => {
+		const image = item.directus_files_id;
+
+		const width = parseInt(image.width);
+		const height = parseInt(image.height);
+
+		if (isNaN(width) || isNaN(height)) {
+			console.warn('Invalid dimensions for image:', image.id);
+		}
+
+		return {
+			id: image.id,
+			width,
+			height,
+			src: `${directusUrl}/assets/${image.id}?key=medium`,
+			alt: image.title || image.filename_download,
+			aspectRatio: height / width,
+		};
+	});
+});
 </script>
 <template>
-	<div
-		class="relative w-full bg-center bg-contain xl:bg-cover bg-no-repeat min-h-screen flex items-center justify-center flex-col home"
-	>
-		<h1 v-if="!user" class="-mt-28 mb-12 text-center px-6 temp-heading">
-			Welcome to
-			<span class="font-bold">1033 Lenox:</span>
-			a boutique community in Miami Beach focused on the local, active lifestyle.
-		</h1>
-		<h1 v-else class="-mt-28 mb-12 text-center px-6 temp-heading">
-			{{ greetUser() }}
-			<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
-				{{ user.first_name }}.
-			</span>
-			<span class="font-bold">Welcome to 1033 Lenox</span>
-		</h1>
-		<div class="w-full h-[190px] sm:h-[300px] relative flex items-center justify-center">
-			<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[50px] sm:top-[10px] ml-12" />
-			<img
-				src="~/assets/img/palm-tree.png"
-				class="absolute h-[70px] w-auto top-[55px] sm:-top-[2px] -ml-28 -scale-x-100"
-				:style="{ marginRight: -x / 60 + 'px' }"
-			/>
-			<img
-				src="~/assets/img/palm-tree.png"
-				class="absolute h-[60px] sm:h-[90px] w-auto top-[55px] sm:top-[0px] ml-20 -scale-x-100"
-				:style="{ marginRight: -x / 50 + 'px' }"
-			/>
-			<img
-				src="~/assets/img/palm-tree.png"
-				class="absolute h-[50px] sm:h-[70px] w-auto top-[60px] sm:top-[3px] mr-32"
-				:style="{ marginLeft: -x / 30 + 'px' }"
-			/>
-			<img
-				ref="movableElement"
-				src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=medium"
-				class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)] transition-transform building"
-				:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }"
-			/>
+	<div class="relative w-full flex items-center justify-center flex-col home">
+		<div class="relative w-full min-h-screen flex items-center justify-center flex-col">
+			<div class="relative w-full min-h-[calc(100vh-220px)] flex items-center justify-center flex-col">
+				<h1 v-if="!user" class="-mt-2 md:-mt-20 mb-12 text-center px-4 md:px-6 temp-heading">
+					Welcome to
+					<span class="font-bold">1033 Lenox:</span>
+					a boutique community in Miami Beach focused on the local, active lifestyle.
+				</h1>
+				<h1 v-else class="-mt-2 md:-mt-20 mb-12 text-center px-6 temp-heading">
+					{{ greetUser() }}
+					<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
+						{{ user.first_name }}.
+					</span>
+					<span class="font-bold">Welcome to 1033 Lenox</span>
+				</h1>
+				<div class="w-full h-[190px] sm:h-[300px] relative flex items-center justify-center">
+					<img src="~/assets/img/palm-tree.png" class="absolute h-[60px] w-auto top-[5px] sm:top-[10px] ml-12" />
+					<img
+						src="~/assets/img/palm-tree.png"
+						class="absolute h-[70px] w-auto top-[7px] sm:-top-[2px] -ml-28 -scale-x-100"
+						:style="{ marginRight: -x / 60 + 'px' }"
+					/>
+					<img
+						src="~/assets/img/palm-tree.png"
+						class="absolute h-[60px] sm:h-[90px] w-auto top-[8px] sm:top-[0px] ml-20 -scale-x-100"
+						:style="{ marginRight: -x / 50 + 'px' }"
+					/>
+					<img
+						src="~/assets/img/palm-tree.png"
+						class="absolute h-[50px] sm:h-[70px] w-auto top-[10px] sm:top-[3px] mr-32"
+						:style="{ marginLeft: -x / 30 + 'px' }"
+					/>
+					<img
+						ref="movableElement"
+						src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=medium"
+						alt="1033 Lenox Ave Miami Beach, FL Graphic"
+						class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)] transition-transform building"
+						:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }"
+					/>
+				</div>
+				<div class="w-full flex flex-row items-center justify-center">
+					<!-- <FormVButton
+						class="mb-6 m-3 w-full"
+						type="submit"
+						variant="outline"
+						style="max-width: 450px"
+						@click="toggleInquiry"
+					>
+						Submit Inquiry
+					</FormVButton> -->
+
+					<LayoutBottomSheet
+						max-width="max-w-none"
+						max-height="max-h-[80vh]"
+						content-class="px-4 py-4"
+						:show-handle="true"
+						:close-on-click-outside="true"
+						:swipe-threshold="30"
+						@open="onOpen"
+						@close="onClose"
+					>
+						<!-- Custom trigger button -->
+						<template #trigger="{ toggle }">
+							<FormVButton type="submit" variant="outline" @click="toggle">Submit Inquiry</FormVButton>
+						</template>
+
+						<!-- Main content -->
+						<div>
+							<Inquiry />
+						</div>
+					</LayoutBottomSheet>
+				</div>
+				<!-- <nuxt-link v-if="!user" to="/auth/signin">
+						<FormVButton class="w-full mb-6" type="submit" variant="outline" style="max-width: 450px">
+							Login
+						</FormVButton>
+					</nuxt-link>
+					<nuxt-link v-else to="/dashboard">
+						<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Dashboard</FormVButton>
+					</nuxt-link> -->
+			</div>
+			<div v-if="transformedImages.length > 0" class="w-full mt-12">
+				<h2 class="uppercase tracking-wider text-center text-[12px]">2025 Transformation</h2>
+				<p class="text-center text-[12px] px-4 max-w-lg mx-auto mt-2 mb-4 leading-4">
+					The building is in the process of completing the 40-year recertification process and has been completely
+					transformed. The project officially broke ground in April of 2024.
+				</p>
+				<MasonryGrid :images="transformedImages" :gap="2" />
+			</div>
 		</div>
-		<nuxt-link v-if="!user" to="/auth/signin">
-			<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Login</FormVButton>
-		</nuxt-link>
-		<nuxt-link v-else to="/dashboard">
-			<FormVButton class="w-full mb-6" type="submit" style="max-width: 450px">Dashboard</FormVButton>
-		</nuxt-link>
 	</div>
 </template>
 
 <style>
+.swiper {
+	width: 100%; /* Or your desired width */
+	height: 350px; /* Or your desired height */
+}
+
+.swiper-slide {
+	text-align: center;
+	font-size: 18px;
+	background: #fff;
+
+	display: block; /* Important: Restore default display */
+}
+
+.swiper-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: cover; /* or contain, depending on your needs */
+}
 .home {
 	/* background-color: rgba(0,0,0,0.35);
     background-blend-mode: darken; */

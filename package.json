@@ -78,6 +78,7 @@
 		"@vee-validate/nuxt": "^4.15.0",
 		"@vee-validate/yup": "^4.15.0",
 		"@vueuse/gesture": "^2.0.0",
+		"@yeger/vue-masonry-wall": "^5.0.18",
 		"canvas-confetti": "^1.9.3",
 		"chart.js": "^4.4.7",
 		"gsap": "^3.12.5",

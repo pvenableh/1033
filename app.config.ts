@@ -38,10 +38,13 @@ export default defineAppConfig({
 			rounded: 'rounded-large',
 		},
 		formGroup: {
-			base: 'ring-0 focus:ring-0 outline-none focus:outline-none',
+			base: 'ring-0 focus:ring-0 outline-none focus:outline-none ',
+			container: 'relative mt-1 mb-4',
 			label: {
 				base: 'uppercase block font-medium text-gray-700 dark:text-gray-200 tracking-wider text-[12px] leading-3',
 			},
+			error:
+				'absolute -bottom-[18px] right-0 !text-[10px] text-red-500 dark:text-red-400 uppercase tracking-wider w-full block text-right tracking-wide',
 		},
 		input: {
 			base: 'relative block w-full box-border disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 border-solid border-b border-gray-300 focus:border-b-2 focus:border-cyan-200 !ring-0 focus:ring-0 outline-none !ring-offset-0 appearance-none !bg-transparent',
