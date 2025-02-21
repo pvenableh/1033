@@ -19,19 +19,19 @@ export default defineEventHandler(async (event) => {
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
-			// Check if user exists
 			const person = await directus.items('people').readByQuery({
 				filter: { email: { _eq: email } },
 			});
 
-			if (!person?.data || person.data.length === 0) {
+			if (!person?.data) {
+				// Check if person.data exists
 				console.warn(`User not found: ${email}`);
 				continue;
 			}
 
-			// Log email activity in Directus
+			// Log email activity in Directus (access person.data directly)
 			await directus.items('email_activity').createOne({
-				person: person.data[0]?.id,
+				person: person.data.id, // Access id directly
 				event: eventData.event,
 				email: email,
 				sg_message_id: eventData.sg_message_id,
