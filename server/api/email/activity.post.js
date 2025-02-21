@@ -26,6 +26,8 @@ export default defineEventHandler(async (event) => {
 				filter: { email: { _eq: email } },
 			});
 
+			console.log(person);
+
 			if (!person?.data) {
 				// Check if person.data exists
 				console.warn(`User not found: ${email}`);
