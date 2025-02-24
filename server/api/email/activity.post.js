@@ -19,7 +19,6 @@ export default defineEventHandler(async (event) => {
 
 		const client = createDirectus(config.public.directusUrl).with(
 			rest({
-				// Add authorization headers manually
 				headers: {
 					Authorization: `Bearer ${config.public.staticToken}`,
 				},
@@ -31,29 +30,41 @@ export default defineEventHandler(async (event) => {
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
-			const persons = await client.request(
-				readItems('people', {
-					filter: { email: { _eq: email } },
-				}),
-			);
+			// Try to find the person by email
+			let personId = null;
+			try {
+				const persons = await client.request(
+					readItems('people', {
+						filter: { email: { _eq: email } },
+					}),
+				);
 
-			if (!persons || persons.length === 0) {
-				console.warn(`User not found: ${email}`);
-				continue;
+				if (persons && persons.length > 0) {
+					personId = persons[0].id;
+					console.log(`Person found with ID: ${personId}`);
+				} else {
+					console.warn(`User not found: ${email}`);
+				}
+			} catch (error) {
+				console.error(`Error fetching person with email ${email}:`, error);
 			}
 
-			const person = persons[0];
-			console.log(person);
-			// Log email activity in Directus (access person.data directly)
-			await client.request(
-				createItem('email_activity', {
-					person: person?.id, // Access id directly
-					event: eventData.event,
-					email: email,
-					sg_message_id: eventData.sg_message_id,
-					announcement: eventData.announcement_id,
-				}),
-			);
+			// Create email activity regardless of whether person exists or not
+			try {
+				const emailActivity = await client.request(
+					createItem('email_activity', {
+						status: 'published',
+						person: personId, // Will be null if person not found
+						event: eventData.event,
+						email: email,
+						sg_message_id: eventData.sg_message_id,
+						announcement: eventData.announcement_id,
+					}),
+				);
+				console.log(`Created email activity: ${emailActivity.id}`);
+			} catch (error) {
+				console.error(`Error creating email activity for ${email}:`, error);
+			}
 		}
 
 		return { message: 'Processed successfully' };
