@@ -26,8 +26,7 @@ export default defineEventHandler(async (event) => {
 			}),
 		);
 
-		const testItems = await client.request(readItems('announcements'));
-		console.log(testItems);
+		console.log('Hey Peter.....from the other side.');
 
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
@@ -44,10 +43,11 @@ export default defineEventHandler(async (event) => {
 			}
 
 			const person = persons[0];
+			console.log(person);
 			// Log email activity in Directus (access person.data directly)
 			await client.request(
 				createItem('email_activity', {
-					person: person.data.id, // Access id directly
+					person: person?.id, // Access id directly
 					event: eventData.event,
 					email: email,
 					sg_message_id: eventData.sg_message_id,
