@@ -17,7 +17,9 @@ export default defineEventHandler(async (event) => {
 			return { message: 'No matching events found' };
 		}
 
-		const directus = createDirectus(config.public.adminUrl).with(rest()).setToken(config.public.staticToken);
+		const directus = createDirectus(config.public.adminUrl).with(rest()).with(authentication());
+
+		await directus.setToken(config.public.staticToken);
 
 		const testItems = await directus.request(readItems('announcements'));
 		console.log(testItems);
