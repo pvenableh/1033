@@ -1,4 +1,8 @@
+import { createDirectus, rest, readItems, createItem } from '@directus/sdk';
+
 export default defineEventHandler(async (event) => {
+	const config = useRuntimeConfig();
+
 	try {
 		const body = await readBody(event); // Read incoming webhook payload
 
@@ -13,7 +17,7 @@ export default defineEventHandler(async (event) => {
 			return { message: 'No matching events found' };
 		}
 
-		const { directus } = useDirectusAuth();
+		const directus = createDirectus(config.directus.url).with(rest()).setToken(config.directus.staticToken);
 
 		const testItems = await directus.request(readItems('announcements'));
 		console.log(testItems);
@@ -21,20 +25,18 @@ export default defineEventHandler(async (event) => {
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
-			const person = await directus.request(
+			const persons = await directus.request(
 				readItems('people', {
 					filter: { email: { _eq: email } },
 				}),
 			);
 
-			console.log(person);
-
-			if (!person?.data) {
-				// Check if person.data exists
+			if (!persons || persons.length === 0) {
 				console.warn(`User not found: ${email}`);
 				continue;
 			}
-			console.log(directus);
+
+			const person = persons[0];
 			// Log email activity in Directus (access person.data directly)
 			await directus.request(
 				createItem('email_activity', {
