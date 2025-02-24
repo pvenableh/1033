@@ -17,17 +17,22 @@ export default defineEventHandler(async (event) => {
 			return { message: 'No matching events found' };
 		}
 
-		const directus = createDirectus(config.public.adminUrl).with(rest()).with(authentication());
+		const client = createDirectus(config.public.directusUrl).with(
+			rest({
+				// Add authorization headers manually
+				headers: {
+					Authorization: `Bearer ${config.public.staticToken}`,
+				},
+			}),
+		);
 
-		await directus.setToken(config.public.staticToken);
-
-		const testItems = await directus.request(readItems('announcements'));
+		const testItems = await client.request(readItems('announcements'));
 		console.log(testItems);
 
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
 
-			const persons = await directus.request(
+			const persons = await client.request(
 				readItems('people', {
 					filter: { email: { _eq: email } },
 				}),
@@ -40,7 +45,7 @@ export default defineEventHandler(async (event) => {
 
 			const person = persons[0];
 			// Log email activity in Directus (access person.data directly)
-			await directus.request(
+			await client.request(
 				createItem('email_activity', {
 					person: person.data.id, // Access id directly
 					event: eventData.event,
