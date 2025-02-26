@@ -50,9 +50,9 @@ defineProps({
 	transition: transform 0.3s ease;
 }
 
-.masonry-item:hover {
+/* .masonry-item:hover {
 	transform: scale(1.02);
-}
+} */
 
 .masonry-item img {
 	display: block;
