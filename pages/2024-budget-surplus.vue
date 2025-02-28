@@ -178,6 +178,16 @@ function openExternalLink() {
 					Please note that your vote it due by:
 					<span class="font-bold">Tuesday March 4th, 2025 at 11:59PM EST.</span>
 				</p>
+
+				<p class="w-full mt-6 mb-2 text-[14px] leading-5">
+					Please note a
+					<span class="font-bold text-red-500">non-vote</span>
+					or
+					<span class="font-bold text-red-500">late vote</span>
+					defaults to
+					<span class="font-bold text-red-500">Option 1 (40YR Balance)</span>
+					.
+				</p>
 			</div>
 		</div>
 		<div class="pb-8 options__list">
