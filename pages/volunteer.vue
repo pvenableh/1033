@@ -198,7 +198,7 @@ const onSubmit = handleSubmit(async (values) => {
 				<p class="my-20">
 					Your
 					<span class="font-bold text-[var(--cyan)]" v-if="subject">{{ subject.toLowerCase() }}</span>
-					was submitted successfully.
+					request was submitted successfully.
 				</p>
 				<UButton @click="handleReset" color="primary">Reset Form</UButton>
 			</div>
