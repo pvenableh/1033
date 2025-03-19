@@ -113,7 +113,6 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import CharacterCount from '@tiptap/extension-character-count';
 const { processUpload, validateFiles, MAX_FILES } = useFileUpload();
-const { updateFile } = useDirectusFiles();
 // import { Mention } from '@tiptap/extension-mention';
 
 const props = defineProps({

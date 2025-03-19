@@ -7,7 +7,7 @@ const options = ref([
 	{
 		id: 1,
 		title: '40YR Balance',
-		description: 'Credit towards my 40YR account balance',
+		description: 'Credit towards my 40YR account balance.',
 		image: null,
 	},
 	{
@@ -20,7 +20,7 @@ const options = ref([
 		id: 2,
 		title: 'Reserves',
 		description:
-			'Use towards reserves (please note unless 75% of owners decide on reserves, your vote will be moved to DEFAULT option (#1)',
+			'Use towards reserves (please note unless 75% of owners decide on reserves, your vote will be moved to DEFAULT option (#1).',
 		image: null,
 	},
 ]);

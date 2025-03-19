@@ -69,12 +69,13 @@ export default defineEventHandler(async (event) => {
 				dynamicTemplateData: mainTemplateData,
 				personalizations: [
 					{
-						to: [{ name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com' }],
-						bcc: [
-							{ email: 'huestudios.com@gmail.com' },
-							{ email: 'valentin@vteconsultingllc.com' },
-							{ email: 'camila@huestudios.com' },
-						],
+						to: [{ name: '1033 Lenox Board', email: 'huestudios.com@gmail.com' }],
+						// to: [{ name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com' }],
+						// bcc: [
+						// 	{ email: 'huestudios.com@gmail.com' },
+						// 	{ email: 'valentin@vteconsultingllc.com' },
+						// 	{ email: 'camila@huestudios.com' },
+						// ],
 					},
 				],
 				from: {
