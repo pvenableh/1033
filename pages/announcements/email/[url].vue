@@ -116,12 +116,12 @@ useHead({
 
 	&__header {
 		img {
-			max-width: 200px;
+			max-width: 175px;
 			padding: 20px 0px 10px;
-
+			/* 
 			@media (min-width: 400px) {
 				max-width: 200px;
-			}
+			} */
 		}
 	}
 
