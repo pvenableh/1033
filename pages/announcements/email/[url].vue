@@ -4,20 +4,20 @@
 		<div class="w-full flex items-center justify-center flex-col email">
 			<div class="w-full flex items-center justify-center email__header">
 				<a href="https://1033lenox.com" class="inline-block">
-					<img src="https://admin.1033lenox.com/assets/61e1a568-679d-4965-9527-c89009ee2486?key=large" />
+					<img src="https://admin.1033lenox.com/assets/3f1e971f-4d12-4d2d-b877-c4a54acdb741?key=large" />
 				</a>
 			</div>
 			<div class="w-full flex items-center justify-center flex-col email__body" v-if="email">
-				<div class="flex flex-row items-center justify-center mb-6">
+				<div class="py-1 px-2 flex flex-row items-center justify-center bg-gray-100 shadow-inner mb-10 rounded-full">
 					<p>🛡</p>
 					<p
 						class="text-center px-2"
 						style="
 							font-weight: 900;
 							line-height: 1.1em;
-							font-size: 10px;
+							font-size: 9px;
 							text-transform: uppercase;
-							letter-spacing: 0.07em;
+							letter-spacing: 0.05em;
 						"
 					>
 						Official Communication of the Lenox Plaza Association
@@ -71,7 +71,7 @@
 				</h5>
 				<div class="w-full">
 					<img
-						src="https://admin.1033lenox.com/assets/a7e9ae99-656a-4c18-aeea-f96071ddcb57?key=large"
+						src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=large"
 						alt="1033 Lenox Ave Building"
 					/>
 				</div>
@@ -116,11 +116,11 @@ useHead({
 
 	&__header {
 		img {
-			max-width: 370px;
-			padding: 20px 10px 10px;
+			max-width: 200px;
+			padding: 20px 0px 10px;
 
 			@media (min-width: 400px) {
-				max-width: 400px;
+				max-width: 200px;
 			}
 		}
 	}
