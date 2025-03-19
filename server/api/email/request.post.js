@@ -29,6 +29,7 @@ export default defineEventHandler(async (event) => {
 			violation: 'Violation Report',
 			inquiry: 'Inquiry',
 			suggestion: 'Suggestion',
+			volunteer: 'Volunteer',
 		};
 
 		const firstName = requestData?.name?.split(' ')[0];
