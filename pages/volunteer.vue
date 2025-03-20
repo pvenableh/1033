@@ -18,13 +18,12 @@ const launchConfetti = () => {
 	});
 };
 
-// Define validation schema
 const validationSchema = yup.object({
 	name: yup.string().required('Name is required'),
 	email: yup.string().email('Please enter a valid email').required('Email is required'),
-	unit: yup.string().required('Unit is required'),
-	subject: yup.string().required('Subject is required'),
-	description: yup.string().required('Description is required').min(10, 'Description must be at least 10 characters'),
+	contact_preference: yup.string().required('Required'),
+	subject: yup.string().required('Category is required'),
+	// description: yup.string().required('Description is required').min(10, 'Description must be at least 10 characters'),
 });
 
 // Initialize form with validation schema
@@ -35,9 +34,11 @@ const { handleSubmit, resetForm } = useForm({
 // Setup individual field validation
 const { value: name, errorMessage: nameError } = useField('name');
 const { value: email, errorMessage: emailError } = useField('email');
+const { value: phone } = useField('phone');
 const { value: unit, errorMessage: unitError } = useField('unit');
 const { value: subject, errorMessage: subjectError } = useField('subject');
-const { value: description, errorMessage: descriptionError } = useField('description');
+const { value: contact_preference, errorMessage: preferenceError } = useField('contact_preference');
+const { value: description } = useField('description');
 
 const units = await readItems('units', {
 	fields: ['id,number,status,people.people_id.first_name,people.people_id.last_name,people.people_id.email'],
@@ -61,6 +62,39 @@ const categories = ref(['Landscape Volunteer', 'Cleaning Volunteer', 'Anything V
 const category = 'volunteer';
 const direction = ref('forward');
 const panel = ref('1');
+
+const availablePreferenceOptions = ref(['Email', 'Phone', 'Text']);
+
+const selectSubject = (selectedOption) => {
+	subject.value = selectedOption;
+};
+
+onMounted(() => {
+	watch(
+		[phone, email],
+		([newPhone, newEmail]) => {
+			const hasPhone = newPhone && newPhone.trim() !== '';
+			const hasEmail = newEmail && newEmail.trim() !== '';
+
+			if (hasPhone && hasEmail) {
+				availablePreferenceOptions.value = ['Email', 'Phone', 'Text'];
+			} else if (hasPhone && !hasEmail) {
+				availablePreferenceOptions.value = ['Phone', 'Text'];
+				// Only change preference if it's currently set to Email
+				if (contact_preference.value === 'Email') {
+					contact_preference.value = 'Phone';
+				}
+			} else if (!hasPhone && hasEmail) {
+				availablePreferenceOptions.value = ['Email'];
+				contact_preference.value = 'Email';
+			} else if (!hasPhone && !hasEmail) {
+				// If both are empty, keep all options but don't reset the preference
+				availablePreferenceOptions.value = ['Email', 'Phone', 'Text'];
+			}
+		},
+		{ immediate: false }, // Don't run immediately
+	);
+});
 
 const handleNext = () => {
 	direction.value = 'forward';
@@ -87,22 +121,21 @@ const onSubmit = handleSubmit(async (values) => {
 			date_created: new Date().toISOString(),
 		});
 
-		console.log('Selected unit ID:', values.unit, 'Type:', typeof values.unit);
-		// Convert the string ID to a number for comparison
 		const unitDetails = units.find((u) => u.id === parseInt(values.unit));
-		console.log('Found unit details:', unitDetails);
 		const unitNumber = unitDetails?.number || values.unit;
-		console.log('Unit number for email:', unitNumber);
 
-		const emailResponse = await $fetch('/api/email/request', {
+		const emailResponse = await useFetch('/api/email/request', {
 			method: 'POST',
 			body: {
 				id: request.id,
 				name: values.name,
 				email: values.email,
+				phone: values.phone,
 				unit: unitNumber,
 				subject: values.subject,
 				description: values.description,
+				permission: values.permission,
+				preference: values.contact_preference,
 				category: 'volunteer',
 				priority: 'medium',
 				date_created: request.date_created,
@@ -134,9 +167,11 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-	<div
-		class="w-full max-w-[650px] px-4 py-10 mx-auto relative overflow-hidden flex items-center justify-center flex-col"
-	>
+	<div class="w-full max-w-[650px] py-10 px-3 md:px-0 mx-auto relative flex items-center justify-center flex-col">
+		<h5 class="uppercase tracking-wider font-bold w-full text-center">Volunteer Form 🙋🙋🏽‍♀️🙋🏻‍♂️</h5>
+		<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-center max-w-[350px] mx-auto">
+			Complete the form below to volunteer at 1033 Lenox.
+		</p>
 		<TransitionGroup
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"
@@ -146,16 +181,41 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
 			mode="out-in"
 		>
-			<div
-				v-if="panel === '1'"
-				class="w-full min-h-[500px] max-h-[calc(100vh-230px)] overflow-y-scroll flex items-center justify-center flex-col"
-			>
-				<h5 class="uppercase tracking-wider font-bold w-full text-center">Volunteer Form 🙋🙋🏽‍♀️🙋🏻‍♂️</h5>
-				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-center max-w-[350px] mx-auto">
-					Complete the form below to volunteer at 1033 Lenox.
-				</p>
-				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
-					<div class="grid sm:grid-cols-2 gap-4 w-full">
+			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
+				<form @submit.prevent="onSubmit" class="grid gap-2 sm:gap-4 w-full">
+					<div class="w-full">
+						<UFormGroup label="Select a category:" required :error="subjectError">
+							<div class="w-full button-group-wrapper">
+								<div class="button-group">
+									<button
+										type="button"
+										class="subject-button"
+										:class="{ active: subject === 'Landscape Volunteer' }"
+										@click="selectSubject('Landscape Volunteer')"
+									>
+										Landscape 🪴🌴
+									</button>
+									<button
+										type="button"
+										class="subject-button"
+										:class="{ active: subject === 'Cleaning Volunteer' }"
+										@click="selectSubject('Cleaning Volunteer')"
+									>
+										Cleaning 🧹🧽
+									</button>
+									<button
+										type="button"
+										class="subject-button"
+										:class="{ active: subject === 'Anything Volunteer' }"
+										@click="selectSubject('Anything Volunteer')"
+									>
+										Anything ✨
+									</button>
+								</div>
+							</div>
+						</UFormGroup>
+					</div>
+					<div class="grid grid-cols-2 gap-2 sm:gap-4 w-full">
 						<UFormGroup label="Name" required :error="nameError">
 							<UInput v-model="name" />
 						</UFormGroup>
@@ -163,21 +223,29 @@ const onSubmit = handleSubmit(async (values) => {
 							<UInput v-model="email" type="email" placeholder="name@domain.com" />
 						</UFormGroup>
 					</div>
-					<div class="grid sm:grid-cols-2 gap-4">
-						<UFormGroup label="Subject" required :error="subjectError">
-							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
+					<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 w-full">
+						<UFormGroup label="Unit" :error="unitError">
+							<USelect v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
 						</UFormGroup>
-						<UFormGroup label="Unit" required :error="unitError">
-							<USelect v-model="unit" :options="formattedOptions" placeholder="Select your unit" />
+						<UFormGroup label="Phone">
+							<UInput v-model="phone" type="text" placeholder="(555) 555-5555" />
+						</UFormGroup>
+						<UFormGroup label="Contact by:" required :error="preferenceError">
+							<USelect
+								v-model="contact_preference"
+								:options="availablePreferenceOptions"
+								:disabled="availablePreferenceOptions.length === 1"
+							/>
 						</UFormGroup>
 					</div>
+					<!-- <div class="grid grid-cols-2 gap-2 sm:gap-4">
+						<UFormGroup label="Subject" required :error="subjectError">
+							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
+						</UFormGroup> 
+					</div>-->
 					<!-- Description -->
-					<UFormGroup label="Description" required :error="descriptionError">
-						<TipTap
-							v-model="description"
-							placeholder="Please provide detailed information about your request"
-							rows="4"
-						/>
+					<UFormGroup label="Comments">
+						<TipTap v-model="description" :allow-uploads="false" rows="4" />
 					</UFormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
@@ -189,7 +257,7 @@ const onSubmit = handleSubmit(async (values) => {
 				</form>
 				<!-- <UButton @click="handleNext" color="primary">Next</UButton> -->
 			</div>
-			<div v-else class="w-full min-h-[500px] max-h-[calc(100vh-230px)] flex items-center justify-center flex-col">
+			<div v-else class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
 					Thank you
 					<span v-if="name" class="font-bold text-[var(--cyan)]">{{ name.split(' ')[0] }}</span>
@@ -207,6 +275,21 @@ const onSubmit = handleSubmit(async (values) => {
 </template>
 
 <style>
+.button-group {
+	display: flex;
+	width: 100%;
+	@apply rounded-sm overflow-hidden;
+	.subject-button {
+		@apply w-1/3 text-center uppercase bg-gray-300 text-xs py-2 text-gray-950 transition-all duration-300 sm:tracking-wide;
+	}
+	.subject-button:nth-of-type(2) {
+		border-left: 1px solid #e5e7eb;
+		border-right: 1px solid #e5e7eb;
+	}
+	.subject-button.active {
+		@apply shadow-inner bg-[var(--cyan)] text-white font-bold;
+	}
+}
 .transition-group {
 	position: relative;
 }
