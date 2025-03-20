@@ -27,8 +27,21 @@ export default defineEventHandler(async (event) => {
 
 		console.log('Hey Peter.....from the other side.');
 
+		const blockedEmails = ['huestudios.com@gmail.com'];
+
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
+
+			if (blockedEmails.includes(email)) {
+				console.log(`Skipping blocked email address: ${email}`);
+				continue;
+			}
+
+			let clickedUrl = null;
+			if (eventData.event === 'click' || eventData.event === 'clicked') {
+				clickedUrl = eventData.url; // This contains the clicked link
+				console.log(`User ${email} clicked: ${clickedUrl}`);
+			}
 
 			// Try to find the person by email
 			let personId = null;
@@ -59,6 +72,7 @@ export default defineEventHandler(async (event) => {
 						email: email,
 						sg_message_id: eventData.sg_message_id,
 						announcement: eventData.announcement_id,
+						clicked_url: clickedUrl,
 					}),
 				);
 				console.log(`Created email activity: ${emailActivity.id}`);
