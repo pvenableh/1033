@@ -27,7 +27,12 @@ export default defineEventHandler(async (event) => {
 
 		console.log('Hey Peter.....from the other side.');
 
-		const blockedEmails = ['huestudios.com@gmail.com'];
+		const blockedEmails = [
+			'huestudios.com@gmail.com',
+			'petervohffman@gmail.com',
+			'peter@huestudios.com',
+			'contact@huestudios.com',
+		];
 
 		for (const eventData of filteredEvents) {
 			const email = eventData.email;
