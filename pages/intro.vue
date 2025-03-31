@@ -101,7 +101,7 @@ definePageMeta({
 	background-image: url('https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073');
 	background-color: rgba(0, 0, 0, 0.5);
 	background-attachment: fixed;
-	@apply bg-cover bg-center bg-no-repeat bg-blend-darken;
+	@apply bg-cover bg-center bg-no-repeat bg-blend-darken opacity-100;
 	.weather__stats {
 		@apply text-white;
 	}
