@@ -189,6 +189,7 @@ useHead({
 		li {
 			list-style-type: disc;
 			padding: 2px 0px;
+			font-weight: 600;
 		}
 	}
 
