@@ -41,9 +41,11 @@ function toggleVote(item) {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
 
-		gtag('event', 'click', {
-			event_category: 'Vote Button',
-			event_label: item.title,
+		// GA4 format for custom events
+		gtag('event', 'vote_button_click', {
+			item_id: item.id,
+			item_title: item.title,
+			screen_name: 'door_voting',
 		});
 	}
 }
@@ -126,9 +128,11 @@ const mailtoLink = computed(() => {
 
 		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the design of the door numbers. Please let me know if you need any additional information.`;
 
-		gtag('event', 'click', {
-			event_category: 'Mailto Vote Button',
-			event_label: selectedItem.value.title,
+		// GA4 format for email link events
+		gtag('event', 'vote_email_click', {
+			item_id: selectedItem.value.id,
+			item_title: selectedItem.value.title,
+			screen_name: 'door_voting',
 		});
 
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
@@ -140,6 +144,14 @@ const mailtoLink = computed(() => {
 function openExternalLink() {
 	console.log(mailtoLink.value);
 	window.open(mailtoLink.value, '_blank'); // Opens the link in a new tab
+
+	// GA4 format for vote submission events
+	gtag('event', 'vote_email_created', {
+		item_id: selectedItem.value.id,
+		item_title: selectedItem.value.title,
+		submission_method: 'email',
+	});
+
 	toast.add({
 		title: 'Success',
 		description: 'Email created successfully',
