@@ -32,6 +32,7 @@ export default defineEventHandler(async (event) => {
 			'petervohffman@gmail.com',
 			'peter@huestudios.com',
 			'contact@huestudios.com',
+			'lenoxplazaboard@gmail.com',
 		];
 
 		for (const eventData of filteredEvents) {
