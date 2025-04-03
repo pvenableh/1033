@@ -34,7 +34,14 @@ export default defineNuxtConfig({
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-directus-next',
-		['nuxt-gtag', { id: 'G-JTR8V7XBN1' }],
+		[
+			'nuxt-gtag',
+			{
+				id: 'G-JTR8V7XBN1',
+				debug: true, // Set to true for debugging in the console
+				initialConsent: true,
+			},
+		],
 		// '@nuxtjs/plausible',
 		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
