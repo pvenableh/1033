@@ -87,16 +87,22 @@ definePageMeta({
 	layout: 'email',
 });
 
-const email = ref(null);
 const url = 'https://admin.1033lenox.com/items/announcements?filter[url][_eq]=' + params.url;
 
-const { data: announcement } = await useFetch(url);
+// This is reactive and works with `useFetch`
+const { data: announcement } = await useFetch(url, { key: params.url });
 
-email.value = announcement.value.data[0];
+const email = computed(() => announcement.value?.data?.[0]);
 
-useHead({
-	title: email.value.title + ' - 1033 Lenox Announcement',
-	// meta: [{ name: 'description', content: 'My amazing site.' }],
+// Even though `email.value` might be initially undefined,
+// `useSeoMeta` will update reactively once `email.value` is ready.
+useSeoMeta({
+	title: () =>
+		email.value?.title ? `${email.value.title}: ${email.value.subtitle} - 1033 Lenox` : '1033 Lenox Announcement',
+	description: () => email.value?.summary || 'An announcement from 1033 Lenox.',
+	ogTitle: () =>
+		email.value?.title ? `${email.value.title}: ${email.value.subtitle} - 1033 Lenox` : '1033 Lenox Announcement',
+	ogDescription: () => email.value?.summary || 'An announcement from 1033 Lenox.',
 });
 </script>
 <style>
