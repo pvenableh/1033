@@ -3,42 +3,43 @@ const { gtag } = useGtag();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
+
 const renderings = ref([
 	{
 		id: 1,
-		title: 'Google Nest Doorbell',
-		image: '28bedf75-dda8-432a-9940-868f7146b357',
-		image2: '15273883-d1fe-4a63-8c0e-63c033b70a4d',
-		description: `<div class="flex items-center justify-center flex-col">
-			<h5 class="font-bold text-red-500 uppercase">Receive Credit from HOA*</h5>
-			<ul class="list-disc list-inside pl-2 text-left"><li>$179.99 [Receive credit of $64.19]</li>
-				<li>White</li>
-				<li>Wifi</li>
-				<li>Battery Operated</li>
-			</ul>
-			</div>`,
-		label: 'Opt Out / Receive Credit',
-		link: 'https://www.bestbuy.com/site/google-nest-doorbell-wired-2nd-generation-snow/6517931.p?skuId=6517931',
-		note: '*For owners who choose this option, the Board will credit their HOA account $64.19. Your vote must be in by no later than Thursday May 1st, 2025 11:59pm',
-	},
-	{
-		id: 2,
 		title: 'Blink Video Doorbell',
 		image: '5d769212-d30f-4fcb-a143-7322d65ae5ae',
 		image2: '38b0628c-ed63-4eec-bfd6-63b852e5efb1',
 		description: `<div class="flex items-center justify-center flex-col">
 			<h5 class="font-bold text-red-500 uppercase">Free with HOA*</h5>
 			<div class="w-full flex flex-row items-start justify-center">
-				<ul class="list-disc list-inside pl-2 text-left"><li>$59.99</li>
+				<ul class="list-disc list-inside pl-2 text-left"><li>$37.50</li>
 				<li>White</li>
 				<li>Wifi</li>
 				<li>Battery Operated</li>
 			</ul>
 			</div>`,
-		aside: 'If you select this option, the Board will buy the camera for your unit.',
+		aside: 'If you select this option, the Board will buy and install the camera for your unit.',
 		label: 'Blink Video Doorbell',
 		link: 'https://www.bestbuy.com/site/blink-smart-wifi-video-doorbell-wired-battery-operated-white/6481226.p?skuId=6481226&utm_source=feed&ref=212&loc=SaleEvent&gad_source=1&gbraid=0AAAAAD-ORIjnOrgIwDBn8UZJrq8HqtZ_I&gclsrc=aw.ds',
-		note: '*Selecting this option will not credit your HOA account. Your vote must be in by no later than Thursday May 1st, 2025 11:59pm',
+		note: '*Selecting this option will not credit your HOA account. Your vote must be in by no later than Saturday May 24th, 2025 11:59pm',
+	},
+	{
+		id: 2,
+		title: 'Google Nest Doorbell [Similar]',
+		image: '28bedf75-dda8-432a-9940-868f7146b357',
+		image2: '15273883-d1fe-4a63-8c0e-63c033b70a4d',
+		description: `<div class="flex items-center justify-center flex-col">
+			<h5 class="font-bold text-red-500 uppercase">Receive Credit from HOA*</h5>
+			<ul class="list-disc list-inside pl-2 text-left"><li>$179.99 [Receive credit of $37.50]</li>
+				<li>White</li>
+				<li>Wifi</li>
+				<li>Battery Operated</li>
+			</ul>
+			</div>`,
+		label: 'Opt Out / Receive Credit',
+		link: 'https://www.bestbuy.com/site/google-nest-wi-fi-video-doorbell-battery-operated-snow/6473256.p?skuId=6473256',
+		note: '*For owners who choose this option, the Board will credit their HOA account $37.50 Your vote must be in by no later than Saturday May 24th, 2025 11:59pm',
 	},
 ]);
 
@@ -153,11 +154,10 @@ const mailtoLink = computed(() => {
 		const encodedSubject = `1033 Lenox Doorbell Camera Vote: ${selectedItem.value.label}`;
 		let bodyDetails = '';
 		if (selectedItem.value.id == 1) {
-			bodyDetails = `I would like the Board to credit my HOA account at the cost of $64.19.`;
+			bodyDetails = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)}. I would like the Board to purchase the ${selectedItem.value.label} for my unit at the cost of $37.50. Please let me know if you need any additional information.`;
 		} else if (selectedItem.value.id == 2) {
-			bodyDetails = `I would like the Board to purchase the ${selectedItem.value.label} for my unit at the cost of $64.19.`;
+			bodyDetails = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.label)}. I would like the Board to credit my HOA account at the cost of $37.50. I will purchase an approved doorbell camera, similar to the ${selectedItem.value.title} for my unit. Please let me know if you need any additional information.`;
 		}
-		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)}. ${bodyDetails} Please let me know if you need any additional information.`;
 
 		// GA4 format for email link events
 		gtag('event', 'vote_email_click', {
@@ -166,7 +166,7 @@ const mailtoLink = computed(() => {
 			screen_name: 'doorbell_voting',
 		});
 
-		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
+		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${bodyDetails}`;
 	} else {
 		return '';
 	}
@@ -202,35 +202,37 @@ function openExternalLink() {
 					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
-
-				<p class="max-w-[650px]">
+				<p class="max-w-[600px] mb-6">
+					The Board has obtained new doorbell cameras for every unit. This is the approved doorbell camera and will be
+					covered with your HOA.
+				</p>
+				<p class="max-w-[600px] mb-6">
 					The goal of this process, on the type of cameras and placement, will help us keep the structural integrity of
 					the building while keeping an aesthetically cohesive experience.
 				</p>
-				<h5 class="font-bold uppercase tracking-wide text-center mt-2 mb-2">Installation / Placement</h5>
-				<ul class="w-full list-disc list-inside text-left text-[14px] mt-4 mb-2 leading-5 max-w-[450px]">
-					<li class="">
-						<strong class="font-bold">NO DRILLING</strong>
-						on Door or Wall
-					</li>
-					<li class="">
-						Back Stick
-						<strong class="font-bold">ONLY</strong>
-					</li>
+				<p class="w-full max-w-[600px] mb-4">Review the two options below to inform the board of your vote:</p>
 
-					<li class="">Position on the right door frame (not the wall)</li>
-					<li class="">Position 5 feet from the bottom to the top of the camera (as shown)</li>
+				<ul class="w-full list-disc list-inside text-left text-[14px] mt-4 mb-2 leading-5 max-w-[450px]">
+					<li class="mb-4">
+						OPTION 1 - Included in your HOA, the Board will purchase and install a Blink Smart Video Doorbell for you
+						next week.
+					</li>
+					<li>
+						OPTION 2 - Choose to opt out of HOA doorbell and wish to receive a $37.50 credit to your HOA account. Will
+						install an approved doorbell on my own.
+					</li>
 				</ul>
-				<h5 class="font-bold uppercase tracking-wide text-center mt-2 mb-2">Approved Doorbell Cameras</h5>
-				<p class="w-full mt-2 mb-2 text-[14px] text-center leading-5 max-w-[600px]">
+
+				<h5 class="font-bold uppercase tracking-wide text-center mt-2 mb-2">Approved HOA Doorbell Camera</h5>
+				<!-- <p class="w-full mt-2 mb-2 text-[14px] text-center leading-5 max-w-[600px]">
 					View the
-					<strong>two approved options</strong>
+					<strong>two options</strong>
 					below and submit your vote by clicking your choice below to open a new email with your selected choice that
 					you can send directly to the board.
-				</p>
+				</p> -->
 				<p class="w-full mt-4 mb-2 text-[14px] text-center leading-5">
-					Please note that your vote it due by:
-					<span class="font-bold">Thursday May 1st, 2025 at 11:59PM EST.</span>
+					Please note that your vote is due by:
+					<span class="font-bold">Saturday May 24th, 2025 at 11:59PM EST.</span>
 				</p>
 			</div>
 		</div>
@@ -290,8 +292,30 @@ function openExternalLink() {
 					</div>
 				</div>
 			</div>
+		</div>
+		<div class="w-full flex items-center justify-center flex-col mb-42 mt-12">
+			<h5 class="font-bold uppercase tracking-wide text-center mt-2 mb-2">🚪📐 PLACEMENT / INSTALLATION / DESIGN</h5>
+			<ul class="w-full list-disc list-inside text-left text-[14px] mt-4 mb-2 leading-5 max-w-[450px]">
+				<li class="">
+					<strong class="font-bold">CAMERA DESIGN:</strong>
+					The only approved camera design is WHITE and VERTICAL
+				</li>
+				<li class="">
+					<strong class="font-bold">NO DRILLING</strong>
+					on Door or Wall
+				</li>
+				<li class="">
+					Back Stick
+					<strong class="font-bold">ONLY</strong>
+				</li>
 
-			<p class="w-full px-10 text-center text-[14px] leading-5 mb-36">
+				<li class="">
+					Position on the right door frame
+					<strong>(not the wall nor the door itself)</strong>
+				</li>
+				<li class="">Position 5 feet from the bottom to the top of the camera (as shown)</li>
+			</ul>
+			<p class="w-full mt-12 px-10 text-center text-[14px] leading-5 mb-36">
 				If you have questions or any problems, please contact the board as soon as possible (before the deadline) so we
 				can assist you.
 			</p>
@@ -315,7 +339,7 @@ function openExternalLink() {
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
 					@click.prevent="openExternalLink()"
-					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700 cursor-pointer"
+					class="rounded-sm border uppercase border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700 cursor-pointer"
 				>
 					Send Email Vote for {{ selectedItem.label }}
 				</nuxt-link>
