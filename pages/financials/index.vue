@@ -29,8 +29,13 @@
 						<h1 class="text-3xl font-bold text-gray-900">Financial Dashboard</h1>
 						<p class="mt-2 text-gray-600">Comprehensive HOA Financial Analysis & Compliance Monitoring</p>
 					</div>
-					<div class="flex space-x-3">
-						<USelectMenu v-model="selectedMonth" :options="availableMonths" placeholder="Select Month" class="w-40">
+					<div class="flex space-x-3 relative">
+						<USelectMenu
+							v-model="selectedMonth"
+							:options="availableMonths"
+							placeholder="Select Month"
+							class="w-40 relative"
+						>
 							<template #label>
 								<span class="text-sm">{{ selectedMonth }}</span>
 							</template>
