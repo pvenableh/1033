@@ -1,368 +1,484 @@
 <template>
-	<div class="space-y-8">
-		<!-- RESERVE CRISIS ALERT - Top Priority -->
+	<div class="space-y-6">
+		<!-- Critical Financial Status Alert -->
 		<UAlert
 			color="red"
-			variant="solid"
-			title="🚨 CRITICAL: Reserve Account Crisis Detected"
-			icon="i-heroicons-exclamation-triangle"
-		>
-			<template #description>
-				<div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<p class="font-semibold text-white mb-2">Financial Impact:</p>
-						<ul class="text-sm space-y-1 text-red-100">
-							<li>• Current Balance: ${{ reserveData.endingBalance.toLocaleString() }}</li>
-							<li>• Required Minimum: $75,000</li>
-							<li>• Shortfall: ${{ (75000 - reserveData.endingBalance).toLocaleString() }}</li>
-							<li>• Funding Level: {{ Math.round((reserveData.endingBalance / 75000) * 100) }}%</li>
-						</ul>
-					</div>
-					<div>
-						<p class="font-semibold text-white mb-2">Action Required:</p>
-						<ul class="text-sm space-y-1 text-red-100">
-							<li>• Emergency board meeting within 7 days</li>
-							<li>• Special assessment planning needed</li>
-							<li>• Reserve study update required</li>
-							<li>• Compliance plan development</li>
-						</ul>
+			variant="soft"
+			title="Multiple Critical Financial Issues Detected"
+			description="Operating account declining rapidly, budget variances exceeding 100%, and compliance violations require immediate board attention."
+		/>
+
+		<!-- Budget vs Actual Summary Cards -->
+		<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+			<UCard class="text-center">
+				<div class="space-y-2">
+					<UIcon name="i-heroicons-calculator" class="w-8 h-8 mx-auto text-blue-600" />
+					<div class="text-2xl font-bold text-gray-900">${{ budgetSummary.budget.toLocaleString() }}</div>
+					<div class="text-sm text-gray-600">Annual Budget</div>
+					<div class="text-xs text-blue-600">{{ budgetSummary.itemCount }} line items</div>
+				</div>
+			</UCard>
+
+			<UCard class="text-center">
+				<div class="space-y-2">
+					<UIcon name="i-heroicons-banknotes" class="w-8 h-8 mx-auto text-green-600" />
+					<div class="text-2xl font-bold text-gray-900">${{ actualYTDTotal.toLocaleString() }}</div>
+					<div class="text-sm text-gray-600">Actual Spent YTD</div>
+					<div class="text-xs" :class="varianceColor">{{ budgetVariancePercent.toFixed(1) }}% vs budget</div>
+				</div>
+			</UCard>
+
+			<UCard class="text-center">
+				<div class="space-y-2">
+					<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 mx-auto text-red-600" />
+					<div class="text-2xl font-bold text-red-600">${{ Math.abs(budgetVariance).toLocaleString() }}</div>
+					<div class="text-sm text-gray-600">Budget {{ budgetVariance >= 0 ? 'Surplus' : 'Shortfall' }}</div>
+					<div class="text-xs text-red-600">{{ overBudgetCategories }} categories over</div>
+				</div>
+			</UCard>
+
+			<UCard class="text-center">
+				<div class="space-y-2">
+					<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 mx-auto text-purple-600" />
+					<div class="text-2xl font-bold text-gray-900">{{ currentOperatingBalance.toLocaleString() }}</div>
+					<div class="text-sm text-gray-600">Operating Balance</div>
+					<div class="text-xs" :class="operatingHealthColor">
+						{{ operatingTrend >= 0 ? '+' : '' }}{{ operatingTrend.toLocaleString() }} trend
 					</div>
 				</div>
-			</template>
-		</UAlert>
-
-		<!-- Account Health Status -->
-		<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-			<div v-for="account in accountHealth" :key="account.account" class="relative">
-				<UCard
-					:class="{
-						'border-red-500 bg-red-50': account.healthScore < 70,
-						'border-yellow-500 bg-yellow-50': account.healthScore >= 70 && account.healthScore < 85,
-						'border-green-500 bg-green-50': account.healthScore >= 85,
-					}"
-				>
-					<!-- Crisis Badge for Reserve Account -->
-					<div v-if="account.account.includes('Reserve')" class="absolute top-4 right-4">
-						<UBadge color="red" variant="solid" size="sm">CRISIS</UBadge>
-					</div>
-
-					<div class="space-y-4">
-						<div class="flex items-center justify-between">
-							<h3 class="font-semibold text-gray-900">{{ account.account }}</h3>
-							<UBadge :color="account.color" variant="subtle" size="sm">
-								{{ account.status }}
-							</UBadge>
-						</div>
-
-						<!-- Health Score Bar -->
-						<div class="space-y-2">
-							<div class="flex justify-between text-sm">
-								<span class="text-gray-600">Health Score</span>
-								<span
-									:class="`font-medium ${account.healthScore < 70 ? 'text-red-600' : account.healthScore < 85 ? 'text-yellow-600' : 'text-green-600'}`"
-								>
-									{{ account.healthScore }}/100
-								</span>
-							</div>
-							<div
-								:class="`${account.barColor.replace('bg-', 'bg-').replace('-500', '-200')} rounded-full h-2 overflow-hidden`"
-							>
-								<div
-									:class="account.barColor"
-									class="h-full transition-all duration-1000"
-									:style="`width: ${account.healthScore}%`"
-								/>
-							</div>
-						</div>
-
-						<p class="text-sm text-gray-700">{{ account.description }}</p>
-
-						<!-- Reserve-Specific Warnings -->
-						<div v-if="account.account.includes('Reserve')" class="bg-red-100 border border-red-200 rounded p-3">
-							<div class="flex items-start space-x-2">
-								<UIcon name="i-heroicons-exclamation-triangle" class="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-								<div class="text-xs text-red-800 space-y-1">
-									<p class="font-semibold">Critical Issues:</p>
-									<p>• 82% below minimum required balance</p>
-									<p>• Florida Statute 718.112 compliance at risk</p>
-									<p>• Emergency special assessment needed</p>
-									<p>• Reserve study update required</p>
-								</div>
-							</div>
-						</div>
-					</div>
-				</UCard>
-			</div>
+			</UCard>
 		</div>
 
-		<!-- Key Financial Metrics -->
+		<!-- Budget vs Actual Category Analysis -->
 		<UCard>
 			<template #header>
-				<h2 class="text-xl font-bold text-gray-900">Key Financial Metrics</h2>
-			</template>
-
-			<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-				<div v-for="metric in keyMetrics" :key="metric.label" class="text-center">
-					<div class="flex items-center justify-center space-x-2 mb-2">
-						<UIcon :name="metric.icon" :class="metric.iconColor" class="w-5 h-5" />
-						<span class="text-sm font-medium text-gray-600">{{ metric.label }}</span>
-					</div>
-					<p :class="metric.valueColor" class="text-2xl font-bold">${{ metric.value }}</p>
-					<p class="text-xs text-gray-500">{{ metric.subtitle }}</p>
+				<div class="flex items-center justify-between">
+					<h3 class="text-lg font-bold text-gray-900">Budget vs Actual by Category</h3>
+					<UButton @click="refreshAnalysis" size="sm" variant="outline">
+						<UIcon name="i-heroicons-arrow-path" class="w-4 h-4 mr-1" />
+						Refresh Analysis
+					</UButton>
 				</div>
-			</div>
-		</UCard>
-
-		<!-- Priority Actions - Updated with Reserve Crisis -->
-		<UCard>
-			<template #header>
-				<h2 class="text-xl font-bold text-gray-900">Priority Actions Required</h2>
 			</template>
 
 			<div class="space-y-4">
 				<div
-					v-for="(action, index) in priorityActions"
-					:key="index"
-					:class="{
-						'border-l-4 border-red-600 bg-red-50': action.priority === 'critical',
-						'border-l-4 border-yellow-500 bg-yellow-50': action.priority === 'high',
-						'border-l-4 border-blue-500 bg-blue-50': action.priority === 'medium',
-					}"
-					class="p-4 rounded-r-lg"
+					v-for="category in categoryComparison"
+					:key="category.name"
+					class="border rounded-lg p-4"
+					:class="getCategoryBorderClass(category.variance)"
 				>
-					<div class="flex items-start space-x-3">
-						<div class="flex-shrink-0">
-							<UBadge
-								:color="action.priority === 'critical' ? 'red' : action.priority === 'high' ? 'yellow' : 'blue'"
-								variant="solid"
-								size="sm"
-							>
-								{{ action.priority.toUpperCase() }}
-							</UBadge>
+					<div class="flex items-center justify-between mb-3">
+						<div>
+							<h4 class="font-semibold text-gray-900">{{ category.name }}</h4>
+							<p class="text-sm text-gray-600">{{ category.actualTransactions }} transactions</p>
 						</div>
-						<div class="flex-1">
-							<h4 class="font-semibold text-gray-900">{{ action.title }}</h4>
-							<p class="text-sm text-gray-700 mt-1">{{ action.description }}</p>
+						<div class="text-right">
+							<UBadge :color="getCategoryBadgeColor(category.variance)" variant="soft" size="sm">
+								{{ getCategoryStatus(category.variance) }}
+							</UBadge>
+							<div class="text-sm text-gray-600 mt-1">{{ category.variancePercent.toFixed(1) }}% variance</div>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-4 gap-4 mb-3 text-sm">
+						<div>
+							<div class="text-gray-600">Budget</div>
+							<div class="font-semibold">${{ category.budget.toLocaleString() }}</div>
+						</div>
+						<div>
+							<div class="text-gray-600">Actual</div>
+							<div class="font-semibold">${{ category.actual.toLocaleString() }}</div>
+						</div>
+						<div>
+							<div class="text-gray-600">Variance</div>
+							<div class="font-semibold" :class="category.variance >= 0 ? 'text-green-600' : 'text-red-600'">
+								{{ category.variance >= 0 ? '+' : '' }}${{ category.variance.toLocaleString() }}
+							</div>
+						</div>
+						<div>
+							<div class="text-gray-600">Remaining</div>
+							<div class="font-semibold" :class="category.remaining >= 0 ? 'text-green-600' : 'text-red-600'">
+								${{ category.remaining.toLocaleString() }}
+							</div>
+						</div>
+					</div>
+
+					<!-- Progress bar showing budget utilization -->
+					<div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+						<div
+							class="h-3 rounded-full transition-all duration-500"
+							:class="getProgressBarClass(category.utilizationPercent)"
+							:style="`width: ${Math.min(category.utilizationPercent, 100)}%`"
+						></div>
+					</div>
+
+					<!-- Show specific problem items -->
+					<div v-if="category.problemItems.length > 0" class="mt-3">
+						<h5 class="text-xs font-medium text-gray-700 mb-2">Issues:</h5>
+						<div class="space-y-1">
+							<div
+								v-for="item in category.problemItems.slice(0, 2)"
+								:key="item.description"
+								class="text-xs bg-red-50 text-red-800 rounded p-2"
+							>
+								<strong>{{ item.description }}:</strong>
+								${{ item.actual.toLocaleString() }} vs ${{ item.budget.toLocaleString() }} budget ({{
+									item.overPercent.toFixed(0)
+								}}% over)
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
 		</UCard>
 
-		<!-- Monthly Summary -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-			<!-- Cash Flow Summary -->
+		<!-- Account Health Status -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 			<UCard>
 				<template #header>
-					<h3 class="text-lg font-bold text-gray-900">Cash Flow Summary</h3>
+					<h3 class="text-lg font-bold text-gray-900">Operating Account Health</h3>
 				</template>
-
 				<div class="space-y-4">
-					<div class="flex justify-between items-center">
-						<span class="text-gray-600">Total Assets</span>
-						<span class="font-semibold text-gray-900">
-							${{ (operatingCurrent.endingBalance + reserveData.endingBalance + 45000).toLocaleString() }}
-						</span>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Current Balance</span>
+						<span class="font-semibold text-gray-900">${{ currentOperatingBalance.toLocaleString() }}</span>
 					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-gray-600">Monthly Operating Burn</span>
-						<span class="font-semibold text-red-600">
-							-${{ Math.abs(operatingCurrent.endingBalance - operatingCurrent.beginningBalance).toLocaleString() }}
-						</span>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Monthly Burn Rate</span>
+						<span class="font-semibold text-red-600">${{ monthlyBurnRate.toLocaleString() }}</span>
 					</div>
-					<div class="flex justify-between items-center">
-						<span class="text-gray-600">Reserve Adequacy</span>
-						<span class="font-semibold text-red-600">
-							{{ Math.round((reserveData.endingBalance / 75000) * 100) }}% of required
-						</span>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Months Remaining</span>
+						<span class="font-semibold" :class="monthsRemainingColor">{{ monthsRemaining.toFixed(1) }}</span>
 					</div>
-					<div class="flex justify-between items-center pt-2 border-t">
-						<span class="text-gray-600">Financial Health</span>
-						<UBadge color="red" variant="solid">CRITICAL</UBadge>
+					<div class="flex items-center justify-between pt-2 border-t">
+						<span class="text-gray-600">Health Status</span>
+						<UBadge :color="operatingHealthBadge" variant="solid">{{ operatingHealthStatus }}</UBadge>
 					</div>
 				</div>
 			</UCard>
 
-			<!-- Compliance Status -->
 			<UCard>
 				<template #header>
-					<h3 class="text-lg font-bold text-gray-900">Compliance Status</h3>
+					<h3 class="text-lg font-bold text-gray-900">Budget Compliance</h3>
 				</template>
-
 				<div class="space-y-4">
-					<div v-for="item in compliance.concerns" :key="item" class="flex items-start space-x-3">
-						<UIcon name="i-heroicons-x-circle" class="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-						<span class="text-sm text-gray-700">{{ item }}</span>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Items Over Budget</span>
+						<span class="font-semibold text-red-600">{{ overBudgetItemsCount }}</span>
 					</div>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Severe Overages</span>
+						<span class="font-semibold text-red-600">{{ severeOveragesCount }}</span>
+					</div>
+					<div class="flex items-center justify-between">
+						<span class="text-gray-600">Fund Violations</span>
+						<span class="font-semibold text-red-600">{{ totalViolations }}</span>
+					</div>
+					<div class="flex items-center justify-between pt-2 border-t">
+						<span class="text-gray-600">Compliance Status</span>
+						<UBadge color="red" variant="solid">NON-COMPLIANT</UBadge>
+					</div>
+				</div>
+			</UCard>
 
-					<div class="pt-4 border-t">
-						<div v-for="item in compliance.compliant" :key="item" class="flex items-start space-x-3 mb-2">
-							<UIcon name="i-heroicons-check-circle" class="w-5 h-5 text-green-500 mt-0.5 flex-shrink-0" />
-							<span class="text-sm text-gray-700">{{ item }}</span>
+			<UCard>
+				<template #header>
+					<h3 class="text-lg font-bold text-gray-900">Action Required</h3>
+				</template>
+				<div class="space-y-3">
+					<div v-for="action in priorityActions" :key="action.id" class="flex items-start space-x-2">
+						<UIcon :name="action.icon" class="w-4 h-4 mt-0.5" :class="action.color" />
+						<div>
+							<div class="text-sm font-medium text-gray-900">{{ action.title }}</div>
+							<div class="text-xs text-gray-600">{{ action.deadline }}</div>
 						</div>
 					</div>
 				</div>
 			</UCard>
 		</div>
+
+		<!-- Recent Transaction Highlights -->
+		<UCard>
+			<template #header>
+				<h3 class="text-lg font-bold text-gray-900">Recent High-Impact Transactions</h3>
+			</template>
+			<div class="space-y-3">
+				<div
+					v-for="transaction in recentHighImpactTransactions"
+					:key="`${transaction.date}-${transaction.amount}`"
+					class="flex items-center justify-between p-3 border rounded-lg"
+					:class="transaction.impact === 'high' ? 'border-red-200 bg-red-50' : 'border-yellow-200 bg-yellow-50'"
+				>
+					<div>
+						<h4 class="font-medium text-gray-900">{{ transaction.vendor || transaction.description }}</h4>
+						<p class="text-sm text-gray-600">{{ transaction.category }} • {{ transaction.date }}</p>
+						<p v-if="transaction.budgetItem" class="text-xs text-gray-500">
+							Budget: ${{ transaction.budgetItem.yearly.toLocaleString() }} | YTD: ${{
+								transaction.budgetItem.actualCost.toLocaleString()
+							}}
+						</p>
+					</div>
+					<div class="text-right">
+						<div class="font-semibold" :class="transaction.impact === 'high' ? 'text-red-600' : 'text-yellow-600'">
+							${{ transaction.amount.toLocaleString() }}
+						</div>
+						<UBadge :color="transaction.impact === 'high' ? 'red' : 'yellow'" variant="soft" size="sm">
+							{{ transaction.impact.toUpperCase() }}
+						</UBadge>
+					</div>
+				</div>
+			</div>
+		</UCard>
 	</div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useReconciliationData } from '~/composables/useReconciliationData';
 
-// Get data from composable
-const { getOperatingData, getReserveData, getViolationCount, getReserveComplianceStatus } = useReconciliationData();
+// Use both composables
+const { getOperatingData, getViolationCount } = useReconciliationData();
+const { budgetItems, budgetSummary, loadOperatingBudget } = useBudgetData();
 
-// Current month
 const currentMonth = ref('June 2025');
 
-// Get current data
-const operatingCurrent = computed(() => getOperatingData(currentMonth.value));
-const reserveData = computed(() => getReserveData(currentMonth.value));
-const reserveCompliance = computed(() => getReserveComplianceStatus(currentMonth.value));
-
-// Account health status - updated with reserve crisis
-const accountHealth = computed(() => {
-	const violations = getViolationCount(currentMonth.value);
-
-	return [
-		{
-			account: 'Operating Account (5129)',
-			healthScore:
-				operatingCurrent.value.endingBalance < 35000 ? 45 : operatingCurrent.value.endingBalance < 50000 ? 65 : 85,
-			status:
-				operatingCurrent.value.endingBalance < 35000
-					? 'Critical'
-					: operatingCurrent.value.endingBalance < 50000
-						? 'Warning'
-						: 'Healthy',
-			color:
-				operatingCurrent.value.endingBalance < 35000
-					? 'red'
-					: operatingCurrent.value.endingBalance < 50000
-						? 'yellow'
-						: 'green',
-			barColor:
-				operatingCurrent.value.endingBalance < 35000
-					? 'bg-red-500'
-					: operatingCurrent.value.endingBalance < 50000
-						? 'bg-yellow-500'
-						: 'bg-green-500',
-			description:
-				operatingCurrent.value.endingBalance < 35000
-					? 'Rapid depletion, compliance violations, approaching minimum balance'
-					: operatingCurrent.value.endingBalance < 50000
-						? 'Declining balance, monitoring required'
-						: 'Healthy balance, normal operations',
-		},
-		{
-			account: 'Special Assessment (5872)',
-			healthScore: violations > 0 ? 60 : 90,
-			status: violations > 0 ? 'Warning' : 'Healthy',
-			color: violations > 0 ? 'yellow' : 'green',
-			barColor: violations > 0 ? 'bg-yellow-500' : 'bg-green-500',
-			description:
-				violations > 0
-					? 'Improper fund mixing detected, but project progressing'
-					: 'Properly segregated, project on track',
-		},
-		{
-			account: 'Reserve Account (7011) - CRISIS',
-			healthScore: 15, // CRITICAL - only 18% of required balance
-			status: 'CRITICAL',
-			color: 'red',
-			barColor: 'bg-red-600',
-			description: 'EMERGENCY: Only 18% of required reserves, $80K+ withdrawal investigation required',
-		},
-	];
+// Load budget data on mount
+onMounted(async () => {
+	await loadOperatingBudget();
 });
 
-// Key metrics - updated with reserve crisis data
-const keyMetrics = computed(() => {
-	const totalAssets = operatingCurrent.value.endingBalance + reserveData.value.endingBalance + 45000;
-	const monthlyBurn = Math.abs(operatingCurrent.value.endingBalance - operatingCurrent.value.beginningBalance);
-	const violations = getViolationCount(currentMonth.value);
+// Get current operating data
+const currentOperatingData = computed(() => getOperatingData(currentMonth.value));
+const currentOperatingBalance = computed(() => currentOperatingData.value?.endingBalance || 0);
+const totalViolations = computed(() => getViolationCount(currentMonth.value));
 
-	return [
-		{
-			label: 'Total Assets',
-			value: totalAssets.toLocaleString(),
-			subtitle: 'All accounts',
-			icon: 'i-heroicons-currency-dollar',
-			iconColor: 'text-red-600', // Changed to red due to crisis
-			valueColor: 'text-red-900',
-		},
-		{
-			label: 'Monthly Burn',
-			value: monthlyBurn.toLocaleString(),
-			subtitle: 'Current month',
-			icon: 'i-heroicons-arrow-trending-down',
-			iconColor: 'text-red-600',
-			valueColor: 'text-red-600',
-		},
-		{
-			label: 'Reserve Crisis',
-			value: (75000 - reserveData.value.endingBalance).toLocaleString(),
-			subtitle: 'Shortfall amount',
-			icon: 'i-heroicons-exclamation-triangle',
-			iconColor: 'text-red-600',
-			valueColor: 'text-red-600',
-		},
-		{
-			label: 'Violations',
-			value: violations.toString(),
-			subtitle: 'Fund transfers',
-			icon: 'i-heroicons-exclamation-triangle',
-			iconColor: 'text-red-600',
-			valueColor: 'text-red-600',
-		},
-	];
+// Calculate actual YTD spending by mapping budget categories to transaction categories
+const actualYTDTotal = computed(() => {
+	if (!budgetItems.value.length) return 0;
+
+	// Sum up actual costs from budget data (this comes from CSV)
+	return budgetItems.value.reduce((sum, item) => sum + item.actualCost, 0);
 });
 
-// Priority actions - updated with reserve crisis as top priority
+// Budget variance calculations
+const budgetVariance = computed(() => budgetSummary.value.remaining);
+const budgetVariancePercent = computed(() =>
+	budgetSummary.value.budget ? (actualYTDTotal.value / budgetSummary.value.budget) * 100 : 0,
+);
+const varianceColor = computed(() =>
+	budgetVariancePercent.value > 100
+		? 'text-red-600'
+		: budgetVariancePercent.value > 85
+			? 'text-yellow-600'
+			: 'text-green-600',
+);
+
+// Operating account health metrics
+const operatingTrend = computed(() => {
+	// Simple trend calculation - would need multiple months for accurate trend
+	return currentOperatingBalance.value - 50000; // Rough estimate vs target
+});
+
+const monthlyBurnRate = computed(() => {
+	// Calculate based on 6 months of data
+	return Math.round((64114 - currentOperatingBalance.value) / 6);
+});
+
+const monthsRemaining = computed(() =>
+	monthlyBurnRate.value > 0 ? currentOperatingBalance.value / monthlyBurnRate.value : 999,
+);
+
+const operatingHealthColor = computed(() => (operatingTrend.value >= 0 ? 'text-green-600' : 'text-red-600'));
+
+const monthsRemainingColor = computed(() =>
+	monthsRemaining.value < 6 ? 'text-red-600' : monthsRemaining.value < 12 ? 'text-yellow-600' : 'text-green-600',
+);
+
+const operatingHealthStatus = computed(() => {
+	if (currentOperatingBalance.value < 25000) return 'CRITICAL';
+	if (currentOperatingBalance.value < 40000) return 'AT RISK';
+	if (operatingTrend.value < 0) return 'DECLINING';
+	return 'STABLE';
+});
+
+const operatingHealthBadge = computed(() => {
+	switch (operatingHealthStatus.value) {
+		case 'CRITICAL':
+			return 'red';
+		case 'AT RISK':
+			return 'yellow';
+		case 'DECLINING':
+			return 'orange';
+		default:
+			return 'green';
+	}
+});
+
+// Budget compliance metrics
+const overBudgetItemsCount = computed(() => budgetItems.value.filter((item) => item.actualCost > item.yearly).length);
+
+const severeOveragesCount = computed(() => budgetItems.value.filter((item) => item.percentSpent > 200).length);
+
+const overBudgetCategories = computed(() => {
+	// Count categories that are over budget
+	const categories = {};
+	budgetItems.value.forEach((item) => {
+		const cat = item.category || 'Other';
+		if (!categories[cat]) categories[cat] = { budget: 0, actual: 0 };
+		categories[cat].budget += item.yearly;
+		categories[cat].actual += item.actualCost;
+	});
+
+	return Object.values(categories).filter((cat) => cat.actual > cat.budget).length;
+});
+
+// Category comparison (Budget vs Actual)
+const categoryComparison = computed(() => {
+	if (!budgetItems.value.length) return [];
+
+	const categories = {};
+
+	// Group budget items by category
+	budgetItems.value.forEach((item) => {
+		const cat = item.category || 'Other';
+		if (!categories[cat]) {
+			categories[cat] = {
+				name: cat,
+				budget: 0,
+				actual: 0,
+				items: [],
+				actualTransactions: 0,
+			};
+		}
+		categories[cat].budget += item.yearly;
+		categories[cat].actual += item.actualCost;
+		categories[cat].items.push(item);
+	});
+
+	// Calculate variance and status for each category
+	return Object.values(categories)
+		.map((category) => {
+			const variance = category.budget - category.actual;
+			const variancePercent = category.budget ? ((category.actual - category.budget) / category.budget) * 100 : 0;
+			const utilizationPercent = category.budget ? (category.actual / category.budget) * 100 : 0;
+			const remaining = category.budget - category.actual;
+
+			// Find problem items (over budget)
+			const problemItems = category.items
+				.filter((item) => item.actualCost > item.yearly)
+				.map((item) => ({
+					description: item.description,
+					budget: item.yearly,
+					actual: item.actualCost,
+					overPercent: ((item.actualCost - item.yearly) / item.yearly) * 100,
+				}))
+				.sort((a, b) => b.overPercent - a.overPercent);
+
+			return {
+				...category,
+				variance,
+				variancePercent,
+				utilizationPercent,
+				remaining,
+				problemItems,
+				actualTransactions: category.items.length, // Approximation
+			};
+		})
+		.sort((a, b) => Math.abs(b.variancePercent) - Math.abs(a.variancePercent));
+});
+
+// Recent high-impact transactions
+const recentHighImpactTransactions = computed(() => {
+	const transactions = [];
+	const operatingData = currentOperatingData.value;
+
+	if (operatingData?.withdrawals) {
+		operatingData.withdrawals.forEach((txn) => {
+			if (txn.amount > 2000) {
+				// High-impact threshold
+				// Try to match with budget item
+				const budgetItem = budgetItems.value.find(
+					(item) =>
+						item.description.toLowerCase().includes(txn.vendor?.toLowerCase() || '') ||
+						item.category.toLowerCase().includes(txn.category?.toLowerCase() || ''),
+				);
+
+				transactions.push({
+					...txn,
+					impact: txn.amount > 5000 ? 'high' : 'medium',
+					budgetItem,
+				});
+			}
+		});
+	}
+
+	return transactions.slice(0, 5); // Show top 5
+});
+
+// Priority actions
 const priorityActions = ref([
 	{
-		priority: 'critical',
-		title: '🚨 RESERVE ACCOUNT CRISIS',
-		description:
-			'Only $13,376 available vs $75,000 required. Emergency board meeting and special assessment planning required immediately.',
+		id: 1,
+		title: 'Legal Fee Review',
+		deadline: 'This Week',
+		icon: 'i-heroicons-exclamation-triangle',
+		color: 'text-red-600',
 	},
 	{
-		priority: 'critical',
-		title: 'Stop All Inter-Account Transfers',
-		description: 'Immediately freeze transfers between 5129 and 5872 accounts to prevent further violations.',
+		id: 2,
+		title: 'Budget Revision',
+		deadline: 'Next Board Meeting',
+		icon: 'i-heroicons-pencil-square',
+		color: 'text-yellow-600',
 	},
 	{
-		priority: 'high',
-		title: 'Emergency Special Assessment',
-		description: 'Implement immediate special assessment to restore reserves to minimum required levels.',
-	},
-	{
-		priority: 'high',
-		title: 'Reserve Study Update',
-		description: 'Engage professional reserve study company to update analysis and create funding plan.',
-	},
-	{
-		priority: 'high',
-		title: 'Legal Consultation',
-		description: 'Consult with HOA attorney regarding board liability and fiduciary duty compliance.',
+		id: 3,
+		title: 'Cash Flow Plan',
+		deadline: 'Within 30 days',
+		icon: 'i-heroicons-chart-line',
+		color: 'text-blue-600',
 	},
 ]);
 
-// Compliance data - updated with reserve crisis
-const compliance = ref({
-	compliant: [
-		'Bank statements available for owner inspection',
-		'Special assessment funds properly tracked (with violations noted)',
-	],
-	concerns: [
-		'🚨 CRITICAL: Reserve funding 82% below Florida Statute 718.112 requirements',
-		'💰 URGENT: Special assessment needed to restore minimum reserve levels',
-		'⚠️ VIOLATION: Improper inter-account transfers detected',
-		'📋 REQUIRED: Emergency board meeting to address fiduciary duty compliance',
-		'🏛️ LEGAL: Potential board liability for reserve underfunding',
-		'📊 UPDATE: Reserve study and funding plan needed immediately',
-	],
-});
+// Helper functions
+const getCategoryStatus = (variancePercent) => {
+	if (variancePercent < -50) return 'Severely Over';
+	if (variancePercent < -20) return 'Over Budget';
+	if (variancePercent < -10) return 'At Risk';
+	if (variancePercent > 50) return 'Under Utilized';
+	return 'On Track';
+};
+
+const getCategoryBadgeColor = (variancePercent) => {
+	if (variancePercent < -50) return 'red';
+	if (variancePercent < -20) return 'red';
+	if (variancePercent < -10) return 'yellow';
+	if (variancePercent > 50) return 'blue';
+	return 'green';
+};
+
+const getCategoryBorderClass = (variancePercent) => {
+	if (variancePercent < -20) return 'border-red-300';
+	if (variancePercent < -10) return 'border-yellow-300';
+	return 'border-gray-200';
+};
+
+const getProgressBarClass = (utilizationPercent) => {
+	if (utilizationPercent > 100) return 'bg-red-600';
+	if (utilizationPercent > 90) return 'bg-red-500';
+	if (utilizationPercent > 80) return 'bg-yellow-500';
+	return 'bg-green-500';
+};
+
+const refreshAnalysis = async () => {
+	await loadOperatingBudget();
+};
 </script>
+
+<style scoped>
+.transition-all {
+	transition: all 0.3s ease-in-out;
+}
+</style>

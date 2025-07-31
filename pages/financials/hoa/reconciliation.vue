@@ -21,7 +21,7 @@
 					<div class="flex items-center justify-between">
 						<div>
 							<p class="text-sm font-medium text-gray-600 uppercase tracking-wider">Reconciliation Period</p>
-							<USelectMenu v-model="selectedMonth" :options="months" class="mt-2" />
+							<USelectMenu v-model="selectedMonth" :options="months" class="mt-2 relative" />
 						</div>
 						<UIcon name="i-heroicons-calendar" class="w-8 h-8 text-gray-400" />
 					</div>

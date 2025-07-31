@@ -204,6 +204,9 @@ importers:
       nuxt-directus-next:
         specifier: ^0.0.15
         version: 0.0.15(db0@0.2.4)(ioredis@5.5.0)(magicast@0.3.5)(vite@6.1.0(@types/node@22.13.2)(jiti@2.4.2)(terser@5.39.0)(yaml@2.7.0))
+      papaparse:
+        specifier: ^5.5.3
+        version: 5.5.3
       prettier:
         specifier: 3.2.5
         version: 3.2.5
@@ -3851,6 +3854,9 @@ packages:
 
   packrup@0.1.2:
     resolution: {integrity: sha512-ZcKU7zrr5GlonoS9cxxrb5HVswGnyj6jQvwFBa6p5VFw7G71VAHcUKL5wyZSU/ECtPM/9gacWxy2KFQKt1gMNA==}
+
+  papaparse@5.5.3:
+    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -9807,6 +9813,8 @@ snapshots:
   package-manager-detector@0.2.9: {}
 
   packrup@0.1.2: {}
+
+  papaparse@5.5.3: {}
 
   parent-module@1.0.1:
     dependencies:
