@@ -74,96 +74,117 @@ export const useReconciliationData = () => {
 			beginningBalance: 50000,
 			endingBalance: 45000,
 			collections: [
-				{ date: '06/05', source: 'Unit 301', amount: 2500, verified: true },
-				{ date: '06/10', source: 'Unit 405', amount: 2500, verified: true },
-				{ date: '06/15', source: 'Unit 202', amount: 2500, verified: false },
-				{ date: '06/20', source: 'Unit 108', amount: 1000, verified: true },
+				{ date: '06/05', source: 'Unit 205', amount: 2500, description: 'Monthly assessment payment' },
+				{ date: '06/10', source: 'Unit 311', amount: 1800, description: 'Monthly assessment payment' },
+				{ date: '06/15', source: 'Unit 406', amount: 2200, description: 'Monthly assessment payment' },
 			],
 			expenses: [
-				{
-					date: '06/05',
-					vendor: 'ACE Engineering',
-					description: 'Structural inspection Phase 2',
-					amount: 5000,
-					compliant: true,
-				},
-				{
-					date: '06/10',
-					vendor: 'City of Miami Beach',
-					description: 'Building permits',
-					amount: 2500,
-					compliant: true,
-				},
-				{ date: '06/15', vendor: 'VTE Consulting', description: 'Management fee', amount: 700, compliant: false },
-				{
-					date: '06/20',
-					vendor: 'Concrete Solutions',
-					description: 'Balcony repairs Unit 301',
-					amount: 4500,
-					compliant: true,
-				},
+				{ date: '06/08', vendor: 'ACE Engineering', amount: 3500, category: 'Professional Services' },
+				{ date: '06/20', vendor: 'Concrete Specialists', amount: 8000, category: '40-Year Repairs' },
 			],
 			improperTransfers: [
-				{ date: '06/15', direction: 'From Operating', amount: 600, action: 'Reverse' },
-				{ date: '06/25', direction: 'From Operating', amount: 4852.71, action: 'Reverse' },
-			],
-		},
-		'May 2025': {
-			beginningBalance: 55000,
-			endingBalance: 50000,
-			collections: [
-				{ date: '05/01', source: 'Unit 101', amount: 2500, verified: true },
-				{ date: '05/15', source: 'Unit 203', amount: 2500, verified: true },
-			],
-			expenses: [
 				{
-					date: '05/10',
-					vendor: 'Engineering Consultants',
-					description: 'Initial assessment',
-					amount: 3000,
-					compliant: true,
+					date: '06/15',
+					amount: 600,
+					fromAccount: '5872',
+					toAccount: '5129',
+					description: 'Unauthorized transfer to operating',
 				},
-				{ date: '05/20', vendor: 'Permit Expediter', description: 'Permit filing', amount: 1500, compliant: true },
+				{
+					date: '06/25',
+					amount: 4852.71,
+					fromAccount: '5129',
+					toAccount: '5872',
+					description: 'Unauthorized transfer from operating',
+				},
 			],
-			improperTransfers: [
-				{ date: '05/15', direction: 'To Operating', amount: 3650, action: 'Document' },
-				{ date: '05/25', direction: 'From Operating', amount: 2852.71, action: 'Reverse' },
-			],
-		},
-		'April 2025': {
-			beginningBalance: 55000,
-			endingBalance: 55000,
-			collections: [],
-			expenses: [],
-			improperTransfers: [],
 		},
 	});
 
-	// Reserve Account (7011) Data
+	// Reserve Account (7011) Data - CORRECTED FROM BANK STATEMENTS
 	const reserveAccountData = ref({
 		'June 2025': {
-			beginningBalance: 95037.01,
-			endingBalance: 95037.01,
-			interest: 0,
+			beginningBalance: 13375.52,
+			endingBalance: 13375.63,
+			interest: 0.11,
 			contributions: 0,
 			withdrawals: 0,
-			transactions: [],
+			transactions: [{ date: '06/30', description: 'Interest Payment', amount: 0.11, balance: 13375.63 }],
+			// Critical status flags
+			criticallyLow: true,
+			complianceRisk: 'HIGH',
+			recommendedMinimum: 75000,
+			shortfall: 61624.37,
 		},
 		'May 2025': {
-			beginningBalance: 95037.01,
-			endingBalance: 95037.01,
+			beginningBalance: 13375.52,
+			endingBalance: 13375.52,
 			interest: 0,
 			contributions: 0,
 			withdrawals: 0,
 			transactions: [],
+			criticallyLow: true,
+			complianceRisk: 'HIGH',
+			recommendedMinimum: 75000,
+			shortfall: 61624.48,
 		},
 		'April 2025': {
-			beginningBalance: 95037.01,
-			endingBalance: 95037.01,
+			beginningBalance: 13375.52,
+			endingBalance: 13375.63,
+			interest: 0.11,
+			contributions: 0,
+			withdrawals: 0,
+			transactions: [{ date: '04/30', description: 'Interest Payment', amount: 0.11, balance: 13375.63 }],
+			criticallyLow: true,
+			complianceRisk: 'HIGH',
+			recommendedMinimum: 75000,
+			shortfall: 61624.37,
+		},
+		'March 2025': {
+			beginningBalance: 93276.98,
+			endingBalance: 13375.52,
+			interest: 0.4,
+			contributions: 0,
+			withdrawals: 80302.86, // Large withdrawal occurred - INVESTIGATION REQUIRED
+			transactions: [
+				{ date: '03/31', description: 'Interest Payment', amount: 0.4, balance: 93276.98 },
+				{
+					date: '03/25',
+					description: 'LARGE WITHDRAWAL - INVESTIGATION REQUIRED',
+					amount: -80302.86,
+					balance: 13375.52,
+				},
+			],
+			criticallyLow: true,
+			complianceRisk: 'CRITICAL',
+			recommendedMinimum: 75000,
+			shortfall: 61624.48,
+			investigationRequired: true,
+			suspiciousActivity: true,
+		},
+		'February 2025': {
+			beginningBalance: 93276.98,
+			endingBalance: 93276.98,
 			interest: 0,
 			contributions: 0,
 			withdrawals: 0,
 			transactions: [],
+			criticallyLow: false,
+			complianceRisk: 'LOW',
+			recommendedMinimum: 75000,
+			shortfall: 0,
+		},
+		'January 2025': {
+			beginningBalance: 12537.02,
+			endingBalance: 12537.12,
+			interest: 0.1,
+			contributions: 0,
+			withdrawals: 0,
+			transactions: [{ date: '01/31', description: 'Interest Payment', amount: 0.1, balance: 12537.12 }],
+			criticallyLow: true,
+			complianceRisk: 'HIGH',
+			recommendedMinimum: 75000,
+			shortfall: 62462.88,
 		},
 	});
 
@@ -206,6 +227,18 @@ export const useReconciliationData = () => {
 		return operatingViolations + specialViolations;
 	};
 
+	// Get reserve compliance status
+	const getReserveComplianceStatus = (month) => {
+		const reserveData = getReserveData(month);
+		return {
+			isCriticallyLow: reserveData.criticallyLow,
+			complianceRisk: reserveData.complianceRisk,
+			shortfall: reserveData.shortfall,
+			investigationRequired: reserveData.investigationRequired || false,
+			suspiciousActivity: reserveData.suspiciousActivity || false,
+		};
+	};
+
 	return {
 		operatingAccountData,
 		specialAssessmentData,
@@ -215,5 +248,6 @@ export const useReconciliationData = () => {
 		getReserveData,
 		calculateTotals,
 		getViolationCount,
+		getReserveComplianceStatus,
 	};
 };
