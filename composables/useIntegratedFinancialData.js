@@ -11,112 +11,23 @@ export const useIntegratedFinancialData = () => {
 	const reconciliationData = useReconciliationData();
 	const budgetData = useBudgetData();
 
+	// Destructure the loadOperatingBudget function from budgetData
+	const { loadOperatingBudget } = budgetData;
+
 	const currentMonth = ref('June 2025');
 
 	/**
-	 * Get comprehensive financial overview
-	 */
-	const getComprehensiveOverview = (month = currentMonth.value) => {
-		const operatingData = reconciliationData.getOperatingData(month);
-		const reserveData = reconciliationData.getReserveData(month);
-		const violations = reconciliationData.getViolationCount(month);
-
-		return {
-			operating: operatingData,
-			reserve: reserveData,
-			budget: {
-				summary: budgetData.budgetSummary.value,
-				items: budgetData.budgetItems.value,
-				categories: budgetData.categorizedBudget.value,
-			},
-			violations,
-			alerts: generateIntegratedAlerts(operatingData, budgetData.budgetSummary.value, violations),
-		};
-	};
-
-	/**
-	 * Map budget categories to actual transactions
-	 */
-	const mapBudgetToActual = (month = currentMonth.value) => {
-		const operatingData = reconciliationData.getOperatingData(month);
-		const categories = budgetData.categorizedBudget.value;
-
-		if (!operatingData || !categories) return [];
-
-		return Object.values(categories).map((category) => {
-			// Find matching transactions for this category
-			const matchingTransactions = findMatchingTransactions(operatingData.withdrawals || [], category.name);
-
-			const actualSpentThisMonth = matchingTransactions.reduce((sum, txn) => sum + txn.amount, 0);
-			const monthlyBudget = category.totalYearly / 12;
-			const variance = monthlyBudget - actualSpentThisMonth;
-
-			return {
-				...category,
-				monthlyData: {
-					budget: monthlyBudget,
-					actual: actualSpentThisMonth,
-					variance,
-					variancePercent: monthlyBudget ? (variance / monthlyBudget) * 100 : 0,
-					transactions: matchingTransactions,
-				},
-			};
-		});
-	};
-
-	/**
-	 * Find transactions that match a budget category
+	 * Find matching transactions for a budget category
 	 */
 	const findMatchingTransactions = (transactions, categoryName) => {
-		return transactions.filter((txn) => {
-			const vendor = txn.vendor?.toLowerCase() || '';
-			const category = txn.category?.toLowerCase() || '';
-			const description = txn.description?.toLowerCase() || '';
+		if (!transactions || !Array.isArray(transactions)) return [];
 
-			switch (categoryName) {
-				case 'Insurance':
-					return vendor.includes('insurance') || category.includes('insurance') || vendor.includes('first insurance');
+		// Simple matching logic - can be enhanced based on your needs
+		const matchingKeywords = categoryName.toLowerCase().split(' ');
 
-				case 'Contract Services':
-					return (
-						vendor.includes('vte') ||
-						vendor.includes('management') ||
-						vendor.includes('waste') ||
-						vendor.includes('elevator') ||
-						vendor.includes('laundry') ||
-						category.includes('service')
-					);
-
-				case 'Utilities':
-					return (
-						vendor.includes('fpl') ||
-						vendor.includes('teco') ||
-						vendor.includes('water') ||
-						vendor.includes('breezeline') ||
-						category.includes('utilities')
-					);
-
-				case 'Administrative':
-					return (
-						vendor.includes('tempkins') ||
-						vendor.includes('legal') ||
-						vendor.includes('cpa') ||
-						vendor.includes('audit') ||
-						category.includes('legal') ||
-						category.includes('admin')
-					);
-
-				case 'Maintenance':
-					return (
-						category.includes('maintenance') ||
-						vendor.includes('repair') ||
-						vendor.includes('plumbing') ||
-						vendor.includes('electrical')
-					);
-
-				default:
-					return false;
-			}
+		return transactions.filter((transaction) => {
+			const description = (transaction.description || transaction.vendor || '').toLowerCase();
+			return matchingKeywords.some((keyword) => description.includes(keyword));
 		});
 	};
 
@@ -126,7 +37,7 @@ export const useIntegratedFinancialData = () => {
 	const generateIntegratedAlerts = (operatingData, budgetSummary, violations) => {
 		const alerts = [];
 
-		// Budget-related alerts
+		// Budget utilization alerts
 		if (budgetSummary.percentSpent > 85) {
 			alerts.push({
 				type: 'budget',
@@ -174,6 +85,57 @@ export const useIntegratedFinancialData = () => {
 		return alerts.sort((a, b) => {
 			const severityOrder = { critical: 3, high: 2, medium: 1, low: 0 };
 			return severityOrder[b.severity] - severityOrder[a.severity];
+		});
+	};
+
+	/**
+	 * Get comprehensive financial overview
+	 */
+	const getComprehensiveOverview = (month = currentMonth.value) => {
+		const operatingData = reconciliationData.getOperatingData(month);
+		const reserveData = reconciliationData.getReserveData(month);
+		const violations = reconciliationData.getViolationCount(month);
+
+		return {
+			operating: operatingData,
+			reserve: reserveData,
+			budget: {
+				summary: budgetData.budgetSummary.value,
+				items: budgetData.budgetItems.value,
+				categories: budgetData.categorizedBudget.value,
+			},
+			violations,
+			alerts: generateIntegratedAlerts(operatingData, budgetData.budgetSummary.value, violations),
+		};
+	};
+
+	/**
+	 * Map budget categories to actual transactions
+	 */
+	const mapBudgetToActual = (month = currentMonth.value) => {
+		const operatingData = reconciliationData.getOperatingData(month);
+		const categories = budgetData.categorizedBudget.value;
+
+		if (!operatingData || !categories) return [];
+
+		return Object.values(categories).map((category) => {
+			// Find matching transactions for this category
+			const matchingTransactions = findMatchingTransactions(operatingData.withdrawals || [], category.name);
+
+			const actualSpentThisMonth = matchingTransactions.reduce((sum, txn) => sum + txn.amount, 0);
+			const monthlyBudget = category.totalYearly / 12;
+			const variance = monthlyBudget - actualSpentThisMonth;
+
+			return {
+				...category,
+				monthlyData: {
+					budget: monthlyBudget,
+					actual: actualSpentThisMonth,
+					variance,
+					variancePercent: monthlyBudget ? (variance / monthlyBudget) * 100 : 0,
+				},
+				transactions: matchingTransactions,
+			};
 		});
 	};
 
@@ -307,7 +269,8 @@ export const useIntegratedFinancialData = () => {
 	 */
 	const loadAllData = async () => {
 		try {
-			await budgetData.loadOperatingBudget();
+			// Call the loadOperatingBudget function directly (not as budgetData.loadOperatingBudget)
+			await loadOperatingBudget();
 			return true;
 		} catch (error) {
 			console.error('Error loading integrated financial data:', error);

@@ -437,7 +437,7 @@ const priorityActions = ref([
 		id: 3,
 		title: 'Cash Flow Plan',
 		deadline: 'Within 30 days',
-		icon: 'i-heroicons-chart-line',
+		icon: 'i-heroicons-presentation-chart-line',
 		color: 'text-blue-600',
 	},
 ]);
