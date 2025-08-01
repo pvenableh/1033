@@ -2,13 +2,13 @@
 	<div class="container mx-auto p-6">
 		<!-- Header -->
 		<div class="mb-8">
-			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2">FINANCIAL DASHBOARD</h1>
-			<p class="text-gray-600">LENOX PLAZA ASSOCIATION - 2025 OPERATING BUDGET</p>
+			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 text-center">FINANCIAL DASHBOARD</h1>
+			<!-- <p class="text-gray-600">LENOX PLAZA ASSOCIATION - 2025 OPERATING BUDGET</p> -->
 		</div>
 
 		<!-- Executive Summary Section -->
 		<div class="mb-8">
-			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center">
+			<h2 class="text-xl font-bold uppercase tracking-wide mb-6 flex items-center">
 				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
 				EXECUTIVE SUMMARY (YEAR-TO-DATE)
 			</h2>
@@ -17,8 +17,12 @@
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 				<!-- Financial Health Score -->
 				<UCard
-					class="text-center rounded-[4px] shadow"
-					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500' : ''"
+					class="text-center !rounded-[4px] !shadow"
+					:class="
+						realYtdData.financialHealthScore < 60
+							? 'border border-yellow-600 ' + financialHealthColor.replace('text-', ' !border-')
+							: ''
+					"
 				>
 					<div class="space-y-2">
 						<UIcon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
@@ -30,7 +34,7 @@
 
 				<!-- YTD Cash Decline -->
 				<UCard
-					class="text-center rounded-[4px] shadow"
+					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.ytdCashChange < 0 ? 'border border-red-500' : ''"
 				>
 					<div class="space-y-2">
@@ -49,7 +53,7 @@
 
 				<!-- Monthly Burn Rate -->
 				<UCard
-					class="text-center rounded-[4px] shadow"
+					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.monthlyBurnRate > 5000 ? 'border border-red-500' : ''"
 				>
 					<div class="space-y-2">
@@ -71,7 +75,7 @@
 
 				<!-- Cash Runway -->
 				<UCard
-					class="text-center rounded-[4px] shadow"
+					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.cashRunwayMonths < 12 ? 'border border-red-500' : ''"
 				>
 					<div class="space-y-2">
@@ -87,6 +91,11 @@
 			<UCard class="mb-6">
 				<template #header>
 					<h3 class="text-lg font-semibold uppercase tracking-wide">YTD CASH FLOW TRENDS</h3>
+					<p class="text-sm text-gray-600 mt-2 font-normal normal-case tracking-normal">
+						Track your association's financial performance from January through June. The blue line shows your operating
+						account balance over time, while the green and red lines display monthly revenue and expenses respectively.
+						This view helps identify cash flow patterns and potential issues.
+					</p>
 				</template>
 				<div class="h-80">
 					<Line :data="realYtdCashFlowData" :options="ytdChartOptions" />
@@ -98,6 +107,11 @@
 				<UCard>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">YTD BUDGET PERFORMANCE</h3>
+						<p class="text-xs text-gray-600 mt-2 font-normal normal-case tracking-normal">
+							Shows how much of your annual budget has been spent through June 2025. Each category displays utilization
+							percentage and variance from budget. Green bars indicate under-budget spending, while red bars show
+							over-budget categories requiring attention.
+						</p>
 					</template>
 					<div class="space-y-4">
 						<div class="text-center mb-4">
@@ -180,12 +194,12 @@
 		</div>
 		<!-- Month Selection and Summary Cards -->
 		<div class="w-full mt-20 mb-6 flex flex-col md:flex-row items-center justify-between">
-			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center relative">
+			<h2 class="text-xl font-bold uppercase tracking-wide mb-6 flex items-center relative">
 				<UIcon name="i-heroicons-calendar" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
 				MONTHLY REPORT [{{ selectedMonth.replace('2025', '').trim() }}]
 				<nuxt-link
 					:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`"
-					class="absolute right-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2"
+					class="absolute left-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2"
 				>
 					Full Details
 					<UIcon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
@@ -193,46 +207,6 @@
 			</h2>
 			<USelect v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
 		</div>
-		<!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-			<UCard>
-				<div class="text-center">
-					<p class="text-3xl font-bold" :class="operatingBalance < 25000 ? 'text-red-600' : 'text-gray-900'">
-						${{ operatingBalance.toLocaleString() }}
-					</p>
-					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">OPERATING BALANCE</p>
-				</div>
-			</UCard>
-
-			<UCard>
-				<div class="text-center">
-					<p class="text-3xl font-bold" :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'">
-						{{ monthlyChange >= 0 ? '+' : '' }}${{ Math.abs(monthlyChange).toLocaleString() }}
-					</p>
-					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">NET CASH FLOW</p>
-				</div>
-			</UCard>
-
-			<UCard>
-				<div class="text-center">
-					<p class="text-3xl font-bold" :class="expenseVariance > 0 ? 'text-red-600' : 'text-green-600'">
-						<span class="font-medium">{{ Math.abs(expenseVariance) }}%</span>
-						{{ expenseVariance > 0 ? 'OVER' : 'UNDER' }} BUDGET
-					</p>
-				</div>
-			</UCard>
-
-			<UCard>
-				<div class="text-center">
-					<p
-						class="text-3xl font-bold"
-						:class="fundSegregationStatus.violations > 0 ? 'text-red-600' : 'text-green-600'"
-					>
-						{{ fundSegregationStatus.violations }}
-					</p>
-					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">VIOLATIONS</p>
-				</div>
-			</UCard>
-		</div> -->
 
 		<!-- Critical Alerts -->
 		<div v-if="criticalAlerts.length > 0" class="mb-8">
@@ -664,31 +638,166 @@ const { budget2025, getTotalBudget, calculateVariance, getBudgetUtilization } = 
 const selectedMonth = ref('June 2025');
 const activeTab = ref(0);
 
-// REAL YTD DATA FROM CSV ANALYSIS
-const realYtdData = {
-	ytdBudgetUtilization: 75.5,
-	ytdVariance: 51,
-	budgetAccuracy: 74.5,
-	ytdCashChange: -30642,
-	monthlyBurnRate: 6128,
-	cashRunwayMonths: 5.5,
-	financialHealthScore: 50,
-	financialHealthStatus: 'NEEDS ATTENTION',
-	categoryBreakdown: [
-		{ name: 'Utilities', utilization: 45.1, variance: -9.8 },
-		{ name: 'Other', utilization: 71, variance: 42.1 },
-		{ name: 'Professional', utilization: 155, variance: 210 },
-		{ name: 'Insurance', utilization: 78.8, variance: 57.5 },
-	],
-	monthlyBalancesTrend: [64114, 54853, 44695, 52296, 33888, 33472],
-	totalYearlyBudget: 177296,
-	totalActualSpent: 133893.93,
-	expectedYtdSpend: 88648,
-};
+// YTD Data Calculations - Replace hardcoded realYtdData
+const ytdMonths = ['January 2025', 'February 2025', 'March 2025', 'April 2025', 'May 2025', 'June 2025'];
+
+// Calculate YTD totals from actual data
+const ytdTotals = computed(() => {
+	let totalActualSpent = 0;
+	let totalDeposits = 0;
+	let startingBalance = 0;
+	let endingBalance = 0;
+	let totalViolations = 0;
+	const monthlyBalances = [];
+	const monthlyExpenses = [];
+	const monthlyRevenues = [];
+
+	ytdMonths.forEach((month, index) => {
+		const monthData = getOperatingData(month);
+		if (monthData) {
+			// Track balances
+			if (index === 0) startingBalance = monthData.beginningBalance || 0;
+			if (index === ytdMonths.length - 1) endingBalance = monthData.endingBalance || 0;
+			monthlyBalances.push(monthData.endingBalance || 0);
+
+			// Calculate monthly totals
+			const monthlyExpense = (monthData.withdrawals || [])
+				.filter((w) => !w.violation)
+				.reduce((sum, w) => sum + w.amount, 0);
+			const monthlyRevenue = (monthData.deposits || []).reduce((sum, d) => sum + d.amount, 0);
+
+			monthlyExpenses.push(monthlyExpense);
+			monthlyRevenues.push(monthlyRevenue);
+
+			totalActualSpent += monthlyExpense;
+			totalDeposits += monthlyRevenue;
+			totalViolations += monthData.violations?.length || 0;
+		} else {
+			monthlyBalances.push(0);
+			monthlyExpenses.push(0);
+			monthlyRevenues.push(0);
+		}
+	});
+
+	const ytdCashChange = endingBalance - startingBalance;
+	const monthsElapsed = ytdMonths.length;
+	const monthlyBurnRate = ytdCashChange < 0 ? Math.abs(ytdCashChange) / monthsElapsed : 0;
+	const cashRunwayMonths = monthlyBurnRate > 0 ? endingBalance / monthlyBurnRate : 999;
+
+	return {
+		totalActualSpent,
+		totalDeposits,
+		startingBalance,
+		endingBalance,
+		ytdCashChange,
+		monthlyBurnRate,
+		cashRunwayMonths: Math.round(cashRunwayMonths * 10) / 10,
+		totalViolations,
+		monthlyBalances,
+		monthlyExpenses,
+		monthlyRevenues,
+		monthsElapsed,
+	};
+});
+
+// Calculate YTD Budget Utilization
+const ytdBudgetUtilization = computed(() => {
+	const totalBudgeted = (budget2025.totals?.monthly || 14779.09) * ytdTotals.value.monthsElapsed;
+	if (totalBudgeted === 0) return 0;
+	return Math.round((ytdTotals.value.totalActualSpent / totalBudgeted) * 100);
+});
+
+// Calculate category breakdowns dynamically
+const ytdBudgetCategories = computed(() => {
+	const categories = ['Insurance', 'Professional', 'Utilities', 'Maintenance'];
+
+	return categories.map((category) => {
+		let actualSpent = 0;
+
+		ytdMonths.forEach((month) => {
+			const monthData = getOperatingData(month);
+			if (monthData) {
+				const categorySpending = (monthData.withdrawals || [])
+					.filter((w) => {
+						const mappedCategory = w.category === 'Management' ? 'Professional' : w.category;
+						return mappedCategory === category && !w.violation;
+					})
+					.reduce((sum, w) => sum + w.amount, 0);
+				actualSpent += categorySpending;
+			}
+		});
+
+		const budgetedYtd = budget2025.categories[category]?.monthly * ytdTotals.value.monthsElapsed || 0;
+		const utilization = budgetedYtd > 0 ? (actualSpent / budgetedYtd) * 100 : 0;
+		const variance = budgetedYtd > 0 ? ((actualSpent - budgetedYtd) / budgetedYtd) * 100 : 0;
+
+		return {
+			name: category,
+			utilization: Math.round(utilization * 10) / 10,
+			variance: Math.round(variance * 10) / 10,
+		};
+	});
+});
+
+// Calculate Financial Health Score
+const financialHealthScore = computed(() => {
+	let score = 100;
+	const currentBalance = ytdTotals.value.endingBalance;
+	const cashChange = ytdTotals.value.ytdCashChange;
+	const budgetUtil = ytdBudgetUtilization.value;
+
+	// Operating balance health (40% weight)
+	if (currentBalance < 25000) score -= 40;
+	else if (currentBalance < 35000) score -= 20;
+
+	// Cash trend health (30% weight)
+	if (cashChange < -20000) score -= 30;
+	else if (cashChange < -10000) score -= 15;
+
+	// Budget compliance (30% weight)
+	if (budgetUtil > 110) score -= 30;
+	else if (budgetUtil > 100) score -= 15;
+
+	return Math.max(score, 0);
+});
+
+const financialHealthStatus = computed(() => {
+	const score = financialHealthScore.value;
+	return score >= 80 ? 'EXCELLENT' : score >= 60 ? 'GOOD' : score >= 40 ? 'NEEDS ATTENTION' : 'CRITICAL';
+});
+
+// Calculate YTD Variance
+const ytdVariance = computed(() => {
+	const expectedYtdBudget = (budget2025.totals?.monthly || 14779.09) * ytdTotals.value.monthsElapsed;
+	if (expectedYtdBudget === 0) return 0;
+	return Math.round(((ytdTotals.value.totalActualSpent - expectedYtdBudget) / expectedYtdBudget) * 100);
+});
+
+// Calculate Budget Accuracy
+const budgetAccuracy = computed(() => {
+	return Math.max(0, 100 - Math.abs(ytdVariance.value));
+});
+
+// Create the dynamic YTD data object
+const realYtdData = computed(() => ({
+	ytdBudgetUtilization: ytdBudgetUtilization.value,
+	ytdVariance: ytdVariance.value,
+	budgetAccuracy: budgetAccuracy.value,
+	ytdCashChange: ytdTotals.value.ytdCashChange,
+	monthlyBurnRate: Math.round(ytdTotals.value.monthlyBurnRate),
+	cashRunwayMonths: ytdTotals.value.cashRunwayMonths,
+	financialHealthScore: financialHealthScore.value,
+	financialHealthStatus: financialHealthStatus.value,
+	categoryBreakdown: ytdBudgetCategories.value,
+	monthlyBalancesTrend: ytdTotals.value.monthlyBalances,
+	totalYearlyBudget: budget2025.totals?.yearly || 177348.08,
+	totalActualSpent: ytdTotals.value.totalActualSpent,
+	expectedYtdSpend: (budget2025.totals?.monthly || 14779.09) * ytdTotals.value.monthsElapsed,
+}));
 
 // Computed properties for YTD data
 const financialHealthColor = computed(() => {
-	const score = realYtdData.financialHealthScore;
+	const score = realYtdData.value.financialHealthScore;
 	return score >= 80
 		? 'text-green-600'
 		: score >= 60
@@ -699,32 +808,25 @@ const financialHealthColor = computed(() => {
 });
 
 const cashRunwayColor = computed(() => {
-	const months = realYtdData.cashRunwayMonths;
+	const months = realYtdData.value.cashRunwayMonths;
 	return months < 6 ? 'text-red-600' : months < 12 ? 'text-yellow-600' : 'text-green-600';
 });
 
 const cashRunwayStatus = computed(() => {
-	const months = realYtdData.cashRunwayMonths;
+	const months = realYtdData.value.cashRunwayMonths;
 	return months < 6 ? 'CRITICAL' : months < 12 ? 'WARNING' : 'HEALTHY';
 });
 
-const realYtdBudgetCategories = computed(() => realYtdData.categoryBreakdown);
+const realYtdBudgetCategories = computed(() => realYtdData.value.categoryBreakdown);
 
-const realYtdViolations = computed(() => {
-	// Calculate YTD violations from all months
-	const months = ['January 2025', 'February 2025', 'March 2025', 'April 2025', 'May 2025', 'June 2025'];
-	return months.reduce((total, month) => {
-		const monthData = getOperatingData(month);
-		return total + (monthData?.violations?.length || 0);
-	}, 0);
-});
+const realYtdViolations = computed(() => ytdTotals.value.totalViolations);
 
 // Real YTD Cash Flow Chart Data
 const realYtdCashFlowData = computed(() => {
 	const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'];
-	const balances = realYtdData.monthlyBalancesTrend;
-	const revenueData = [14000, 14000, 14000, 14000, 14000, 14000]; // Approximate from maintenance fees
-	const expenseData = [23261, 23408, 9842, 6557, 32408, 14416]; // From composable data
+	const balances = ytdTotals.value.monthlyBalances;
+	const revenueData = ytdTotals.value.monthlyRevenues;
+	const expenseData = ytdTotals.value.monthlyExpenses;
 
 	return {
 		labels: months,
@@ -803,8 +905,8 @@ const monthlyExpenses = computed(
 const monthlyChange = computed(() => monthlyRevenue.value - monthlyExpenses.value);
 
 // Budget data
-const budgetedRevenue = computed(() => budget2025.revenue.total.monthly);
-const budgetedExpenses = computed(() => budget2025.totals.monthly);
+const budgetedRevenue = computed(() => budget2025.revenue?.total?.monthly || 0);
+const budgetedExpenses = computed(() => budget2025.totals?.monthly || 14779.09);
 
 // Budget variance calculations
 const expenseVariance = computed(() => {
@@ -895,9 +997,6 @@ const budgetColumns = [
 ];
 
 // Account health data
-// Make sure you have the necessary composable imported at the top of your file:
-// const { getOperatingData, getReserveData, getSpecialAssessmentData } = useReconciliationData();
-
 const accountHealth = computed(() => [
 	{
 		name: 'Operating Account (5129)',
@@ -909,13 +1008,10 @@ const accountHealth = computed(() => [
 	},
 	{
 		name: 'Reserve Account (7011)',
-		// Fix: Use actual reserve balance and calculate status dynamically
 		status: (reserveData.value?.endingBalance || 0) < 75000 ? 'CRITICAL' : 'HEALTHY',
 		color: (reserveData.value?.endingBalance || 0) < 75000 ? 'red' : 'green',
 		barClass: (reserveData.value?.endingBalance || 0) < 75000 ? 'bg-red-500' : 'bg-green-500',
-		// Fix: Use the actual ending balance instead of the entire reserveData object
 		percent: Math.min(((reserveData.value?.endingBalance || 0) / 75000) * 100, 100),
-		// Fix: More accurate note based on actual shortfall amount
 		note:
 			(reserveData.value?.endingBalance || 0) < 75000
 				? `${(75000 - (reserveData.value?.endingBalance || 0)).toLocaleString()} below minimum threshold`
@@ -926,8 +1022,6 @@ const accountHealth = computed(() => [
 		status: fundSegregationStatus.value.violations > 0 ? 'VIOLATION' : 'COMPLIANT',
 		color: fundSegregationStatus.value.violations > 0 ? 'orange' : 'blue',
 		barClass: fundSegregationStatus.value.violations > 0 ? 'bg-orange-500' : 'bg-[var(--cyan)]',
-		// Fix: Calculate actual percentage based on special assessment account data
-		// Using a realistic target of $100,000 for 40-year project funds
 		percent: Math.min(((getSpecialAssessmentData(selectedMonth.value)?.endingBalance || 0) / 100000) * 100, 100),
 		note:
 			fundSegregationStatus.value.violations > 0
