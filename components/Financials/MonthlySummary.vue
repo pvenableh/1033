@@ -3,9 +3,14 @@
 		<template #header>
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg font-semibold uppercase tracking-wide">{{ month }} SNAPSHOT</h3>
-				<UButton size="xs" color="gray" variant="ghost" :to="`/financials/monthly-report/${month.toLowerCase()}`">
-					VIEW DETAILS →
-				</UButton>
+				<div class="flex gap-2">
+					<UBadge v-if="complianceRisk.riskLevel === 'CRITICAL'" color="red" variant="solid" size="xs">
+						FL VIOLATION
+					</UBadge>
+					<UButton size="xs" color="gray" variant="ghost" :to="`/financials/monthly-report/${month.toLowerCase()}`">
+						VIEW DETAILS →
+					</UButton>
+				</div>
 			</div>
 		</template>
 
@@ -23,6 +28,28 @@
 						${{ endingBalance.toLocaleString() }}
 					</p>
 					<p class="text-xs uppercase tracking-wide text-gray-600 mt-1">ENDING BALANCE</p>
+				</div>
+			</div>
+
+			<!-- Multi-Account Status -->
+			<div class="grid grid-cols-3 gap-2 text-xs">
+				<div
+					class="text-center p-2 rounded"
+					:class="endingBalance < 25000 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'"
+				>
+					<div class="font-semibold">5129</div>
+					<div>Operating</div>
+				</div>
+				<div class="text-center p-2 rounded bg-red-50 text-red-700">
+					<div class="font-semibold">7011</div>
+					<div>Reserves</div>
+				</div>
+				<div
+					class="text-center p-2 rounded"
+					:class="violations > 0 ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700'"
+				>
+					<div class="font-semibold">5872</div>
+					<div>40-Year</div>
 				</div>
 			</div>
 
@@ -48,7 +75,7 @@
 				</div>
 			</div>
 
-			<!-- Key Alerts -->
+			<!-- Critical Alerts -->
 			<div v-if="alerts.length > 0" class="space-y-2">
 				<div
 					v-for="alert in alerts"
@@ -64,7 +91,7 @@
 				</div>
 			</div>
 
-			<!-- Budget Performance -->
+			<!-- Budget Performance (CORRECTED) -->
 			<div class="pt-2 border-t">
 				<div class="flex items-center justify-between mb-2">
 					<span class="text-sm font-medium">Budget Performance</span>
@@ -72,6 +99,8 @@
 						{{ budgetVariance > 0 ? '+' : '' }}{{ budgetVariance }}% vs Budget
 					</span>
 				</div>
+
+				<!-- Correct Budget Categories with Real Numbers -->
 				<div class="grid grid-cols-4 gap-1">
 					<div v-for="category in budgetCategories" :key="category.name" class="relative group">
 						<div class="h-8 rounded" :class="category.overBudget ? 'bg-red-200' : 'bg-green-200'" />
@@ -80,7 +109,9 @@
 							:class="category.overBudget ? 'bg-red-500' : 'bg-green-500'"
 							:style="`height: ${Math.min(category.percent, 100)}%`"
 						/>
-						<UTooltip :text="`${category.name}: ${category.percent}% of budget`">
+						<UTooltip
+							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`"
+						>
 							<div class="absolute inset-0" />
 						</UTooltip>
 					</div>
@@ -92,11 +123,42 @@
 					<span>MNT</span>
 				</div>
 			</div>
+
+			<!-- Florida Compliance Status -->
+			<div class="pt-2 border-t">
+				<div class="flex items-center justify-between">
+					<span class="text-sm font-medium">FL Compliance</span>
+					<UBadge
+						:color="
+							complianceRisk.riskLevel === 'CRITICAL' ? 'red' : complianceRisk.riskLevel === 'HIGH' ? 'orange' : 'green'
+						"
+						variant="soft"
+						size="xs"
+					>
+						{{ complianceRisk.riskLevel }}
+					</UBadge>
+				</div>
+
+				<div
+					v-if="complianceRisk.riskLevel !== 'LOW'"
+					class="mt-2 p-2 rounded text-xs"
+					:class="complianceRisk.riskLevel === 'CRITICAL' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'"
+				>
+					<div class="flex items-center">
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-3 h-3 mr-1" />
+						<span v-if="complianceRisk.personalLiability">Board liability risk</span>
+						<span v-else>Compliance violations</span>
+					</div>
+				</div>
+			</div>
 		</div>
 	</UCard>
 </template>
 
 <script lang="ts" setup>
+import { useBudgetData } from '../../composables/useBudgetData';
+import { useFloridaCompliance } from '../../composables/useFloridaCompliance';
+
 interface Props {
 	month: string;
 	income: number;
@@ -108,6 +170,8 @@ interface Props {
 	professionalExpense?: number;
 	utilityExpense?: number;
 	maintenanceExpense?: number;
+	reserveBalance?: number;
+	specialAssessmentBalance?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -116,15 +180,60 @@ const props = withDefaults(defineProps<Props>(), {
 	professionalExpense: 0,
 	utilityExpense: 0,
 	maintenanceExpense: 0,
+	reserveBalance: 0,
+	specialAssessmentBalance: 0,
 });
+
+// Initialize composables
+const { budget2025: budget } = useBudgetData();
+const { calculateLiabilityRisk } = useFloridaCompliance();
 
 // Computed values
 const netFlow = computed(() => props.income - props.expenses);
 
+// CORRECTED budget variance calculation
 const budgetVariance = computed(() => {
-	const budgetTotal = 17165;
+	const budgetTotal = budget.totals.monthly; // Correct total: 14779.09
 	const actualTotal = props.expenses;
 	return Math.round(((actualTotal - budgetTotal) / budgetTotal) * 100);
+});
+
+// Compliance risk assessment
+const complianceRisk = computed(() => {
+	const violations = [
+		...(props.violations > 0
+			? [
+					{
+						type: 'FUND_MIXING',
+						severity: 'CRITICAL',
+						boardLiability: true,
+						criminalRisk: false,
+					},
+				]
+			: []),
+		...(props.endingBalance < 25000
+			? [
+					{
+						type: 'OPERATING_INSUFFICIENT',
+						severity: 'HIGH',
+						boardLiability: true,
+						criminalRisk: false,
+					},
+				]
+			: []),
+		...(props.reserveBalance < 75000
+			? [
+					{
+						type: 'RESERVE_UNDERFUNDING',
+						severity: 'CRITICAL',
+						boardLiability: true,
+						criminalRisk: false,
+					},
+				]
+			: []),
+	];
+
+	return calculateLiabilityRisk(violations);
 });
 
 // Alerts based on conditions
@@ -147,46 +256,70 @@ const alerts = computed(() => {
 		});
 	}
 
-	if (props.expenses > 20000) {
+	if (props.reserveBalance < 75000) {
 		alertList.push({
 			id: 3,
+			type: 'critical',
+			message: `Reserves $${((75000 - props.reserveBalance) / 1000).toFixed(0)}k short`,
+		});
+	}
+
+	if (props.expenses > budget.totals.monthly * 1.2) {
+		alertList.push({
+			id: 4,
 			type: 'warning',
 			message: 'High expense month - monitor cash flow',
+		});
+	}
+
+	if (complianceRisk.value.personalLiability) {
+		alertList.push({
+			id: 5,
+			type: 'critical',
+			message: '⚖️ Board liability risk under FL law',
 		});
 	}
 
 	return alertList;
 });
 
-// Budget categories for mini chart
+// Budget categories with CORRECTED budget numbers
 const budgetCategories = computed(() => [
 	{
 		name: 'Insurance',
 		actual: props.insuranceExpense,
-		budget: 9659,
-		percent: Math.round((props.insuranceExpense / 9659) * 100),
-		overBudget: props.insuranceExpense > 9659,
+		budget: budget.categories.Insurance.monthly, // Correct: 7131.59
+		percent:
+			props.insuranceExpense > 0 ? Math.round((props.insuranceExpense / budget.categories.Insurance.monthly) * 100) : 0,
+		overBudget: props.insuranceExpense > budget.categories.Insurance.monthly,
 	},
 	{
 		name: 'Professional',
 		actual: props.professionalExpense,
-		budget: 700,
-		percent: Math.round((props.professionalExpense / 700) * 100),
-		overBudget: props.professionalExpense > 700,
+		budget: budget.categories.Professional.monthly, // Correct: 1703.67
+		percent:
+			props.professionalExpense > 0
+				? Math.round((props.professionalExpense / budget.categories.Professional.monthly) * 100)
+				: 0,
+		overBudget: props.professionalExpense > budget.categories.Professional.monthly,
 	},
 	{
 		name: 'Utilities',
 		actual: props.utilityExpense,
-		budget: 2339,
-		percent: Math.round((props.utilityExpense / 2339) * 100),
-		overBudget: props.utilityExpense > 2339,
+		budget: budget.categories.Utilities.monthly, // Correct: 2586.00
+		percent:
+			props.utilityExpense > 0 ? Math.round((props.utilityExpense / budget.categories.Utilities.monthly) * 100) : 0,
+		overBudget: props.utilityExpense > budget.categories.Utilities.monthly,
 	},
 	{
 		name: 'Maintenance',
 		actual: props.maintenanceExpense,
-		budget: 4379,
-		percent: Math.round((props.maintenanceExpense / 4379) * 100),
-		overBudget: props.maintenanceExpense > 4379,
+		budget: budget.categories.Maintenance.monthly, // Correct: 2770.00
+		percent:
+			props.maintenanceExpense > 0
+				? Math.round((props.maintenanceExpense / budget.categories.Maintenance.monthly) * 100)
+				: 0,
+		overBudget: props.maintenanceExpense > budget.categories.Maintenance.monthly,
 	},
 ]);
 </script>
