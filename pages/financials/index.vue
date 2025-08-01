@@ -1,5 +1,5 @@
 <template>
-	<div class="container mx-auto p-6 space-y-8">
+	<div class="container mx-auto p-6">
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2">FINANCIAL DASHBOARD</h1>
@@ -9,7 +9,7 @@
 		<!-- Executive Summary Section -->
 		<div class="mb-8">
 			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center">
-				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-blue-600" />
+				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
 				EXECUTIVE SUMMARY (YEAR-TO-DATE)
 			</h2>
 
@@ -168,7 +168,7 @@
 				</UCard>
 			</div>
 		</div>
-		<div class="w-full grid grid-cols-3 md:grid-cols-6 gap-4">
+		<div class="w-full grid grid-cols-3 md:grid-cols-6 gap-4 mb-20">
 			<nuxt-link
 				v-for="month in monthOptions"
 				:to="`/financials/monthly-report/${month.label.replace(' 2025', '').toLowerCase()}`"
@@ -179,7 +179,18 @@
 			</nuxt-link>
 		</div>
 		<!-- Month Selection and Summary Cards -->
-		<div class="w-full">
+		<div class="w-full mt-20 mb-6 flex flex-col md:flex-row items-center justify-between">
+			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center relative">
+				<UIcon name="i-heroicons-calendar" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
+				MONTHLY REPORT [{{ selectedMonth.replace('2025', '').trim() }}]
+				<nuxt-link
+					:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`"
+					class="absolute right-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2"
+				>
+					Full Details
+					<UIcon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
+				</nuxt-link>
+			</h2>
 			<USelect v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
 		</div>
 		<!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -292,51 +303,6 @@
 						</template>
 						<div class="h-64">
 							<Bar :data="monthlyBreakdownData" :options="chartOptions" />
-						</div>
-					</UCard>
-				</div>
-
-				<!-- Quick Actions -->
-				<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-					<UCard
-						class="hover:shadow-lg transition-shadow cursor-pointer"
-						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)"
-					>
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-blue-100 rounded-lg">
-								<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
-								<p class="text-sm text-gray-600">View detailed transactions</p>
-							</div>
-						</div>
-					</UCard>
-
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-green-100 rounded-lg">
-								<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
-								<p class="text-sm text-gray-600">Compare budget vs actual</p>
-							</div>
-						</div>
-					</UCard>
-
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-purple-100 rounded-lg">
-								<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
-								<p class="text-sm text-gray-600">Fund segregation status</p>
-								<UBadge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
-									{{ fundSegregationStatus.violations }}
-								</UBadge>
-							</div>
 						</div>
 					</UCard>
 				</div>
@@ -618,6 +584,50 @@
 				</div>
 			</template>
 		</UTabs>
+		<!-- Quick Actions -->
+		<div class="w-full mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+			<UCard
+				class="hover:shadow-lg transition-shadow cursor-pointer"
+				@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)"
+			>
+				<div class="flex items-center space-x-3">
+					<div class="p-3 bg-gray-50 rounded-lg">
+						<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-[var(--cyan)]" />
+					</div>
+					<div>
+						<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
+						<p class="text-sm text-gray-600">View detailed transactions</p>
+					</div>
+				</div>
+			</UCard>
+
+			<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
+				<div class="flex items-center space-x-3">
+					<div class="p-3 bg-green-100 rounded-lg">
+						<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
+					</div>
+					<div>
+						<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
+						<p class="text-sm text-gray-600">Compare budget vs actual</p>
+					</div>
+				</div>
+			</UCard>
+
+			<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
+				<div class="flex items-center space-x-3">
+					<div class="p-3 bg-purple-100 rounded-lg">
+						<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
+					</div>
+					<div>
+						<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
+						<p class="text-sm text-gray-600">Fund segregation status</p>
+						<UBadge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
+							{{ fundSegregationStatus.violations }}
+						</UBadge>
+					</div>
+				</div>
+			</UCard>
+		</div>
 	</div>
 </template>
 
@@ -675,7 +685,7 @@ const financialHealthColor = computed(() => {
 	return score >= 80
 		? 'text-green-600'
 		: score >= 60
-			? 'text-blue-600'
+			? 'text-[var(--cyan)]'
 			: score >= 40
 				? 'text-yellow-600'
 				: 'text-red-600';
@@ -899,7 +909,7 @@ const accountHealth = computed(() => [
 		name: '40-Year Reserve (5872)',
 		status: fundSegregationStatus.value.violations > 0 ? 'VIOLATION' : 'COMPLIANT',
 		color: fundSegregationStatus.value.violations > 0 ? 'orange' : 'blue',
-		barClass: fundSegregationStatus.value.violations > 0 ? 'bg-orange-500' : 'bg-blue-500',
+		barClass: fundSegregationStatus.value.violations > 0 ? 'bg-orange-500' : 'bg-[var(--cyan)]',
 		percent: 75,
 		note: fundSegregationStatus.value.violations > 0 ? 'Fund segregation issues' : 'Properly segregated',
 	},
