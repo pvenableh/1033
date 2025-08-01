@@ -649,8 +649,15 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
 
 // Composables
-const { getOperatingData, getReserveData, calculateFinancialHealth, checkCompliance, getViolationCount } =
-	useReconciliationData();
+const {
+	getOperatingData,
+	getReserveData,
+	calculateFinancialHealth,
+	getSpecialAssessmentData,
+	checkCompliance,
+	getViolationCount,
+} = useReconciliationData();
+
 const { budget2025, getTotalBudget, calculateVariance, getBudgetUtilization } = useBudgetData();
 
 // State
@@ -888,6 +895,9 @@ const budgetColumns = [
 ];
 
 // Account health data
+// Make sure you have the necessary composable imported at the top of your file:
+// const { getOperatingData, getReserveData, getSpecialAssessmentData } = useReconciliationData();
+
 const accountHealth = computed(() => [
 	{
 		name: 'Operating Account (5129)',
@@ -899,19 +909,30 @@ const accountHealth = computed(() => [
 	},
 	{
 		name: 'Reserve Account (7011)',
-		status: 'AT RISK',
-		color: 'red',
-		barClass: 'bg-red-500',
-		percent: Math.min((reserveData.value / 100000) * 100, 100),
-		note: reserveData.value < 75000 ? 'Below minimum threshold' : 'Adequate reserves',
+		// Fix: Use actual reserve balance and calculate status dynamically
+		status: (reserveData.value?.endingBalance || 0) < 75000 ? 'CRITICAL' : 'HEALTHY',
+		color: (reserveData.value?.endingBalance || 0) < 75000 ? 'red' : 'green',
+		barClass: (reserveData.value?.endingBalance || 0) < 75000 ? 'bg-red-500' : 'bg-green-500',
+		// Fix: Use the actual ending balance instead of the entire reserveData object
+		percent: Math.min(((reserveData.value?.endingBalance || 0) / 75000) * 100, 100),
+		// Fix: More accurate note based on actual shortfall amount
+		note:
+			(reserveData.value?.endingBalance || 0) < 75000
+				? `${(75000 - (reserveData.value?.endingBalance || 0)).toLocaleString()} below minimum threshold`
+				: 'Adequate reserves',
 	},
 	{
 		name: '40-Year Reserve (5872)',
 		status: fundSegregationStatus.value.violations > 0 ? 'VIOLATION' : 'COMPLIANT',
 		color: fundSegregationStatus.value.violations > 0 ? 'orange' : 'blue',
 		barClass: fundSegregationStatus.value.violations > 0 ? 'bg-orange-500' : 'bg-[var(--cyan)]',
-		percent: 75,
-		note: fundSegregationStatus.value.violations > 0 ? 'Fund segregation issues' : 'Properly segregated',
+		// Fix: Calculate actual percentage based on special assessment account data
+		// Using a realistic target of $100,000 for 40-year project funds
+		percent: Math.min(((getSpecialAssessmentData(selectedMonth.value)?.endingBalance || 0) / 100000) * 100, 100),
+		note:
+			fundSegregationStatus.value.violations > 0
+				? `${fundSegregationStatus.value.violations} fund segregation violations detected`
+				: 'Properly segregated',
 	},
 ]);
 
