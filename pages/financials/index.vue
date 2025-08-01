@@ -18,11 +18,7 @@
 				<!-- Financial Health Score -->
 				<UCard
 					class="text-center !rounded-[4px] !shadow"
-					:class="
-						realYtdData.financialHealthScore < 60
-							? 'border border-yellow-600 ' + financialHealthColor.replace('text-', ' !border-')
-							: ''
-					"
+					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500 ' : ''"
 				>
 					<div class="space-y-2">
 						<UIcon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
@@ -325,6 +321,7 @@
 							</div>
 							<div>
 								<p class="text-sm uppercase tracking-wide text-gray-600">BUDGET ACCURACY</p>
+								<p class="text-[9px]">Based on budgeted categories</p>
 								<p class="text-2xl font-bold text-gray-900">{{ realYtdData.budgetAccuracy }}%</p>
 							</div>
 							<div>
@@ -419,6 +416,140 @@
 						</div>
 					</UCard>
 
+					<!-- DETAILED VIOLATION TRANSACTIONS -->
+					<div v-if="violationTransactions.length > 0" class="space-y-6">
+						<UCard>
+							<template #header>
+								<div class="flex items-center justify-between">
+									<h3 class="text-lg font-semibold uppercase tracking-wide text-red-800">
+										<UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 inline mr-2" />
+										VIOLATION TRANSACTIONS - {{ selectedMonth }}
+									</h3>
+									<div class="flex items-center gap-3">
+										<UBadge color="red" variant="solid">{{ violationTransactions.length }} VIOLATIONS</UBadge>
+										<UBadge color="red" variant="soft">${{ violationTotalAmount.toLocaleString() }} TOTAL</UBadge>
+									</div>
+								</div>
+							</template>
+
+							<!-- Quick Stats -->
+							<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 p-4 bg-red-50 rounded-lg">
+								<div class="text-center">
+									<p class="text-2xl font-bold text-red-600">{{ violationTransactions.length }}</p>
+									<p class="text-sm text-red-700">Total Violations</p>
+								</div>
+								<div class="text-center">
+									<p class="text-2xl font-bold text-red-600">${{ violationTotalAmount.toLocaleString() }}</p>
+									<p class="text-sm text-red-700">Amount Involved</p>
+								</div>
+								<div class="text-center">
+									<p class="text-2xl font-bold text-red-600">{{ violationAccounts.length }}</p>
+									<p class="text-sm text-red-700">Accounts Affected</p>
+								</div>
+							</div>
+
+							<!-- Violation Transactions Table -->
+							<div class="overflow-x-auto">
+								<UTable :rows="violationTransactions" :columns="violationColumns" class="w-full">
+									<template #date-data="{ row }">
+										<span class="font-mono text-sm">{{ row.date }}</span>
+									</template>
+									<template #amount-data="{ row }">
+										<span class="font-bold text-red-600">${{ row.amount.toLocaleString() }}</span>
+									</template>
+									<template #description-data="{ row }">
+										<div>
+											<p class="font-medium">{{ row.vendor || row.description }}</p>
+											<p v-if="row.note" class="text-xs text-gray-600">{{ row.note }}</p>
+										</div>
+									</template>
+									<template #accounts-data="{ row }">
+										<UBadge color="red" variant="soft" size="xs">
+											{{ row.accounts || '5129 → 5872' }}
+										</UBadge>
+									</template>
+									<template #severity-data="{ row }">
+										<UBadge :color="row.severity === 'CRITICAL' ? 'red' : 'orange'" variant="solid" size="xs">
+											{{ row.severity || 'HIGH' }}
+										</UBadge>
+									</template>
+									<template #category-data="{ row }">
+										<UBadge color="gray" variant="soft" size="xs">
+											{{ row.category || 'VIOLATION' }}
+										</UBadge>
+									</template>
+								</UTable>
+							</div>
+
+							<!-- Violation Pattern Analysis -->
+							<div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+								<h4 class="font-semibold text-yellow-800 mb-3">🔍 VIOLATION PATTERN ANALYSIS</h4>
+								<div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+									<div>
+										<p class="font-medium text-yellow-700">Most Common Violation Type:</p>
+										<p class="text-yellow-800">{{ mostCommonViolationType }}</p>
+									</div>
+									<div>
+										<p class="font-medium text-yellow-700">Average Violation Amount:</p>
+										<p class="text-yellow-800">${{ averageViolationAmount.toLocaleString() }}</p>
+									</div>
+								</div>
+							</div>
+						</UCard>
+
+						<!-- YTD Violation Summary -->
+						<UCard v-if="ytdViolationSummary.length > 0">
+							<template #header>
+								<h3 class="text-lg font-semibold uppercase tracking-wide">YTD VIOLATION SUMMARY</h3>
+							</template>
+							<div class="space-y-4">
+								<div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+									<div>
+										<p class="text-3xl font-bold text-red-600">{{ ytdTotalViolations }}</p>
+										<p class="text-sm text-gray-600">TOTAL VIOLATIONS</p>
+									</div>
+									<div>
+										<p class="text-3xl font-bold text-red-600">${{ ytdTotalViolationAmount.toLocaleString() }}</p>
+										<p class="text-sm text-gray-600">TOTAL AMOUNT</p>
+									</div>
+									<div>
+										<p class="text-3xl font-bold text-red-600">
+											{{ ytdViolationTrend > 0 ? '↑' : '↓' }}{{ Math.abs(ytdViolationTrend) }}%
+										</p>
+										<p class="text-sm text-gray-600">MONTHLY TREND</p>
+									</div>
+								</div>
+
+								<!-- YTD Violations by Month -->
+								<div class="overflow-x-auto">
+									<UTable :rows="ytdViolationSummary" :columns="ytdViolationColumns">
+										<template #month-data="{ row }">
+											<span class="font-medium">{{ row.month }}</span>
+										</template>
+										<template #violations-data="{ row }">
+											<UBadge :color="row.violations > 0 ? 'red' : 'green'" variant="soft">
+												{{ row.violations }}
+											</UBadge>
+										</template>
+										<template #amount-data="{ row }">
+											<span class="font-semibold" :class="row.amount > 0 ? 'text-red-600' : 'text-green-600'">
+												${{ row.amount.toLocaleString() }}
+											</span>
+										</template>
+										<template #status-data="{ row }">
+											<UBadge
+												:color="row.violations === 0 ? 'green' : row.violations < 5 ? 'yellow' : 'red'"
+												variant="soft"
+											>
+												{{ row.violations === 0 ? 'CLEAN' : row.violations < 5 ? 'MODERATE' : 'SEVERE' }}
+											</UBadge>
+										</template>
+									</UTable>
+								</div>
+							</div>
+						</UCard>
+					</div>
+
 					<!-- Individual Violation Details -->
 					<div v-if="criticalViolations.length > 0" class="space-y-4">
 						<h3 class="text-xl font-semibold text-red-800 flex items-center gap-2">
@@ -455,7 +586,7 @@
 								</template>
 
 								<div class="mt-3 p-3 bg-white bg-opacity-20 rounded">
-									<p class="text-sm font-semibold">< Legal Risk: {{ violation.legalRisk }}</p>
+									<p class="text-sm font-semibold">⚖️ Legal Risk: {{ violation.legalRisk }}</p>
 									<p class="text-sm mt-1">💰 Penalty: {{ violation.penalty }}</p>
 									<p class="text-sm mt-1 font-semibold">🎯 Immediate Action: {{ violation.immediateAction }}</p>
 								</div>
@@ -671,7 +802,34 @@ const ytdTotals = computed(() => {
 
 			totalActualSpent += monthlyExpense;
 			totalDeposits += monthlyRevenue;
-			totalViolations += monthData.violations?.length || 0;
+
+			// Count unique violations using deduplication
+			const rawViolations = [];
+			const explicitViolations = monthData.violations || [];
+			explicitViolations.forEach((v) => {
+				rawViolations.push({
+					key: `${v.date}-${v.amount}`,
+					amount: v.amount,
+				});
+			});
+
+			const flaggedWithdrawals = (monthData.withdrawals || []).filter((w) => w.violation === true);
+			flaggedWithdrawals.forEach((w) => {
+				rawViolations.push({
+					key: `${w.date}-${w.amount}`,
+					amount: w.amount,
+				});
+			});
+
+			// Deduplicate violations for this month
+			const dedupedViolations = Object.values(
+				rawViolations.reduce((acc, item) => {
+					acc[item.key] = item;
+					return acc;
+				}, {}),
+			);
+
+			totalViolations += dedupedViolations.length;
 		} else {
 			monthlyBalances.push(0);
 			monthlyExpenses.push(0);
@@ -996,6 +1154,180 @@ const budgetColumns = [
 	{ key: 'status', label: 'STATUS' },
 ];
 
+// ===== UPDATED VIOLATION HANDLING WITH DEDUPLICATION =====
+
+// Detailed violation transactions for current month (WITH DEDUPLICATION)
+const violationTransactions = computed(() => {
+	const rawViolations = [];
+
+	// Get explicit violations from violations array
+	const explicitViolations = operatingData.value?.violations || [];
+	explicitViolations.forEach((v) => {
+		rawViolations.push({
+			key: `${v.date}-${v.amount}`,
+			date: v.date,
+			amount: v.amount,
+			vendor: v.vendor || 'Transfer to 5872',
+			description: v.description || 'Fund segregation violation',
+			accounts: v.accounts || '5129',
+			severity: v.severity || 'HIGH',
+			category: 'VIOLATION',
+			type: v.type || 'violation',
+		});
+	});
+
+	// Get violations from withdrawals marked as violations
+	const flaggedWithdrawals = (operatingData.value?.withdrawals || []).filter((w) => w.violation === true);
+	flaggedWithdrawals.forEach((w) => {
+		rawViolations.push({
+			key: `${w.date}-${w.amount}`,
+			date: w.date,
+			amount: w.amount,
+			vendor: w.vendor || 'Transfer to 5872',
+			description: w.vendor || 'Improper transfer',
+			note: w.note || 'Fund segregation violation',
+			accounts: w.accounts || '5129 → 5872',
+			severity: w.amount > 5000 ? 'CRITICAL' : 'HIGH',
+			category: w.category || 'VIOLATION',
+			type: 'withdrawal',
+		});
+	});
+
+	// Get special assessment violations if available
+	const specialData = getSpecialAssessmentData(selectedMonth.value);
+	const specialViolations = specialData?.improperTransfers || [];
+	specialViolations.forEach((v) => {
+		rawViolations.push({
+			key: `${v.date}-${v.amount}`,
+			date: v.date,
+			amount: v.amount,
+			vendor: `Transfer ${v.fromAccount} → ${v.toAccount}`,
+			description: v.description || 'Improper transfer between accounts',
+			accounts: `${v.fromAccount} → ${v.toAccount}`,
+			severity: 'CRITICAL',
+			category: 'VIOLATION',
+			type: 'inter-account',
+		});
+	});
+
+	// DEDUPLICATION: Remove duplicates using unique key (date + amount)
+	const deduped = Object.values(
+		rawViolations.reduce((acc, item) => {
+			acc[item.key] = item;
+			return acc;
+		}, {}),
+	);
+
+	// Sort by amount descending
+	return deduped.sort((a, b) => b.amount - a.amount);
+});
+
+// Violation table columns
+const violationColumns = [
+	{ key: 'date', label: 'DATE' },
+	{ key: 'amount', label: 'AMOUNT' },
+	{ key: 'description', label: 'DESCRIPTION' },
+	{ key: 'accounts', label: 'ACCOUNTS' },
+	{ key: 'severity', label: 'SEVERITY' },
+	{ key: 'category', label: 'CATEGORY' },
+];
+
+// Violation summary calculations (now accurate with deduplication)
+const violationTotalAmount = computed(() => violationTransactions.value.reduce((sum, v) => sum + v.amount, 0));
+
+const violationAccounts = computed(() => {
+	const accounts = new Set();
+	violationTransactions.value.forEach((v) => {
+		if (v.accounts) accounts.add(v.accounts);
+	});
+	return Array.from(accounts);
+});
+
+const mostCommonViolationType = computed(() => {
+	const types = {};
+	violationTransactions.value.forEach((v) => {
+		const type = v.description?.includes('transfer') ? 'Improper Transfer' : 'Fund Mixing';
+		types[type] = (types[type] || 0) + 1;
+	});
+	return Object.keys(types).reduce((a, b) => (types[a] > types[b] ? a : b), 'None');
+});
+
+const averageViolationAmount = computed(() => {
+	return violationTransactions.value.length > 0
+		? Math.round(violationTotalAmount.value / violationTransactions.value.length)
+		: 0;
+});
+
+// YTD Violation Summary (with deduplication)
+const ytdViolationSummary = computed(() => {
+	const months = ['January 2025', 'February 2025', 'March 2025', 'April 2025', 'May 2025', 'June 2025'];
+
+	return months.map((month) => {
+		const monthData = getOperatingData(month);
+		const specialData = getSpecialAssessmentData(month);
+		const rawViolations = [];
+
+		// Collect all violations for this month
+		const explicitViolations = monthData?.violations || [];
+		explicitViolations.forEach((v) => {
+			rawViolations.push({
+				key: `${v.date}-${v.amount}`,
+				amount: v.amount,
+			});
+		});
+
+		const flaggedWithdrawals = (monthData?.withdrawals || []).filter((w) => w.violation === true);
+		flaggedWithdrawals.forEach((w) => {
+			rawViolations.push({
+				key: `${w.date}-${w.amount}`,
+				amount: w.amount,
+			});
+		});
+
+		const specialViolations = specialData?.improperTransfers || [];
+		specialViolations.forEach((v) => {
+			rawViolations.push({
+				key: `${v.date}-${v.amount}`,
+				amount: v.amount,
+			});
+		});
+
+		// Deduplicate violations for this month
+		const dedupedViolations = Object.values(
+			rawViolations.reduce((acc, item) => {
+				acc[item.key] = item;
+				return acc;
+			}, {}),
+		);
+
+		return {
+			month: month.replace(' 2025', ''),
+			violations: dedupedViolations.length,
+			amount: dedupedViolations.reduce((sum, v) => sum + v.amount, 0),
+		};
+	});
+});
+
+const ytdTotalViolations = computed(() => ytdViolationSummary.value.reduce((sum, m) => sum + m.violations, 0));
+
+const ytdTotalViolationAmount = computed(() => ytdViolationSummary.value.reduce((sum, m) => sum + m.amount, 0));
+
+const ytdViolationTrend = computed(() => {
+	const recent = ytdViolationSummary.value.slice(-2);
+	if (recent.length < 2) return 0;
+	const change = recent[1].violations - recent[0].violations;
+	return recent[0].violations > 0 ? Math.round((change / recent[0].violations) * 100) : 0;
+});
+
+const ytdViolationColumns = [
+	{ key: 'month', label: 'MONTH' },
+	{ key: 'violations', label: 'VIOLATIONS' },
+	{ key: 'amount', label: 'AMOUNT' },
+	{ key: 'status', label: 'STATUS' },
+];
+
+// ===== END VIOLATION HANDLING =====
+
 // Account health data
 const accountHealth = computed(() => [
 	{
@@ -1030,11 +1362,14 @@ const accountHealth = computed(() => [
 	},
 ]);
 
-// Compliance and violations
-const fundSegregationStatus = computed(() => ({
-	compliant: (operatingData.value?.violations?.length || 0) === 0,
-	violations: operatingData.value?.violations?.length || 0,
-}));
+// Compliance and violations (UPDATED to use deduplicated count)
+const fundSegregationStatus = computed(() => {
+	const violationCount = violationTransactions.value.length;
+	return {
+		compliant: violationCount === 0,
+		violations: violationCount,
+	};
+});
 
 // Critical alerts
 const criticalAlerts = computed(() => {
@@ -1133,6 +1468,92 @@ const actionPlan = [
 	},
 ];
 
+// Monthly Financial Statement Validation
+const monthlyStatementCompliance = computed(() => {
+	const monthData = operatingData.value;
+	const reserveData = getReserveData(selectedMonth.value);
+	const specialData = getSpecialAssessmentData(selectedMonth.value);
+
+	// Check if all required account data exists
+	const hasOperatingData =
+		monthData &&
+		monthData.beginningBalance !== undefined &&
+		monthData.endingBalance !== undefined &&
+		Array.isArray(monthData.deposits) &&
+		Array.isArray(monthData.withdrawals);
+
+	const hasReserveData =
+		reserveData && reserveData.beginningBalance !== undefined && reserveData.endingBalance !== undefined;
+
+	const hasSpecialData =
+		specialData && specialData.beginningBalance !== undefined && specialData.endingBalance !== undefined;
+
+	// Check if reconciliation is mathematically accurate
+	const operatingReconciled = monthData
+		? Math.abs(
+				monthData.beginningBalance +
+					(monthData.deposits?.reduce((sum, d) => sum + d.amount, 0) || 0) -
+					(monthData.withdrawals?.reduce((sum, w) => sum + w.amount, 0) || 0) -
+					monthData.endingBalance,
+			) < 0.01
+		: false;
+
+	// Check if all transactions are categorized
+	const allTransactionsCategorized =
+		monthData?.withdrawals?.every((w) => w.category && w.category !== 'Uncategorized' && w.category !== '') || false;
+
+	// Check if all transactions have vendors/descriptions
+	const allTransactionsDescribed = monthData?.withdrawals?.every((w) => w.vendor && w.vendor.trim() !== '') || false;
+
+	const allDepositsDescribed = monthData?.deposits?.every((d) => d.description && d.description.trim() !== '') || false;
+
+	// Check if statement period is complete (not future month)
+	const currentDate = new Date();
+	const statementMonth = new Date(selectedMonth.value);
+	const isPastMonth = statementMonth < currentDate;
+
+	// Check if there are any missing dates or gaps
+	const hasCompleteTransactionData = monthData && (monthData.deposits?.length > 0 || monthData.withdrawals?.length > 0);
+
+	// Overall compliance calculation
+	const isCompliant =
+		hasOperatingData &&
+		hasReserveData &&
+		hasSpecialData &&
+		operatingReconciled &&
+		allTransactionsCategorized &&
+		allTransactionsDescribed &&
+		allDepositsDescribed &&
+		hasCompleteTransactionData &&
+		isPastMonth;
+
+	return {
+		compliant: isCompliant,
+		details: {
+			hasOperatingData,
+			hasReserveData,
+			hasSpecialData,
+			operatingReconciled,
+			allTransactionsCategorized,
+			allTransactionsDescribed,
+			allDepositsDescribed,
+			hasCompleteTransactionData,
+			isPastMonth,
+		},
+		issues: [
+			...(!hasOperatingData ? ['Operating account data incomplete'] : []),
+			...(!hasReserveData ? ['Reserve account data missing'] : []),
+			...(!hasSpecialData ? ['Special assessment account data missing'] : []),
+			...(!operatingReconciled ? ['Operating account reconciliation errors'] : []),
+			...(!allTransactionsCategorized ? ['Uncategorized transactions exist'] : []),
+			...(!allTransactionsDescribed ? ['Transactions missing vendor information'] : []),
+			...(!allDepositsDescribed ? ['Deposits missing descriptions'] : []),
+			...(!hasCompleteTransactionData ? ['No transaction data available'] : []),
+			...(!isPastMonth ? ['Statement period not yet complete'] : []),
+		],
+	};
+});
+
 const certificationChecklist = computed(() => [
 	{
 		id: 1,
@@ -1151,9 +1572,11 @@ const certificationChecklist = computed(() => [
 	{
 		id: 3,
 		requirement: 'Monthly financial statements prepared',
-		compliant: true,
-		checked: true,
-		action: null,
+		compliant: monthlyStatementCompliance.value.compliant,
+		checked: monthlyStatementCompliance.value.compliant,
+		action: monthlyStatementCompliance.value.compliant
+			? null
+			: `Address issues: ${monthlyStatementCompliance.value.issues.join(', ')}`,
 	},
 ]);
 
