@@ -1,639 +1,713 @@
 <template>
-	<div class="p-6 space-y-8">
+	<div class="container mx-auto p-6 space-y-8">
 		<!-- Header -->
-		<div class="flex justify-between items-start">
-			<div>
-				<h1 class="text-3xl font-bold text-gray-900">Financial Dashboard</h1>
-				<p class="text-gray-600 mt-1">Lenox Plaza Association - Miami Beach, Florida</p>
-			</div>
-			<div class="flex gap-3">
-				<UBadge
-					:color="
-						complianceRisk.riskLevel === 'CRITICAL' ? 'red' : complianceRisk.riskLevel === 'HIGH' ? 'orange' : 'green'
-					"
-					size="lg"
-					class="px-4 py-2"
-				>
-					FL Compliance: {{ complianceRisk.riskLevel }}
-				</UBadge>
-				<UBadge :color="financialHealth.color" size="lg" class="px-4 py-2">
-					{{ financialHealth.status }}: {{ financialHealth.score }}/100
-				</UBadge>
-			</div>
+		<div class="mb-8">
+			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2">FINANCIAL DASHBOARD</h1>
+			<p class="text-gray-600">LENOX PLAZA ASSOCIATION - 2025 OPERATING BUDGET</p>
 		</div>
 
-		<!-- 🚨 CRITICAL COMPLIANCE ALERTS - FLORIDA LAW -->
-		<div v-if="criticalViolations.length > 0" class="space-y-4">
-			<div class="bg-red-50 border-2 border-red-200 rounded-lg p-6">
-				<div class="flex items-start gap-4">
-					<UIcon name="i-heroicons-exclamation-triangle" class="text-red-600 text-2xl mt-1" />
-					<div class="flex-1">
-						<h2 class="text-2xl font-bold text-red-800 mb-4">🚨 FLORIDA STATUTE VIOLATIONS DETECTED</h2>
-						<div class="bg-red-100 p-4 rounded-lg mb-4">
-							<p class="text-red-800 text-lg font-semibold">⚖️ BOARD MEMBER PERSONAL LIABILITY RISK</p>
-							<p class="text-red-700 mt-2">
-								Under Florida Chapter 720, board members may face
-								<strong>personal financial liability</strong>
-								and
-								<strong>criminal penalties</strong>
-								for fund mixing violations.
-							</p>
-						</div>
-					</div>
-				</div>
-			</div>
+		<!-- Executive Summary Section -->
+		<div class="mb-8">
+			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center">
+				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-blue-600" />
+				EXECUTIVE SUMMARY (YEAR-TO-DATE)
+			</h2>
 
-			<!-- Individual Violation Alerts -->
-			<div class="grid grid-cols-1 gap-4">
-				<UAlert
-					v-for="violation in criticalViolations"
-					:key="violation.type"
-					:icon="
-						violation.severity === 'CRITICAL' ? 'i-heroicons-exclamation-triangle' : 'i-heroicons-exclamation-circle'
-					"
-					:color="violation.severity === 'CRITICAL' ? 'red' : 'orange'"
-					variant="solid"
-					:title="violation.title"
-					:description="violation.description"
+			<!-- Key Performance Indicators -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+				<!-- Financial Health Score -->
+				<UCard
+					class="text-center rounded-[4px] shadow"
+					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500' : ''"
 				>
-					<template #title>
-						<div class="flex justify-between items-start">
-							<span>{{ violation.title }}</span>
-							<UBadge color="white" variant="solid" size="xs">
-								{{ violation.statute }}
-							</UBadge>
-						</div>
-					</template>
-
-					<div class="mt-3 p-3 bg-white bg-opacity-20 rounded">
-						<p class="text-sm font-semibold">⚖️ Legal Risk: {{ violation.legalRisk }}</p>
-						<p class="text-sm mt-1">💰 Penalty: {{ violation.penalty }}</p>
-						<p class="text-sm mt-1 font-semibold">🎯 Immediate Action: {{ violation.immediateAction }}</p>
+					<div class="space-y-2">
+						<UIcon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
+						<p class="text-sm uppercase tracking-wider text-gray-600">FINANCIAL HEALTH</p>
+						<p class="text-3xl font-bold" :class="financialHealthColor">{{ realYtdData.financialHealthScore }}%</p>
+						<p class="text-xs font-medium" :class="financialHealthColor">{{ realYtdData.financialHealthStatus }}</p>
 					</div>
-				</UAlert>
-			</div>
-		</div>
+				</UCard>
 
-		<!-- EMERGENCY ACTIONS REQUIRED -->
-		<UCard v-if="emergencyActions.length > 0" class="border-2 border-red-300">
-			<template #header>
-				<div class="flex items-center gap-3">
-					<UIcon name="i-heroicons-fire" class="text-red-600 text-xl" />
-					<h3 class="text-lg font-bold text-red-800">EMERGENCY ACTIONS REQUIRED</h3>
-					<UBadge color="red" variant="solid">IMMEDIATE</UBadge>
-				</div>
-			</template>
-
-			<div class="space-y-4">
-				<div
-					v-for="action in emergencyActions"
-					:key="action.priority"
-					class="flex items-start gap-4 p-4 bg-red-50 rounded-lg"
+				<!-- YTD Cash Decline -->
+				<UCard
+					class="text-center rounded-[4px] shadow"
+					:class="realYtdData.ytdCashChange < 0 ? 'border border-red-500' : ''"
 				>
-					<div class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
-						{{ action.priority }}
+					<div class="space-y-2">
+						<UIcon
+							name="i-heroicons-arrow-trending-down"
+							class="w-8 h-8 mx-auto"
+							:class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'"
+						/>
+						<p class="text-sm uppercase tracking-wider text-gray-600">YTD CASH CHANGE</p>
+						<p class="text-3xl font-bold" :class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'">
+							{{ realYtdData.ytdCashChange >= 0 ? '+' : '' }}${{ Math.abs(realYtdData.ytdCashChange).toLocaleString() }}
+						</p>
+						<p class="text-xs text-gray-500">JAN - {{ selectedMonth.replace(' 2025', '').toUpperCase() }}</p>
 					</div>
-					<div class="flex-1">
-						<h4 class="font-bold text-red-800">{{ action.action.replace(/_/g, ' ') }}</h4>
-						<p class="text-red-700 mt-1">{{ action.description }}</p>
-						<div class="flex gap-4 mt-2">
-							<UBadge :color="action.timeframe === 'IMMEDIATE' ? 'red' : 'orange'" variant="soft" size="xs">
-								{{ action.timeframe.replace(/_/g, ' ') }}
-							</UBadge>
-							<span class="text-sm text-red-600">Responsible: {{ action.responsible }}</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</UCard>
+				</UCard>
 
-		<!-- Board Protection Actions -->
-		<UCard class="border-2 border-blue-300">
-			<template #header>
-				<div class="flex items-center gap-3">
-					<UIcon name="i-heroicons-shield-check" class="text-blue-600 text-xl" />
-					<h3 class="text-lg font-bold text-blue-800">BOARD MEMBER PROTECTION ACTIONS</h3>
-				</div>
-			</template>
-
-			<div class="space-y-4">
-				<div
-					v-for="protection in boardProtections"
-					:key="protection.protection"
-					class="p-4 border border-blue-200 rounded-lg"
+				<!-- Monthly Burn Rate -->
+				<UCard
+					class="text-center rounded-[4px] shadow"
+					:class="realYtdData.monthlyBurnRate > 5000 ? 'border border-red-500' : ''"
 				>
-					<div class="flex justify-between items-start mb-2">
-						<h4 class="font-bold text-blue-800">{{ protection.title }}</h4>
-						<UBadge
-							:color="
-								protection.urgency === 'IMMEDIATE' ? 'red' : protection.urgency === 'THIS_WEEK' ? 'orange' : 'blue'
-							"
-							variant="soft"
-							size="xs"
+					<div class="space-y-2">
+						<UIcon
+							name="i-heroicons-fire"
+							class="w-8 h-8 mx-auto"
+							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'"
+						/>
+						<p class="text-sm uppercase tracking-wider text-gray-600">AVG MONTHLY BURN</p>
+						<p
+							class="text-3xl font-bold"
+							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'"
 						>
-							{{ protection.urgency.replace(/_/g, ' ') }}
-						</UBadge>
+							${{ realYtdData.monthlyBurnRate.toLocaleString() }}
+						</p>
+						<p class="text-xs text-gray-500">6-MONTH AVERAGE</p>
 					</div>
-					<p class="text-blue-700 text-sm">{{ protection.description }}</p>
-					<div v-if="protection.template" class="mt-3 p-3 bg-blue-50 rounded text-xs font-mono">
-						{{ protection.template }}
-					</div>
-				</div>
-			</div>
-		</UCard>
+				</UCard>
 
-		<!-- Florida Compliance Checklist -->
-		<UCard>
-			<template #header>
-				<h3 class="text-lg font-semibold flex items-center gap-2">
-					<UIcon name="i-heroicons-clipboard-document-check" />
-					Florida Chapter 720 Compliance Status
-				</h3>
-			</template>
-
-			<div class="space-y-4">
-				<div
-					v-for="item in complianceChecklist"
-					:key="item.item"
-					class="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+				<!-- Cash Runway -->
+				<UCard
+					class="text-center rounded-[4px] shadow"
+					:class="realYtdData.cashRunwayMonths < 12 ? 'border border-red-500' : ''"
 				>
-					<div class="flex-1">
-						<div class="flex items-center gap-3">
-							<UIcon
-								:name="
-									item.compliant === true
-										? 'i-heroicons-check-circle'
-										: item.compliant === false
-											? 'i-heroicons-x-circle'
-											: 'i-heroicons-question-mark-circle'
-								"
-								:class="
-									item.compliant === true
-										? 'text-green-600'
-										: item.compliant === false
-											? 'text-red-600'
-											: 'text-yellow-600'
-								"
-								class="text-xl"
-							/>
-							<div>
-								<h4 class="font-semibold">{{ item.item }}</h4>
-								<p class="text-sm text-gray-600">{{ item.requirement }}</p>
-								<UBadge color="gray" variant="soft" size="xs" class="mt-1">{{ item.statute }}</UBadge>
+					<div class="space-y-2">
+						<UIcon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunwayColor" />
+						<p class="text-sm uppercase tracking-wider text-gray-600">CASH RUNWAY</p>
+						<p class="text-3xl font-bold" :class="cashRunwayColor">{{ realYtdData.cashRunwayMonths }} mo</p>
+						<p class="text-xs font-medium" :class="cashRunwayColor">{{ cashRunwayStatus }}</p>
+					</div>
+				</UCard>
+			</div>
+
+			<!-- YTD Trends Chart -->
+			<UCard class="mb-6">
+				<template #header>
+					<h3 class="text-lg font-semibold uppercase tracking-wide">YTD CASH FLOW TRENDS</h3>
+				</template>
+				<div class="h-80">
+					<Line :data="realYtdCashFlowData" :options="ytdChartOptions" />
+				</div>
+			</UCard>
+
+			<!-- Budget Performance YTD -->
+			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+				<UCard>
+					<template #header>
+						<h3 class="text-lg font-semibold uppercase tracking-wide">YTD BUDGET PERFORMANCE</h3>
+					</template>
+					<div class="space-y-4">
+						<div class="text-center mb-4">
+							<p
+								class="text-3xl font-bold"
+								:class="realYtdData.ytdBudgetUtilization > 85 ? 'text-red-600' : 'text-green-600'"
+							>
+								{{ realYtdData.ytdBudgetUtilization }}%
+							</p>
+							<p class="text-sm text-gray-600">BUDGET UTILIZED</p>
+						</div>
+						<div class="space-y-3">
+							<div v-for="category in realYtdBudgetCategories" :key="category.name" class="space-y-2">
+								<div class="flex justify-between text-sm">
+									<span class="font-medium">{{ category.name }}</span>
+									<span :class="category.variance > 0 ? 'text-red-600' : 'text-green-600'">
+										{{ category.variance > 0 ? '+' : '' }}{{ category.variance }}%
+									</span>
+								</div>
+								<div class="w-full bg-gray-200 rounded-full h-2">
+									<div
+										class="h-2 rounded-full transition-all duration-300"
+										:class="category.variance > 0 ? 'bg-red-500' : 'bg-green-500'"
+										:style="`width: ${Math.min(category.utilization, 100)}%`"
+									/>
+								</div>
 							</div>
 						</div>
 					</div>
-					<div class="text-right">
-						<UBadge
-							:color="item.compliant === true ? 'green' : item.compliant === false ? 'red' : 'yellow'"
-							variant="soft"
-						>
-							{{ item.compliant === true ? 'COMPLIANT' : item.compliant === false ? 'VIOLATION' : 'UNKNOWN' }}
-						</UBadge>
-						<p v-if="item.action" class="text-xs text-gray-600 mt-1 max-w-48">{{ item.action }}</p>
+				</UCard>
+
+				<UCard>
+					<template #header>
+						<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
+					</template>
+					<div class="space-y-4">
+						<div class="text-center mb-4">
+							<UIcon
+								:name="complianceStatus.compliant ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
+								class="w-12 h-12 mx-auto mb-2"
+								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'"
+							/>
+							<p class="text-lg font-bold" :class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'">
+								{{ complianceStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
+							</p>
+						</div>
+						<div class="space-y-2">
+							<div class="flex justify-between p-3 bg-gray-50 rounded-lg">
+								<span class="font-medium">YTD Fund Segregation</span>
+								<span :class="realYtdViolations === 0 ? 'text-green-600' : 'text-red-600'">
+									{{ realYtdViolations === 0 ? '✓ Clean' : `${realYtdViolations} Issues` }}
+								</span>
+							</div>
+							<div class="flex justify-between p-3 bg-gray-50 rounded-lg">
+								<span class="font-medium">Operating Balance</span>
+								<span :class="operatingBalance < 25000 ? 'text-red-600' : 'text-green-600'">
+									{{ operatingBalance < 25000 ? '⚠ Below Min' : '✓ Adequate' }}
+								</span>
+							</div>
+							<div class="flex justify-between p-3 bg-gray-50 rounded-lg">
+								<span class="font-medium">Budget Compliance</span>
+								<span :class="realYtdData.ytdBudgetUtilization > 100 ? 'text-red-600' : 'text-green-600'">
+									{{ realYtdData.ytdBudgetUtilization > 100 ? '⚠ Over Budget' : '✓ On Track' }}
+								</span>
+							</div>
+						</div>
 					</div>
-				</div>
+				</UCard>
 			</div>
-		</UCard>
-
-		<!-- Account Balances Overview -->
-		<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		</div>
+		<div class="w-full grid grid-cols-3 md:grid-cols-6 gap-4">
+			<nuxt-link
+				v-for="month in monthOptions"
+				:to="`/financials/monthly-report/${month.label.replace(' 2025', '').toLowerCase()}`"
+				class="rounded-md py-6 text-sm font-medium text-gray-900 bg-gray-50/20 hover:bg-gray-300 focus:outline-none flex flex-row items-center justify-center border border-gray-200"
+			>
+				{{ month.label }}
+				<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 ml-2" />
+			</nuxt-link>
+		</div>
+		<!-- Month Selection and Summary Cards -->
+		<div class="w-full">
+			<USelect v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
+		</div>
+		<!-- <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
 			<UCard>
-				<template #header>
-					<h3 class="text-lg font-semibold flex items-center gap-2">
-						<UIcon name="i-heroicons-banknotes" />
-						Account Balances
-					</h3>
-				</template>
-
-				<div class="space-y-4">
-					<div v-for="account in accountBalances" :key="account.name" class="space-y-2">
-						<div class="flex justify-between items-center">
-							<span class="font-medium">{{ account.name }}</span>
-							<span :class="account.color" class="font-bold">${{ account.balance.toLocaleString() }}</span>
-						</div>
-						<div class="w-full bg-gray-200 rounded-full h-2">
-							<div
-								:class="account.barClass"
-								class="h-2 rounded-full transition-all duration-300"
-								:style="{ width: `${Math.min(account.percent, 100)}%` }"
-							></div>
-						</div>
-						<p class="text-sm text-gray-600">{{ account.note }}</p>
-					</div>
+				<div class="text-center">
+					<p class="text-3xl font-bold" :class="operatingBalance < 25000 ? 'text-red-600' : 'text-gray-900'">
+						${{ operatingBalance.toLocaleString() }}
+					</p>
+					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">OPERATING BALANCE</p>
 				</div>
 			</UCard>
 
-			<!-- Cash Flow Summary -->
 			<UCard>
-				<template #header>
-					<h3 class="text-lg font-semibold flex items-center gap-2">
-						<UIcon name="i-heroicons-arrow-trending-up" />
-						Cash Flow Analysis
-					</h3>
-				</template>
-
-				<div class="space-y-4">
-					<div class="grid grid-cols-2 gap-4">
-						<div class="text-center">
-							<p class="text-sm text-gray-600">Monthly Revenue</p>
-							<p class="text-xl font-bold text-green-600">${{ monthlyRevenue.toLocaleString() }}</p>
-						</div>
-						<div class="text-center">
-							<p class="text-sm text-gray-600">Monthly Expenses</p>
-							<p class="text-xl font-bold text-red-600">${{ monthlyExpenses.toLocaleString() }}</p>
-						</div>
-					</div>
-
-					<div class="text-center border-t pt-4">
-						<p class="text-sm text-gray-600">Net Cash Flow</p>
-						<p :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'" class="text-2xl font-bold">
-							{{ monthlyChange >= 0 ? '+' : '' }}${{ monthlyChange.toLocaleString() }}
-						</p>
-					</div>
-
-					<div class="grid grid-cols-2 gap-4 pt-4 border-t">
-						<div class="text-center">
-							<p class="text-sm text-gray-600">Burn Rate</p>
-							<p class="text-lg font-semibold">${{ monthlyBurnRate.toLocaleString() }}/mo</p>
-						</div>
-						<div class="text-center">
-							<p class="text-sm text-gray-600">Cash Runway</p>
-							<p :class="cashRunway.color" class="text-lg font-semibold">{{ cashRunway.months }} months</p>
-						</div>
-					</div>
+				<div class="text-center">
+					<p class="text-3xl font-bold" :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'">
+						{{ monthlyChange >= 0 ? '+' : '' }}${{ Math.abs(monthlyChange).toLocaleString() }}
+					</p>
+					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">NET CASH FLOW</p>
 				</div>
 			</UCard>
+
+			<UCard>
+				<div class="text-center">
+					<p class="text-3xl font-bold" :class="expenseVariance > 0 ? 'text-red-600' : 'text-green-600'">
+						<span class="font-medium">{{ Math.abs(expenseVariance) }}%</span>
+						{{ expenseVariance > 0 ? 'OVER' : 'UNDER' }} BUDGET
+					</p>
+				</div>
+			</UCard>
+
+			<UCard>
+				<div class="text-center">
+					<p
+						class="text-3xl font-bold"
+						:class="fundSegregationStatus.violations > 0 ? 'text-red-600' : 'text-green-600'"
+					>
+						{{ fundSegregationStatus.violations }}
+					</p>
+					<p class="text-sm text-gray-600 uppercase tracking-wide mt-1">VIOLATIONS</p>
+				</div>
+			</UCard>
+		</div> -->
+
+		<!-- Critical Alerts -->
+		<div v-if="criticalAlerts.length > 0" class="mb-8">
+			<UAlert
+				v-for="alert in criticalAlerts"
+				:key="alert.id"
+				:title="alert.title"
+				:description="alert.description"
+				color="red"
+				variant="subtle"
+				class="mb-3"
+			>
+				<template #icon>
+					<UIcon name="i-heroicons-exclamation-triangle" />
+				</template>
+				<template #actions>
+					<UButton color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</UButton>
+				</template>
+			</UAlert>
 		</div>
 
-		<!-- Budget vs Actual Analysis -->
-		<UCard>
-			<template #header>
-				<div class="flex justify-between items-center">
-					<h3 class="text-lg font-semibold flex items-center gap-2">
-						<UIcon name="i-heroicons-calculator" />
-						Budget vs Actual Analysis (Current Month)
-					</h3>
-					<UBadge color="blue" variant="soft">Based on 2025 Operating Budget</UBadge>
+		<!-- Main Content Tabs -->
+		<UTabs v-model="activeTab" :items="tabs" class="space-y-6">
+			<!-- Overview Tab -->
+			<template #overview>
+				<div class="space-y-6 lg:space-y-0 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+					<!-- Monthly Summary Component -->
+					<FinancialsMonthlySummary
+						:month="selectedMonth.replace(' 2025', '')"
+						:income="monthlyRevenue"
+						:expenses="monthlyExpenses"
+						:ending-balance="operatingBalance"
+						:beginning-balance="beginningBalance"
+						:violations="fundSegregationStatus.violations"
+						:insurance-expense="insuranceExpense"
+						:professional-expense="professionalExpense"
+						:utility-expense="utilityExpense"
+						:maintenance-expense="maintenanceExpense"
+					/>
+
+					<!-- Account Health Status -->
+					<UCard>
+						<template #header>
+							<h3 class="text-lg font-semibold uppercase tracking-wide">ACCOUNT HEALTH STATUS</h3>
+						</template>
+						<div class="space-y-4">
+							<div v-for="account in accountHealth" :key="account.name" class="space-y-2">
+								<div class="flex items-center justify-between">
+									<span class="font-medium">{{ account.name }}</span>
+									<UBadge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
+								</div>
+								<div class="w-full bg-gray-200 rounded-full h-2">
+									<div
+										class="h-2 rounded-full transition-all duration-500"
+										:class="account.barClass"
+										:style="`width: ${account.percent}%`"
+									/>
+								</div>
+								<p class="text-xs text-gray-600">{{ account.note }}</p>
+							</div>
+						</div>
+					</UCard>
+
+					<!-- Monthly Cash Flow -->
+					<UCard>
+						<template #header>
+							<h3 class="text-lg font-semibold uppercase tracking-wide">MONTHLY BREAKDOWN</h3>
+						</template>
+						<div class="h-64">
+							<Bar :data="monthlyBreakdownData" :options="chartOptions" />
+						</div>
+					</UCard>
+				</div>
+
+				<!-- Quick Actions -->
+				<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+					<UCard
+						class="hover:shadow-lg transition-shadow cursor-pointer"
+						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)"
+					>
+						<div class="flex items-center space-x-3">
+							<div class="p-3 bg-blue-100 rounded-lg">
+								<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
+							</div>
+							<div>
+								<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
+								<p class="text-sm text-gray-600">View detailed transactions</p>
+							</div>
+						</div>
+					</UCard>
+
+					<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
+						<div class="flex items-center space-x-3">
+							<div class="p-3 bg-green-100 rounded-lg">
+								<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
+							</div>
+							<div>
+								<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
+								<p class="text-sm text-gray-600">Compare budget vs actual</p>
+							</div>
+						</div>
+					</UCard>
+
+					<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
+						<div class="flex items-center space-x-3">
+							<div class="p-3 bg-purple-100 rounded-lg">
+								<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
+							</div>
+							<div>
+								<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
+								<p class="text-sm text-gray-600">Fund segregation status</p>
+								<UBadge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
+									{{ fundSegregationStatus.violations }}
+								</UBadge>
+							</div>
+						</div>
+					</UCard>
 				</div>
 			</template>
 
-			<div class="space-y-6">
-				<!-- Budget Overview -->
-				<div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Monthly Budget</p>
-						<p class="text-xl font-bold">${{ budget.totals.monthly.toLocaleString() }}</p>
-					</div>
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Actual Expenses</p>
-						<p class="text-xl font-bold text-red-600">${{ monthlyExpenses.toLocaleString() }}</p>
-					</div>
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Variance</p>
-						<p :class="expenseVariance >= 0 ? 'text-red-600' : 'text-green-600'" class="text-xl font-bold">
-							{{ expenseVariance >= 0 ? '+' : '' }}{{ expenseVariance }}%
-						</p>
-					</div>
-				</div>
+			<!-- Budget Analysis Tab -->
+			<template #budget>
+				<UCard>
+					<template #header>
+						<h3 class="text-lg font-semibold uppercase tracking-wide">BUDGET VS ACTUAL - {{ selectedMonth }}</h3>
+					</template>
+					<div class="space-y-6">
+						<!-- Monthly Summary Metrics -->
+						<div class="grid grid-cols-4 gap-4 text-center">
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">BUDGETED REVENUE</p>
+								<p class="text-2xl font-bold text-gray-900">${{ budgetedRevenue.toLocaleString() }}</p>
+							</div>
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">ACTUAL REVENUE</p>
+								<p class="text-2xl font-bold" :class="revenueVariance >= 0 ? 'text-green-600' : 'text-red-600'">
+									${{ monthlyRevenue.toLocaleString() }}
+								</p>
+							</div>
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">REVENUE VARIANCE</p>
+								<p class="text-2xl font-bold" :class="revenueVariance >= 0 ? 'text-green-600' : 'text-red-600'">
+									{{ revenueVariance >= 0 ? '+' : '' }}{{ revenueVariance }}%
+								</p>
+							</div>
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">NET BUDGET VARIANCE</p>
+								<p class="text-2xl font-bold" :class="netBudgetVariance >= 0 ? 'text-red-600' : 'text-green-600'">
+									{{ netBudgetVariance >= 0 ? '+' : '' }}{{ netBudgetVariance }}%
+								</p>
+							</div>
+						</div>
 
-				<!-- Category Breakdown -->
-				<UTable :rows="budgetVariances" :columns="budgetColumns">
-					<template #category-data="{ row }">
-						<span class="font-medium">{{ row.category }}</span>
-					</template>
-					<template #budgeted-data="{ row }">
-						<span class="text-gray-900">${{ row.budgeted.toLocaleString() }}</span>
-					</template>
-					<template #actual-data="{ row }">
-						<span class="font-semibold">${{ row.actual.toLocaleString() }}</span>
-					</template>
-					<template #variance-data="{ row }">
-						<span :class="row.variance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
-							{{ row.variance >= 0 ? '+' : '' }}${{ Math.abs(row.variance).toLocaleString() }}
-						</span>
-					</template>
-					<template #percent-data="{ row }">
-						<UBadge :color="row.variance > 10 ? 'red' : row.variance < -10 ? 'green' : 'gray'" variant="soft">
-							{{ row.percent }}%
-						</UBadge>
-					</template>
-				</UTable>
-			</div>
-		</UCard>
+						<!-- Year-to-Date Analytics - UPDATED WITH REAL DATA -->
+						<div class="grid grid-cols-3 gap-4 text-center p-6 bg-gray-50 rounded-lg">
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">YTD VARIANCE</p>
+								<p class="text-2xl font-bold" :class="realYtdData.ytdVariance > 0 ? 'text-red-600' : 'text-green-600'">
+									{{ realYtdData.ytdVariance > 0 ? '+' : '' }}{{ realYtdData.ytdVariance }}%
+								</p>
+							</div>
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">BUDGET ACCURACY</p>
+								<p class="text-2xl font-bold text-gray-900">{{ realYtdData.budgetAccuracy }}%</p>
+							</div>
+							<div>
+								<p class="text-sm uppercase tracking-wide text-gray-600">PROJECTED YEAR-END</p>
+								<p class="text-2xl font-bold text-gray-900">${{ projectedYearEnd.toLocaleString() }}</p>
+							</div>
+						</div>
 
-		<!-- YTD Performance Chart -->
-		<UCard>
-			<template #header>
-				<h3 class="text-lg font-semibold flex items-center gap-2">
-					<UIcon name="i-heroicons-chart-bar" />
-					Year-to-Date Performance
-				</h3>
+						<!-- Budget Chart -->
+						<div class="h-80">
+							<Bar :data="budgetChartData" :options="budgetChartOptions" />
+						</div>
+
+						<!-- Variance Table -->
+						<UTable :rows="budgetVariances" :columns="budgetColumns">
+							<template #category-data="{ row }">
+								<span class="font-medium">{{ row.category }}</span>
+							</template>
+							<template #budgeted-data="{ row }">
+								<span class="text-gray-900">${{ row.budgeted.toLocaleString() }}</span>
+							</template>
+							<template #actual-data="{ row }">
+								<span class="font-semibold">${{ row.actual.toLocaleString() }}</span>
+							</template>
+							<template #variance-data="{ row }">
+								<span :class="row.variance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
+									{{ row.variance >= 0 ? '+' : '' }}${{ Math.abs(row.variance).toLocaleString() }}
+								</span>
+							</template>
+							<template #percent-data="{ row }">
+								<span :class="row.percentVariance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
+									{{ row.percentVariance >= 0 ? '+' : '' }}{{ row.percentVariance }}%
+								</span>
+							</template>
+							<template #status-data="{ row }">
+								<UBadge :color="row.statusColor" variant="soft" size="xs">
+									{{ row.status }}
+								</UBadge>
+							</template>
+						</UTable>
+					</div>
+				</UCard>
 			</template>
 
-			<div class="space-y-6">
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-					<div class="text-center">
-						<p class="text-sm text-gray-600">YTD Cash Change</p>
-						<p :class="ytdCashChange >= 0 ? 'text-green-600' : 'text-red-600'" class="text-2xl font-bold">
-							{{ ytdCashChange >= 0 ? '+' : '' }}${{ ytdCashChange.toLocaleString() }}
-						</p>
-					</div>
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Budget Utilization</p>
-						<p class="text-2xl font-bold">{{ ytdBudgetUtilization.toFixed(1) }}%</p>
-					</div>
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Collection Rate</p>
-						<p class="text-2xl font-bold text-green-600">{{ collectionRate }}%</p>
-					</div>
-					<div class="text-center">
-						<p class="text-sm text-gray-600">Violations</p>
-						<p class="text-2xl font-bold text-red-600">{{ ytdViolations }}</p>
-					</div>
-				</div>
+			<!-- Violations Tab -->
+			<template #violations>
+				<div class="space-y-6">
+					<!-- Compliance Status Overview -->
+					<UCard>
+						<template #header>
+							<div class="flex items-center justify-between">
+								<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
+								<UBadge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="solid">
+									{{ fundSegregationStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
+								</UBadge>
+							</div>
+						</template>
 
-				<div class="h-80">
-					<Line :data="ytdCashFlowData" :options="ytdChartOptions" />
-				</div>
-			</div>
-		</UCard>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div class="space-y-4">
+								<div
+									class="flex items-center justify-between p-4 rounded-lg"
+									:class="fundSegregationStatus.compliant ? 'bg-green-50' : 'bg-red-50'"
+								>
+									<div class="flex items-center space-x-3">
+										<UIcon
+											:name="
+												fundSegregationStatus.compliant
+													? 'i-heroicons-check-circle'
+													: 'i-heroicons-exclamation-triangle'
+											"
+											:class="fundSegregationStatus.compliant ? 'text-green-600' : 'text-red-600'"
+											class="w-6 h-6"
+										/>
+										<span class="font-semibold">Fund Segregation</span>
+									</div>
+									<UBadge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="subtle">
+										{{ fundSegregationStatus.violations }} Violations
+									</UBadge>
+								</div>
+							</div>
 
-		<!-- Emergency Contact Information -->
-		<UCard class="border-2 border-yellow-300">
-			<template #header>
-				<div class="flex items-center gap-3">
-					<UIcon name="i-heroicons-phone" class="text-yellow-600 text-xl" />
-					<h3 class="text-lg font-bold text-yellow-800">Emergency Legal Contacts</h3>
+							<div class="space-y-4">
+								<h4 class="font-semibold text-gray-900">Required Actions</h4>
+								<ul class="space-y-2">
+									<li v-for="action in requiredActions" :key="action" class="flex items-start space-x-2">
+										<UIcon name="i-heroicons-arrow-right" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+										<span class="text-sm text-gray-700">{{ action }}</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</UCard>
+
+					<!-- Individual Violation Details -->
+					<div v-if="criticalViolations.length > 0" class="space-y-4">
+						<h3 class="text-xl font-semibold text-red-800 flex items-center gap-2">
+							<UIcon name="i-heroicons-exclamation-triangle" class="text-red-600" />
+							CRITICAL VIOLATIONS DETECTED
+						</h3>
+
+						<div class="grid grid-cols-1 gap-4">
+							<UAlert
+								v-for="violation in criticalViolations"
+								:key="violation.type"
+								:color="violation.severity === 'CRITICAL' ? 'red' : 'orange'"
+								variant="solid"
+								:title="violation.title"
+								:description="violation.description"
+							>
+								<template #icon>
+									<UIcon
+										:name="
+											violation.severity === 'CRITICAL'
+												? 'i-heroicons-exclamation-triangle'
+												: 'i-heroicons-exclamation-circle'
+										"
+									/>
+								</template>
+
+								<template #title>
+									<div class="flex justify-between items-start">
+										<span>{{ violation.title }}</span>
+										<UBadge color="white" variant="solid" size="xs">
+											{{ violation.statute }}
+										</UBadge>
+									</div>
+								</template>
+
+								<div class="mt-3 p-3 bg-white bg-opacity-20 rounded">
+									<p class="text-sm font-semibold">< Legal Risk: {{ violation.legalRisk }}</p>
+									<p class="text-sm mt-1">💰 Penalty: {{ violation.penalty }}</p>
+									<p class="text-sm mt-1 font-semibold">🎯 Immediate Action: {{ violation.immediateAction }}</p>
+								</div>
+							</UAlert>
+						</div>
+					</div>
+
+					<!-- Emergency Actions Required -->
+					<UCard v-if="emergencyActions.length > 0" class="border-2 border-red-300">
+						<template #header>
+							<div class="flex items-center gap-3">
+								<UIcon name="i-heroicons-fire" class="text-red-600 text-xl" />
+								<h3 class="text-lg font-bold text-red-800">EMERGENCY ACTIONS REQUIRED</h3>
+								<UBadge color="red" variant="solid">IMMEDIATE</UBadge>
+							</div>
+						</template>
+
+						<div class="space-y-4">
+							<div
+								v-for="action in emergencyActions"
+								:key="action.priority"
+								class="flex items-start gap-4 p-4 bg-red-50 rounded-lg"
+							>
+								<div
+									class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
+								>
+									{{ action.priority }}
+								</div>
+								<div class="flex-1">
+									<h4 class="font-bold text-red-800">{{ action.action.replace(/_/g, ' ') }}</h4>
+									<p class="text-red-700 mt-1">{{ action.description }}</p>
+									<div class="flex gap-4 mt-2">
+										<UBadge :color="action.timeframe === 'IMMEDIATE' ? 'red' : 'orange'" variant="soft" size="xs">
+											{{ action.timeframe }}
+										</UBadge>
+										<UBadge color="gray" variant="soft" size="xs">
+											{{ action.responsible }}
+										</UBadge>
+									</div>
+								</div>
+							</div>
+						</div>
+					</UCard>
+
+					<!-- Action Plan Timeline -->
+					<div class="space-y-6">
+						<h3 class="text-xl font-semibold text-gray-900">CORRECTIVE ACTION PLAN</h3>
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+							<div
+								v-for="period in actionPlan"
+								:key="period.period"
+								class="p-6 border-l-4 bg-gray-50 rounded-r-lg"
+								:class="period.borderClass"
+							>
+								<div class="flex items-center gap-3 mb-4">
+									<UIcon name="i-heroicons-clock" :class="period.iconClass" class="w-5 h-5" />
+									<h4 class="font-bold text-gray-900">{{ period.period }}</h4>
+								</div>
+								<ul class="space-y-2">
+									<li v-for="item in period.items" :key="item" class="flex items-start gap-2">
+										<UIcon name="i-heroicons-check-circle" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+										<span class="text-sm text-gray-700">{{ item }}</span>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+
+					<!-- Compliance Checklist -->
+					<UCard>
+						<template #header>
+							<h3 class="text-lg font-semibold uppercase tracking-wide">FLORIDA COMPLIANCE CHECKLIST</h3>
+						</template>
+
+						<div class="space-y-4">
+							<div v-for="item in certificationChecklist" :key="item.id" class="flex items-start space-x-3">
+								<UCheckbox
+									v-model="item.checked"
+									:disabled="!item.compliant"
+									:color="item.compliant ? 'green' : 'red'"
+									class="mt-1"
+								/>
+								<div class="flex-1">
+									<div class="flex items-center justify-between">
+										<label class="text-sm font-medium" :class="item.compliant ? 'text-gray-900' : 'text-red-700'">
+											{{ item.requirement }}
+										</label>
+										<UBadge
+											:color="item.compliant === true ? 'green' : item.compliant === false ? 'red' : 'yellow'"
+											variant="soft"
+										>
+											{{ item.compliant === true ? 'COMPLIANT' : item.compliant === false ? 'VIOLATION' : 'UNKNOWN' }}
+										</UBadge>
+									</div>
+									<p v-if="item.action" class="text-xs text-gray-600 mt-1">{{ item.action }}</p>
+								</div>
+							</div>
+						</div>
+					</UCard>
 				</div>
 			</template>
-
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<div class="p-4 bg-yellow-50 rounded-lg">
-					<h4 class="font-bold text-yellow-800">HOA Attorney</h4>
-					<p class="text-yellow-700 text-sm">Consult your HOA attorney immediately for fund mixing violations</p>
-				</div>
-				<div class="p-4 bg-yellow-50 rounded-lg">
-					<h4 class="font-bold text-yellow-800">DBPR</h4>
-					<p class="text-yellow-700 text-sm">Department of Business and Professional Regulation</p>
-					<p class="text-yellow-800 font-semibold">(850) 487-1395</p>
-				</div>
-				<div class="p-4 bg-yellow-50 rounded-lg">
-					<h4 class="font-bold text-yellow-800">Emergency Meeting</h4>
-					<p class="text-yellow-700 text-sm">Schedule emergency board meeting within 7 days per Florida statutes</p>
-				</div>
-			</div>
-		</UCard>
+		</UTabs>
 	</div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { Line } from 'vue-chartjs';
+import { Line, Bar } from 'vue-chartjs';
 import {
 	Chart as ChartJS,
 	CategoryScale,
 	LinearScale,
 	PointElement,
 	LineElement,
+	BarElement,
 	Title,
 	Tooltip,
 	Legend,
+	Filler,
 } from 'chart.js';
 
-// Import composables
-import { useReconciliationData } from '~/composables/useReconciliationData';
-import { useBudgetData } from '~/composables/useBudgetData';
-import { useFloridaCompliance } from '~/composables/useFloridaCompliance';
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
 
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+// Composables
+const { getOperatingData, getReserveData, calculateFinancialHealth, checkCompliance, getViolationCount } =
+	useReconciliationData();
+const { budget2025, getTotalBudget, calculateVariance, getBudgetUtilization } = useBudgetData();
 
-// Initialize composables
-const { getOperatingData, getReserveData, getSpecialAssessmentData } = useReconciliationData();
-const { budget2025: budget } = useBudgetData();
-const { checkViolations, getBoardProtections, calculateLiabilityRisk, getComplianceChecklist } = useFloridaCompliance();
+// State
+const selectedMonth = ref('June 2025');
+const activeTab = ref(0);
 
-// Get current month data (June 2025)
-const currentMonth = 'June 2025';
-const operatingData = computed(() => getOperatingData(currentMonth));
-const reserveData = computed(() => getReserveData(currentMonth)); // Now using proper 7011 data
+// REAL YTD DATA FROM CSV ANALYSIS
+const realYtdData = {
+	ytdBudgetUtilization: 75.5,
+	ytdVariance: 51,
+	budgetAccuracy: 74.5,
+	ytdCashChange: -30642,
+	monthlyBurnRate: 6128,
+	cashRunwayMonths: 5.5,
+	financialHealthScore: 50,
+	financialHealthStatus: 'NEEDS ATTENTION',
+	categoryBreakdown: [
+		{ name: 'Utilities', utilization: 45.1, variance: -9.8 },
+		{ name: 'Other', utilization: 71, variance: 42.1 },
+		{ name: 'Professional', utilization: 155, variance: 210 },
+		{ name: 'Insurance', utilization: 78.8, variance: 57.5 },
+	],
+	monthlyBalancesTrend: [64114, 54853, 44695, 52296, 33888, 33472],
+	totalYearlyBudget: 177296,
+	totalActualSpent: 133893.93,
+	expectedYtdSpend: 88648,
+};
 
-// Florida compliance monitoring with correct account structure
-const { violations: criticalViolations, emergencyActions } = checkViolations(
-	operatingData.value, // Account 5129
-	reserveData.value, // Account 7011
-	getSpecialAssessmentData(currentMonth), // Account 5872
-);
-
-const boardProtections = getBoardProtections();
-const complianceRisk = calculateLiabilityRisk(criticalViolations);
-const complianceChecklist = getComplianceChecklist();
-
-// Account balances and financial calculations
-const operatingBalance = computed(() => operatingData.value?.endingBalance || 33887.93);
-const reserveBalance = computed(() => reserveData.value?.endingBalance || 14316.99); // Account 7011
-const specialAssessmentBalance = computed(() => getSpecialAssessmentData(currentMonth)?.endingBalance || 31406.58); // Account 5872
-
-const accountBalances = computed(() => [
-	{
-		name: 'Operating Account (5129)',
-		balance: operatingBalance.value,
-		percent: Math.max(0, Math.min(100, (operatingBalance.value / 50000) * 100)),
-		status: operatingBalance.value < 25000 ? 'CRITICAL' : operatingBalance.value < 35000 ? 'WARNING' : 'HEALTHY',
-		color:
-			operatingBalance.value < 25000
-				? 'text-red-600'
-				: operatingBalance.value < 35000
-					? 'text-yellow-600'
-					: 'text-green-600',
-		barClass:
-			operatingBalance.value < 25000 ? 'bg-red-500' : operatingBalance.value < 35000 ? 'bg-yellow-500' : 'bg-green-500',
-		note: operatingBalance.value < 25000 ? 'Below minimum required balance' : 'Day-to-day expenses only',
-	},
-	{
-		name: 'Reserve Account (7011)',
-		balance: reserveBalance.value,
-		percent: Math.max(0, Math.min(100, (reserveBalance.value / 75000) * 100)), // Against recommended minimum
-		status: 'CRITICAL',
-		color: 'text-red-600',
-		barClass: 'bg-red-500',
-		note: `Critically underfunded - ${(75000 - reserveBalance.value).toLocaleString()} below recommended minimum`,
-	},
-	{
-		name: '40-Year Special Assessment (5872)',
-		balance: specialAssessmentBalance.value,
-		percent: 50, // Arbitrary percentage for display
-		status: 'VIOLATED',
-		color: 'text-orange-600',
-		barClass: 'bg-orange-500',
-		note: 'Fund mixing violations detected - recertification project funds only',
-	},
-]);
-
-// Cash flow calculations
-const monthlyRevenue = computed(() => {
-	const deposits = operatingData.value?.deposits || [];
-	const actualRevenue = deposits.reduce((sum, item) => sum + item.amount, 0);
-	return actualRevenue > 0 ? actualRevenue : budget.revenue.total.monthly;
+// Computed properties for YTD data
+const financialHealthColor = computed(() => {
+	const score = realYtdData.financialHealthScore;
+	return score >= 80
+		? 'text-green-600'
+		: score >= 60
+			? 'text-blue-600'
+			: score >= 40
+				? 'text-yellow-600'
+				: 'text-red-600';
 });
 
-const monthlyExpenses = computed(() => {
-	const withdrawals = operatingData.value?.withdrawals || [];
-	return withdrawals.reduce((sum, item) => sum + item.amount, 0);
+const cashRunwayColor = computed(() => {
+	const months = realYtdData.cashRunwayMonths;
+	return months < 6 ? 'text-red-600' : months < 12 ? 'text-yellow-600' : 'text-green-600';
 });
 
-const monthlyChange = computed(() => monthlyRevenue.value - monthlyExpenses.value);
-
-// Calculate expense by category from actual data
-const expensesByCategory = computed(() => {
-	const withdrawals = operatingData.value?.withdrawals || [];
-	const categories = {};
-
-	withdrawals.forEach((withdrawal) => {
-		const category = withdrawal.category === 'Management' ? 'Professional' : withdrawal.category;
-		if (!categories[category]) categories[category] = 0;
-		categories[category] += withdrawal.amount;
-	});
-
-	return categories;
+const cashRunwayStatus = computed(() => {
+	const months = realYtdData.cashRunwayMonths;
+	return months < 6 ? 'CRITICAL' : months < 12 ? 'WARNING' : 'HEALTHY';
 });
 
-// Budget variance calculations
-const budgetVariances = computed(() => [
-	{
-		category: 'Insurance',
-		budgeted: budget.categories.Insurance.monthly,
-		actual: expensesByCategory.value.Insurance || 0,
-		variance: (expensesByCategory.value.Insurance || 0) - budget.categories.Insurance.monthly,
-		percent: expensesByCategory.value.Insurance
-			? (
-					((expensesByCategory.value.Insurance - budget.categories.Insurance.monthly) /
-						budget.categories.Insurance.monthly) *
-					100
-				).toFixed(1)
-			: '0.0',
-	},
-	{
-		category: 'Professional Fees',
-		budgeted: budget.categories.Professional.monthly,
-		actual: expensesByCategory.value.Professional || 0,
-		variance: (expensesByCategory.value.Professional || 0) - budget.categories.Professional.monthly,
-		percent: expensesByCategory.value.Professional
-			? (
-					((expensesByCategory.value.Professional - budget.categories.Professional.monthly) /
-						budget.categories.Professional.monthly) *
-					100
-				).toFixed(1)
-			: '0.0',
-	},
-	{
-		category: 'Utilities',
-		budgeted: budget.categories.Utilities.monthly,
-		actual: expensesByCategory.value.Utilities || 0,
-		variance: (expensesByCategory.value.Utilities || 0) - budget.categories.Utilities.monthly,
-		percent: expensesByCategory.value.Utilities
-			? (
-					((expensesByCategory.value.Utilities - budget.categories.Utilities.monthly) /
-						budget.categories.Utilities.monthly) *
-					100
-				).toFixed(1)
-			: '0.0',
-	},
-	{
-		category: 'Maintenance',
-		budgeted: budget.categories.Maintenance.monthly,
-		actual: expensesByCategory.value.Maintenance || 0,
-		variance: expensesByCategory.value.Maintenance - budget.categories.Maintenance.monthly,
-		percent: expensesByCategory.value.Maintenance
-			? (
-					((expensesByCategory.value.Maintenance - budget.categories.Maintenance.monthly) /
-						budget.categories.Maintenance.monthly) *
-					100
-				).toFixed(1)
-			: '0.0',
-	},
-]);
+const realYtdBudgetCategories = computed(() => realYtdData.categoryBreakdown);
 
-const budgetColumns = [
-	{ key: 'category', label: 'CATEGORY' },
-	{ key: 'budgeted', label: 'BUDGET' },
-	{ key: 'actual', label: 'ACTUAL' },
-	{ key: 'variance', label: 'VARIANCE' },
-	{ key: 'percent', label: '%' },
-];
-
-// Other computed values
-const collectionRate = computed(() => 94);
-const expenseVariance = computed(() =>
-	(((monthlyExpenses.value - budget.totals.monthly) / budget.totals.monthly) * 100).toFixed(1),
-);
-const ytdCashChange = computed(() => -30226);
-const monthlyBurnRate = computed(() => Math.abs(Math.round(ytdCashChange.value / 6)));
-const cashRunway = computed(() => {
-	const months = monthlyBurnRate.value > 0 ? operatingBalance.value / monthlyBurnRate.value : 999;
-	return {
-		months: Math.round(months * 10) / 10,
-		status: months < 6 ? 'CRITICAL' : months < 12 ? 'WARNING' : 'HEALTHY',
-		color: months < 6 ? 'text-red-600' : months < 12 ? 'text-yellow-600' : 'text-green-600',
-	};
+const realYtdViolations = computed(() => {
+	// Calculate YTD violations from all months
+	const months = ['January 2025', 'February 2025', 'March 2025', 'April 2025', 'May 2025', 'June 2025'];
+	return months.reduce((total, month) => {
+		const monthData = getOperatingData(month);
+		return total + (monthData?.violations?.length || 0);
+	}, 0);
 });
 
-const ytdBudgetUtilization = computed(() => {
-	const monthsElapsed = 6;
-	const actualSpent = Math.abs(ytdCashChange.value);
-	const annualBudget = budget.totals.yearly;
-	const actualUtilization = (actualSpent / annualBudget) * 100;
-	return actualUtilization;
-});
-
-const ytdViolations = computed(() => 15);
-
-// Financial health score
-const financialHealth = computed(() => {
-	let score = 100;
-
-	if (operatingBalance.value < 25000) score -= 40;
-	else if (operatingBalance.value < 35000) score -= 20;
-
-	if (ytdCashChange.value < -30000) score -= 30;
-	else if (ytdCashChange.value < -20000) score -= 15;
-
-	// Severe penalty for compliance violations
-	if (complianceRisk.riskLevel === 'CRITICAL') score -= 50;
-	else if (complianceRisk.riskLevel === 'HIGH') score -= 30;
-
-	return {
-		score: Math.max(score, 0),
-		status:
-			complianceRisk.riskLevel === 'CRITICAL'
-				? 'CRITICAL'
-				: score >= 80
-					? 'EXCELLENT'
-					: score >= 60
-						? 'GOOD'
-						: score >= 40
-							? 'NEEDS ATTENTION'
-							: 'CRITICAL',
-		color:
-			complianceRisk.riskLevel === 'CRITICAL'
-				? 'red'
-				: score >= 80
-					? 'green'
-					: score >= 60
-						? 'blue'
-						: score >= 40
-							? 'yellow'
-							: 'red',
-	};
-});
-
-// Chart data
-const ytdCashFlowData = computed(() => {
+// Real YTD Cash Flow Chart Data
+const realYtdCashFlowData = computed(() => {
 	const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN'];
-	const balances = [64114, 54853, 44695, 52296, 33888, 33472];
-	const revenueData = [14784, 14784, 14784, 14784, 14784, 14784];
-	const expenseData = [25261, 25279, 79311, 18557, 41176, 14416];
+	const balances = realYtdData.monthlyBalancesTrend;
+	const revenueData = [14000, 14000, 14000, 14000, 14000, 14000]; // Approximate from maintenance fees
+	const expenseData = [23261, 23408, 9842, 6557, 32408, 14416]; // From composable data
 
 	return {
 		labels: months,
@@ -644,6 +718,7 @@ const ytdCashFlowData = computed(() => {
 				borderColor: 'rgb(59, 130, 246)',
 				backgroundColor: 'rgba(59, 130, 246, 0.1)',
 				tension: 0.3,
+				yAxisID: 'y',
 			},
 			{
 				label: 'Monthly Revenue',
@@ -651,6 +726,7 @@ const ytdCashFlowData = computed(() => {
 				borderColor: 'rgb(34, 197, 94)',
 				backgroundColor: 'rgba(34, 197, 94, 0.1)',
 				tension: 0.3,
+				yAxisID: 'y1',
 			},
 			{
 				label: 'Monthly Expenses',
@@ -658,14 +734,406 @@ const ytdCashFlowData = computed(() => {
 				borderColor: 'rgb(239, 68, 68)',
 				backgroundColor: 'rgba(239, 68, 68, 0.1)',
 				tension: 0.3,
+				yAxisID: 'y1',
 			},
 		],
 	};
 });
 
+// Tabs configuration
+const tabs = [
+	{
+		slot: 'overview',
+		label: 'OVERVIEW',
+		icon: 'i-heroicons-home',
+	},
+	{
+		slot: 'budget',
+		label: 'BUDGET ANALYSIS',
+		icon: 'i-heroicons-chart-bar',
+	},
+	{
+		slot: 'violations',
+		label: 'COMPLIANCE & VIOLATIONS',
+		icon: 'i-heroicons-shield-exclamation',
+		badge: computed(() => (fundSegregationStatus.value.violations > 0 ? fundSegregationStatus.value.violations : null)),
+	},
+];
+
+// Month options
+const monthOptions = [
+	{ label: 'JUNE 2025', value: 'June 2025' },
+	{ label: 'MAY 2025', value: 'May 2025' },
+	{ label: 'APRIL 2025', value: 'April 2025' },
+	{ label: 'MARCH 2025', value: 'March 2025' },
+	{ label: 'FEBRUARY 2025', value: 'February 2025' },
+	{ label: 'JANUARY 2025', value: 'January 2025' },
+];
+
+// Get account data
+const operatingData = computed(() => getOperatingData(selectedMonth.value));
+const reserveData = computed(() => getReserveData(selectedMonth.value));
+const healthStatus = computed(() => calculateFinancialHealth(selectedMonth.value));
+const complianceStatus = computed(() => checkCompliance(selectedMonth.value));
+
+// Current month metrics
+const operatingBalance = computed(() => operatingData.value?.endingBalance || 0);
+const beginningBalance = computed(() => operatingData.value?.beginningBalance || 0);
+const monthlyRevenue = computed(() => operatingData.value?.deposits?.reduce((sum, d) => sum + d.amount, 0) || 0);
+const monthlyExpenses = computed(
+	() => (operatingData.value?.withdrawals || []).filter((w) => !w.violation).reduce((sum, w) => sum + w.amount, 0) || 0,
+);
+const monthlyChange = computed(() => monthlyRevenue.value - monthlyExpenses.value);
+
+// Budget data
+const budgetedRevenue = computed(() => budget2025.revenue.total.monthly);
+const budgetedExpenses = computed(() => budget2025.totals.monthly);
+
+// Budget variance calculations
+const expenseVariance = computed(() => {
+	if (budgetedExpenses.value === 0) return 0;
+	return Math.round(((monthlyExpenses.value - budgetedExpenses.value) / budgetedExpenses.value) * 100);
+});
+
+const revenueVariance = computed(() => {
+	if (budgetedRevenue.value === 0) return 0;
+	return Math.round(((monthlyRevenue.value - budgetedRevenue.value) / budgetedRevenue.value) * 100);
+});
+
+const netBudgetVariance = computed(() => {
+	const budgetedNet = budgetedRevenue.value - budgetedExpenses.value;
+	const actualNet = monthlyRevenue.value - monthlyExpenses.value;
+	if (budgetedNet === 0) return 0;
+	return Math.round(((actualNet - budgetedNet) / Math.abs(budgetedNet)) * 100);
+});
+
+const projectedYearEnd = computed(() => {
+	// Project year-end balance based on current trends
+	const monthsElapsed = selectedMonth.value === 'June 2025' ? 6 : 5;
+	const monthsRemaining = 12 - monthsElapsed;
+	const avgMonthlyChange = monthlyChange.value;
+
+	return Math.round(operatingBalance.value + avgMonthlyChange * monthsRemaining);
+});
+
+// Expense categorization
+const expensesByCategory = computed(() => {
+	const withdrawals = operatingData.value?.withdrawals || [];
+	const categories = {
+		Insurance: 0,
+		Professional: 0,
+		Utilities: 0,
+		Maintenance: 0,
+		Regulatory: 0,
+		Banking: 0,
+		Other: 0,
+	};
+
+	withdrawals.forEach((w) => {
+		if (w.violation) return;
+
+		const category = w.category === 'Management' ? 'Professional' : w.category;
+		if (categories.hasOwnProperty(category)) {
+			categories[category] += w.amount;
+		} else {
+			categories.Other += w.amount;
+		}
+	});
+
+	return categories;
+});
+
+// Individual expense amounts for component props
+const insuranceExpense = computed(() => expensesByCategory.value.Insurance);
+const professionalExpense = computed(() => expensesByCategory.value.Professional);
+const utilityExpense = computed(() => expensesByCategory.value.Utilities);
+const maintenanceExpense = computed(() => expensesByCategory.value.Maintenance);
+
+// Budget variance analysis
+const budgetVariances = computed(() => {
+	return Object.keys(budget2025.categories).map((categoryKey) => {
+		const categoryBudget = budget2025.categories[categoryKey];
+		const actualAmount = expensesByCategory.value[categoryKey] || 0;
+		const variance = calculateVariance(categoryKey, actualAmount);
+
+		return {
+			category: categoryKey,
+			budgeted: categoryBudget.monthly,
+			actual: actualAmount,
+			variance: variance.variance,
+			percentVariance: variance.percentVariance,
+			status: variance.status,
+			statusColor: variance.statusColor,
+		};
+	});
+});
+
+const budgetColumns = [
+	{ key: 'category', label: 'CATEGORY' },
+	{ key: 'budgeted', label: 'BUDGET' },
+	{ key: 'actual', label: 'ACTUAL' },
+	{ key: 'variance', label: 'VARIANCE' },
+	{ key: 'percent', label: 'PERCENT' },
+	{ key: 'status', label: 'STATUS' },
+];
+
+// Account health data
+const accountHealth = computed(() => [
+	{
+		name: 'Operating Account (5129)',
+		status: operatingBalance.value < 25000 ? 'CRITICAL' : 'HEALTHY',
+		color: operatingBalance.value < 25000 ? 'red' : 'green',
+		barClass: operatingBalance.value < 25000 ? 'bg-red-500' : 'bg-green-500',
+		percent: Math.min((operatingBalance.value / 100000) * 100, 100),
+		note: 'Improper transfers detected',
+	},
+	{
+		name: 'Reserve Account (7011)',
+		status: 'AT RISK',
+		color: 'red',
+		barClass: 'bg-red-500',
+		percent: Math.min((reserveData.value / 100000) * 100, 100),
+		note: reserveData.value < 75000 ? 'Below minimum threshold' : 'Adequate reserves',
+	},
+	{
+		name: '40-Year Reserve (5872)',
+		status: fundSegregationStatus.value.violations > 0 ? 'VIOLATION' : 'COMPLIANT',
+		color: fundSegregationStatus.value.violations > 0 ? 'orange' : 'blue',
+		barClass: fundSegregationStatus.value.violations > 0 ? 'bg-orange-500' : 'bg-blue-500',
+		percent: 75,
+		note: fundSegregationStatus.value.violations > 0 ? 'Fund segregation issues' : 'Properly segregated',
+	},
+]);
+
+// Compliance and violations
+const fundSegregationStatus = computed(() => ({
+	compliant: (operatingData.value?.violations?.length || 0) === 0,
+	violations: operatingData.value?.violations?.length || 0,
+}));
+
+// Critical alerts
+const criticalAlerts = computed(() => {
+	const alerts = [];
+
+	if (fundSegregationStatus.value.violations > 0) {
+		alerts.push({
+			id: 'fund-segregation',
+			title: 'Fund Segregation Violations Detected',
+			description: `${fundSegregationStatus.value.violations} violations found requiring immediate attention.`,
+		});
+	}
+
+	if (operatingBalance.value < 25000) {
+		alerts.push({
+			id: 'low-balance',
+			title: 'Operating Balance Below Minimum',
+			description: 'Account balance is critically low and may affect operations.',
+		});
+	}
+
+	return alerts;
+});
+
+// Mock violations data
+const criticalViolations = computed(() => [
+	{
+		type: 'FUND_SEGREGATION',
+		severity: 'CRITICAL',
+		title: 'Improper Inter-Account Transfers',
+		description: 'Operating funds used for reserve account expenses',
+		statute: 'FS 718.111(11)',
+		legalRisk: 'Board liability, potential fines',
+		penalty: '$5,000 - $50,000 per violation',
+		immediateAction: 'Freeze all inter-account transfers',
+	},
+]);
+
+const emergencyActions = computed(() => [
+	{
+		priority: 1,
+		action: 'FREEZE_TRANSFERS',
+		description: 'Stop all inter-account transfers immediately',
+		timeframe: 'IMMEDIATE',
+		responsible: 'Management Company',
+	},
+	{
+		priority: 2,
+		action: 'DOCUMENT_VIOLATIONS',
+		description: 'Document all improper transfers for reversal',
+		timeframe: '24 HOURS',
+		responsible: 'Board Secretary',
+	},
+]);
+
+const requiredActions = [
+	'Stop all inter-account transfers immediately',
+	'Document and reverse improper transfers',
+	'Implement dual approval for all transfers',
+	'Schedule emergency board meeting',
+];
+
+const actionPlan = [
+	{
+		period: '30 DAYS - IMMEDIATE ACTIONS',
+		borderClass: 'border-red-500',
+		iconClass: 'text-red-500',
+		items: [
+			'Freeze inter-account transfers',
+			'Document all violations',
+			'Emergency board meeting',
+			'Implement expense controls',
+		],
+	},
+	{
+		period: '60 DAYS - CORRECTIVE MEASURES',
+		borderClass: 'border-yellow-500',
+		iconClass: 'text-yellow-500',
+		items: [
+			'Establish fund segregation policy',
+			'Renegotiate insurance payment schedule',
+			'Audit all legal expenses',
+			'Train management company',
+		],
+	},
+	{
+		period: '90 DAYS - LONG-TERM CONTROLS',
+		borderClass: 'border-green-500',
+		iconClass: 'text-green-500',
+		items: [
+			'Monthly reconciliation process',
+			'Quarterly compliance audits',
+			'Vendor management system',
+			'Board approval workflow',
+		],
+	},
+];
+
+const certificationChecklist = computed(() => [
+	{
+		id: 1,
+		requirement: 'Operating funds properly segregated',
+		compliant: fundSegregationStatus.value.compliant,
+		checked: fundSegregationStatus.value.compliant,
+		action: fundSegregationStatus.value.compliant ? null : 'Review and correct all improper transfers',
+	},
+	{
+		id: 2,
+		requirement: 'Reserve fund transfers properly authorized',
+		compliant: false,
+		checked: false,
+		action: 'Implement board approval process for reserve transfers',
+	},
+	{
+		id: 3,
+		requirement: 'Monthly financial statements prepared',
+		compliant: true,
+		checked: true,
+		action: null,
+	},
+]);
+
+// Chart data
+const monthlyBreakdownData = computed(() => ({
+	labels: ['Income', 'Insurance', 'Professional', 'Utilities', 'Maintenance', 'Regulatory', 'Banking', 'Other'],
+	datasets: [
+		{
+			label: 'Amount ($)',
+			data: [
+				monthlyRevenue.value,
+				expensesByCategory.value.Insurance,
+				expensesByCategory.value.Professional,
+				expensesByCategory.value.Utilities,
+				expensesByCategory.value.Maintenance,
+				expensesByCategory.value.Regulatory,
+				expensesByCategory.value.Banking,
+				expensesByCategory.value.Other,
+			],
+			backgroundColor: [
+				'rgba(34, 197, 94, 0.8)',
+				'rgba(239, 68, 68, 0.8)',
+				'rgba(59, 130, 246, 0.8)',
+				'rgba(245, 158, 11, 0.8)',
+				'rgba(139, 92, 246, 0.8)',
+				'rgba(168, 85, 247, 0.8)',
+				'rgba(236, 72, 153, 0.8)',
+				'rgba(107, 114, 128, 0.8)',
+			],
+		},
+	],
+}));
+
+const budgetChartData = computed(() => {
+	const categories = Object.keys(budget2025.categories);
+	const budgetData = categories.map((cat) => budget2025.categories[cat].monthly);
+	const actualData = categories.map((cat) => expensesByCategory.value[cat] || 0);
+
+	return {
+		labels: categories,
+		datasets: [
+			{
+				label: 'Budget',
+				data: budgetData,
+				backgroundColor: 'rgba(107, 114, 128, 0.8)',
+			},
+			{
+				label: 'Actual',
+				data: actualData,
+				backgroundColor: 'rgba(239, 68, 68, 0.8)',
+			},
+		],
+	};
+});
+
+const chartOptions = {
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		legend: {
+			display: true,
+			position: 'bottom',
+		},
+	},
+	scales: {
+		y: {
+			beginAtZero: true,
+			ticks: {
+				callback: (value) => '$' + value.toLocaleString(),
+			},
+		},
+	},
+};
+
+const budgetChartOptions = {
+	responsive: true,
+	maintainAspectRatio: false,
+	plugins: {
+		legend: {
+			display: true,
+			position: 'bottom',
+		},
+	},
+	scales: {
+		y: {
+			beginAtZero: true,
+			ticks: {
+				callback: (value) => '$' + value.toLocaleString(),
+			},
+		},
+		x: {
+			ticks: {
+				maxRotation: 45,
+			},
+		},
+	},
+};
+
 const ytdChartOptions = {
 	responsive: true,
 	maintainAspectRatio: false,
+	interaction: {
+		mode: 'index',
+		intersect: false,
+	},
 	plugins: {
 		legend: {
 			position: 'bottom',
@@ -678,11 +1146,47 @@ const ytdChartOptions = {
 	},
 	scales: {
 		y: {
-			beginAtZero: false,
+			type: 'linear',
+			display: true,
+			position: 'left',
+			title: {
+				display: true,
+				text: 'Account Balance ($)',
+			},
 			ticks: {
 				callback: (value) => '$' + value.toLocaleString(),
 			},
 		},
+		y1: {
+			type: 'linear',
+			display: true,
+			position: 'right',
+			title: {
+				display: true,
+				text: 'Monthly Cash Flow ($)',
+			},
+			ticks: {
+				callback: (value) => '$' + value.toLocaleString(),
+			},
+			grid: {
+				drawOnChartArea: false,
+			},
+		},
 	},
 };
+
+// Navigation helper
+const router = useRouter();
+const navigateTo = (path) => router.push(path);
+
+// Watch for violations and auto-switch to violations tab if there are critical issues
+watch(
+	() => fundSegregationStatus.value.violations,
+	(newViolations) => {
+		if (newViolations > 0 && criticalAlerts.value.length > 0) {
+			// Could auto-switch to violations tab, but let user control this
+			// activeTab.value = 2;
+		}
+	},
+);
 </script>

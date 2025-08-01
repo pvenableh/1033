@@ -276,7 +276,7 @@ const alerts = computed(() => {
 		alertList.push({
 			id: 5,
 			type: 'critical',
-			message: '⚖️ Board liability risk under FL law',
+			message: 'Board liability risk under FL law',
 		});
 	}
 

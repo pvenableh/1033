@@ -403,33 +403,57 @@ const specialViolations = computed(() => specialAssessmentData.value?.improperTr
 
 // Compliance violations
 const complianceViolations = computed(() => {
-	const violations = [];
+	const rawViolations = [];
 
-	// Operating account violations
+	// Violations from operating account - declared violations
 	const opViolations = operatingData.value?.violations || [];
 	opViolations.forEach((v) => {
-		violations.push({
+		rawViolations.push({
+			key: `${v.date}-${v.amount}`,
 			date: v.date,
 			amount: v.amount,
 			accounts: v.accounts || '5129',
-			description: v.description,
+			description: v.description || 'Fund segregation violation',
 			severity: v.severity || 'HIGH',
 		});
 	});
 
+	// Violations from flagged withdrawals
+	const flaggedWithdrawals = (operatingData.value?.withdrawals || []).filter((w) => w.violation === true);
+	flaggedWithdrawals.forEach((v) => {
+		rawViolations.push({
+			key: `${v.date}-${v.amount}`,
+			date: v.date,
+			amount: v.amount,
+			accounts: v.accounts || '5129',
+			description: v.note || 'Fund segregation violation',
+			severity: 'HIGH',
+		});
+	});
+
 	// Special assessment violations
-	const specViolations = specialAssessmentData.value?.improperTransfers || [];
-	specViolations.forEach((v) => {
-		violations.push({
+	const specialViolations = specialAssessmentData.value?.improperTransfers || [];
+	specialViolations.forEach((v) => {
+		rawViolations.push({
+			key: `${v.date}-${v.amount}`,
 			date: v.date,
 			amount: v.amount,
 			accounts: `${v.fromAccount} → ${v.toAccount}`,
-			description: v.description,
+			description: v.description || 'Improper transfer between accounts',
 			severity: 'CRITICAL',
 		});
 	});
 
-	return violations.sort((a, b) => b.amount - a.amount);
+	// Deduplicate by `key` (date + amount)
+	const deduped = Object.values(
+		rawViolations.reduce((acc, item) => {
+			acc[item.key] = item;
+			return acc;
+		}, {}),
+	);
+
+	// Sort by amount descending
+	return deduped.sort((a, b) => b.amount - a.amount);
 });
 
 const totalViolationAmount = computed(() => complianceViolations.value.reduce((sum, v) => sum + v.amount, 0));
