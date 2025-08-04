@@ -136,7 +136,7 @@ function sendConfetti() {
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
-		const encodedSubject = `1033 Lenox Floor Color Vote: ${selectedItem.value.title}`;
+		const encodedSubject = `1033 Lenox Elevator Interior Vote: ${selectedItem.value.title}`;
 
 		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the design of the elevator interior. Please let me know if you need any additional information.`;
 
@@ -145,7 +145,7 @@ const mailtoLink = computed(() => {
 			event_label: selectedItem.value.title,
 		});
 
-		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
+		return `mailto:lenoxplazaboard@gmail.com?cc=valentin@vteconsultingllc.com&subject=${encodedSubject}&body=${encodedBody}`;
 	} else {
 		return '';
 	}
@@ -170,12 +170,12 @@ function openExternalLink() {
 				Elevator Interior Options
 			</h1>
 
-			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[450px] mx-auto">
+			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[600px] mx-auto">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-6 text-center">
 					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
-				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5">
+				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5 max-w-[400px]">
 					<li class="w-full mb-2">
 						<strong class="font-bold">View</strong>
 						the
@@ -192,14 +192,14 @@ function openExternalLink() {
 						your vote from there to open a new email with your selected choice that you can send directly to the board.
 					</li>
 				</ul>
-				<p class="w-full mt-6 mb-2 text-[14px] leading-5">
-					Please note that your vote it due by:
-					<span class="font-bold">Friday August 8th, 2025 at 11:59PM EST.</span>
+				<p class="w-full mt-6 mb-2 text-[14px] leading-5 text-center">
+					Please note that your vote is due by:
+					<span class="block font-bold">Thursday August 7th, 2025 at 11:59PM EST</span>
 				</p>
 			</div>
 		</div>
 		<div class="pb-8 renderings__list">
-			<div class="w-full md:w-auto flex flex-col lg:flex-row items-start justify-around gap-8 md:gap-14 max-w-[1800px]">
+			<div class="w-full md:w-auto flex flex-col xl:flex-row items-start justify-around gap-8">
 				<div
 					v-for="(item, index) in renderings"
 					:key="index"
@@ -211,7 +211,7 @@ function openExternalLink() {
 							<span class="font-bold block">{{ item.title }}</span>
 						</h3>
 						<div
-							class="w-full grid gap-1.5 grid-cols-2 md:grid-cols-4 md:text-center lg:grid-cols-2 lg:text-left xl:grid-cols-4 xl:text-center my-4 renderings__item-bullets"
+							class="w-full grid gap-1.5 grid-cols-2 md:grid-cols-4 md:text-center lg:grid-cols-2 my-4 renderings__item-bullets"
 						>
 							<div
 								v-for="(bullet, index) in item.bullets"
@@ -220,15 +220,15 @@ function openExternalLink() {
 							>
 								<!-- <UIcon name="i-heroicons-check" class="h-3 w-3 inline-block mr-1 -mb-1" /> -->
 								<h5
-									class="uppercase text-[10px] tracking-wide rounded-full bg-[#999999] text-white font-bold px-3 py-1 text-center w-auto"
-									style="background-color: #999999"
+									class="uppercase text-[10px] tracking-wide rounded-full border font-bold px-3 py-1 text-center w-auto"
+									style="border-color: #999999"
 								>
 									{{ bullet }}
 								</h5>
 							</div>
 						</div>
 					</div>
-					<div class="relative grid grid-cols-2 lg:grid-cols-1 gap-2 renderings__item-image">
+					<div class="relative grid grid-cols-2 gap-2 renderings__item-image">
 						<img
 							:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 							:alt="item.title"
@@ -237,7 +237,7 @@ function openExternalLink() {
 						<img
 							:src="'https://admin.1033lenox.com/assets/' + item.image2 + '?key=medium'"
 							:alt="item.title"
-							class="w-full lg:mt-4"
+							class="w-full"
 						/>
 					</div>
 					<div class="w-full flex items-center justify-center flex-col py-8 renderings__item-caption">
