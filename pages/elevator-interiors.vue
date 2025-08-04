@@ -6,7 +6,7 @@ const toast = useToast();
 const renderings = ref([
 	{
 		id: 1,
-		title: 'Metalic Border',
+		title: 'Metallic Border',
 		subtitle: 'vertical panels and wide boarder',
 		bullets: ['Fox Teak Wood', 'Vertical Panels', 'Gallery Lights', 'Black Floors'],
 		image: '37f7f6da-312e-4f9c-8039-016ab69b3fad',
