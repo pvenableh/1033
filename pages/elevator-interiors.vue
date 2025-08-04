@@ -203,7 +203,7 @@ function openExternalLink() {
 				<div
 					v-for="(item, index) in renderings"
 					:key="index"
-					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg renderings__item"
+					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg dark:border-gray-600 renderings__item"
 				>
 					<div class="">
 						<h3 class="w-full mt-6 text-center leading-6 renderings__item-title">
@@ -256,7 +256,7 @@ function openExternalLink() {
 			</div>
 		</div>
 		<UModal v-model="isVoteOpen">
-			<div class="py-8 px-6 text-center relative">
+			<div class="py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
 				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
