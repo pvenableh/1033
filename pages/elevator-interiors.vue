@@ -17,16 +17,16 @@ const renderings = ref([
 		title: 'Hotel Chic Dark',
 		subtitle: 'horizontal panels - make it look bigger',
 		bullets: ['Smokey Wood', 'Horizontal Panels', 'Gallery Lights', 'Black Floors'],
-		image: '16815cd7-125c-440e-8441-6ceffc807264',
-		image2: 'bf7694d9-06df-4f7c-9054-174e55f9196d',
+		image: 'c32894e7-9958-4747-9973-793425d45bd4',
+		image2: '910771af-2507-4260-be6f-45b3e97c454d',
 	},
 	{
 		id: 3,
 		title: 'Hotel Chic Neutral',
 		subtitle: 'horizontal panels - make it look bigger',
 		bullets: ['Fox Teak Wood', 'Horizontal Panels', 'Gallery Lights', 'Black Floors'],
-		image: 'db432061-7099-4347-a7a0-7efad29fad3f',
-		image2: '85ad5239-3c5b-439b-9d78-0ba7328824d4',
+		image: '40ae1108-66ac-4558-ad6c-177a7c133be3',
+		image2: '5452fdd8-b42d-43e2-ba63-c3dd9f4375d7',
 	},
 ]);
 
