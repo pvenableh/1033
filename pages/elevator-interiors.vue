@@ -165,13 +165,13 @@ function openExternalLink() {
 </script>
 <template>
 	<div class="flex items-center justify-center flex-col w-full renderings">
-		<div class="w-full mb-8 max-w-[500px] lg:max-w-[1000px] px-2 lg:px-0 renderings__intro">
-			<h1 class="text-3xl lg:text-5xl uppercase font-bold text-center mt-10 mb-8 lg:mt-12">
+		<div class="w-full mb-8 max-w-[500px] sm:max-w-[1000px] px-2 lg:px-0 renderings__intro">
+			<h1 class="text-2xl sm:text-4xl uppercase font-bold text-center mt-10 mb-2 lg:mt-12">
 				Elevator Interior Options
 			</h1>
 
-			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[600px] mx-auto">
-				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-6 text-center">
+			<div class="w-full flex items-center justify-start flex-col mt-2 px-4 max-w-[600px] mx-auto">
+				<h3 class="uppercase tracking-wide font-bold text-[16px]sm:text-[20px] leading-6 mb-6 text-center">
 					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
@@ -206,8 +206,8 @@ function openExternalLink() {
 					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg renderings__item"
 				>
 					<div class="">
-						<h3 class="w-full mt-6 text-center leading-4 renderings__item-title">
-							<span class="label">Option {{ item.id }}:</span>
+						<h3 class="w-full mt-6 text-center leading-6 renderings__item-title">
+							<span class="label text-[14px]">Option {{ item.id }}:</span>
 							<span class="font-bold block">{{ item.title }}</span>
 						</h3>
 						<div
@@ -220,7 +220,7 @@ function openExternalLink() {
 							>
 								<!-- <UIcon name="i-heroicons-check" class="h-3 w-3 inline-block mr-1 -mb-1" /> -->
 								<h5
-									class="uppercase text-[10px] tracking-wide rounded-full border font-bold px-3 py-1 text-center w-auto"
+									class="uppercase text-[10px] tracking-wide rounded-full border font-bold px-3 py-1 text-center w-auto opacity-60"
 									style="border-color: #999999"
 								>
 									{{ bullet }}
@@ -249,7 +249,7 @@ function openExternalLink() {
 							@click="toggleVote(item)"
 						>
 							Vote for
-							<span class="font-bold block">{{ item.title }}</span>
+							<span class="font-bold block" style="font-weight: 600 !important">{{ item.title }}</span>
 						</UButton>
 					</div>
 				</div>
@@ -316,7 +316,7 @@ function openExternalLink() {
 			@apply px-3;
 		}
 		&-title {
-			font-size: 16px;
+			font-size: 20px;
 			@apply uppercase tracking-wide;
 		}
 		&-subtitle {

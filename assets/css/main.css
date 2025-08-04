@@ -8,6 +8,10 @@ html, body {
   @apply font-body;
   -webkit-font-smoothing: antialiased;
 }
+.font-bold {
+  font-weight: 600 !important;
+   -webkit-font-smoothing: antialiased;
+}
 *:focus {
   outline: 0 !important;
   box-shadow: none !important;
