@@ -3,15 +3,144 @@
 		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 			<!-- Header -->
 			<div class="text-center mb-12">
-				<h1 class="text-5xl font-bold text-gray-900 mb-6 uppercase tracking-wider">ACCESS CONTROL SYSTEM COMPARISON</h1>
-				<div class="text-xl text-gray-600 mb-4 font-medium">
-					LENOX BUILDING 1033 - 1033 LENOX AVE, MIAMI BEACH, FL 33143
-				</div>
+				<h1 class="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wider">ACCESS CONTROL SYSTEM COMPARISON</h1>
+				
 				<div class="text-sm text-gray-500 uppercase tracking-widest">
 					THREE-WAY COMPARISON: UNIFI VS SWIFTLANE VS AMAZON KEY
 				</div>
 			</div>
+<!-- Product Information Cards -->
+			<div class="grid lg:grid-cols-3 gap-8 mb-12">
+				<!-- UniFi -->
+				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<div
+						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6" class="object-contain h-48 w-auto dark:brightness-90" />
+					</div>
+					<div
+						@click="showSelectedImage('ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7" class="object-cover h-48 w-auto dark:brightness-90" />
+					</div>
+					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI G3 INTERCOM</h3>
+					<div class="space-y-3">
+						<UButton
+							color="purple"
+							variant="outline"
+							class="w-full mb-14"
+							to="https://ui.com/physical-security/door-access/intercoms"
+							target="_blank"
+						>
+							VIEW PRODUCT DETAILS
+						</UButton>
+						<UButton
+							color="purple"
+							variant="solid"
+							class="w-full font-bold uppercase"
+							to="https://admin.1033lenox.com/assets/4d3b8941-86ce-4e66-b363-814369ecf7f5"
+							target="_blank"
+						>
+							📄 VIEW PROPOSAL PDF
+						</UButton>
+					</div>
+				</UCard>
 
+				<!-- Swiftlane -->
+				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<div
+						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="aefbb2a4-cc01-460d-a79b-2a627e80df38" class="object-cover h-48 w-full dark:brightness-90" />
+					</div>
+					<div
+						@click="showSelectedImage('9e63d591-d814-439a-b68f-a9de7945c979')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="9e63d591-d814-439a-b68f-a9de7945c979" class="object-cover h-48 w-full dark:brightness-90" />
+					</div>
+					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE SYSTEM</h3>
+					<div class="space-y-3">
+						<UButton
+							color="blue"
+							variant="outline"
+							class="w-full"
+							to="https://swiftlane.com/video-intercom/"
+							target="_blank"
+						>
+							VIDEO INTERCOM
+						</UButton>
+						<UButton
+							color="blue"
+							variant="outline"
+							class="w-full"
+							to="https://swiftlane.com/vehicle-access-control/"
+							target="_blank"
+						>
+							VEHICLE ACCESS
+						</UButton>
+						<UButton
+							color="blue"
+							variant="solid"
+							class="w-full font-bold uppercase"
+							to="https://admin.1033lenox.com/cca32f22-0e92-447c-8c60-7afddbef5ad3"
+							target="_blank"
+						>
+							📄 VIEW PROPOSAL PDF
+						</UButton>
+					</div>
+				</UCard>
+
+				<!-- Amazon Key -->
+				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<div
+						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="f2db37c1-82cb-48c7-b3cd-162fcfbc120b" class="object-cover h-48 w-full dark:brightness-90" />
+					</div>
+					<div
+						@click="showSelectedImage('af92f11a-0601-44d1-9988-8d8a93adfe5b')"
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
+					>
+						<NuxtImg src="af92f11a-0601-44d1-9988-8d8a93adfe5b" class="object-cover h-48 w-full dark:brightness-90" />
+					</div>
+					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY SYSTEM</h3>
+					<div class="space-y-3">
+						<UButton
+							color="orange"
+							variant="outline"
+							class="w-full mb-14"
+							to="https://www.amazon.com/b/node=207294570011"
+							target="_blank"
+						>
+							VIEW AMAZON KEY
+						</UButton>
+						<UButton
+							color="orange"
+							variant="solid"
+							class="w-full !opacity-20 font-bold uppercase"
+							disabled
+							target="_blank"
+						>
+							📄 VIEW PROPOSAL PDF
+						</UButton>
+					</div>
+				</UCard>
+			</div>
+			<UModal v-model="isOpen" fullscreen>
+				<div class="p-1 !rounded-none flex items-center justify-center relative h-full w-full">
+					<UIcon
+						@click="isOpen = false"
+						name="i-heroicons-x-circle"
+						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full"
+					/>
+					<NuxtImg :src="selectedImage" class="h-[90svh] w-auto" />
+				</div>
+			</UModal>
 			<!-- Executive Summary -->
 			<UCard class="mb-12 border border-gray-900 border-l-8 border-l-gray-900 rounded-sm bg-white">
 				<template #header>
@@ -196,7 +325,7 @@
 							</div>
 							<div class="text-sm text-orange-500 font-bold mt-8 italic">
 								<strong>Note:</strong>
-								No ongoing costs, but system may become outdated and require updates in 5-10 years
+								No ongoing costs, but system may become outdated and require updates in 1-2 years
 							</div>
 						</div>
 					</UCard>
@@ -381,138 +510,7 @@
 				/>
 			</UCard>
 
-			<!-- Product Information Cards -->
-			<div class="grid lg:grid-cols-3 gap-8 mb-12">
-				<!-- UniFi -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<div
-						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6" class="object-contain h-48 w-auto dark:brightness-90" />
-					</div>
-					<div
-						@click="showSelectedImage('ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7" class="object-cover h-48 w-auto dark:brightness-90" />
-					</div>
-					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI G3 INTERCOM</h3>
-					<div class="space-y-3">
-						<UButton
-							color="purple"
-							variant="outline"
-							class="w-full mb-14"
-							to="https://ui.com/physical-security/door-access/intercoms"
-							target="_blank"
-						>
-							VIEW PRODUCT DETAILS
-						</UButton>
-						<UButton
-							color="purple"
-							variant="solid"
-							class="w-full font-bold uppercase"
-							to="https://admin.1033lenox.com/assets/4d3b8941-86ce-4e66-b363-814369ecf7f5"
-							target="_blank"
-						>
-							📄 VIEW PROPOSAL PDF
-						</UButton>
-					</div>
-				</UCard>
-
-				<!-- Swiftlane -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<div
-						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="aefbb2a4-cc01-460d-a79b-2a627e80df38" class="object-cover h-48 w-full dark:brightness-90" />
-					</div>
-					<div
-						@click="showSelectedImage('9e63d591-d814-439a-b68f-a9de7945c979')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="9e63d591-d814-439a-b68f-a9de7945c979" class="object-cover h-48 w-full dark:brightness-90" />
-					</div>
-					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE SYSTEM</h3>
-					<div class="space-y-3">
-						<UButton
-							color="blue"
-							variant="outline"
-							class="w-full"
-							to="https://swiftlane.com/video-intercom/"
-							target="_blank"
-						>
-							VIDEO INTERCOM
-						</UButton>
-						<UButton
-							color="blue"
-							variant="outline"
-							class="w-full"
-							to="https://swiftlane.com/vehicle-access-control/"
-							target="_blank"
-						>
-							VEHICLE ACCESS
-						</UButton>
-						<UButton
-							color="blue"
-							variant="solid"
-							class="w-full font-bold uppercase"
-							to="https://admin.1033lenox.com/cca32f22-0e92-447c-8c60-7afddbef5ad3"
-							target="_blank"
-						>
-							📄 VIEW PROPOSAL PDF
-						</UButton>
-					</div>
-				</UCard>
-
-				<!-- Amazon Key -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<div
-						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="f2db37c1-82cb-48c7-b3cd-162fcfbc120b" class="object-cover h-48 w-full dark:brightness-90" />
-					</div>
-					<div
-						@click="showSelectedImage('af92f11a-0601-44d1-9988-8d8a93adfe5b')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
-						<NuxtImg src="af92f11a-0601-44d1-9988-8d8a93adfe5b" class="object-cover h-48 w-full dark:brightness-90" />
-					</div>
-					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY SYSTEM</h3>
-					<div class="space-y-3">
-						<UButton
-							color="orange"
-							variant="outline"
-							class="w-full mb-14"
-							to="https://www.amazon.com/b/node=207294570011"
-							target="_blank"
-						>
-							VIEW AMAZON KEY
-						</UButton>
-						<UButton
-							color="orange"
-							variant="solid"
-							class="w-full !opacity-20 font-bold uppercase"
-							disabled
-							target="_blank"
-						>
-							📄 VIEW PROPOSAL PDF
-						</UButton>
-					</div>
-				</UCard>
-			</div>
-			<UModal v-model="isOpen" fullscreen>
-				<div class="p-1 !rounded-none flex items-center justify-center relative h-full w-full">
-					<UIcon
-						@click="isOpen = false"
-						name="i-heroicons-x-circle"
-						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full"
-					/>
-					<NuxtImg :src="selectedImage" class="h-[90svh] w-auto" />
-				</div>
-			</UModal>
+			
 
 			<!-- Detailed Feature Comparison -->
 			<UAccordion :items="accordionItems" multiple class="space-y-6" default-open>
