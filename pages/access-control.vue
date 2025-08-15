@@ -402,7 +402,7 @@
 						<UButton
 							color="purple"
 							variant="outline"
-							class="w-full"
+							class="w-full mb-14"
 							to="https://ui.com/physical-security/door-access/intercoms"
 							target="_blank"
 						>
@@ -485,7 +485,7 @@
 						<UButton
 							color="orange"
 							variant="outline"
-							class="w-full"
+							class="w-full mb-14"
 							to="https://www.amazon.com/b/node=207294570011"
 							target="_blank"
 						>
@@ -494,7 +494,7 @@
 						<UButton
 							color="orange"
 							variant="solid"
-							class="w-full opacity-50 font-bold uppercase"
+							class="w-full !opacity-20 font-bold uppercase"
 							disabled
 							target="_blank"
 						>
