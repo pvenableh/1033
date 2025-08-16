@@ -4,12 +4,12 @@
 			<!-- Header -->
 			<div class="text-center mb-12">
 				<h1 class="text-lg font-bold text-gray-900 mb-6 uppercase tracking-wider">ACCESS CONTROL SYSTEM COMPARISON</h1>
-				
+
 				<div class="text-sm text-gray-500 uppercase tracking-widest">
 					THREE-WAY COMPARISON: UNIFI VS SWIFTLANE VS AMAZON KEY
 				</div>
 			</div>
-<!-- Product Information Cards -->
+			<!-- Product Information Cards -->
 			<div class="grid lg:grid-cols-3 gap-8 mb-12">
 				<!-- UniFi -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
@@ -109,7 +109,7 @@
 					>
 						<NuxtImg src="af92f11a-0601-44d1-9988-8d8a93adfe5b" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
-					
+
 					<div class="space-y-3">
 						<UButton
 							color="orange"
@@ -289,9 +289,8 @@
 					<UCard class="border border-purple-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
-								<UBadge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</UBadge>
 								<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide">UNIFI SYSTEM</h3>
-								
+								<UBadge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</UBadge>
 							</div>
 						</template>
 
@@ -315,9 +314,12 @@
 								<span class="text-gray-800 font-medium">Phone line required:</span>
 								<span class="font-bold text-green-600">No</span>
 							</div>
-							<div class="flex justify-between text-green-600 font-bold">
+							<div class="flex justify-between">
 								<span>Monthly savings:</span>
-								<span>$40 (no phone line)</span>
+								<span class="text-green-600 font-bold">
+									$40
+									<span class="text-[10px]">(no phone line)</span>
+								</span>
 							</div>
 
 							<UDivider />
@@ -335,10 +337,11 @@
 					<!-- Swiftlane System -->
 					<UCard class="border border-blue-200 rounded-sm bg-white">
 						<template #header>
-							<div class="flex items-start justify-between flex-col xl:flex-row">		
-								<UBadge color="blue" variant="solid" class="font-bold uppercase text-center">FACIAL RECOGNITION AVAILABLE</UBadge>
+							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide">SWIFTLANE</h3>
-						
+								<UBadge color="blue" variant="solid" class="font-bold uppercase text-center">
+									FACIAL RECOGNITION AVAILABLE
+								</UBadge>
 							</div>
 						</template>
 
@@ -371,13 +374,19 @@
 								<span class="text-gray-800 font-medium">Phone line required:</span>
 								<span class="font-bold text-green-600">No</span>
 							</div>
-							<div class="flex justify-between text-green-600 font-bold">
+							<div class="flex justify-between">
 								<span>Monthly savings:</span>
-								<span>$40 (no phone line)</span>
+								<span class="text-green-600 font-bold">
+									$40
+									<span class="text-[10px]">(no phone line)</span>
+								</span>
 							</div>
 							<div class="flex justify-between text-green-600">
-								<span class="text-gray-800 font-medium">Facial Recognition:</span>
-								<span class="font-bold">$21.99/year per resident</span>
+								<span class="text-gray-800 font-medium leading-4">Facial Recognition:</span>
+								<span class="font-bold">
+									$21.99/year
+									<span class="text-[10px] block leading-[12px]">per resident</span>
+								</span>
 							</div>
 							<UDivider />
 							<div class="flex justify-between text-lg font-bold">
@@ -396,9 +405,9 @@
 									${{ recurringCostComparison.swiftlaneTotal.toLocaleString() }}
 								</span>
 							</div>
-							<div class="flex justify-between mt-2 text-green-600" v-if="recurringCostComparison.savings > 0">
+							<div class="flex justify-between mt-2" v-if="recurringCostComparison.savings > 0">
 								<span class="font-medium">{{ timeframePeriodLabel }} savings vs Amazon Key:</span>
-								<span class="font-bold">${{ recurringCostComparison.savings.toLocaleString() }}</span>
+								<span class="font-bold text-green-600">${{ recurringCostComparison.savings.toLocaleString() }}</span>
 							</div>
 						</div>
 					</UCard>
@@ -407,8 +416,10 @@
 					<UCard class="border border-orange-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
-								<UBadge color="orange" variant="solid" class="font-bold uppercase text-center">LINEAR INTEGRATION</UBadge>
 								<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide">AMAZON KEY</h3>
+								<UBadge color="orange" variant="solid" class="font-bold uppercase text-center">
+									LINEAR INTEGRATION
+								</UBadge>
 							</div>
 						</template>
 
@@ -457,63 +468,62 @@
 						</div>
 					</UCard>
 				</div>
+				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6">
+					<UAlert
+						color="blue"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-cog-6-tooth"
+						title="AMAZON KEY LINEAR INTEGRATION ADVANTAGE"
+						description="Amazon Key Virtual Key + Intercom Boost can integrate directly with your existing Linear access panel as an add-on, significantly reducing installation costs and complexity. However, requires maintaining existing phone line infrastructure at $40/month."
+					/>
 
-				<UAlert
-					color="blue"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-cog-6-tooth"
-					title="AMAZON KEY LINEAR INTEGRATION ADVANTAGE"
-					description="Amazon Key Virtual Key + Intercom Boost can integrate directly with your existing Linear access panel as an add-on, significantly reducing installation costs and complexity. However, requires maintaining existing phone line infrastructure at $40/month."
-				/>
+					<UAlert
+						color="green"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-face-smile"
+						title="SWIFTLANE FACIAL RECOGNITION ADVANTAGE"
+						description="Swiftlane is the ONLY system offering facial recognition. With their innovative per-resident model, tenants who want facial recognition can pay $21.99/year individually, making it budget-friendly and optional for residents."
+					/>
 
-				<UAlert
-					color="green"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-face-smile"
-					title="SWIFTLANE FACIAL RECOGNITION ADVANTAGE"
-					description="Swiftlane is the ONLY system offering facial recognition. With their innovative per-resident model, tenants who want facial recognition can pay $21.99/year individually, making it budget-friendly and optional for residents."
-				/>
+					<UAlert
+						color="blue"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-shield-check"
+						title="SWIFTLANE COMPREHENSIVE FEATURES"
+						description="Complete solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging."
+					/>
 
-				<UAlert
-					color="blue"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-shield-check"
-					title="SWIFTLANE COMPREHENSIVE FEATURES"
-					description="Complete solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging."
-				/>
+					<UAlert
+						color="blue"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-calculator"
+						title="PHONE LINE SAVINGS"
+						description="UniFi and Swiftlane systems save $40/month by eliminating phone line requirements. Over 5 years, this represents $2,400 in additional savings versus Amazon Key."
+					/>
 
-				<UAlert
-					color="blue"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-calculator"
-					title="PHONE LINE SAVINGS"
-					description="UniFi and Swiftlane systems save $40/month by eliminating phone line requirements. Over 5 years, this represents $2,400 in additional savings versus Amazon Key."
-				/>
+					<UAlert
+						color="green"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-percent-badge"
+						title="SWIFTLANE BULK PAYMENT DISCOUNTS"
+						description="Swiftlane offers significant discounts for longer commitments on their $40/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount."
+					/>
 
-				<UAlert
-					color="green"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-percent-badge"
-					title="SWIFTLANE BULK PAYMENT DISCOUNTS"
-					description="Swiftlane offers significant discounts for longer commitments on their $40/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount."
-				/>
-
-				<UAlert
-					color="amber"
-					variant="solid"
-					class="mt-6 font-bold uppercase"
-					icon="i-heroicons-exclamation-triangle"
-					title="SECURITY WARNING"
-					description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control."
-				/>
+					<UAlert
+						color="amber"
+						variant="solid"
+						class="mt-6 md:mt-0 font-bold"
+						icon="i-heroicons-exclamation-triangle"
+						title="SECURITY WARNING"
+						description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control."
+					/>
+				</div>
 			</UCard>
-
-			
 
 			<!-- Detailed Feature Comparison -->
 			<UAccordion :items="accordionItems" multiple class="space-y-6" default-open>
@@ -683,16 +693,18 @@
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 											<li class="flex items-start gap-0.5">
 												•
-												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+
 												<span><strong>Only facial recognition option</strong></span>
+												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• IK10 vandal-resistant rating</li>
 											<li>• Loiter monitoring with AI alerts</li>
 											<li>• Unlimited cloud video storage</li>
 											<li class="flex items-start gap-0.5">
 												•
-												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-300 mt-0.5 flex-shrink-0" />
+
 												<span>No phone line required (saves $40/month)</span>
+												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-300 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• 15% discount for 5-year commitment</li>
 										</ul>
