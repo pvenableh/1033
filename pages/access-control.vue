@@ -656,7 +656,7 @@
 										</td>
 										<td class="text-center py-4 px-6">
 											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-red-500 mx-auto" />
-											<div class="text-xs text-gray-700 mt-1 font-medium">$90/month (includes phone line)</div>
+											<div class="text-xs text-gray-700 mt-1 font-medium">$120/month (includes phone line)</div>
 										</td>
 									</tr>
 								</tbody>
@@ -1069,9 +1069,9 @@ const swiftlaneProposal = {
 const amazonKeyProposal = {
 	vendor: 'Amazon',
 	system: 'Key Access Control System (Add-on to Linear)',
-	installation: 500, // Installation cost for Linear integration
-	activationFees: 998, // Virtual Key ($399) + Intercom Boost ($599)
-	monthlyFee: 50, // Virtual Key ($20) + Intercom Boost ($30)
+	installation: 0, // Installation cost for Linear integration
+	activationFees: 800, // Virtual Key ($399) + Intercom Boost ($599)
+	monthlyFee: 80, // Virtual Key ($20) + Intercom Boost ($30)
 	phoneLineFee: 40, // Monthly phone line cost
 	models: [
 		{
