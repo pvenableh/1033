@@ -50,7 +50,7 @@
 
 				<!-- Swiftlane -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE SYSTEM</h3>
+					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE</h3>
 					<div
 						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -96,7 +96,7 @@
 
 				<!-- Amazon Key -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY SYSTEM</h3>
+					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY</h3>
 					<div
 						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -123,7 +123,7 @@
 						<UButton
 							color="orange"
 							variant="solid"
-							class="w-full !opacity-20 font-bold uppercase"
+							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/bfe9fc3a-2a1e-4aa9-851c-dda04b15d39e"
 							target="_blank"
 						>
@@ -187,7 +187,7 @@
 							<li>• UniFi & Amazon: No facial recognition available</li>
 							<li>• Swiftlane facial recognition: Per-user payment model</li>
 							<li>• Amazon Key: Security vulnerabilities documented</li>
-							<li>• All systems require professional assessment</li>
+							<li>• All systems require professional installment</li>
 						</ul>
 					</div>
 				</div>
@@ -289,8 +289,9 @@
 					<UCard class="border border-purple-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-center justify-between">
+								<UBadge color="purple" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">ONE-TIME ONLY</UBadge>
 								<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide">UNIFI SYSTEM</h3>
-								<UBadge color="purple" variant="solid" class="font-bold uppercase">ONE-TIME ONLY</UBadge>
+								
 							</div>
 						</template>
 
@@ -334,9 +335,10 @@
 					<!-- Swiftlane System -->
 					<UCard class="border border-blue-200 rounded-sm bg-white">
 						<template #header>
-							<div class="flex items-center justify-between">
+							<div class="flex items-center justify-between">		
+								<UBadge color="blue" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">FACIAL RECOGNITION AVAILABLE</UBadge>
 								<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide">SWIFTLANE</h3>
-								<UBadge color="blue" variant="solid" class="font-bold uppercase">FACIAL RECOGNITION AVAILABLE</UBadge>
+						
 							</div>
 						</template>
 
@@ -405,8 +407,8 @@
 					<UCard class="border border-orange-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-center justify-between">
+								<UBadge color="orange" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">LINEAR INTEGRATION</UBadge>
 								<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide">AMAZON KEY</h3>
-								<UBadge color="orange" variant="solid" class="font-bold uppercase">LINEAR INTEGRATION</UBadge>
 							</div>
 						</template>
 
