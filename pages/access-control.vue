@@ -13,6 +13,7 @@
 			<div class="grid lg:grid-cols-3 gap-8 mb-12">
 				<!-- UniFi -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI G3 INTERCOM</h3>
 					<div
 						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -25,7 +26,6 @@
 					>
 						<NuxtImg src="ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7" class="object-cover h-48 w-auto dark:brightness-90" />
 					</div>
-					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI G3 INTERCOM</h3>
 					<div class="space-y-3">
 						<UButton
 							color="purple"
@@ -50,6 +50,7 @@
 
 				<!-- Swiftlane -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE SYSTEM</h3>
 					<div
 						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -62,7 +63,6 @@
 					>
 						<NuxtImg src="9e63d591-d814-439a-b68f-a9de7945c979" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
-					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE SYSTEM</h3>
 					<div class="space-y-3">
 						<UButton
 							color="blue"
@@ -86,7 +86,7 @@
 							color="blue"
 							variant="solid"
 							class="w-full font-bold uppercase"
-							to="https://admin.1033lenox.com/cca32f22-0e92-447c-8c60-7afddbef5ad3"
+							to="https://admin.1033lenox.com/assets/cca32f22-0e92-447c-8c60-7afddbef5ad3"
 							target="_blank"
 						>
 							📄 VIEW PROPOSAL PDF
@@ -96,6 +96,7 @@
 
 				<!-- Amazon Key -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY SYSTEM</h3>
 					<div
 						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -108,7 +109,7 @@
 					>
 						<NuxtImg src="af92f11a-0601-44d1-9988-8d8a93adfe5b" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
-					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY SYSTEM</h3>
+					
 					<div class="space-y-3">
 						<UButton
 							color="orange"
@@ -123,7 +124,7 @@
 							color="orange"
 							variant="solid"
 							class="w-full !opacity-20 font-bold uppercase"
-							disabled
+							to="https://admin.1033lenox.com/assets/bfe9fc3a-2a1e-4aa9-851c-dda04b15d39e"
 							target="_blank"
 						>
 							📄 VIEW PROPOSAL PDF
