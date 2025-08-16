@@ -13,7 +13,7 @@
 			<div class="grid lg:grid-cols-3 gap-8 mb-12">
 				<!-- UniFi -->
 				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
-					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI G3 INTERCOM</h3>
+					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI</h3>
 					<div
 						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
@@ -288,8 +288,8 @@
 					<!-- UniFi System -->
 					<UCard class="border border-purple-200 rounded-sm bg-white">
 						<template #header>
-							<div class="flex items-center justify-between">
-								<UBadge color="purple" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">ONE-TIME ONLY</UBadge>
+							<div class="flex items-start justify-between flex-col xl:flex-row">
+								<UBadge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</UBadge>
 								<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide">UNIFI SYSTEM</h3>
 								
 							</div>
@@ -335,8 +335,8 @@
 					<!-- Swiftlane System -->
 					<UCard class="border border-blue-200 rounded-sm bg-white">
 						<template #header>
-							<div class="flex items-center justify-between">		
-								<UBadge color="blue" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">FACIAL RECOGNITION AVAILABLE</UBadge>
+							<div class="flex items-start justify-between flex-col xl:flex-row">		
+								<UBadge color="blue" variant="solid" class="font-bold uppercase text-center">FACIAL RECOGNITION AVAILABLE</UBadge>
 								<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide">SWIFTLANE</h3>
 						
 							</div>
@@ -406,8 +406,8 @@
 					<!-- Amazon Key System -->
 					<UCard class="border border-orange-200 rounded-sm bg-white">
 						<template #header>
-							<div class="flex items-center justify-between">
-								<UBadge color="orange" variant="solid" class="font-bold uppercase block xl:inline-flex text-center">LINEAR INTEGRATION</UBadge>
+							<div class="flex items-start justify-between flex-col xl:flex-row">
+								<UBadge color="orange" variant="solid" class="font-bold uppercase text-center">LINEAR INTEGRATION</UBadge>
 								<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide">AMAZON KEY</h3>
 							</div>
 						</template>
