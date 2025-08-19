@@ -30,11 +30,11 @@
 						<UButton
 							color="purple"
 							variant="outline"
-							class="w-full mb-14"
+							class="w-full mb-4"
 							to="https://ui.com/physical-security/door-access/intercoms"
 							target="_blank"
 						>
-							VIEW PRODUCT DETAILS
+							UniFi G3 Intercom
 						</UButton>
 						<UButton
 							color="purple"
@@ -67,13 +67,13 @@
 						<UButton
 							color="blue"
 							variant="outline"
-							class="w-full"
+							class="w-full mb-4"
 							to="https://swiftlane.com/video-intercom/"
 							target="_blank"
 						>
-							VIDEO INTERCOM
+							Swiftreader X INTERCOM
 						</UButton>
-						<UButton
+						<!-- <UButton
 							color="blue"
 							variant="outline"
 							class="w-full"
@@ -87,6 +87,15 @@
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/cca32f22-0e92-447c-8c60-7afddbef5ad3"
+							target="_blank"
+						>
+							📄 VIEW PROPOSAL PDF
+						</UButton> -->
+						<UButton
+							color="blue"
+							variant="solid"
+							class="w-full font-bold uppercase"
+							to="https://admin.1033lenox.com/assets/1ac95363-f78a-442f-b76b-719242771aef"
 							target="_blank"
 						>
 							📄 VIEW PROPOSAL PDF
@@ -114,7 +123,7 @@
 						<UButton
 							color="orange"
 							variant="outline"
-							class="w-full mb-14"
+							class="w-full mb-4"
 							to="https://www.amazon.com/b/node=207294570011"
 							target="_blank"
 						>
@@ -158,7 +167,7 @@
 							<li>• Mobile app for tenants</li>
 							<li>• Facial recognition access (Swiftlane offers per-user)</li>
 							<li>• Cloud management for admins</li>
-							<li>• Two garage gate access</li>
+							<li>• Video intercom functionality</li>
 						</ul>
 					</div>
 					<div>
@@ -493,7 +502,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-shield-check"
 						title="SWIFTLANE COMPREHENSIVE FEATURES"
-						description="Complete solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging."
+						description="Complete video intercom solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging."
 					/>
 
 					<UAlert
@@ -1030,9 +1039,26 @@ const unifiProposal = {
 
 const swiftlaneProposal = {
 	vendor: 'Swiftlane',
-	system: 'SwiftReader X + Garage Gates',
+	system: 'SwiftReader X',
 	hardware: {
-		total: 5410, // Updated from actual purchase order
+		total: 2350, // Updated from actual purchase order
+		// items: [
+		// 	{
+		// 		name: 'SwiftReader X (8" Video Intercom)',
+		// 		price: 2125,
+		// 		features: ['Mobile access', 'Video Intercom', 'Surface Mount'],
+		// 	},
+		// 	{
+		// 		name: 'SwiftTag Reader (UHF + Bluetooth)',
+		// 		price: 1350,
+		// 		features: ['Vehicle/gate access', 'Wall/pole mounting'],
+		// 	},
+		// 	{ name: '100 Encrypted Garage Tags', price: 400, features: ['Self-destroying', 'Secure & encrypted'] },
+		// 	{ name: 'Door Controller V5.2', price: 325, features: ['2 card readers', '4 relays'] },
+		// 	{ name: 'Power Supply & Enclosure', price: 575, features: ['Trove1 enclosure'] },
+		// 	{ name: 'Offline ACU', price: 410, features: ['Local credential storage'] },
+		// 	{ name: 'Switch & Shipping', price: 225, features: ['8-port PoE+ switch'] },
+		// ],
 		items: [
 			{
 				name: 'SwiftReader X (8" Video Intercom)',
@@ -1040,22 +1066,18 @@ const swiftlaneProposal = {
 				features: ['Mobile access', 'Video Intercom', 'Surface Mount'],
 			},
 			{
-				name: 'SwiftTag Reader (UHF + Bluetooth)',
-				price: 1350,
-				features: ['Vehicle/gate access', 'Wall/pole mounting'],
+				name: 'Ubiquiti Managed PoE+ Switch',
+				price: 165,
+				features: ['8-port Layer 2', '52W PoE supply', 'Wall-mountable'],
 			},
-			{ name: '100 Encrypted Garage Tags', price: 400, features: ['Self-destroying', 'Secure & encrypted'] },
-			{ name: 'Door Controller V5.2', price: 325, features: ['2 card readers', '4 relays'] },
-			{ name: 'Power Supply & Enclosure', price: 575, features: ['Trove1 enclosure'] },
-			{ name: 'Offline ACU', price: 410, features: ['Local credential storage'] },
-			{ name: 'Switch & Shipping', price: 225, features: ['8-port PoE+ switch'] },
+			{ name: 'Standard Shipping', price: 60, features: ['Included in total cost'] },
 		],
 	},
 	subscription: {
-		monthly: 40, // Base monthly cost before discounts
+		monthly: 30, // Base monthly cost before discounts
 		breakdown: [
-			{ name: 'Video Intercom + Mobile Unlock + Face Unlock + Visitor Passes', price: 30 },
-			{ name: 'Card Reader/Gate Entrance', price: 10 },
+			{ name: 'Video Intercom + Mobile Unlock + Admin Dashboard', price: 30 },
+			// { name: 'Card Reader/Gate Entrance', price: 10 },
 		],
 	},
 	facialRecognition: {
@@ -1063,7 +1085,7 @@ const swiftlaneProposal = {
 		costPerResident: 21.99,
 		note: 'Optional add-on - residents pay individually',
 	},
-	installation: 1000, // Fixed installation cost
+	installation: 500, // Fixed installation cost
 };
 
 const amazonKeyProposal = {
