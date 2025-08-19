@@ -54,9 +54,9 @@ const avatar = computed(() => {
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
-			<div class="hidden sm:inline-block mt-0">
+			<!-- <div class="hidden sm:inline-block mt-0">
 				<DarkModeToggle class="" />
-			</div>
+			</div> -->
 		</div>
 	</header>
 </template>

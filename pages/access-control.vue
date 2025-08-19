@@ -276,7 +276,7 @@
 				</div>
 
 				<!-- Cumulative Cost Chart -->
-				<UCard class="mb-8 border border-gray-200 rounded-sm bg-white">
+				<UCard class="mb-8 bg-white">
 					<template #header>
 						<h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide text-center">
 							{{ timeframePeriodLabel }} CUMULATIVE COST COMPARISON
