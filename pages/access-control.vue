@@ -520,7 +520,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-percent-badge"
 						title="SWIFTLANE BULK PAYMENT DISCOUNTS"
-						description="Swiftlane offers significant discounts for longer commitments on their $40/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount."
+						description="Swiftlane offers significant discounts for longer commitments on their $30/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount."
 					/>
 
 					<UAlert
@@ -810,7 +810,7 @@
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 											<li>• Integrates with existing Linear panel</li>
 											<li>• Uses current phone line infrastructure</li>
-											<li>• Minimal installation disruption</li>
+
 											<li>• Ring app convenience</li>
 										</ul>
 										<h4 class="font-bold text-gray-900 mb-2 mt-4 uppercase tracking-wide flex items-center gap-0.5">
@@ -818,10 +818,10 @@
 											ONGOING COSTS
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
-											<li>• $50/month subscription</li>
+											<li>• $80/month subscription</li>
 											<li>• $40/month phone line</li>
 											<li class="flex items-start gap-0.5">
-												• Total: $90/month
+												• Total: $120/month
 												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
 											</li>
 										</ul>
@@ -896,7 +896,7 @@
 									<h5 class="font-bold text-orange-800 mb-2 uppercase tracking-wide">CHOOSE AMAZON KEY IF:</h5>
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li>• You want to keep existing Linear system</li>
-										<li>• Minimal installation disruption preferred</li>
+
 										<li>• Ring app convenience appeals to residents</li>
 										<li>• You can accept ongoing phone line costs</li>
 										<li>• Security trade-offs are acceptable</li>
