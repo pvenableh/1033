@@ -73,24 +73,6 @@
 						>
 							Swiftreader X INTERCOM
 						</UButton>
-						<!-- <UButton
-							color="blue"
-							variant="outline"
-							class="w-full"
-							to="https://swiftlane.com/vehicle-access-control/"
-							target="_blank"
-						>
-							VEHICLE ACCESS
-						</UButton>
-						<UButton
-							color="blue"
-							variant="solid"
-							class="w-full font-bold uppercase"
-							to="https://admin.1033lenox.com/assets/cca32f22-0e92-447c-8c60-7afddbef5ad3"
-							target="_blank"
-						>
-							📄 VIEW PROPOSAL PDF
-						</UButton> -->
 						<UButton
 							color="blue"
 							variant="solid"
@@ -292,6 +274,45 @@
 					</label>
 					<UTabs v-model="selectedTimeframe" :items="timeframeOptions" class="w-full" />
 				</div>
+
+				<!-- Cumulative Cost Chart -->
+				<UCard class="mb-8 border border-gray-200 rounded-sm bg-white">
+					<template #header>
+						<h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide text-center">
+							{{ timeframePeriodLabel }} CUMULATIVE COST COMPARISON
+						</h3>
+					</template>
+					<div class="h-80">
+						<Line :data="cumulativeCostChartData" :options="lineChartOptions" />
+					</div>
+					<div class="mt-4 text-left text-xs sm:text-sm text-gray-600">
+						<p class="sm:ml-20">
+							<strong class="font-bold block">Key Insights:</strong>
+							<span v-if="amazonTotalSavings > swiftlaneTotalSavings">
+								Amazon Key
+								<span class="font-bold">saves ${{ amazonTotalSavings.toLocaleString() }}</span>
+								vs Swiftlane over {{ timeframePeriodLabel.toLowerCase() }}(s)
+							</span>
+							<span v-else>
+								Swiftlane
+								<span class="font-bold">saves ${{ swiftlaneTotalSavings.toLocaleString() }}</span>
+								vs Amazon Key over {{ timeframePeriodLabel.toLowerCase() }}(s)
+							</span>
+							<span class="block">
+								Annual recurring cost:
+								<span class="font-bold">
+									Swiftlane ${{
+										(Math.round(swiftlaneProposal.subscription.monthly * discountMultiplier) * 12).toLocaleString()
+									}}
+								</span>
+								vs.
+								<span class="font-bold">
+									Amazon Key ${{ ((amazonKeyProposal.monthlyFee + 40) * 12).toLocaleString() }}
+								</span>
+							</span>
+						</p>
+					</div>
+				</UCard>
 
 				<div class="grid lg:grid-cols-3 gap-8 mt-8">
 					<!-- UniFi System -->
@@ -685,9 +706,6 @@
 							</template>
 
 							<div class="space-y-6">
-								<!-- <div class="text-2xl font-bold text-blue-500 uppercase tracking-wide hidden">
-									ONLY SWIFTLANE OFFERS FACIAL RECOGNITION + ADVANCED SECURITY
-								</div> -->
 								<p class="font-medium font-bold text-[18px] leading-[24px] mb-4">
 									Swiftlane's innovative per-user facial recognition model allows residents to opt-in individually, plus
 									offers the highest security features including IK10 vandal resistance and loiter monitoring.
@@ -871,15 +889,24 @@
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li class="flex items-start gap-0.5">
 											• Facial recognition is important to you
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
 										</li>
-										<li>• You want the highest security features</li>
-										<li>• Lowest subscription plan</li>
+										<li>
+											• You want the highest security features
+											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• You want the lowest subscription plan
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+										</li>
 										<li class="flex items-start gap-0.5">
 											• You want to eliminate phone line costs
-											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
-										<li>• Advanced video monitoring is needed</li>
+										<li>
+											• Advanced video monitoring is needed
+											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+										</li>
 									</ul>
 								</div>
 								<div>
@@ -887,22 +914,52 @@
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li class="flex items-start gap-0.5">
 											• Budget is the primary concern
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-300 mt-0.5 flex-shrink-0" />
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
-										<li>• You prefer one-time payment</li>
-										<li>• Basic intercom features are sufficient</li>
-										<li>• You want enterprise-grade security</li>
-										<li>• No ongoing monthly fees preferred</li>
+										<li>
+											• You prefer one-time payment
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• Basic intercom features are sufficient
+											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• You want enterprise-grade security
+											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• No ongoing monthly fees preferred
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+										</li>
 									</ul>
 								</div>
 								<div>
 									<h5 class="font-bold text-orange-800 mb-2 uppercase tracking-wide">CHOOSE AMAZON KEY IF:</h5>
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
-										<li>• You want to keep existing Linear system</li>
-										<li>• Budget allows for higher monthly costs</li>
-										<li>• Ring app convenience appeals to residents</li>
-										<li>• You can accept ongoing phone line costs</li>
-										<li>• Security trade-offs are acceptable</li>
+										<li>
+											• You want to keep existing Linear system
+											<UIcon name="i-heroicons-cog-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• Budget allows for higher monthly costs
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• Ring app convenience appeals to residents
+											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• You can accept ongoing phone line costs
+											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+										</li>
+										<li>
+											• Security trade-offs are acceptable
+											<UIcon
+												name="i-heroicons-shield-exclamation-solid"
+												class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
+											/>
+										</li>
 									</ul>
 								</div>
 							</div>
@@ -916,7 +973,7 @@
 								</div>
 							</template>
 
-							<div class="grid md:grid-cols-2 gap-8">
+							<div class="grid md:grid-cols-2 gap-8 text-black">
 								<div>
 									<h4 class="font-bold text-red-800 mb-3 uppercase tracking-wide">DOCUMENTED VULNERABILITIES</h4>
 									<ul class="space-y-2 text-sm">
@@ -963,7 +1020,7 @@
 										<li>
 											•
 											<strong>Ongoing Costs:</strong>
-											Subscription + phone line = $90/month total
+											Subscription + phone line = $120/month total
 										</li>
 									</ul>
 								</div>
@@ -977,6 +1034,21 @@
 </template>
 
 <script setup>
+import { Line } from 'vue-chartjs';
+import {
+	Chart as ChartJS,
+	CategoryScale,
+	LinearScale,
+	PointElement,
+	LineElement,
+	Title,
+	Tooltip,
+	Legend,
+	Filler,
+} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
+
 const isOpen = ref(false);
 const selectedImage = ref();
 function showSelectedImage(image) {
@@ -1045,23 +1117,6 @@ const swiftlaneProposal = {
 	system: 'SwiftReader X',
 	hardware: {
 		total: 2350, // Updated from actual purchase order
-		// items: [
-		// 	{
-		// 		name: 'SwiftReader X (8" Video Intercom)',
-		// 		price: 2125,
-		// 		features: ['Mobile access', 'Video Intercom', 'Surface Mount'],
-		// 	},
-		// 	{
-		// 		name: 'SwiftTag Reader (UHF + Bluetooth)',
-		// 		price: 1350,
-		// 		features: ['Vehicle/gate access', 'Wall/pole mounting'],
-		// 	},
-		// 	{ name: '100 Encrypted Garage Tags', price: 400, features: ['Self-destroying', 'Secure & encrypted'] },
-		// 	{ name: 'Door Controller V5.2', price: 325, features: ['2 card readers', '4 relays'] },
-		// 	{ name: 'Power Supply & Enclosure', price: 575, features: ['Trove1 enclosure'] },
-		// 	{ name: 'Offline ACU', price: 410, features: ['Local credential storage'] },
-		// 	{ name: 'Switch & Shipping', price: 225, features: ['8-port PoE+ switch'] },
-		// ],
 		items: [
 			{
 				name: 'SwiftReader X (8" Video Intercom)',
@@ -1078,10 +1133,7 @@ const swiftlaneProposal = {
 	},
 	subscription: {
 		monthly: 30, // Base monthly cost before discounts
-		breakdown: [
-			{ name: 'Video Intercom + Mobile Unlock + Admin Dashboard', price: 30 },
-			// { name: 'Card Reader/Gate Entrance', price: 10 },
-		],
+		breakdown: [{ name: 'Video Intercom + Mobile Unlock + Admin Dashboard', price: 30 }],
 	},
 	facialRecognition: {
 		included: false,
@@ -1188,6 +1240,240 @@ const recurringCostComparison = computed(() => {
 		years,
 	};
 });
+
+const createGradients = (ctx, chartArea) => {
+	if (!chartArea) return null;
+
+	const { top, bottom } = chartArea;
+
+	// UniFi gradient (Purple)
+	const unifiGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	unifiGradient.addColorStop(0, 'rgba(139, 92, 246, 0.8)');
+	unifiGradient.addColorStop(0.5, 'rgba(139, 92, 246, 0.4)');
+	unifiGradient.addColorStop(1, 'rgba(139, 92, 246, 0.1)');
+
+	const unifiFillGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	unifiFillGradient.addColorStop(0, 'rgba(139, 92, 246, 0.3)');
+	unifiFillGradient.addColorStop(1, 'rgba(139, 92, 246, 0.05)');
+
+	// Swiftlane gradient (Blue)
+	const swiftlaneGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	swiftlaneGradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)');
+	swiftlaneGradient.addColorStop(0.5, 'rgba(59, 130, 246, 0.4)');
+	swiftlaneGradient.addColorStop(1, 'rgba(59, 130, 246, 0.1)');
+
+	const swiftlaneFillGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	swiftlaneFillGradient.addColorStop(0, 'rgba(59, 130, 246, 0.3)');
+	swiftlaneFillGradient.addColorStop(1, 'rgba(59, 130, 246, 0.05)');
+
+	// Amazon Key gradient (Orange)
+	const amazonGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	amazonGradient.addColorStop(0, 'rgba(245, 158, 11, 0.8)');
+	amazonGradient.addColorStop(0.5, 'rgba(245, 158, 11, 0.4)');
+	amazonGradient.addColorStop(1, 'rgba(245, 158, 11, 0.1)');
+
+	const amazonFillGradient = ctx.createLinearGradient(0, top, 0, bottom);
+	amazonFillGradient.addColorStop(0, 'rgba(245, 158, 11, 0.3)');
+	amazonFillGradient.addColorStop(1, 'rgba(245, 158, 11, 0.05)');
+
+	return {
+		unifiGradient,
+		unifiFillGradient,
+		swiftlaneGradient,
+		swiftlaneFillGradient,
+		amazonGradient,
+		amazonFillGradient,
+	};
+};
+
+// Chart data for cumulative cost over time - all three options
+const cumulativeCostChartData = computed(() => {
+	const months = calculateTotalCost.value.months;
+	const swiftlaneMonthlyWithDiscount = Math.round(swiftlaneProposal.subscription.monthly * discountMultiplier.value);
+	const amazonKeyMonthly = amazonKeyProposal.monthlyFee + amazonKeyProposal.phoneLineFee;
+
+	const labels = [];
+	const unifiData = [];
+	const swiftlaneData = [];
+	const amazonKeyData = [];
+
+	// Create data points for each month
+	for (let i = 0; i <= months; i += Math.max(1, Math.floor(months / 12))) {
+		labels.push(i === 0 ? 'Start' : `Month ${i}`);
+
+		// UniFi: Pay everything upfront, then flat
+		unifiData.push(unifiProposal.phase1.cost);
+
+		// Swiftlane: Hardware + installation upfront, then monthly subscription
+		const swiftlaneCumulative =
+			swiftlaneProposal.hardware.total + swiftlaneProposal.installation + swiftlaneMonthlyWithDiscount * i;
+		swiftlaneData.push(swiftlaneCumulative);
+
+		// Amazon Key: Activation fees upfront, then monthly subscription + phone line
+		const amazonKeyCumulative = amazonKeyProposal.activationFees + amazonKeyMonthly * i;
+		amazonKeyData.push(amazonKeyCumulative);
+	}
+
+	return {
+		labels,
+		datasets: [
+			{
+				label: 'UniFi G3',
+				borderColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return '#8B5CF6';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.unifiGradient || '#8B5CF6';
+				},
+				backgroundColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return 'rgba(139, 92, 246, 0.1)';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.unifiFillGradient || 'rgba(139, 92, 246, 0.1)';
+				},
+				fill: true,
+				tension: 0.4,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				borderWidth: 3,
+				data: unifiData,
+			},
+			{
+				label: 'Swiftlane',
+				borderColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return '#3B82F6';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.swiftlaneGradient || '#3B82F6';
+				},
+				backgroundColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return 'rgba(59, 130, 246, 0.1)';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.swiftlaneFillGradient || 'rgba(59, 130, 246, 0.1)';
+				},
+				fill: true,
+				tension: 0.4,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				borderWidth: 3,
+				data: swiftlaneData,
+			},
+			{
+				label: 'Amazon Key',
+				borderColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return '#F59E0B';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.amazonGradient || '#F59E0B';
+				},
+				backgroundColor: (ctx) => {
+					const chart = ctx.chart;
+					const { ctx: canvasCtx, chartArea } = chart;
+					if (!chartArea) return 'rgba(245, 158, 11, 0.1)';
+					const gradients = createGradients(canvasCtx, chartArea);
+					return gradients?.amazonFillGradient || 'rgba(245, 158, 11, 0.1)';
+				},
+				fill: true,
+				tension: 0.4,
+				pointRadius: 0,
+				pointHoverRadius: 0,
+				borderWidth: 3,
+				data: amazonKeyData,
+			},
+		],
+	};
+});
+
+const lineChartOptions = {
+	responsive: true,
+	maintainAspectRatio: false,
+	interaction: {
+		intersect: false,
+		mode: 'nearest',
+	},
+	plugins: {
+		legend: {
+			position: 'bottom',
+			labels: {
+				usePointStyle: true,
+				padding: 20,
+				font: {
+					size: 14,
+					weight: '600',
+				},
+				color: '#374151',
+			},
+		},
+		tooltip: {
+			backgroundColor: 'rgba(255, 255, 255, 0.95)',
+			titleColor: '#1F2937',
+			bodyColor: '#374151',
+			borderColor: '#E5E7EB',
+			borderWidth: 1,
+			cornerRadius: 8,
+			padding: 12,
+			boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+			callbacks: {
+				label: (context) => `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`,
+			},
+		},
+	},
+	scales: {
+		y: {
+			beginAtZero: true,
+			title: {
+				display: true,
+				text: 'Cumulative Cost ($)',
+				font: {
+					size: 14,
+					weight: '600',
+				},
+				color: '#374151',
+			},
+			ticks: {
+				callback: (value) => '$' + value.toLocaleString(),
+				color: '#6B7280',
+				font: {
+					size: 12,
+				},
+			},
+			grid: {
+				color: 'rgba(156, 163, 175, 0.2)',
+				drawBorder: false,
+			},
+		},
+		x: {
+			title: {
+				display: true,
+				text: 'Time Period',
+				font: {
+					size: 14,
+					weight: '600',
+				},
+				color: '#374151',
+			},
+			ticks: {
+				color: '#6B7280',
+				font: {
+					size: 12,
+				},
+			},
+			grid: {
+				color: 'rgba(156, 163, 175, 0.2)',
+				drawBorder: false,
+			},
+		},
+	},
+};
+
+const swiftlaneTotalSavings = computed(() => calculateTotalCost.value.amazonKey - calculateTotalCost.value.swiftlane);
+const amazonTotalSavings = computed(() => calculateTotalCost.value.swiftlane - calculateTotalCost.value.amazonKey);
 </script>
 
 <style scoped>
