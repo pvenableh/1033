@@ -822,7 +822,10 @@
 											<li>• $40/month phone line</li>
 											<li class="flex items-start gap-0.5">
 												• Total: $120/month
-												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+												<UIcon
+													name="i-heroicons-exclamation-triangle-solid"
+													class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
+												/>
 											</li>
 										</ul>
 									</div>
@@ -871,7 +874,7 @@
 											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>• You want the highest security features</li>
-										<li>• Budget allows for higher monthly costs</li>
+										<li>• Lowest subscription plan</li>
 										<li class="flex items-start gap-0.5">
 											• You want to eliminate phone line costs
 											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
@@ -896,7 +899,7 @@
 									<h5 class="font-bold text-orange-800 mb-2 uppercase tracking-wide">CHOOSE AMAZON KEY IF:</h5>
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li>• You want to keep existing Linear system</li>
-
+										<li>• Budget allows for higher monthly costs</li>
 										<li>• Ring app convenience appeals to residents</li>
 										<li>• You can accept ongoing phone line costs</li>
 										<li>• Security trade-offs are acceptable</li>
