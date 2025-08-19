@@ -435,9 +435,10 @@
 									${{ recurringCostComparison.swiftlaneTotal.toLocaleString() }}
 								</span>
 							</div>
-							<div class="flex justify-between mt-2" v-if="recurringCostComparison.savings > 0">
+							<div class="flex justify-between mt-2" v-if="swiftlaneTotalSavings > amazonTotalSavings">
 								<span class="font-medium">{{ timeframePeriodLabel }} savings vs Amazon Key:</span>
-								<span class="font-bold text-green-600">${{ recurringCostComparison.savings.toLocaleString() }}</span>
+
+								<span class="font-bold text-green-600">${{ swiftlaneTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
 					</UCard>
@@ -494,6 +495,12 @@
 								<span class="font-bold text-orange-600">
 									${{ recurringCostComparison.amazonKeyTotal.toLocaleString() }}
 								</span>
+							</div>
+
+							<div class="flex justify-between mt-2" v-if="amazonTotalSavings > swiftlaneTotalSavings">
+								<span class="font-medium">{{ timeframePeriodLabel }} savings vs Swiftlane:</span>
+
+								<span class="font-bold text-green-600">${{ amazonTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
 					</UCard>
