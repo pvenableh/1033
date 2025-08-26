@@ -95,10 +95,10 @@
 						<NuxtImg src="f2db37c1-82cb-48c7-b3cd-162fcfbc120b" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 					<div
-						@click="showSelectedImage('af92f11a-0601-44d1-9988-8d8a93adfe5b')"
+						@click="showSelectedImage('dcb739e1-93bd-4fea-b187-9e9d3263f987')"
 						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
 					>
-						<NuxtImg src="af92f11a-0601-44d1-9988-8d8a93adfe5b" class="object-cover h-48 w-full dark:brightness-90" />
+						<NuxtImg src="dcb739e1-93bd-4fea-b187-9e9d3263f987" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 
 					<div class="space-y-3">
@@ -160,10 +160,7 @@
 								<strong>Swiftlane offers facial recognition</strong>
 								via per-user model
 							</li>
-							<li>
-								•
-								<strong>Amazon Key integrates with existing Linear panel</strong>
-							</li>
+							<li>• Amazon Key relies on existing Linear panel for other access control features</li>
 							<li>• UniFi most cost-effective with no monthly fees</li>
 							<li>
 								•
@@ -176,9 +173,18 @@
 						<h4 class="font-bold text-gray-900 mb-3 uppercase tracking-wide">⚠️ CONSIDERATIONS</h4>
 						<ul class="space-y-2 text-sm text-gray-800 font-medium">
 							<li>• UniFi & Amazon: No facial recognition available</li>
-							<li>• Swiftlane facial recognition: Per-user payment model</li>
-							<li>• Amazon Key: Security vulnerabilities documented</li>
-							<li>• All systems require professional installment</li>
+							<li>
+								• Amazon can
+								<strong>grant 3rd-party access</strong>
+							</li>
+							<li>
+								• Amazon Key
+								<strong>owns user data</strong>
+							</li>
+							<li>
+								• Amazon
+								<strong>retains 100% ownership of all equipment</strong>
+							</li>
 						</ul>
 					</div>
 				</div>
@@ -248,7 +254,7 @@
 									<UBadge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">High Security</UBadge>
+									<UBadge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
 								</td>
 								<td class="text-center py-4 px-6">
 									<UBadge color="red" variant="solid" class="font-bold uppercase">Documented Vulnerabilities</UBadge>
@@ -505,7 +511,7 @@
 						</div>
 					</UCard>
 				</div>
-				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6">
+				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6 hidden">
 					<UAlert
 						color="blue"
 						variant="solid"
@@ -637,7 +643,7 @@
 										<td class="text-center py-4 px-6">
 											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
-												IK10 vandal resistance + insurance, cellular fallback
+												IK10 vandal resistance + insurance, cellular fallback + loiter monitoring
 											</div>
 										</td>
 										<td class="text-center py-4 px-6">
@@ -665,15 +671,15 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Installation Type</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-wifi" class="w-6 h-6 text-purple-500 mx-auto" />
+											<UIcon name="i-heroicons-wifi" class="w-6 h-6 text-blue-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Wired (PoE)</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-signal" class="w-6 h-6 text-blue-500 mx-auto" />
+											<UIcon name="i-heroicons-signal" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Wireless/Wired + cellular backup</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-orange-500 mx-auto" />
+											<UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Integrates with Linear</div>
 										</td>
 									</tr>
@@ -685,7 +691,7 @@
 											<div class="text-xs text-gray-700 mt-1 font-medium">No ongoing fees</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
 												${{ Math.round(swiftlaneProposal.subscription.monthly * discountMultiplier) }}/month (with
 												discount)
@@ -694,6 +700,55 @@
 										<td class="text-center py-4 px-6">
 											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">$120/month (includes phone line)</div>
+										</td>
+									</tr>
+									<tr class="border-b border-gray-200">
+										<td class="py-4 px-6 font-semibold text-gray-900">Equipment</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">100% Ownership</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">100% Ownership</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Amazon retains owndership</div>
+										</td>
+									</tr>
+									<tr class="border-b border-gray-200">
+										<td class="py-4 px-6 font-semibold text-gray-900">Data Safety</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Encrypted transmission</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-green-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Enterprise-grade security</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Amazon owns all user data</div>
+										</td>
+									</tr>
+									<tr class="border-b border-gray-200">
+										<td class="py-4 px-6 font-semibold text-gray-900">3rd Party Access</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Control all access</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">Control all access</div>
+										</td>
+										<td class="text-center py-4 px-6">
+											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<div class="text-xs text-gray-700 mt-1 font-medium">
+												Amazon can authorize access
+												<br />
+												[we are responsible for 3rd-party actions]
+											</div>
 										</td>
 									</tr>
 								</tbody>
@@ -781,7 +836,7 @@
 							</div>
 						</UCard>
 
-						<div class="grid md:grid-cols-3 gap-8 mt-8">
+						<div class="grid md:grid-cols-3 gap-8 mt-8 hidden">
 							<UCard class="border border-purple-300 rounded-sm bg-white">
 								<template #header>
 									<h3 class="text-xl font-bold text-purple-800 uppercase tracking-wide">BUDGET CHOICE: UNIFI G3</h3>
