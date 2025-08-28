@@ -1202,7 +1202,7 @@ const swiftlaneProposal = {
 		costPerResident: 21.99,
 		note: 'Optional add-on - residents pay individually',
 	},
-	installation: 500, // Fixed installation cost
+	installation: 1500, // Fixed installation cost
 };
 
 const amazonKeyProposal = {
