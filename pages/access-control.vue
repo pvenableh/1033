@@ -160,7 +160,7 @@
 								<strong>Swiftlane offers facial recognition</strong>
 								via per-user model
 							</li>
-							<li>• Amazon Key relies on existing Linear panel for other access control features</li>
+							<li>• Amazon Key relies on Linear panel for other access control features</li>
 							<li>• UniFi most cost-effective with no monthly fees</li>
 							<li>
 								•
@@ -466,8 +466,12 @@
 								<span class="text-gray-800 font-medium">Activation Fees:</span>
 								<span class="font-bold text-gray-900">${{ amazonKeyProposal.activationFees.toLocaleString() }}</span>
 							</div>
+							<!-- <div class="flex justify-between">
+								<span class="text-gray-800 font-medium">Linear Panel:</span>
+								<span class="font-bold text-gray-900">$825 + tax</span>
+							</div> -->
 							<div class="flex justify-between">
-								<span class="text-gray-800 font-medium">Installation (Linear integration):</span>
+								<span class="text-gray-800 font-medium">Installation + New Linear Panel:</span>
 								<span class="font-bold text-gray-900">${{ amazonKeyProposal.installation.toLocaleString() }}</span>
 							</div>
 							<UDivider />
@@ -518,7 +522,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-cog-6-tooth"
 						title="AMAZON KEY LINEAR INTEGRATION ADVANTAGE"
-						description="Amazon Key Virtual Key + Intercom Boost can integrate directly with your existing Linear access panel as an add-on, significantly reducing installation costs and complexity. However, requires maintaining existing phone line infrastructure at $40/month."
+						description="Amazon Key Virtual Key + Intercom Boost relies on Linear access panel as an add-on. However, requires maintaining existing phone line infrastructure at $40/month."
 					/>
 
 					<UAlert
@@ -680,7 +684,7 @@
 										</td>
 										<td class="text-center py-4 px-6">
 											<UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-yellow-500 mx-auto" />
-											<div class="text-xs text-gray-700 mt-1 font-medium">Integrates with Linear</div>
+											<div class="text-xs text-gray-700 mt-1 font-medium">Relies on Linear</div>
 										</td>
 									</tr>
 
@@ -879,7 +883,7 @@
 
 								<div class="space-y-4">
 									<p class="text-gray-700 font-medium">
-										Leverages existing Linear system but requires maintaining phone line costs.
+										Relies on Linear system and requires maintaining phone line costs.
 									</p>
 
 									<div>
@@ -888,7 +892,7 @@
 											ADVANTAGES
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
-											<li>• Integrates with existing Linear panel</li>
+											<li>• Requies Linear panel</li>
 											<li>• Uses current phone line infrastructure</li>
 
 											<li>• Ring app convenience</li>
@@ -1000,8 +1004,8 @@
 									<h5 class="font-bold text-orange-800 mb-2 uppercase tracking-wide">CHOOSE AMAZON KEY IF:</h5>
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li>
-											• You want to keep existing Linear system
-											<UIcon name="i-heroicons-cog-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+											• You want to keep anitquated Linear system
+											<UIcon name="i-heroicons-cog-solid" class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Budget allows for higher monthly costs
@@ -1016,7 +1020,7 @@
 											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
-											• Security trade-offs are acceptable
+											• Security/privacy trade-offs are acceptable
 											<UIcon
 												name="i-heroicons-shield-exclamation-solid"
 												class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
@@ -1208,24 +1212,24 @@ const swiftlaneProposal = {
 const amazonKeyProposal = {
 	vendor: 'Amazon',
 	system: 'Key Access Control System (Add-on to Linear)',
-	installation: 0, // Installation cost for Linear integration
+	installation: 1500, // Installation cost for Linear integration
 	activationFees: 800, // Virtual Key ($399) + Intercom Boost ($599)
 	monthlyFee: 80, // Virtual Key ($20) + Intercom Boost ($30)
 	phoneLineFee: 40, // Monthly phone line cost
 	models: [
 		{
 			name: 'Virtual Key + Intercom Boost',
-			description: 'Integrates with existing Linear access panel',
-			price: '$998 activation',
+			description: 'Requires Linear access panel',
+			price: '$998 activation + ',
 		},
 	],
 	integration: {
 		linear: true,
-		description: 'Works with existing Linear telephone entry systems',
-		phoneLineRequired: 'Uses existing Linear phone connection',
-		installation: 'Minimal - adds to existing system',
+		description: 'Works with Linear telephone entry systems',
+		phoneLineRequired: 'Uses Linear phone connection',
+		installation: 'New panel required',
 	},
-	notes: 'Integrates with existing Linear system - no replacement needed',
+	notes: 'Relies on Linear system - replacement needed',
 };
 
 // Computed properties
@@ -1372,7 +1376,11 @@ const cumulativeCostChartData = computed(() => {
 		swiftlaneData.push(swiftlaneCumulative);
 
 		// Amazon Key: Activation fees upfront, then monthly subscription + phone line
-		const amazonKeyCumulative = amazonKeyProposal.activationFees + amazonKeyMonthly * i;
+		// const amazonKeyCumulative = amazonKeyProposal.activationFees + amazonKeyMonthly * i;
+		// amazonKeyData.push(amazonKeyCumulative);
+		const amazonKeyCumulative =
+			amazonKeyProposal.activationFees + amazonKeyProposal.installation + amazonKeyMonthly * i;
+
 		amazonKeyData.push(amazonKeyCumulative);
 	}
 
