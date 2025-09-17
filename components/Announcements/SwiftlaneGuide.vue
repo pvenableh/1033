@@ -13,7 +13,7 @@
 		</div>
 		<div class="px-0 mb-8">
 			<h3 class="text-center uppercase font-bold text-gray-700 text-lg mb-4">How to setup the Swiftlane App</h3>
-			<p class="text-center text-gray-600 mb-2 max-w-lg mx-auto">📋Here is a simple list of steps to get started:</p>
+			<p class="text-left text-gray-600 mb-2 max-w-[450px] mx-auto">📋Here is a simple list of steps to get started:</p>
 
 			<ol class="text-sm text-gray-700 space-y-3 max-w-md mx-auto leading-relaxed">
 				<li>
@@ -68,7 +68,7 @@
 				</li>
 			</ol>
 
-			<div class="text-left text-gray-600 text-sm mt-6 space-y-3 max-w-[480px] mx-auto leading-relaxed">
+			<div class="text-left text-gray-600 text-sm mt-6 max-w-[480px] mx-auto leading-relaxed">
 				<p>
 					Each user can choose to be called via phone number [with no video intercom calls] or via the app [enables
 					video intercom calls].
@@ -77,6 +77,7 @@
 					Please note, active tenants and owners will all receive an invitation. Owners who don't live here will not be
 					listed on the directory, but will have Swiftlane access.
 				</p>
+				<p>We will update the community once the installation is complete and the system is ready for use.</p>
 			</div>
 		</div>
 
