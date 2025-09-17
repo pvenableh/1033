@@ -32,7 +32,11 @@
 				<h5 class="email__subtitle">{{ email.subtitle }}</h5>
 				<div class="w-full email__content">
 					<p>{{ email.greeting }}</p>
-					<div v-html="email.content"></div>
+					<AnnouncementsSwiftlaneEmail
+						:email="email"
+						v-if="email.sendgrid_template_id === 'd-6160b4b2faa74529a27f6c2ec90191f9'"
+					/>
+					<div v-else v-html="email.content"></div>
 
 					<div class="w-full flex flex-row flex-wrap items-start signature">
 						<p class="w-full font-bold greeting">{{ email.closing }}</p>
@@ -81,6 +85,8 @@
 </template>
 
 <script setup>
+import { AnnouncementsSwiftlaneEmail } from '#components';
+
 const { params } = useRoute();
 
 definePageMeta({
@@ -93,7 +99,7 @@ const url = 'https://admin.1033lenox.com/items/announcements?filter[url][_eq]=' 
 const { data: announcement } = await useFetch(url, { key: params.url });
 
 const email = computed(() => announcement.value?.data?.[0]);
-
+console.log(email);
 // Even though `email.value` might be initially undefined,
 // `useSeoMeta` will update reactively once `email.value` is ready.
 useSeoMeta({
