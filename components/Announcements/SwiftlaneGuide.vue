@@ -91,8 +91,8 @@
 			<div class="text-left mx-auto space-y-2 leading-relaxed max-w-[310px]">
 				<p>Every user has a free 30-day trial to use the facial recognition and visitor passes features.</p>
 				<p>
-					After that, each user can choose to subscribe to $21.99/year per user. This is not required for pin and app
-					access.
+					After that, each user can choose to subscribe to $21.99/year per user. This is not required for PIN and mobile
+					app access.
 				</p>
 			</div>
 		</div>
