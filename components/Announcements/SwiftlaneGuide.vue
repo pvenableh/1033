@@ -16,7 +16,10 @@
 			<p class="text-center text-gray-600 mb-2 max-w-lg mx-auto">📋Here is a simple list of steps to get started:</p>
 
 			<ol class="text-sm text-gray-700 space-y-3 max-w-md mx-auto leading-relaxed">
-				<li>You will receive an email invite from Swiftlane to {{ email.email || 'your email' }}</li>
+				<li>
+					You will receive an email invite from Swiftlane (verification@swiftlane.com) to
+					{{ email.email || 'your email' }}
+				</li>
 				<li>
 					Note the workspace and email in the invite:
 					<ul class="ml-4 mt-2 space-y-1">
@@ -78,7 +81,7 @@
 		</div>
 
 		<!-- Free Trial Section -->
-		<div class="bg-[var(--blue)] text-white p-8 mb-8">
+		<div class="bg-[#3A1DEB] text-white p-8 mb-8">
 			<h3 class="text-center text-2xl font-bold uppercase tracking-wide mb-4">
 				Facial Recognition +
 				<br />
@@ -128,7 +131,7 @@
 							alt="Video Instructions"
 							class="mx-auto w-20 mb-2"
 						/>
-						<div class="text-xs uppercase font-bold text-[var(--blue)] tracking-wide">Video Instructions</div>
+						<div class="text-xs uppercase font-bold text-[#3A1DEB] tracking-wide">Video Instructions</div>
 					</a>
 				</div>
 
@@ -140,7 +143,7 @@
 							alt="PDF Instructions"
 							class="mx-auto w-20 mb-2"
 						/>
-						<div class="text-xs uppercase font-bold text-[var(--blue)] tracking-wide">PDF Instructions</div>
+						<div class="text-xs uppercase font-bold text-[#3A1DEB] tracking-wide">PDF Instructions</div>
 					</a>
 				</div>
 			</div>
@@ -148,7 +151,7 @@
 
 		<!-- Instructions Preview -->
 		<div class="px-0 mb-6">
-			<div class="border-2 border-[var(--blue)] rounded-lg p-4">
+			<div class="border-2 border-[#3A1DEB] rounded-sm p-4">
 				<a href="https://admin.1033lenox.com/assets/ea67a298-9c7c-49a7-8843-3983ac11d302" target="_blank">
 					<img
 						src="https://admin.1033lenox.com/assets/f8aa337f-dbd7-4436-b487-b1f45e19f187?key=large-png"
@@ -160,7 +163,7 @@
 		</div>
 
 		<!-- Thank You Message -->
-		<div class="px-0 py-6 mb-0">
+		<div class="px-0 py-0 mb-0">
 			<div class="text-sm text-gray-600 leading-relaxed">
 				<div class="text-base leading-5" v-html="email.content"></div>
 				<p>
@@ -191,8 +194,8 @@ const props = defineProps({
 
 /* Ensure proper link styling */
 a {
-	color: var(--blue);
-	text-decoration: underline;
+	color: #3a1deb;
+	text-decoration: none;
 }
 
 a:hover {
