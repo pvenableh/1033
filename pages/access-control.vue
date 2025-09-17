@@ -8,6 +8,33 @@
 				<div class="text-sm text-gray-500 uppercase tracking-widest">
 					THREE-WAY COMPARISON: UNIFI VS SWIFTLANE VS AMAZON KEY
 				</div>
+				<p class="text-sm text-gray-500 mt-2">
+					There was a fourth proposal from
+					<a
+						href="https://www.teleco.com/access-control-systems-miami-florida/"
+						target="_blank"
+						class="underline text-[var(--blue)]"
+					>
+						Teleco
+					</a>
+					featuring a
+					<a
+						href="https://www.paxton-access.com/product-types/entry-panels/"
+						target="_blank"
+						class="underline text-[var(--blue)]"
+					>
+						Paxton
+					</a>
+					system. This was removed from consideration due to the cost. You can review the
+					<a
+						href="https://admin.1033lenox.com/assets/b6fd998a-045d-4c8c-9708-dcc1d437f8fb"
+						target="_blank"
+						class="underline text-[var(--blue)]"
+					>
+						Teleco proposal here
+					</a>
+					.
+				</p>
 			</div>
 			<!-- Product Information Cards -->
 			<div class="grid lg:grid-cols-3 gap-8 mb-12">
@@ -1086,7 +1113,7 @@
 										<li>
 											•
 											<strong>Ongoing Costs:</strong>
-											Subscription + phone line = $120/month total
+											Subscription + phone line = $80/month total
 										</li>
 									</ul>
 								</div>
@@ -1214,7 +1241,7 @@ const amazonKeyProposal = {
 	system: 'Key Access Control System (Add-on to Linear)',
 	installation: 1500, // Installation cost for Linear integration
 	activationFees: 800, // Virtual Key ($399) + Intercom Boost ($599)
-	monthlyFee: 80, // Virtual Key ($20) + Intercom Boost ($30)
+	monthlyFee: 40, // Virtual Key ($20) + Intercom Boost ($30)
 	phoneLineFee: 40, // Monthly phone line cost
 	models: [
 		{

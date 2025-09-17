@@ -6,12 +6,8 @@ export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
 
-	let templateId;
-	if (body.data.template === 'Parking') {
-		templateId = 'd-ef1bd1a336a341e6a85751e04227b9d3';
-	} else {
-		templateId = 'd-035e7712976d45aaa5143d8a1042aee7';
-	}
+	// Use custom template ID if provided, otherwise use default generic template
+	const templateId = body.data.data.sendgrid_template_id || 'd-035e7712976d45aaa5143d8a1042aee7';
 
 	const messages = recipients
 		.map((element) => {
@@ -58,6 +54,7 @@ export default defineEventHandler(async (event) => {
 				custom_args: {
 					announcement_id: String(body.data.data.id),
 					recipient_email: element.people_id.email,
+					template_type: body.data.data.sendgrid_template_id ? 'custom' : 'default',
 				},
 				categories: ['1033 Lenox', 'announcements'],
 			};
@@ -66,7 +63,11 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		await sgMail.send(messages);
-		return { success: true, message: 'Emails sent successfully' };
+		return {
+			success: true,
+			message: 'Emails sent successfully',
+			template_used: templateId,
+		};
 	} catch (error) {
 		console.error('SendGrid Error:', error.response?.body || error.message);
 		return { success: false, message: error.message };
