@@ -36,6 +36,10 @@
 						:email="email"
 						v-if="email.sendgrid_template_id === 'd-6160b4b2faa74529a27f6c2ec90191f9'"
 					/>
+					<AnnouncementsSwiftlaneGuide
+						:email="email"
+						v-else-if="email.sendgrid_template_id === 'd-272f3a32855b4c73aa557f88cbf0aec5'"
+					/>
 					<div v-else v-html="email.content"></div>
 
 					<div class="w-full flex flex-row flex-wrap items-start signature">
