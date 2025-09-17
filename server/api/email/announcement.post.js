@@ -40,6 +40,7 @@ export default defineEventHandler(async (event) => {
 					name: '1033 Lenox',
 				},
 				dynamicTemplateData: {
+					email: element.people_id.email,
 					first_name: element.people_id.first_name,
 					unit,
 					vehicles,
