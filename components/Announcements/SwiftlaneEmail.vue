@@ -51,7 +51,7 @@
 					</div>
 					<div class="text-center p-6">
 						<img
-							src="https://admin.1033lenox.com/assets/9e63d591-d814-439a-b68f-a9de7945c979"
+							src="https://admin.1033lenox.com/assets/6f5f0c1f-1b7f-45ea-9f79-f4c763a7bbbd?key=medium-png"
 							alt="SwiftReader X Features"
 							class="w-full max-w-xs mx-auto mb-3"
 						/>
