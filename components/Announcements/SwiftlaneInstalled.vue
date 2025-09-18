@@ -7,7 +7,16 @@
         background-image: url('https://admin.1033lenox.com/assets/aefbb2a4-cc01-460d-a79b-2a627e80df38?key=large-png');
       "
     >
-      <p style="text-transform: uppercase; margin-top: 0px; letter-spacing: 0.05em; font-size: 28px; line-height: 30px">
+      <p
+        style="
+          text-transform: uppercase;
+          margin-top: 0px;
+          letter-spacing: 0.05em;
+          font-size: 28px;
+          line-height: 30px;
+          text-align: center;
+        "
+      >
         Installation Complete 🔥🚀
       </p>
     </div>
