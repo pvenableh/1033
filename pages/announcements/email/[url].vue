@@ -31,7 +31,14 @@
         </h3>
         <h5 class="email__subtitle">{{ email.subtitle }}</h5>
         <div class="w-full mb-8 email__content">
-          <p v-if="email.sendgrid_template_id !== 'd-272f3a32855b4c73aa557f88cbf0aec5'">{{ email.greeting }}</p>
+          <p
+            v-if="
+              email.sendgrid_template_id !== 'd-272f3a32855b4c73aa557f88cbf0aec5' ||
+              'd-493fe8a32f8140a8af63fdbda70af7b0'
+            "
+          >
+            {{ email.greeting }}
+          </p>
           <AnnouncementsSwiftlaneEmail
             :email="email"
             v-if="email.sendgrid_template_id === 'd-6160b4b2faa74529a27f6c2ec90191f9'"
@@ -40,6 +47,11 @@
             :email="email"
             v-else-if="email.sendgrid_template_id === 'd-272f3a32855b4c73aa557f88cbf0aec5'"
           />
+          <AnnouncementsSwiftlaneInstalled
+            :email="email"
+            v-else-if="email.sendgrid_template_id === 'd-493fe8a32f8140a8af63fdbda70af7b0'"
+          />
+
           <div v-else v-html="email.content"></div>
 
           <div class="w-full flex flex-row flex-wrap items-start signature">
