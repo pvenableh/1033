@@ -1,5 +1,5 @@
-import type { User, File } from '../system';
-import type { OsPaymentTerm, Contact } from '../os';
+import type {User, File} from '../system';
+import type {OsPaymentTerm, Contact} from '../os';
 
 export interface Organization {
 	id?: string;

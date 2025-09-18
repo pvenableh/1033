@@ -25,9 +25,9 @@ import type {
 	Event,
 	Metric,
 } from './meta';
-import type { Page, PageBlock, Category, Form, Post, Team, Testimonial, PagesProjects, PagesBlog } from './content';
-import type { Inbox, HelpArticle, HelpCollection, HelpFeedback } from './help';
-import type { File, User } from './system';
+import type {Page, PageBlock, Category, Form, Post, Team, Testimonial, PagesProjects, PagesBlog} from './content';
+import type {Inbox, HelpArticle, HelpCollection, HelpFeedback} from './help';
+import type {File, User} from './system';
 import type {
 	Conversation,
 	Message,

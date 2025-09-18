@@ -1,5 +1,5 @@
 <script setup>
-import { isOpen, taskModalData, taskModalAction } from '~/composables/useTaskModal';
+import {isOpen, taskModalData, taskModalAction} from '~/composables/useTaskModal';
 
 definePageMeta({
 	layout: 'auth',

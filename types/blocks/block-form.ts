@@ -1,4 +1,4 @@
-import type { Form } from '../content';
+import type {Form} from '../content';
 
 export interface BlockForm {
 	form?: (string | Form) | null;

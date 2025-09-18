@@ -3,13 +3,11 @@
 		id="nav-drawer"
 		ref="navDrawerRef"
 		class="flex items-center justify-center flex-col bg-white bg-opacity-75 dark:bg-gray-800 dark:text-white nav-drawer"
-		@click="closeNavDrawer"
-	>
+		@click="closeNavDrawer">
 		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
 			<UIcon
 				name="i-heroicons-x-mark"
-				class="cursor-pointer h-6 w-6 -ml-[5px] -mt-[10px] mb-[10px] heroicon-sw-1.2 close-btn"
-			/>
+				class="cursor-pointer h-6 w-6 -ml-[5px] -mt-[10px] mb-[10px] heroicon-sw-1.2 close-btn" />
 			<ul tabindex="0" class="nav-drawer__menu">
 				<li v-for="(link, index) in links" :key="index">
 					<nuxt-link :to="link.to">{{ link.name }}</nuxt-link>
@@ -28,10 +26,10 @@
 	</div>
 </template>
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
-import { onClickOutside } from '@vueuse/core';
-import { closeScreen } from '~~/composables/useScreen';
+import {onClickOutside} from '@vueuse/core';
+import {closeScreen} from '~~/composables/useScreen';
 
 const props = defineProps({
 	links: {

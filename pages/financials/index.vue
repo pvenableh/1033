@@ -18,8 +18,7 @@
 				<!-- Financial Health Score -->
 				<UCard
 					class="text-center !rounded-[4px] !shadow"
-					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500 ' : ''"
-				>
+					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500 ' : ''">
 					<div class="space-y-2">
 						<UIcon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">FINANCIAL HEALTH</p>
@@ -31,14 +30,12 @@
 				<!-- YTD Cash Decline -->
 				<UCard
 					class="text-center !rounded-[4px] !shadow"
-					:class="realYtdData.ytdCashChange < 0 ? 'border border-red-500' : ''"
-				>
+					:class="realYtdData.ytdCashChange < 0 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
 						<UIcon
 							name="i-heroicons-arrow-trending-down"
 							class="w-8 h-8 mx-auto"
-							:class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'"
-						/>
+							:class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">YTD CASH CHANGE</p>
 						<p class="text-3xl font-bold" :class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'">
 							{{ realYtdData.ytdCashChange >= 0 ? '+' : '' }}${{ Math.abs(realYtdData.ytdCashChange).toLocaleString() }}
@@ -50,19 +47,16 @@
 				<!-- Monthly Burn Rate -->
 				<UCard
 					class="text-center !rounded-[4px] !shadow"
-					:class="realYtdData.monthlyBurnRate > 5000 ? 'border border-red-500' : ''"
-				>
+					:class="realYtdData.monthlyBurnRate > 5000 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
 						<UIcon
 							name="i-heroicons-fire"
 							class="w-8 h-8 mx-auto"
-							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'"
-						/>
+							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">AVG MONTHLY BURN</p>
 						<p
 							class="text-3xl font-bold"
-							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'"
-						>
+							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'">
 							${{ realYtdData.monthlyBurnRate.toLocaleString() }}
 						</p>
 						<p class="text-xs text-gray-500">6-MONTH AVERAGE</p>
@@ -72,8 +66,7 @@
 				<!-- Cash Runway -->
 				<UCard
 					class="text-center !rounded-[4px] !shadow"
-					:class="realYtdData.cashRunwayMonths < 12 ? 'border border-red-500' : ''"
-				>
+					:class="realYtdData.cashRunwayMonths < 12 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
 						<UIcon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunwayColor" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">CASH RUNWAY</p>
@@ -113,8 +106,7 @@
 						<div class="text-center mb-4">
 							<p
 								class="text-3xl font-bold"
-								:class="realYtdData.ytdBudgetUtilization > 85 ? 'text-red-600' : 'text-green-600'"
-							>
+								:class="realYtdData.ytdBudgetUtilization > 85 ? 'text-red-600' : 'text-green-600'">
 								{{ realYtdData.ytdBudgetUtilization }}%
 							</p>
 							<p class="text-sm text-gray-600">BUDGET UTILIZED</p>
@@ -131,8 +123,7 @@
 									<div
 										class="h-2 rounded-full transition-all duration-300"
 										:class="category.variance > 0 ? 'bg-red-500' : 'bg-green-500'"
-										:style="`width: ${Math.min(category.utilization, 100)}%`"
-									/>
+										:style="`width: ${Math.min(category.utilization, 100)}%`" />
 								</div>
 							</div>
 						</div>
@@ -148,8 +139,7 @@
 							<UIcon
 								:name="complianceStatus.compliant ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
 								class="w-12 h-12 mx-auto mb-2"
-								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'"
-							/>
+								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'" />
 							<p class="text-lg font-bold" :class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'">
 								{{ complianceStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
 							</p>
@@ -182,8 +172,7 @@
 			<nuxt-link
 				v-for="month in monthOptions"
 				:to="`/financials/monthly-report/${month.label.replace(' 2025', '').toLowerCase()}`"
-				class="rounded-md py-6 text-sm font-medium text-gray-900 bg-gray-50/20 hover:bg-gray-300 focus:outline-none flex flex-row items-center justify-center border border-gray-200"
-			>
+				class="rounded-md py-6 text-sm font-medium text-gray-900 bg-gray-50/20 hover:bg-gray-300 focus:outline-none flex flex-row items-center justify-center border border-gray-200">
 				{{ month.label }}
 				<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 ml-2" />
 			</nuxt-link>
@@ -195,8 +184,7 @@
 				MONTHLY REPORT [{{ selectedMonth.replace('2025', '').trim() }}]
 				<nuxt-link
 					:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`"
-					class="absolute left-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2"
-				>
+					class="absolute left-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2">
 					Full Details
 					<UIcon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
 				</nuxt-link>
@@ -213,8 +201,7 @@
 				:description="alert.description"
 				color="red"
 				variant="subtle"
-				class="mb-3"
-			>
+				class="mb-3">
 				<template #icon>
 					<UIcon name="i-heroicons-exclamation-triangle" />
 				</template>
@@ -240,8 +227,7 @@
 						:insurance-expense="insuranceExpense"
 						:professional-expense="professionalExpense"
 						:utility-expense="utilityExpense"
-						:maintenance-expense="maintenanceExpense"
-					/>
+						:maintenance-expense="maintenanceExpense" />
 
 					<!-- Account Health Status -->
 					<UCard>
@@ -258,8 +244,7 @@
 									<div
 										class="h-2 rounded-full transition-all duration-500"
 										:class="account.barClass"
-										:style="`width: ${account.percent}%`"
-									/>
+										:style="`width: ${account.percent}%`" />
 								</div>
 								<p class="text-xs text-gray-600">{{ account.note }}</p>
 							</div>
@@ -337,26 +322,26 @@
 
 						<!-- Variance Table -->
 						<UTable :rows="budgetVariances" :columns="budgetColumns">
-							<template #category-data="{ row }">
+							<template #category-data="{row}">
 								<span class="font-medium">{{ row.category }}</span>
 							</template>
-							<template #budgeted-data="{ row }">
+							<template #budgeted-data="{row}">
 								<span class="text-gray-900">${{ row.budgeted.toLocaleString() }}</span>
 							</template>
-							<template #actual-data="{ row }">
+							<template #actual-data="{row}">
 								<span class="font-semibold">${{ row.actual.toLocaleString() }}</span>
 							</template>
-							<template #variance-data="{ row }">
+							<template #variance-data="{row}">
 								<span :class="row.variance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
 									{{ row.variance >= 0 ? '+' : '' }}${{ Math.abs(row.variance).toLocaleString() }}
 								</span>
 							</template>
-							<template #percent-data="{ row }">
+							<template #percent-data="{row}">
 								<span :class="row.percentVariance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
 									{{ row.percentVariance >= 0 ? '+' : '' }}{{ row.percentVariance }}%
 								</span>
 							</template>
-							<template #status-data="{ row }">
+							<template #status-data="{row}">
 								<UBadge :color="row.statusColor" variant="soft" size="xs">
 									{{ row.status }}
 								</UBadge>
@@ -384,8 +369,7 @@
 							<div class="space-y-4">
 								<div
 									class="flex items-center justify-between p-4 rounded-lg"
-									:class="fundSegregationStatus.compliant ? 'bg-green-50' : 'bg-red-50'"
-								>
+									:class="fundSegregationStatus.compliant ? 'bg-green-50' : 'bg-red-50'">
 									<div class="flex items-center space-x-3">
 										<UIcon
 											:name="
@@ -394,8 +378,7 @@
 													: 'i-heroicons-exclamation-triangle'
 											"
 											:class="fundSegregationStatus.compliant ? 'text-green-600' : 'text-red-600'"
-											class="w-6 h-6"
-										/>
+											class="w-6 h-6" />
 										<span class="font-semibold">Fund Segregation</span>
 									</div>
 									<UBadge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="subtle">
@@ -451,29 +434,29 @@
 							<!-- Violation Transactions Table -->
 							<div class="overflow-x-auto">
 								<UTable :rows="violationTransactions" :columns="violationColumns" class="w-full">
-									<template #date-data="{ row }">
+									<template #date-data="{row}">
 										<span class="font-mono text-sm">{{ row.date }}</span>
 									</template>
-									<template #amount-data="{ row }">
+									<template #amount-data="{row}">
 										<span class="font-bold text-red-600">${{ row.amount.toLocaleString() }}</span>
 									</template>
-									<template #description-data="{ row }">
+									<template #description-data="{row}">
 										<div>
 											<p class="font-medium">{{ row.vendor || row.description }}</p>
 											<p v-if="row.note" class="text-xs text-gray-600">{{ row.note }}</p>
 										</div>
 									</template>
-									<template #accounts-data="{ row }">
+									<template #accounts-data="{row}">
 										<UBadge color="red" variant="soft" size="xs">
 											{{ row.accounts || '5129 → 5872' }}
 										</UBadge>
 									</template>
-									<template #severity-data="{ row }">
+									<template #severity-data="{row}">
 										<UBadge :color="row.severity === 'CRITICAL' ? 'red' : 'orange'" variant="solid" size="xs">
 											{{ row.severity || 'HIGH' }}
 										</UBadge>
 									</template>
-									<template #category-data="{ row }">
+									<template #category-data="{row}">
 										<UBadge color="gray" variant="soft" size="xs">
 											{{ row.category || 'VIOLATION' }}
 										</UBadge>
@@ -523,24 +506,23 @@
 								<!-- YTD Violations by Month -->
 								<div class="overflow-x-auto">
 									<UTable :rows="ytdViolationSummary" :columns="ytdViolationColumns">
-										<template #month-data="{ row }">
+										<template #month-data="{row}">
 											<span class="font-medium">{{ row.month }}</span>
 										</template>
-										<template #violations-data="{ row }">
+										<template #violations-data="{row}">
 											<UBadge :color="row.violations > 0 ? 'red' : 'green'" variant="soft">
 												{{ row.violations }}
 											</UBadge>
 										</template>
-										<template #amount-data="{ row }">
+										<template #amount-data="{row}">
 											<span class="font-semibold" :class="row.amount > 0 ? 'text-red-600' : 'text-green-600'">
 												${{ row.amount.toLocaleString() }}
 											</span>
 										</template>
-										<template #status-data="{ row }">
+										<template #status-data="{row}">
 											<UBadge
 												:color="row.violations === 0 ? 'green' : row.violations < 5 ? 'yellow' : 'red'"
-												variant="soft"
-											>
+												variant="soft">
 												{{ row.violations === 0 ? 'CLEAN' : row.violations < 5 ? 'MODERATE' : 'SEVERE' }}
 											</UBadge>
 										</template>
@@ -564,16 +546,14 @@
 								:color="violation.severity === 'CRITICAL' ? 'red' : 'orange'"
 								variant="solid"
 								:title="violation.title"
-								:description="violation.description"
-							>
+								:description="violation.description">
 								<template #icon>
 									<UIcon
 										:name="
 											violation.severity === 'CRITICAL'
 												? 'i-heroicons-exclamation-triangle'
 												: 'i-heroicons-exclamation-circle'
-										"
-									/>
+										" />
 								</template>
 
 								<template #title>
@@ -608,11 +588,9 @@
 							<div
 								v-for="action in emergencyActions"
 								:key="action.priority"
-								class="flex items-start gap-4 p-4 bg-red-50 rounded-lg"
-							>
+								class="flex items-start gap-4 p-4 bg-red-50 rounded-lg">
 								<div
-									class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold"
-								>
+									class="bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold">
 									{{ action.priority }}
 								</div>
 								<div class="flex-1">
@@ -639,8 +617,7 @@
 								v-for="period in actionPlan"
 								:key="period.period"
 								class="p-6 border-l-4 bg-gray-50 rounded-r-lg"
-								:class="period.borderClass"
-							>
+								:class="period.borderClass">
 								<div class="flex items-center gap-3 mb-4">
 									<UIcon name="i-heroicons-clock" :class="period.iconClass" class="w-5 h-5" />
 									<h4 class="font-bold text-gray-900">{{ period.period }}</h4>
@@ -667,8 +644,7 @@
 									v-model="item.checked"
 									:disabled="!item.compliant"
 									:color="item.compliant ? 'green' : 'red'"
-									class="mt-1"
-								/>
+									class="mt-1" />
 								<div class="flex-1">
 									<div class="flex items-center justify-between">
 										<label class="text-sm font-medium" :class="item.compliant ? 'text-gray-900' : 'text-red-700'">
@@ -676,8 +652,7 @@
 										</label>
 										<UBadge
 											:color="item.compliant === true ? 'green' : item.compliant === false ? 'red' : 'yellow'"
-											variant="soft"
-										>
+											variant="soft">
 											{{ item.compliant === true ? 'COMPLIANT' : item.compliant === false ? 'VIOLATION' : 'UNKNOWN' }}
 										</UBadge>
 									</div>
@@ -693,8 +668,7 @@
 		<div class="w-full mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 			<UCard
 				class="hover:shadow-lg transition-shadow cursor-pointer"
-				@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)"
-			>
+				@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)">
 				<div class="flex items-center space-x-3">
 					<div class="p-3 bg-gray-50 rounded-lg">
 						<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-[var(--cyan)]" />
@@ -737,7 +711,7 @@
 </template>
 
 <script setup>
-import { Line, Bar } from 'vue-chartjs';
+import {Line, Bar} from 'vue-chartjs';
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -763,7 +737,7 @@ const {
 	getViolationCount,
 } = useReconciliationData();
 
-const { budget2025, getTotalBudget, calculateVariance, getBudgetUtilization } = useBudgetData();
+const {budget2025, getTotalBudget, calculateVariance, getBudgetUtilization} = useBudgetData();
 
 // State
 const selectedMonth = ref('June 2025');
@@ -826,7 +800,7 @@ const ytdTotals = computed(() => {
 				rawViolations.reduce((acc, item) => {
 					acc[item.key] = item;
 					return acc;
-				}, {}),
+				}, {})
 			);
 
 			totalViolations += dedupedViolations.length;
@@ -1039,12 +1013,12 @@ const tabs = [
 
 // Month options
 const monthOptions = [
-	{ label: 'JUNE 2025', value: 'June 2025' },
-	{ label: 'MAY 2025', value: 'May 2025' },
-	{ label: 'APRIL 2025', value: 'April 2025' },
-	{ label: 'MARCH 2025', value: 'March 2025' },
-	{ label: 'FEBRUARY 2025', value: 'February 2025' },
-	{ label: 'JANUARY 2025', value: 'January 2025' },
+	{label: 'JUNE 2025', value: 'June 2025'},
+	{label: 'MAY 2025', value: 'May 2025'},
+	{label: 'APRIL 2025', value: 'April 2025'},
+	{label: 'MARCH 2025', value: 'March 2025'},
+	{label: 'FEBRUARY 2025', value: 'February 2025'},
+	{label: 'JANUARY 2025', value: 'January 2025'},
 ];
 
 // Get account data
@@ -1058,7 +1032,7 @@ const operatingBalance = computed(() => operatingData.value?.endingBalance || 0)
 const beginningBalance = computed(() => operatingData.value?.beginningBalance || 0);
 const monthlyRevenue = computed(() => operatingData.value?.deposits?.reduce((sum, d) => sum + d.amount, 0) || 0);
 const monthlyExpenses = computed(
-	() => (operatingData.value?.withdrawals || []).filter((w) => !w.violation).reduce((sum, w) => sum + w.amount, 0) || 0,
+	() => (operatingData.value?.withdrawals || []).filter((w) => !w.violation).reduce((sum, w) => sum + w.amount, 0) || 0
 );
 const monthlyChange = computed(() => monthlyRevenue.value - monthlyExpenses.value);
 
@@ -1146,12 +1120,12 @@ const budgetVariances = computed(() => {
 });
 
 const budgetColumns = [
-	{ key: 'category', label: 'CATEGORY' },
-	{ key: 'budgeted', label: 'BUDGET' },
-	{ key: 'actual', label: 'ACTUAL' },
-	{ key: 'variance', label: 'VARIANCE' },
-	{ key: 'percent', label: 'PERCENT' },
-	{ key: 'status', label: 'STATUS' },
+	{key: 'category', label: 'CATEGORY'},
+	{key: 'budgeted', label: 'BUDGET'},
+	{key: 'actual', label: 'ACTUAL'},
+	{key: 'variance', label: 'VARIANCE'},
+	{key: 'percent', label: 'PERCENT'},
+	{key: 'status', label: 'STATUS'},
 ];
 
 // ===== UPDATED VIOLATION HANDLING WITH DEDUPLICATION =====
@@ -1215,7 +1189,7 @@ const violationTransactions = computed(() => {
 		rawViolations.reduce((acc, item) => {
 			acc[item.key] = item;
 			return acc;
-		}, {}),
+		}, {})
 	);
 
 	// Sort by amount descending
@@ -1224,12 +1198,12 @@ const violationTransactions = computed(() => {
 
 // Violation table columns
 const violationColumns = [
-	{ key: 'date', label: 'DATE' },
-	{ key: 'amount', label: 'AMOUNT' },
-	{ key: 'description', label: 'DESCRIPTION' },
-	{ key: 'accounts', label: 'ACCOUNTS' },
-	{ key: 'severity', label: 'SEVERITY' },
-	{ key: 'category', label: 'CATEGORY' },
+	{key: 'date', label: 'DATE'},
+	{key: 'amount', label: 'AMOUNT'},
+	{key: 'description', label: 'DESCRIPTION'},
+	{key: 'accounts', label: 'ACCOUNTS'},
+	{key: 'severity', label: 'SEVERITY'},
+	{key: 'category', label: 'CATEGORY'},
 ];
 
 // Violation summary calculations (now accurate with deduplication)
@@ -1297,7 +1271,7 @@ const ytdViolationSummary = computed(() => {
 			rawViolations.reduce((acc, item) => {
 				acc[item.key] = item;
 				return acc;
-			}, {}),
+			}, {})
 		);
 
 		return {
@@ -1320,10 +1294,10 @@ const ytdViolationTrend = computed(() => {
 });
 
 const ytdViolationColumns = [
-	{ key: 'month', label: 'MONTH' },
-	{ key: 'violations', label: 'VIOLATIONS' },
-	{ key: 'amount', label: 'AMOUNT' },
-	{ key: 'status', label: 'STATUS' },
+	{key: 'month', label: 'MONTH'},
+	{key: 'violations', label: 'VIOLATIONS'},
+	{key: 'amount', label: 'AMOUNT'},
+	{key: 'status', label: 'STATUS'},
 ];
 
 // ===== END VIOLATION HANDLING =====
@@ -1494,7 +1468,7 @@ const monthlyStatementCompliance = computed(() => {
 				monthData.beginningBalance +
 					(monthData.deposits?.reduce((sum, d) => sum + d.amount, 0) || 0) -
 					(monthData.withdrawals?.reduce((sum, w) => sum + w.amount, 0) || 0) -
-					monthData.endingBalance,
+					monthData.endingBalance
 			) < 0.01
 		: false;
 
@@ -1735,6 +1709,6 @@ watch(
 			// Could auto-switch to violations tab, but let user control this
 			// activeTab.value = 2;
 		}
-	},
+	}
 );
 </script>

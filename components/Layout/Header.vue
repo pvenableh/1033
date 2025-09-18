@@ -19,7 +19,7 @@ onMounted(() => {
 	window.addEventListener('scroll', manageNavBarAnimations);
 });
 
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 const avatar = computed(() => {
 	if (user.value.avatar) {
@@ -38,8 +38,7 @@ const avatar = computed(() => {
 <template>
 	<header
 		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 dark:bg-gray-900 transition-all header"
-		:class="{ retracted: isRetracted }"
-	>
+		:class="{retracted: isRetracted}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 -mt-[4px] inline-block sm:hidden mt-0">
 			<DarkModeToggle class="" />
 		</div>

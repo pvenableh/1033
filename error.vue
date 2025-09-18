@@ -10,7 +10,7 @@ const handleError = () => {
 	navigateTo('/');
 };
 
-const { x, y } = useMouse({ touch: false });
+const {x, y} = useMouse({touch: false});
 </script>
 
 <template>
@@ -21,24 +21,20 @@ const { x, y } = useMouse({ touch: false });
 				<img
 					src="~/assets/img/palm-tree.png"
 					class="absolute h-[70px] w-auto top-[55px] sm:-top-[2px] -ml-28 -scale-x-100"
-					:style="{ marginRight: -x / 60 + 'px' }"
-				/>
+					:style="{marginRight: -x / 60 + 'px'}" />
 				<img
 					src="~/assets/img/palm-tree.png"
 					class="absolute h-[60px] sm:h-[90px] w-auto top-[55px] sm:top-[0px] ml-20 -scale-x-100"
-					:style="{ marginRight: -x / 50 + 'px' }"
-				/>
+					:style="{marginRight: -x / 50 + 'px'}" />
 				<img
 					src="~/assets/img/palm-tree.png"
 					class="absolute h-[50px] sm:h-[70px] w-auto top-[60px] sm:top-[3px] mr-32"
-					:style="{ marginLeft: -x / 30 + 'px' }"
-				/>
+					:style="{marginLeft: -x / 30 + 'px'}" />
 				<img
 					ref="movableElement"
 					src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=medium"
 					class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)] transition-transform building"
-					:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }"
-				/>
+					:style="{marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px'}" />
 			</div>
 			<div class="mb-8">
 				<h1 class="text-6xl font-bold">
@@ -57,8 +53,7 @@ const { x, y } = useMouse({ touch: false });
 					color="primary"
 					icon="i-heroicons-home-modern"
 					variant="outline"
-					:trailing="true"
-				>
+					:trailing="true">
 					Back to Home
 				</UButton>
 			</div>

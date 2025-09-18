@@ -1,5 +1,5 @@
 export interface BlockCta {
-	buttons?: { [key: string]: any } | null;
+	buttons?: {[key: string]: any} | null;
 	content?: string | null;
 	headline?: string | null;
 	id?: string;

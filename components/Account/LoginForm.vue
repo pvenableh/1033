@@ -10,8 +10,7 @@
 				opacity: 1,
 			},
 		}"
-		class="w-full"
-	>
+		class="w-full">
 		<UAlert
 			v-if="login_error"
 			type="error"
@@ -19,8 +18,7 @@
 			:description="login_error"
 			color="red"
 			variant="subtle"
-			icon="i-heroicons-exclamation-triangle"
-		>
+			icon="i-heroicons-exclamation-triangle">
 			Error: {{ login_error }}
 		</UAlert>
 
@@ -35,13 +33,11 @@
 					:loading="loading"
 					icon="i-heroicons-envelope"
 					placeholder="name@domain.com"
-					@input="emailTouched = true"
-				/>
-				<template #error="{ error }">
+					@input="emailTouched = true" />
+				<template #error="{error}">
 					<span
 						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']"
-					>
+						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']">
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
@@ -55,8 +51,7 @@
 					icon="i-heroicons-lock-closed"
 					name="password"
 					label="Password"
-					placeholder="********"
-				/>
+					placeholder="********" />
 			</UFormGroup>
 			<UButton
 				type="submit"
@@ -65,16 +60,15 @@
 				size="lg"
 				label="Sign In"
 				trailing-icon="i-heroicons-arrow-right"
-				block
-			/>
+				block />
 		</UForm>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { FormError } from '#ui/types';
+import type {FormError} from '#ui/types';
 
-const { login } = useDirectusAuth();
+const {login} = useDirectusAuth();
 const route = useRoute();
 const loading = ref(false);
 const login_error = ref(null);
@@ -90,11 +84,11 @@ const validate = async (state: any): Promise<FormError[]> => {
 	const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
 	if (!state.email) {
-		errors.push({ path: 'email', message: 'Required' });
+		errors.push({path: 'email', message: 'Required'});
 	}
 
 	if (!regex.test(state.email)) {
-		errors.push({ path: 'email', message: 'This must be a valid email' });
+		errors.push({path: 'email', message: 'This must be a valid email'});
 	}
 
 	if (state.email && regex.test(state.email)) {
@@ -103,12 +97,12 @@ const validate = async (state: any): Promise<FormError[]> => {
 			const response: any = await $fetch(`https://admin.1033lenox.com/users?filter[email][_eq]=${state.email}`);
 
 			if (response.data.length < 1) {
-				errors.push({ path: 'email', message: 'This email is not registered.' });
+				errors.push({path: 'email', message: 'This email is not registered.'});
 			}
 
 			loading.value = false;
 		} catch (error) {
-			errors.push({ path: 'email', message: 'Failed to validate email' });
+			errors.push({path: 'email', message: 'Failed to validate email'});
 			loading.value = false;
 		}
 	}

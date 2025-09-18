@@ -14,11 +14,11 @@ const props = defineProps({
 	},
 });
 
-const { data: allUsers } = await useAsyncData('users', () => {
+const {data: allUsers} = await useAsyncData('users', () => {
 	return useDirectus(
 		readUsers({
 			fields: ['*'],
-		}),
+		})
 	);
 });
 
@@ -37,7 +37,7 @@ onMounted(async () => {
 	await usersConnection.addEventListener('message', (message) => receiveUsersMessage(message));
 
 	function authenticate() {
-		usersConnection.send(JSON.stringify({ type: 'auth', access_token: access_token.value }));
+		usersConnection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
 	}
 
 	function updateUsers(data) {
@@ -66,7 +66,7 @@ onMounted(async () => {
 							},
 						},
 					},
-				}),
+				})
 			);
 		}
 
@@ -86,7 +86,7 @@ onMounted(async () => {
 
 		if (data.type == 'ping') {
 			// updateUsers(data.data);
-			usersConnection.send(JSON.stringify({ type: 'pong' }));
+			usersConnection.send(JSON.stringify({type: 'pong'}));
 		}
 	}
 });
@@ -101,7 +101,7 @@ async function assignUser(action, id) {
 			createItem('tasks_users', {
 				directus_users_id: id,
 				tasks_id: props.item,
-			}),
+			})
 		);
 	} else if (action === 'delete') {
 		const result = await useDirectus(deleteItem('tasks_users', id));
@@ -117,7 +117,7 @@ async function assignUser(action, id) {
 }
 
 async function updateParent() {
-	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
+	const result = await useDirectus(updateItem('tasks', props.item, {updated_on: new Date()}));
 }
 </script>
 <template>
@@ -129,8 +129,7 @@ async function updateParent() {
 				:key="index"
 				:text="user.directus_users_id.first_name + ' ' + user.directus_users_id.last_name"
 				class="mr-1 task-card__people-item cursor-pointer"
-				@click="assignUser('delete', user.id)"
-			>
+				@click="assignUser('delete', user.id)">
 				<Avatar :key="index" :user="user.directus_users_id" size="xs" class="border task-card__people-avatar" />
 			</UTooltip>
 		</div>
@@ -138,29 +137,26 @@ async function updateParent() {
 			<div
 				v-if="availableUsers.length"
 				class="w-full flex items-center justify-between flex-row uppercase text-xs font-bold tracking-wide text-[8px]"
-				style="font-size: 8px"
-			>
+				style="font-size: 8px">
 				<div class="flex flex-row items-center justify-center">
 					<UToggle
 						v-model="showUsers"
 						color="gray"
 						on-icon="i-heroicons-users-solid"
-						off-icon="i-heroicons-x-mark-20-solid"
-					/>
+						off-icon="i-heroicons-x-mark-20-solid" />
 					<p class="ml-2">
 						{{ showUsers ? 'Hide ' + availableUsers.length + ' Users' : 'Show ' + availableUsers.length + ' Users' }}
 					</p>
 				</div>
 			</div>
 		</div>
-		<div class="w-full task-card__people-selection" :class="{ visible: showUsers }">
+		<div class="w-full task-card__people-selection" :class="{visible: showUsers}">
 			<div class="w-full flex flex-row flex-wrap py-2">
 				<div
 					v-for="(user, index) in availableUsers"
 					:key="index"
 					class="flex items-center justify-start flex-row mr-2 mb-2 cursor-pointer"
-					@click="assignUser('create', user.id)"
-				>
+					@click="assignUser('create', user.id)">
 					<!-- <Avatar :user="user" size="sm" class="" /> -->
 					<UBadge color="gray" variant="solid" class="text-[10px] font-bold">
 						{{ user.first_name }} {{ user.last_name }}

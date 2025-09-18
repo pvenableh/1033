@@ -17,8 +17,7 @@
 			<div
 				v-if="page.document"
 				v-html="page.document"
-				class="pr-4 pl-4 lg:pl-10 w-full flex-grow scroll-smooth page__content-body by-laws"
-			></div>
+				class="pr-4 pl-4 lg:pl-10 w-full flex-grow scroll-smooth page__content-body by-laws"></div>
 		</div>
 	</div>
 </template>
@@ -29,7 +28,7 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const page = await readItems('by_laws', {
 	fields: ['*'],

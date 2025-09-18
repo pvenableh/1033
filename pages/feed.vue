@@ -4,8 +4,8 @@
 // });
 
 // const { gtag } = useGtag();
-import { useImage } from '@vueuse/core';
-const { readFiles } = useDirectusFiles();
+import {useImage} from '@vueuse/core';
+const {readFiles} = useDirectusFiles();
 
 const images = await readFiles({
 	filter: {
@@ -32,8 +32,7 @@ const images = await readFiles({
 				:key="image.id"
 				class="masonry-item bg-gray-200 bg-center bg-cover bg-no-repeat"
 				:style="'background-image: url(https://admin.1033lenox.com/assets/' + image.id + '?key=medium)'"
-				alt="1033 Lenox Design "
-			></div>
+				alt="1033 Lenox Design "></div>
 		</div>
 	</div>
 </template>

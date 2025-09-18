@@ -1,8 +1,8 @@
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
-import { isOpen, closeModal } from '~/composables/useTaskModal';
+import {isOpen, closeModal} from '~/composables/useTaskModal';
 
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 const units = ref(['201', '202', '203', '204']);
 
@@ -68,7 +68,7 @@ onMounted(() => {
 
 const validate = (state: any): FormError[] => {
 	const errors = [];
-	if (!state.title) errors.push({ path: 'title', message: 'Required' });
+	if (!state.title) errors.push({path: 'title', message: 'Required'});
 	return errors;
 };
 
@@ -83,7 +83,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 				description: event.data.description,
 				category: event.data.category,
 				due_date: event.data.due_date,
-			}),
+			})
 		);
 	} else if (props.action === 'update') {
 		const result = await useDirectus(
@@ -94,7 +94,7 @@ async function onSubmit(event: FormSubmitEvent<any>) {
 				due_date: event.data.due_date,
 				project: event.data.project,
 				user_updated: user.value.id,
-			}),
+			})
 		);
 
 		console.log(result);

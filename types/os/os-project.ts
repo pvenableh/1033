@@ -1,5 +1,5 @@
-import type { User } from '../system';
-import type { Organization, Contact, OsInvoice, OsTask, OsExpense } from '../os';
+import type {User} from '../system';
+import type {Organization, Contact, OsInvoice, OsTask, OsExpense} from '../os';
 
 export interface OsProject {
 	id?: string;
@@ -42,6 +42,6 @@ export interface OsProjectTemplate {
 	user_updated?: (string | User) | null;
 	date_updated?: string | null;
 	name?: string | null;
-	tasks?: { [key: string]: any } | null;
+	tasks?: {[key: string]: any} | null;
 	description?: string | null;
 }

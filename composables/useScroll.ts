@@ -1,4 +1,4 @@
-import { useThrottleFn } from '@vueuse/core';
+import {useThrottleFn} from '@vueuse/core';
 
 export default function useScroll() {
 	const progress = ref(0);
@@ -25,5 +25,5 @@ export default function useScroll() {
 		window.removeEventListener('scroll', updateProgress);
 	});
 
-	return { progress: readonly(progress), scrollToTop };
+	return {progress: readonly(progress), scrollToTop};
 }

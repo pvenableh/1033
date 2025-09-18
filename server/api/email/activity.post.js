@@ -1,4 +1,4 @@
-import { createDirectus, rest, readItems, createItem } from '@directus/sdk';
+import {createDirectus, rest, readItems, createItem} from '@directus/sdk';
 
 export default defineEventHandler(async (event) => {
 	const config = useRuntimeConfig();
@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
 		const filteredEvents = body.filter((entry) => entry.category?.includes('1033 Lenox'));
 
 		if (filteredEvents.length === 0) {
-			return { message: 'No matching events found' };
+			return {message: 'No matching events found'};
 		}
 
 		const client = createDirectus(config.public.directusUrl).with(
@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 				headers: {
 					Authorization: `Bearer ${config.public.staticToken}`,
 				},
-			}),
+			})
 		);
 
 		console.log('Hey Peter.....from the other side.');
@@ -54,8 +54,8 @@ export default defineEventHandler(async (event) => {
 			try {
 				const persons = await client.request(
 					readItems('people', {
-						filter: { email: { _eq: email } },
-					}),
+						filter: {email: {_eq: email}},
+					})
 				);
 
 				if (persons && persons.length > 0) {
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
 						sg_message_id: eventData.sg_message_id,
 						announcement: eventData.announcement_id,
 						clicked_url: clickedUrl,
-					}),
+					})
 				);
 				console.log(`Created email activity: ${emailActivity.id}`);
 			} catch (error) {
@@ -87,9 +87,9 @@ export default defineEventHandler(async (event) => {
 			}
 		}
 
-		return { message: 'Processed successfully' };
+		return {message: 'Processed successfully'};
 	} catch (error) {
 		console.error('Error processing SendGrid webhook:', error);
-		return { error: error.message };
+		return {error: error.message};
 	}
 });

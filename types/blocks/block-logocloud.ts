@@ -1,4 +1,4 @@
-import type { File } from '../system';
+import type {File} from '../system';
 
 export interface BlockLogocloud {
 	headline?: string | null;

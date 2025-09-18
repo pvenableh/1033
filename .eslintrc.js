@@ -34,9 +34,9 @@ const defaultRules = {
 			prev: '*',
 			next: ['multiline-block-like', 'multiline-const', 'multiline-expression', 'multiline-let', 'multiline-var'],
 		},
-		{ blankLine: 'any', prev: ['export', 'import'], next: ['export', 'import'] },
+		{blankLine: 'any', prev: ['export', 'import'], next: ['export', 'import']},
 	],
-	'lines-between-class-members': ['error', 'always', { exceptAfterSingleLine: true }],
+	'lines-between-class-members': ['error', 'always', {exceptAfterSingleLine: true}],
 	'no-nested-ternary': 'error',
 	curly: ['error', 'multi-line'],
 };
@@ -86,7 +86,7 @@ module.exports = {
 				// Allow non-null assertions for now (consider to enable this rule later on)
 				'@typescript-eslint/no-non-null-assertion': 'off',
 				// Allow unused arguments and variables when they begin with an underscore
-				'@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+				'@typescript-eslint/no-unused-vars': ['warn', {argsIgnorePattern: '^_', varsIgnorePattern: '^_'}],
 			},
 		},
 	],

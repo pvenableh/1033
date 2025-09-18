@@ -1,5 +1,5 @@
 <script setup>
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const board = await readItems('board_member', {
 	fields: ['*,person.*'],

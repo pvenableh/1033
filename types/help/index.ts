@@ -1,5 +1,5 @@
-import type { User } from '../system';
-import type { Form } from '../content';
+import type {User} from '../system';
+import type {Form} from '../content';
 
 export interface HelpArticle {
 	content?: string | null;
@@ -41,7 +41,7 @@ export interface HelpFeedback {
 }
 
 export interface Inbox {
-	data?: { [key: string]: any } | null;
+	data?: {[key: string]: any} | null;
 	date_created?: string | null;
 	date_updated?: string | null;
 	form?: (string | Form) | null;

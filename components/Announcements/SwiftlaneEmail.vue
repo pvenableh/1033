@@ -45,16 +45,14 @@
 						<img
 							src="https://admin.1033lenox.com/assets/aefbb2a4-cc01-460d-a79b-2a627e80df38?key=medium-png"
 							alt="SwiftReader X Intercom System"
-							class="w-full max-w-xs mx-auto mb-3"
-						/>
+							class="w-full max-w-xs mx-auto mb-3" />
 						<p class="text-sm font-bold text-[var(--blue)]">8" HD Video Intercom Display</p>
 					</div>
 					<div class="text-center p-6">
 						<img
 							src="https://admin.1033lenox.com/assets/6f5f0c1f-1b7f-45ea-9f79-f4c763a7bbbd?key=medium-png"
 							alt="SwiftReader X Features"
-							class="w-full max-w-xs mx-auto mb-3"
-						/>
+							class="w-full max-w-xs mx-auto mb-3" />
 						<p class="text-sm font-bold text-[var(--blue)]">Advanced Security Features</p>
 					</div>
 				</div>

@@ -1,5 +1,5 @@
 <script setup>
-const { gtag } = useGtag();
+const {gtag} = useGtag();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
@@ -39,7 +39,7 @@ const launchConfetti = () => {
 		angle: randomInRange(55, 125),
 		spread: randomInRange(50, 70),
 		particleCount: randomInRange(50, 100),
-		origin: { y: 0.6 },
+		origin: {y: 0.6},
 	});
 };
 
@@ -74,7 +74,7 @@ function makeUppercase(title) {
 
 var duration = 15 * 1000;
 var animationEnd = Date.now() + duration;
-var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+var defaults = {startVelocity: 30, spread: 360, ticks: 60, zIndex: 0};
 
 // const defaults = {
 // 	spread: 360,
@@ -94,14 +94,14 @@ function startConfetti(duration = 7000) {
 			particleCount: 6,
 			angle: 60,
 			spread: 55,
-			origin: { x: 0 },
+			origin: {x: 0},
 			colors: colors,
 		});
 		confetti({
 			particleCount: 3,
 			angle: 120,
 			spread: 55,
-			origin: { x: 1 },
+			origin: {x: 1},
 			colors: colors,
 		});
 
@@ -203,26 +203,22 @@ function openExternalLink() {
 				<div
 					v-for="(item, index) in renderings"
 					:key="index"
-					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg dark:border-gray-600 renderings__item"
-				>
+					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg dark:border-gray-600 renderings__item">
 					<div class="">
 						<h3 class="w-full mt-6 text-center leading-6 renderings__item-title">
 							<span class="label text-[14px]">Option {{ item.id }}:</span>
 							<span class="font-bold block">{{ item.title }}</span>
 						</h3>
 						<div
-							class="w-full grid gap-1.5 grid-cols-2 md:grid-cols-4 md:text-center lg:grid-cols-2 my-4 renderings__item-bullets"
-						>
+							class="w-full grid gap-1.5 grid-cols-2 md:grid-cols-4 md:text-center lg:grid-cols-2 my-4 renderings__item-bullets">
 							<div
 								v-for="(bullet, index) in item.bullets"
 								:key="index"
-								class="w-full flex items-center justify-center mx-auto"
-							>
+								class="w-full flex items-center justify-center mx-auto">
 								<!-- <UIcon name="i-heroicons-check" class="h-3 w-3 inline-block mr-1 -mb-1" /> -->
 								<h5
 									class="uppercase text-[10px] tracking-wide rounded-full border font-bold px-3 py-1 text-center w-auto opacity-60"
-									style="border-color: #999999"
-								>
+									style="border-color: #999999">
 									{{ bullet }}
 								</h5>
 							</div>
@@ -232,22 +228,19 @@ function openExternalLink() {
 						<img
 							:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 							:alt="item.title"
-							class="w-full"
-						/>
+							class="w-full" />
 						<img
 							:src="'https://admin.1033lenox.com/assets/' + item.image2 + '?key=medium'"
 							:alt="item.title"
-							class="w-full"
-						/>
+							class="w-full" />
 					</div>
 					<div class="w-full flex items-center justify-center flex-col py-8 renderings__item-caption">
 						<UButton
 							color="gray"
 							variant="outline"
-							:ui="{ rounded: 'rounded-sm' }"
+							:ui="{rounded: 'rounded-sm'}"
 							class="mb-6 tracking-wide leading-4 flex flex-col text-[12px]"
-							@click="toggleVote(item)"
-						>
+							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block" style="font-weight: 600 !important">{{ item.title }}</span>
 						</UButton>
@@ -260,8 +253,7 @@ function openExternalLink() {
 				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
-					@click="closeVote()"
-				/>
+					@click="closeVote()" />
 				<p class="text-sm">
 					This is to confirm that you are voting for:
 					<span class="block text-lg uppercase mt-2">
@@ -273,8 +265,7 @@ function openExternalLink() {
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
 					@click.prevent="openExternalLink()"
-					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center cursor-pointer"
-				>
+					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center cursor-pointer">
 					Send Email Vote for
 					<span class="font-bold">{{ selectedItem.title }}</span>
 				</nuxt-link>

@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 // const adminUrl = config.public.adminUrl;
 
 const props = defineProps({
@@ -29,7 +29,7 @@ onMounted(async () => {
 	await connection.addEventListener('message', (message) => receiveMessage(message));
 
 	function authenticate() {
-		connection.send(JSON.stringify({ type: 'auth', access_token: access_token.value }));
+		connection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
 	}
 
 	function updateComments(data) {
@@ -72,7 +72,7 @@ onMounted(async () => {
 						},
 						sort: '-comments_id.date_created',
 					},
-				}),
+				})
 			);
 		}
 
@@ -100,7 +100,7 @@ onMounted(async () => {
 		// 	});
 		// }
 		if (data.type == 'ping') {
-			connection.send(JSON.stringify({ type: 'pong' }));
+			connection.send(JSON.stringify({type: 'pong'}));
 		}
 	}
 });
@@ -114,8 +114,7 @@ onMounted(async () => {
 				:key="index"
 				:comment="comment"
 				:collection="collection"
-				class="my-2"
-			/>
+				class="my-2" />
 		</transition-group>
 	</div>
 </template>

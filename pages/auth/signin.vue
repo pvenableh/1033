@@ -25,8 +25,7 @@ function movePanel(val: string) {
 							opacity: 1,
 						},
 					}"
-					class="text-xs uppercase tracking-wide mb-4"
-				>
+					class="text-xs uppercase tracking-wide mb-4">
 					This platform is accessible by invitation only.
 				</p>
 

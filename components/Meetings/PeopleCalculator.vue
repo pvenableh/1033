@@ -10,8 +10,7 @@
 			<UTooltip
 				v-for="(person, index) in boardMembers"
 				:key="index"
-				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title"
-			>
+				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title">
 				<UAvatar
 					size="xs"
 					chip-color="primary"
@@ -23,15 +22,13 @@
 						'&background=eeeeee&color=66666'
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
-					:alt="person.first_name + ' ' + person.last_name"
-				/>
+					:alt="person.first_name + ' ' + person.last_name" />
 			</UTooltip>
 
 			<UTooltip
 				v-for="(person, index) in nonBoardMembers"
 				:key="index"
-				:text="person.first_name + ' ' + person.last_name"
-			>
+				:text="person.first_name + ' ' + person.last_name">
 				<UAvatar
 					size="xs"
 					:src="
@@ -42,8 +39,7 @@
 						'&background=eeeeee&color=66666'
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
-					:alt="person.first_name + ' ' + person.last_name"
-				/>
+					:alt="person.first_name + ' ' + person.last_name" />
 			</UTooltip>
 		</div>
 	</div>

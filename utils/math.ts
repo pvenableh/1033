@@ -27,4 +27,4 @@ function isOdd(n: number) {
 	return Math.abs(n % 2) === 1;
 }
 
-export { formatPercent, percentage, percentChange, roundToDecimal, isEven, isOdd };
+export {formatPercent, percentage, percentChange, roundToDecimal, isEven, isOdd};

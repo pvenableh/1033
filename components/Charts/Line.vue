@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip } from 'chart.js';
-import { Line } from 'vue-chartjs';
+import {Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip} from 'chart.js';
+import {Line} from 'vue-chartjs';
 
 // Register
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip);
@@ -47,7 +47,7 @@ const chartData = ref({
 			// backgroundColor: '#f87979',
 			borderColor: function (context) {
 				const chart = context.chart;
-				const { ctx, chartArea } = chart;
+				const {ctx, chartArea} = chart;
 
 				if (!chartArea) {
 					// This case happens on initial chart load

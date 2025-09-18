@@ -1,5 +1,5 @@
 <script setup>
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
 
 const route = useRoute();
 
@@ -20,7 +20,7 @@ onMounted(() => {
 	}
 });
 
-import { createDirectus, rest, passwordReset } from '@directus/sdk';
+import {createDirectus, rest, passwordReset} from '@directus/sdk';
 
 const password = ref();
 

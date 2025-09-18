@@ -1,5 +1,5 @@
-import type { File } from '../system';
-import type { BlockButtonGroup } from '../blocks';
+import type {File} from '../system';
+import type {BlockButtonGroup} from '../blocks';
 
 export interface BlockHero {
 	id?: string;

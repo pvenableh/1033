@@ -5,7 +5,7 @@ const config = useRuntimeConfig();
 
 const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 // const tasks = ref({
 // 	history: [],
@@ -20,7 +20,7 @@ onMounted(async () => {
 	connection.addEventListener('message', (message) => receiveMessage(message));
 
 	function authenticate() {
-		connection.send(JSON.stringify({ type: 'auth', access_token: access_token.value }));
+		connection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
 	}
 
 	function updateTasks(data) {
@@ -48,7 +48,7 @@ onMounted(async () => {
 
 						sort: 'date_created',
 					},
-				}),
+				})
 			);
 		}
 
@@ -67,7 +67,7 @@ onMounted(async () => {
 		}
 
 		if (data.type == 'ping') {
-			connection.send(JSON.stringify({ type: 'pong' }));
+			connection.send(JSON.stringify({type: 'pong'}));
 		}
 	}
 });
@@ -171,17 +171,15 @@ function changePanel(index, duration = 400) {
 				v-for="(items, category, index) in groupedData"
 				:key="index"
 				class="w-1/4 border text-center py-3"
-				@click="changePanel(index)"
-			>
+				@click="changePanel(index)">
 				<h5 class="uppercase tracking-wide text-[10px] font-bold">
 					{{ category }}
 					<UBadge
 						v-if="items.length"
 						size="xs"
 						color="gray"
-						:ui="{ rounded: 'rounded-full' }"
-						class="absolute top-[-10px] scale-90"
-					>
+						:ui="{rounded: 'rounded-full'}"
+						class="absolute top-[-10px] scale-90">
 						{{ items.length }}
 					</UBadge>
 				</h5>
@@ -189,24 +187,21 @@ function changePanel(index, duration = 400) {
 		</div>
 		<div
 			id="tasks-board__container"
-			class="w-full flex flex-row flex-nowrap items-center justify-center tasks-board__container"
-		>
+			class="w-full flex flex-row flex-nowrap items-center justify-center tasks-board__container">
 			<div class="tasks-board__container-inner">
 				<div
 					v-for="(items, category) in groupedData"
 					:key="category"
 					:id="slugify(category)"
-					class="tasks-board__col flex-1"
-				>
+					class="tasks-board__col flex-1">
 					<h2 class="w-full relative uppercase tracking-wide font-bold text-sm hidden lg:block">
 						{{ category }}
 						<UBadge
 							v-if="items.length"
 							size="xs"
 							color="gray"
-							:ui="{ rounded: 'rounded-full' }"
-							class="absolute top-[-10px] scale-90"
-						>
+							:ui="{rounded: 'rounded-full'}"
+							class="absolute top-[-10px] scale-90">
 							{{ items.length }}
 						</UBadge>
 					</h2>
@@ -219,9 +214,8 @@ function changePanel(index, duration = 400) {
 						ghost-class="ghost"
 						@change="updateTasks(category, $event)"
 						@start="dragging = true"
-						@end="dragging = false"
-					>
-						<template #item="{ element: task }">
+						@end="dragging = false">
+						<template #item="{element: task}">
 							<TasksTaskCard :id="'task-' + task.id" :key="task.id" :task="task" />
 						</template>
 					</draggable>

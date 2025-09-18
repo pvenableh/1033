@@ -17,7 +17,7 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const meetings = await readItems('meetings', {
 	fields: [

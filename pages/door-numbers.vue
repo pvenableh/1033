@@ -1,5 +1,5 @@
 <script setup>
-const { gtag } = useGtag();
+const {gtag} = useGtag();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
@@ -25,7 +25,7 @@ const launchConfetti = () => {
 		angle: randomInRange(55, 125),
 		spread: randomInRange(50, 70),
 		particleCount: randomInRange(50, 100),
-		origin: { y: 0.6 },
+		origin: {y: 0.6},
 	});
 };
 
@@ -62,7 +62,7 @@ function makeUppercase(title) {
 
 var duration = 15 * 1000;
 var animationEnd = Date.now() + duration;
-var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+var defaults = {startVelocity: 30, spread: 360, ticks: 60, zIndex: 0};
 
 // const defaults = {
 // 	spread: 360,
@@ -82,14 +82,14 @@ function startConfetti(duration = 7000) {
 			particleCount: 6,
 			angle: 60,
 			spread: 55,
-			origin: { x: 0 },
+			origin: {x: 0},
 			colors: colors,
 		});
 		confetti({
 			particleCount: 3,
 			angle: 120,
 			spread: 55,
-			origin: { x: 1 },
+			origin: {x: 1},
 			colors: colors,
 		});
 
@@ -197,14 +197,12 @@ function openExternalLink() {
 				<div
 					v-for="(item, index) in renderings"
 					:key="index"
-					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg renderings__item"
-				>
+					class="flex items-center justify-center flex-col border border-gray-200 shadow-lg renderings__item">
 					<div class="relative renderings__item-image">
 						<img
 							:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 							:alt="item.title"
-							class="w-full"
-						/>
+							class="w-full" />
 					</div>
 					<div class="w-full flex items-center justify-center flex-col max-w-[500px] renderings__item-caption">
 						<h3 class="w-full my-6 text-center leading-4 renderings__item-title">
@@ -215,10 +213,9 @@ function openExternalLink() {
 						<UButton
 							color="gray"
 							variant="outline"
-							:ui="{ rounded: 'rounded-sm' }"
+							:ui="{rounded: 'rounded-sm'}"
 							class="mb-6 tracking-wide leading-4 flex flex-col text-[12px] max-w-[500px]"
-							@click="toggleVote(item)"
-						>
+							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block">{{ item.title }}</span>
 						</UButton>
@@ -231,8 +228,7 @@ function openExternalLink() {
 				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
-					@click="closeVote()"
-				/>
+					@click="closeVote()" />
 				<p class="text-sm">
 					This is to confirm that you are voting for:
 					<span class="block text-lg uppercase mt-2">
@@ -244,8 +240,7 @@ function openExternalLink() {
 				<p class="text-sm mt-2 mb-4">Click the button below to submit your vote by email to the board:</p>
 				<nuxt-link
 					@click.prevent="openExternalLink()"
-					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700 cursor-pointer"
-				>
+					class="rounded-sm border uppercase tracking-wide border-gray-500 px-4 py-2 inline-block bg-cover bg-no-repeat bg-center text-white bg-slate-700 cursor-pointer">
 					Send Email Vote for {{ selectedItem.title }}
 				</nuxt-link>
 			</div>

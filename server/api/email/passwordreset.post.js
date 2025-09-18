@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 import sgMail from '@sendgrid/mail';
-import { Buffer } from 'buffer';
+import {Buffer} from 'buffer';
 
 sgMail.setApiKey('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');
 
@@ -49,8 +49,8 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		await sgMail.send(message);
-		return { success: true, message: 'Email sent successfully' };
+		return {success: true, message: 'Email sent successfully'};
 	} catch (error) {
-		return { success: false, message: error.message };
+		return {success: false, message: error.message};
 	}
 });

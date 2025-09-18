@@ -1,6 +1,6 @@
 <!-- eslint-disable no-console -->
 <script setup>
-import { onClickOutside } from '@vueuse/core';
+import {onClickOutside} from '@vueuse/core';
 
 const props = defineProps({
 	task: {
@@ -74,9 +74,8 @@ if (props.task.category === 'Completed') {
 	<div
 		ref="taskCard"
 		class="w-full flex flex-col items-center justify-between border bg-white dark:border-gray-700 dark:bg-gray-900 task-card"
-		:class="{ minimize: minimize }"
-		:data-id="task.id"
-	>
+		:class="{minimize: minimize}"
+		:data-id="task.id">
 		<div v-if="alert" class="w-full bg-red-500 p-2 text-white uppercase text-xs">
 			<UIcon name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
 			Due {{ getRelativeTime(task.due_date) }}
@@ -87,19 +86,17 @@ if (props.task.category === 'Completed') {
 					v-if="!minimize && task.category === 'Completed'"
 					name="i-heroicons-arrows-pointing-in"
 					class="cursor-pointer mr-2"
-					@click.prevent="minimize = !minimize"
-				/>
+					@click.prevent="minimize = !minimize" />
 				<UIcon
 					v-else-if="minimize && task.category === 'Completed'"
 					name="i-heroicons-arrows-pointing-out"
 					class="cursor-pointer mr-2"
-					@click.prevent="minimize = !minimize"
-				/>
+					@click.prevent="minimize = !minimize" />
 				<UIcon v-if="editable" name="i-heroicons-lock-open" class="cursor-pointer mr-2" @click.prevent="updateTask" />
 				<UIcon v-else name="i-heroicons-lock-closed" class="cursor-pointer mr-2" @click.prevent="makeEditable" />
 
 				<!-- @click.prevent="openModal(task, 'update')" -->
-				<UPopover mode="hover" :popper="{ placement: 'bottom', arrow: true }" class="inline-block mr-[4px] -mb-[5px]">
+				<UPopover mode="hover" :popper="{placement: 'bottom', arrow: true}" class="inline-block mr-[4px] -mb-[5px]">
 					<UIcon name="i-heroicons-information-circle" />
 					<template #panel>
 						<div class="p-4 task-card__created">
@@ -120,8 +117,7 @@ if (props.task.category === 'Completed') {
 				<h5
 					v-if="task.due_date && task.category !== 'Completed'"
 					class="uppercase leading-4"
-					:class="{ 'alert font-bold': alert }"
-				>
+					:class="{'alert font-bold': alert}">
 					<UIcon v-if="alert" name="i-heroicons-exclamation-triangle-solid" size="lg" class="-mb-[2px]" />
 					Due: {{ format(task.due_date, 'ddd MMM D @ h:mmA') }}
 					<!-- <span class="block italic font-bold"></span> -->
@@ -134,8 +130,7 @@ if (props.task.category === 'Completed') {
 					v-if="task.category !== 'Completed' && !task.due_date"
 					icon="i-heroicons-calendar-days"
 					size="xs"
-					class="shadow border"
-				/>
+					class="shadow border" />
 			</div>
 			<div class="w-full flex flex-row mt-4 mb-1 task-card__category">
 				<p class="uppercase inline-block font-bold tracking-wide" :class="slugify(task.category)">
@@ -150,8 +145,7 @@ if (props.task.category === 'Completed') {
 				v-model="state.title"
 				class="w-full uppercase relative flex items-center justify-center task-card__title p-0 border-none outline-0 shadow-none"
 				:disabled="!editable"
-				:class="{ editable: editable }"
-			/>
+				:class="{editable: editable}" />
 
 			<!-- <div class="task-card__description" v-html="task.description"></div> -->
 			<h3 class="w-full uppercase mt-2 pb-0 mb-1 tracking-wide font-bold text-[8px] border-b">Description:</h3>
@@ -159,8 +153,7 @@ if (props.task.category === 'Completed') {
 				v-model="state.description"
 				class="w-full task-card__description"
 				:disabled="!editable"
-				:class="{ editable: editable }"
-			/>
+				:class="{editable: editable}" />
 		</div>
 		<!-- <div class="w-full relative">
 			<TasksUsers :item="task.id" collection="tasks" />

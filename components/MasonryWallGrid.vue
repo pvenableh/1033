@@ -35,11 +35,11 @@ const optimizedImages = computed(() => {
 	props.images.forEach((image) => {
 		const aspectRatio = image.width / image.height;
 		if (aspectRatio > props.wideThreshold) {
-			wideImages.push({ ...image, aspectRatio });
+			wideImages.push({...image, aspectRatio});
 		} else if (aspectRatio < 0.8) {
-			tallImages.push({ ...image, aspectRatio });
+			tallImages.push({...image, aspectRatio});
 		} else {
-			normalImages.push({ ...image, aspectRatio });
+			normalImages.push({...image, aspectRatio});
 		}
 	});
 
@@ -143,8 +143,7 @@ watch([props.wideThreshold, props.baseRowHeight, props.gap], () => {
 				gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
 				gridAutoRows: `${props.baseRowHeight}px`, // Use prop here too
 				gridAutoFlow: 'dense',
-			}"
-		>
+			}">
 			<div
 				v-for="image in optimizedImages"
 				:key="image.id"
@@ -152,15 +151,13 @@ watch([props.wideThreshold, props.baseRowHeight, props.gap], () => {
 				:style="{
 					gridRow: `span ${getRowSpan(image)}`,
 					gridColumn: `span ${getColumnSpan(image)}`,
-				}"
-			>
+				}">
 				<img
 					:src="image.src"
 					:alt="image.alt"
 					class="absolute inset-0 w-full h-full object-cover"
 					loading="lazy"
-					@load="updateColumns"
-				/>
+					@load="updateColumns" />
 			</div>
 		</div>
 	</div>

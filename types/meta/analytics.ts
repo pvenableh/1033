@@ -1,7 +1,7 @@
 export interface Event {
 	id?: string;
 	key?: string | null;
-	metadata?: { [key: string]: any } | null;
+	metadata?: {[key: string]: any} | null;
 	service?: string | null;
 	session?: string | null;
 	timestamp?: string | null;
@@ -11,7 +11,7 @@ export interface Event {
 export interface Metric {
 	id?: string;
 	key?: string | null;
-	metadata?: { [key: string]: any } | null;
+	metadata?: {[key: string]: any} | null;
 	service?: string | null;
 	timestamp?: string | null;
 	value?: number | null;

@@ -32,8 +32,7 @@ const handleRequestSubmitted = () => {
 </script>
 <template>
 	<div
-		class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative"
-	>
+		class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative">
 		<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
 		<LayoutHeader :links="headerLinks" />
 		<div class="page-content">
@@ -59,7 +58,7 @@ const handleRequestSubmitted = () => {
 		</UButton> -->
 
 		<!-- Maintenance Request Modal -->
-		<UModal v-model="isModalOpen" :ui="{ width: 'max-w-3xl' }">
+		<UModal v-model="isModalOpen" :ui="{width: 'max-w-3xl'}">
 			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -69,8 +68,7 @@ const handleRequestSubmitted = () => {
 							variant="ghost"
 							icon="i-heroicons-x-mark"
 							class="-my-1"
-							@click="isModalOpen = false"
-						/>
+							@click="isModalOpen = false" />
 					</div>
 				</template>
 

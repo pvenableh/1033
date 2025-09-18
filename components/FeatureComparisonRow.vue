@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import { CheckCircle, XCircle } from 'lucide-vue-next';
+import {CheckCircle, XCircle} from 'lucide-vue-next';
 
 defineProps({
 	feature: String,

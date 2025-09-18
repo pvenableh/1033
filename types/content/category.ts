@@ -1,4 +1,4 @@
-import type { SEO } from '../meta';
+import type {SEO} from '../meta';
 
 export interface Category {
 	color?: string | null;

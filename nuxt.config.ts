@@ -9,7 +9,7 @@ export default defineNuxtConfig({
 	},
 
 	app: {
-		pageTransition: { name: 'page', mode: 'out-in' },
+		pageTransition: {name: 'page', mode: 'out-in'},
 	},
 
 	// components: {
@@ -88,7 +88,7 @@ export default defineNuxtConfig({
 		},
 	},
 
-	devtools: { enabled: true },
+	devtools: {enabled: true},
 
 	colorMode: {
 		preference: 'light',

@@ -1,6 +1,6 @@
 export function safeRelation(
-	idOrObject: string | { [key: string]: any } | null | undefined,
-): { id: string; [key: string]: any } | null | undefined {
+	idOrObject: string | {[key: string]: any} | null | undefined
+): {id: string; [key: string]: any} | null | undefined {
 	if (!idOrObject) return undefined;
 
 	if (typeof idOrObject === 'string') {
@@ -17,7 +17,7 @@ export function safeRelation(
 }
 
 export function safeRelationId(
-	idOrObject: string | { [key: string]: any } | null | undefined,
+	idOrObject: string | {[key: string]: any} | null | undefined
 ): string | null | undefined {
 	if (!idOrObject) return undefined;
 

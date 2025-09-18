@@ -22,8 +22,7 @@ definePageMeta({
 			</div>
 		</div>
 		<div
-			class="w-full flex items-center justify-center py-40 bg-[rgba(255,255,255,0.25)] backdrop-blur-lg shadow-inner dark:bg-gray-800 text-white"
-		>
+			class="w-full flex items-center justify-center py-40 bg-[rgba(255,255,255,0.25)] backdrop-blur-lg shadow-inner dark:bg-gray-800 text-white">
 			<div class="max-w-4xl px-6">
 				<h2 class="uppercase tracking-widest mb-12 text-center">Prime Location</h2>
 				<p>

@@ -39,8 +39,7 @@ const activeLease = computed(() => {
 			v-if="tenant.leases && activeLease"
 			:href="'https://admin.1033lenox.com/assets/' + activeLease.file"
 			class="mt-2 btn"
-			target="_blank"
-		>
+			target="_blank">
 			View Lease Document
 		</a>
 	</div>

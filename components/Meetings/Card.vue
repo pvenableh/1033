@@ -67,7 +67,7 @@ const agenda = computed(() => {
 
 const formattedDate = computed(() => {
 	if (props.meeting.date) {
-		const options = { year: 'numeric', month: 'long', day: 'numeric' };
+		const options = {year: 'numeric', month: 'long', day: 'numeric'};
 		const [year, month, day] = props.meeting.date.split('-');
 		return new Date(year, month - 1, day).toLocaleDateString('en-US', options);
 	} else {

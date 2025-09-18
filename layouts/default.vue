@@ -1,7 +1,6 @@
 <template>
 	<div
-		class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative"
-	>
+		class="dark:bg-gray-800 dark:text-white min-h-screen w-full transition duration-150 bg-white flex items-center justify-start flex-col relative">
 		<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
 		<LayoutHeader :links="headerLinks" />
 		<div class="page-content">

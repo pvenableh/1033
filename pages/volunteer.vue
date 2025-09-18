@@ -1,7 +1,7 @@
 <script setup>
-import { useField, useForm } from 'vee-validate';
+import {useField, useForm} from 'vee-validate';
 import * as yup from 'yup';
-const { createItem, readItems } = useDirectusItems();
+const {createItem, readItems} = useDirectusItems();
 const isSubmitting = ref(false);
 import confetti from 'canvas-confetti';
 
@@ -14,7 +14,7 @@ const launchConfetti = () => {
 		angle: randomInRange(55, 125),
 		spread: randomInRange(50, 70),
 		particleCount: randomInRange(50, 100),
-		origin: { y: 0.6 },
+		origin: {y: 0.6},
 	});
 };
 
@@ -27,18 +27,18 @@ const validationSchema = yup.object({
 });
 
 // Initialize form with validation schema
-const { handleSubmit, resetForm } = useForm({
+const {handleSubmit, resetForm} = useForm({
 	validationSchema,
 });
 
 // Setup individual field validation
-const { value: name, errorMessage: nameError } = useField('name');
-const { value: email, errorMessage: emailError } = useField('email');
-const { value: phone } = useField('phone');
-const { value: unit, errorMessage: unitError } = useField('unit');
-const { value: subject, errorMessage: subjectError } = useField('subject');
-const { value: contact_preference, errorMessage: preferenceError } = useField('contact_preference');
-const { value: description } = useField('description');
+const {value: name, errorMessage: nameError} = useField('name');
+const {value: email, errorMessage: emailError} = useField('email');
+const {value: phone} = useField('phone');
+const {value: unit, errorMessage: unitError} = useField('unit');
+const {value: subject, errorMessage: subjectError} = useField('subject');
+const {value: contact_preference, errorMessage: preferenceError} = useField('contact_preference');
+const {value: description} = useField('description');
 
 const units = await readItems('units', {
 	fields: ['id,number,status,people.people_id.first_name,people.people_id.last_name,people.people_id.email'],
@@ -92,7 +92,7 @@ onMounted(() => {
 				availablePreferenceOptions.value = ['Email', 'Phone', 'Text'];
 			}
 		},
-		{ immediate: false }, // Don't run immediately
+		{immediate: false} // Don't run immediately
 	);
 });
 
@@ -179,8 +179,7 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-active-class="'transition duration-300 ease-in absolute w-full'"
 			:leave-from-class="'translate-x-0 opacity-100'"
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
-			mode="out-in"
-		>
+			mode="out-in">
 			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<form @submit.prevent="onSubmit" class="grid gap-2 sm:gap-4 w-full">
 					<div class="w-full">
@@ -190,25 +189,22 @@ const onSubmit = handleSubmit(async (values) => {
 									<button
 										type="button"
 										class="subject-button"
-										:class="{ active: subject === 'Landscape Volunteer' }"
-										@click="selectSubject('Landscape Volunteer')"
-									>
+										:class="{active: subject === 'Landscape Volunteer'}"
+										@click="selectSubject('Landscape Volunteer')">
 										Landscape 🪴🌴
 									</button>
 									<button
 										type="button"
 										class="subject-button"
-										:class="{ active: subject === 'Cleaning Volunteer' }"
-										@click="selectSubject('Cleaning Volunteer')"
-									>
+										:class="{active: subject === 'Cleaning Volunteer'}"
+										@click="selectSubject('Cleaning Volunteer')">
 										Cleaning 🧹🧽
 									</button>
 									<button
 										type="button"
 										class="subject-button"
-										:class="{ active: subject === 'Anything Volunteer' }"
-										@click="selectSubject('Anything Volunteer')"
-									>
+										:class="{active: subject === 'Anything Volunteer'}"
+										@click="selectSubject('Anything Volunteer')">
 										Anything ✨
 									</button>
 								</div>
@@ -234,8 +230,7 @@ const onSubmit = handleSubmit(async (values) => {
 							<USelect
 								v-model="contact_preference"
 								:options="availablePreferenceOptions"
-								:disabled="availablePreferenceOptions.length === 1"
-							/>
+								:disabled="availablePreferenceOptions.length === 1" />
 						</UFormGroup>
 					</div>
 					<!-- <div class="grid grid-cols-2 gap-2 sm:gap-4">

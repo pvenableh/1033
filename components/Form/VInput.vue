@@ -4,20 +4,18 @@
 		<VField
 			:name="name"
 			:id="name"
-			class="block py-2.5 px-0 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none  focus:outline-none focus:ring-0 focus:border-gray-900 peer"
+			class="block py-2.5 px-0 w-full text-sm text-gray-900 dark:text-white bg-transparent border-0 border-b-2 border-gray-300 appearance-none focus:outline-none focus:ring-0 focus:border-gray-900 peer"
 			:readonly="disabled"
 			:type="type"
 			:rules="rules"
 			placeholder=" "
 			:value="modelValue"
-			@input="$emit('update:modelValue', $event.target.value)"
-		/>
+			@input="$emit('update:modelValue', $event.target.value)" />
 		<label
 			v-if="label"
 			:label="label"
 			:for="name"
-			class="uppercase tracking-wider absolute text-sm text-gray-500 dark:text-cyan duration-300 transform -translate-y-6 scale-75 top-3 origin-[0] peer-focus:left-0 peer-focus:text-gray-600  peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6"
-		>
+			class="uppercase tracking-wider absolute text-sm text-gray-500 dark:text-cyan duration-300 transform -translate-y-6 scale-75 top-3 origin-[0] peer-focus:left-0 peer-focus:text-gray-600 peer-placeholder-shown:scale-100 peer-placeholder-shown:translate-y-0 peer-focus:scale-75 peer-focus:-translate-y-6">
 			{{ label }}
 		</label>
 		<transition name="page">
@@ -84,7 +82,7 @@ const props = defineProps({
 <style>
 .input-container {
 	.input {
-		@apply block w-full text-lg md:text-base border-gray-300  rounded-md shadow-sm placeholder:text-gray-400 ;
+		@apply block w-full text-lg md:text-base border-gray-300  rounded-md shadow-sm placeholder:text-gray-400;
 	}
 	.error {
 		font-size: 8px;

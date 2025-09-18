@@ -1,5 +1,5 @@
-import { micromark } from 'micromark';
-import { gfm, gfmHtml } from 'micromark-extension-gfm';
+import {micromark} from 'micromark';
+import {gfm, gfmHtml} from 'micromark-extension-gfm';
 
 export function markdownToHtml(markdown: string) {
 	return micromark(markdown, {

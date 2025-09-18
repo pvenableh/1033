@@ -26,8 +26,8 @@ export default defineEventHandler(async (event) => {
 			return {
 				personalizations: [
 					{
-						to: [{ email: element.people_id.email }],
-						bcc: [{ email: 'huestudios.com@gmail.com' }],
+						to: [{email: element.people_id.email}],
+						bcc: [{email: 'huestudios.com@gmail.com'}],
 					},
 				],
 				from: {
@@ -71,6 +71,6 @@ export default defineEventHandler(async (event) => {
 		};
 	} catch (error) {
 		console.error('SendGrid Error:', error.response?.body || error.message);
-		return { success: false, message: error.message };
+		return {success: false, message: error.message};
 	}
 });

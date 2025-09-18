@@ -1,5 +1,5 @@
-import type { User } from '../system';
-import type { OrganizationContact, OsDealContact, OsActivityContact } from '../os';
+import type {User} from '../system';
+import type {OrganizationContact, OsDealContact, OsActivityContact} from '../os';
 
 export interface Contact {
 	id?: string;

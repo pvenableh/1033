@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 const adminUrl = config.public.adminUrl;
 
 const props = defineProps({
@@ -28,7 +28,7 @@ onMounted(async () => {
 	await connection.addEventListener('message', (message) => receiveMessage(message));
 
 	function authenticate() {
-		connection.send(JSON.stringify({ type: 'auth', access_token: access_token.value }));
+		connection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
 	}
 
 	function updateFiles(data) {
@@ -59,7 +59,7 @@ onMounted(async () => {
 							},
 						},
 					},
-				}),
+				})
 			);
 		}
 
@@ -78,7 +78,7 @@ onMounted(async () => {
 		}
 
 		if (data.type == 'ping') {
-			connection.send(JSON.stringify({ type: 'pong' }));
+			connection.send(JSON.stringify({type: 'pong'}));
 		}
 	}
 });
@@ -89,7 +89,7 @@ async function addFile(action, id) {
 			createItem('tasks_files', {
 				directus_files_id: id,
 				tasks_id: props.item,
-			}),
+			})
 		);
 		console.log(result);
 	} else if (action === 'delete') {
@@ -106,7 +106,7 @@ async function addFile(action, id) {
 }
 
 async function updateParent() {
-	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
+	const result = await useDirectus(updateItem('tasks', props.item, {updated_on: new Date()}));
 
 	console.log(result);
 }
@@ -134,8 +134,7 @@ function handleSuccess(file) {
 			:multiple="true"
 			folder-id="464c11ad-93ed-42c0-9df3-3000097fc8d5"
 			@success="handleSuccess"
-			@delete="handleDelete"
-		/>
+			@delete="handleDelete" />
 		<!-- <div class="flex flex-row flex-wrap items-start justify-start">
 			<img
 				v-for="file in files.history"

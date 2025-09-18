@@ -1,7 +1,7 @@
 <script setup>
-import { useField, useForm } from 'vee-validate';
+import {useField, useForm} from 'vee-validate';
 import * as yup from 'yup';
-const { createItem, readItems } = useDirectusItems();
+const {createItem, readItems} = useDirectusItems();
 const isSubmitting = ref(false);
 import confetti from 'canvas-confetti';
 
@@ -14,7 +14,7 @@ const launchConfetti = () => {
 		angle: randomInRange(55, 125),
 		spread: randomInRange(50, 70),
 		particleCount: randomInRange(50, 100),
-		origin: { y: 0.6 },
+		origin: {y: 0.6},
 	});
 };
 
@@ -28,16 +28,16 @@ const validationSchema = yup.object({
 });
 
 // Initialize form with validation schema
-const { handleSubmit, resetForm } = useForm({
+const {handleSubmit, resetForm} = useForm({
 	validationSchema,
 });
 
 // Setup individual field validation
-const { value: name, errorMessage: nameError } = useField('name');
-const { value: email, errorMessage: emailError } = useField('email');
-const { value: unit, errorMessage: unitError } = useField('unit');
-const { value: subject, errorMessage: subjectError } = useField('subject');
-const { value: description, errorMessage: descriptionError } = useField('description');
+const {value: name, errorMessage: nameError} = useField('name');
+const {value: email, errorMessage: emailError} = useField('email');
+const {value: unit, errorMessage: unitError} = useField('unit');
+const {value: subject, errorMessage: subjectError} = useField('subject');
+const {value: description, errorMessage: descriptionError} = useField('description');
 
 const units = await readItems('units', {
 	fields: ['id,number,status,people.people_id.first_name,people.people_id.last_name,people.people_id.email'],
@@ -135,8 +135,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
 	<div
-		class="w-full max-w-[650px] px-4 py-10 mx-auto relative overflow-hidden flex items-center justify-center flex-col"
-	>
+		class="w-full max-w-[650px] px-4 py-10 mx-auto relative overflow-hidden flex items-center justify-center flex-col">
 		<TransitionGroup
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"
@@ -144,12 +143,10 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-active-class="'transition duration-300 ease-in absolute w-full'"
 			:leave-from-class="'translate-x-0 opacity-100'"
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
-			mode="out-in"
-		>
+			mode="out-in">
 			<div
 				v-if="panel === '1'"
-				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] overflow-y-scroll flex items-center justify-center flex-col"
-			>
+				class="w-full min-h-[500px] max-h-[calc(100vh-120px)] overflow-y-scroll flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider font-bold w-full text-center">40YR {{ category }} Submission</h5>
 				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
 					Complete the form below to submit a question for the general contractor to review.
@@ -176,8 +173,7 @@ const onSubmit = handleSubmit(async (values) => {
 						<TipTap
 							v-model="description"
 							placeholder="Please provide detailed information about your request"
-							rows="4"
-						/>
+							rows="4" />
 					</UFormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">

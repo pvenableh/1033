@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
 						content: base64,
 						disposition: 'attachment',
 					};
-				}),
+				})
 			);
 		};
 
@@ -93,8 +93,8 @@ export default defineEventHandler(async (event) => {
 
 	try {
 		await sgMail.send(messages);
-		return { success: true, message: 'Email sent successfully' };
+		return {success: true, message: 'Email sent successfully'};
 	} catch (error) {
-		return { success: false, message: error.message };
+		return {success: false, message: error.message};
 	}
 });

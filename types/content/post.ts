@@ -1,6 +1,6 @@
-import type { User, File } from '../system';
-import type { SEO } from '../meta';
-import type { Category, Team } from '../content';
+import type {User, File} from '../system';
+import type {SEO} from '../meta';
+import type {Category, Team} from '../content';
 
 export interface Post {
 	author?: (string | Team) | null;
@@ -23,7 +23,7 @@ export interface Post {
 	type?: PostType;
 	details?: string;
 	gallery?: (number | ProjectFile)[];
-	built_with?: { [key: string]: any } | null;
+	built_with?: {[key: string]: any} | null;
 	client?: string | null;
 	cost?: string | null;
 	video_url?: string | null;

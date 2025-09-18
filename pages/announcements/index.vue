@@ -4,7 +4,7 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const announcements = await readItems('announcements', {
 	fields: ['*'],
@@ -51,8 +51,7 @@ const filteredAnnouncements = computed(() => {
 						:key="index"
 						class="relative uppercase inline-block w-full relative mb-12 announcement__card"
 						:href="'https://1033lenox.com/announcements/email/' + item.url"
-						target="_blank"
-					>
+						target="_blank">
 						<h3 class="leading-4 uppercase">
 							{{ item.title }}
 							<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />

@@ -1,5 +1,5 @@
-export default defineNuxtRouteMiddleware(async (to: { fullPath: string | number | boolean; }) => {
-	const { readMe, setUser, user, refresh } = useDirectusAuth();
+export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number | boolean}) => {
+	const {readMe, setUser, user, refresh} = useDirectusAuth();
 
 	if (user.value) {
 		try {

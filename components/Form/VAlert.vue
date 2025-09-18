@@ -24,8 +24,7 @@ withDefaults(defineProps<AlertProps>(), {
 				'border-green-500 text-green-800 dark:text-green-200': type === 'success',
 				'border-blue-500 text-blue-800 dark:text-blue-200': type === 'info',
 			},
-		]"
-	>
+		]">
 		<div class="flex items-center">
 			<div class="flex-shrink-0">
 				<Icon
@@ -39,8 +38,7 @@ withDefaults(defineProps<AlertProps>(), {
 							'text-blue-500': type === 'info',
 						},
 					]"
-					aria-hidden="true"
-				/>
+					aria-hidden="true" />
 			</div>
 			<div class="ml-3"><slot /></div>
 		</div>

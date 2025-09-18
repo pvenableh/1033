@@ -1,5 +1,5 @@
 <script setup>
-import { openScreen } from '~~/composables/useScreen';
+import {openScreen} from '~~/composables/useScreen';
 
 function sideMenuToggle() {
 	// const element = document.getElementById('nav-btn')

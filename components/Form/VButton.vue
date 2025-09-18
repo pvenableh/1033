@@ -11,8 +11,7 @@
 				'btn-danger': variant === 'danger',
 				'btn-bronze': variant === 'bronze',
 			},
-		]"
-	>
+		]">
 		<div class="foreground">
 			<slot />
 		</div>

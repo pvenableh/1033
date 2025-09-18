@@ -2,7 +2,7 @@ const formatCurrency = (
 	number: number,
 	options?: {
 		hideZeros?: boolean;
-	},
+	}
 ) => {
 	const formatter = new Intl.NumberFormat('en-US', {
 		style: 'currency',
@@ -26,4 +26,4 @@ function dollarsToCents(dollars: number) {
 	return Math.round(dollars * 100);
 }
 
-export { formatCurrency, centsToDollars, dollarsToCents };
+export {formatCurrency, centsToDollars, dollarsToCents};

@@ -1,6 +1,6 @@
 <script setup>
 const weather = await $fetch(
-	'https://api.openweathermap.org/data/2.5/weather?lat=25.7803705&lon=-80.1388466&appid=11a6889ce0bda17eda9f935cd43fba39&units=imperial',
+	'https://api.openweathermap.org/data/2.5/weather?lat=25.7803705&lon=-80.1388466&appid=11a6889ce0bda17eda9f935cd43fba39&units=imperial'
 ).catch((error) => error.data);
 
 const isIcon = ref(true);
@@ -102,8 +102,7 @@ function generateIcon(weatherData) {
 				v-else
 				:src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`"
 				:alt="weather.weather[0].description"
-				class="hidden sm:inline-block"
-			/>
+				class="hidden sm:inline-block" />
 		</h5>
 	</div>
 </template>

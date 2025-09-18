@@ -1,4 +1,4 @@
-import type { User } from './user.js';
+import type {User} from './user.js';
 
 export interface Role {
 	/** Unique identifier for the role. */

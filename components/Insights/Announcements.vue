@@ -1,5 +1,5 @@
 <script setup>
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const announcements = await readItems('announcements', {
 	fields: ['*'],
@@ -34,7 +34,7 @@ const filteredAnnouncements = computed(() => {
 	<div class="insight announcements">
 		<h1 class="relative insight__label">
 			Announcements:
-			<UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }" class="absolute top-[-10px] scale-90">
+			<UBadge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ announcements.length }}
 			</UBadge>
 		</h1>
@@ -46,8 +46,7 @@ const filteredAnnouncements = computed(() => {
 				:key="index"
 				class="relative uppercase inline-block w-full relative mb-5"
 				:href="'https://1033lenox.com/announcements/email/' + item.url"
-				target="_blank"
-			>
+				target="_blank">
 				<h3 class="leading-4 uppercase font-bold tracking-wide">
 					{{ item.title }}
 					<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />

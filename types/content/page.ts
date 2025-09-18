@@ -1,6 +1,6 @@
-import type { SEO } from '../meta';
-import type { User } from '../system';
-import type { Post } from '../content';
+import type {SEO} from '../meta';
+import type {User} from '../system';
+import type {Post} from '../content';
 import type {
 	BlockColumn,
 	BlockCta,

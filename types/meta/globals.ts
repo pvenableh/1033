@@ -1,4 +1,4 @@
-import type { File } from '../system/index.js';
+import type {File} from '../system/index.js';
 
 export interface Globals {
 	address_country?: string | null;
@@ -12,8 +12,8 @@ export interface Globals {
 	og_image?: (string | File) | null;
 	phone?: string | null;
 	postal_code?: string | null;
-	routes?: { [key: string]: any } | null;
-	social_links: { [key: string]: any } | null;
+	routes?: {[key: string]: any} | null;
+	social_links: {[key: string]: any} | null;
 	street_address?: string | null;
 	/** What's the website title? */
 	tagline?: string | null;

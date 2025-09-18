@@ -11,13 +11,11 @@
 					:loading="loading"
 					icon="i-heroicons-envelope"
 					placeholder="name@domain.com"
-					@input="emailTouched = true"
-				/>
-				<template #error="{ error }">
+					@input="emailTouched = true" />
+				<template #error="{error}">
 					<span
 						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']"
-					>
+						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']">
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
@@ -28,16 +26,15 @@
 				size="lg"
 				label="Send Email"
 				trailing-icon="i-heroicons-arrow-right"
-				block
-			></UButton>
+				block></UButton>
 		</UForm>
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { FormError } from '#ui/types';
+import type {FormError} from '#ui/types';
 
-const { passwordRequest } = useDirectusAuth();
+const {passwordRequest} = useDirectusAuth();
 const toast = useToast();
 const loading = ref(false);
 const emailTouched = ref(false);
@@ -50,13 +47,13 @@ const validate = async (state: any): Promise<FormError[]> => {
 	const errors = [];
 
 	if (!state.email) {
-		errors.push({ path: 'email', message: 'Required' });
+		errors.push({path: 'email', message: 'Required'});
 	}
 
 	const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
 
 	if (!regex.test(state.email)) {
-		errors.push({ path: 'email', message: 'This must be a valid email' });
+		errors.push({path: 'email', message: 'This must be a valid email'});
 	}
 
 	if (state.email && regex.test(state.email)) {
@@ -65,12 +62,12 @@ const validate = async (state: any): Promise<FormError[]> => {
 			const response: any = await $fetch(`https://admin.1033lenox.com/users?filter[email][_eq]=${state.email}`);
 
 			if (response.data.length < 1) {
-				errors.push({ path: 'email', message: 'This email is not registered.' });
+				errors.push({path: 'email', message: 'This email is not registered.'});
 			}
 
 			loading.value = false;
 		} catch (error) {
-			errors.push({ path: 'email', message: 'Failed to validate email' });
+			errors.push({path: 'email', message: 'Failed to validate email'});
 			loading.value = false;
 		}
 	}
@@ -82,7 +79,7 @@ function submit() {
 	openScreen();
 	passwordRequest(state.email, 'https://1033lenox.com/auth/password-reset');
 	closeScreen();
-	toast.add({ title: 'An email was sent to ' + state.email + '.' });
+	toast.add({title: 'An email was sent to ' + state.email + '.'});
 }
 </script>
 <style></style>

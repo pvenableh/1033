@@ -3,14 +3,13 @@
 		<div class="md:top-4 flex md:items-end md:justify-end flex-col w-full md:mr-6 lg:mr account__navigation">
 			<UAvatar size="md" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
 			<h1 class="hidden md:inline-block mt-6">{{ user?.first_name }} {{ user?.last_name }}</h1>
-			<a :class="{ active: panel === 1 }" @click.prevent="changePanel(1)">Profile</a>
+			<a :class="{active: panel === 1}" @click.prevent="changePanel(1)">Profile</a>
 			<AccountLogout v-if="user" class="logout-icon" />
 		</div>
 		<transition-group
 			name="list"
 			tag="div"
-			class="w-full flex flex-col items-center justify-start relative account__panels"
-		>
+			class="w-full flex flex-col items-center justify-start relative account__panels">
 			<div v-if="panel === 1" key="1" class="account__panel profile">
 				<AccountProfile />
 			</div>
@@ -22,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 definePageMeta({
 	layout: 'auth',

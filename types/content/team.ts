@@ -1,4 +1,4 @@
-import type { User, File } from '../system';
+import type {User, File} from '../system';
 
 export interface Team {
 	bio?: string | null;
@@ -8,7 +8,7 @@ export interface Team {
 	image?: (string | File) | null;
 	job_title?: string | null;
 	name?: string | null;
-	social_media?: { [key: string]: any } | null;
+	social_media?: {[key: string]: any} | null;
 	sort?: number | null;
 	status?: string;
 	user_created?: string | User | null;

@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const page = await readItems('rules', {
 	fields: ['*'],

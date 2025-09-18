@@ -1,8 +1,8 @@
-import { ref } from 'vue';
+import {ref} from 'vue';
 
 const isOpen = ref(false);
 const taskModalData = ref(null);
-const taskModalAction = ref('create')
+const taskModalAction = ref('create');
 
 function openModal(data: null, action: any) {
 	taskModalData.value = data;
@@ -15,4 +15,4 @@ function closeModal() {
 	taskModalData.value = null;
 }
 
-export { isOpen, taskModalData, taskModalAction, openModal, closeModal };
+export {isOpen, taskModalData, taskModalAction, openModal, closeModal};

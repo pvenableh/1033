@@ -18,8 +18,7 @@
 				<!-- Financial Health Score -->
 				<UCard
 					class="text-center rounded-[4px] shadow"
-					:class="financialHealth.score < 60 ? 'border  border-red-500' : ''"
-				>
+					:class="financialHealth.score < 60 ? 'border  border-red-500' : ''">
 					<div class="space-y-2">
 						<UIcon name="i-heroicons-gauge" class="w-8 h-8 mx-auto" :class="financialHealth.color" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">FINANCIAL HEALTH</p>
@@ -34,8 +33,7 @@
 						<UIcon
 							name="i-heroicons-arrow-trending-down"
 							class="w-8 h-8 mx-auto"
-							:class="ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'"
-						/>
+							:class="ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">YTD CASH CHANGE</p>
 						<p class="text-3xl font-bold" :class="ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'">
 							{{ ytdCashChange >= 0 ? '+' : '' }}${{ ytdCashChange.toLocaleString() }}
@@ -50,8 +48,7 @@
 						<UIcon
 							name="i-heroicons-fire"
 							class="w-8 h-8 mx-auto"
-							:class="monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'"
-						/>
+							:class="monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">AVG MONTHLY BURN</p>
 						<p class="text-3xl font-bold" :class="monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'">
 							${{ monthlyBurnRate.toLocaleString() }}
@@ -106,8 +103,7 @@
 									<div
 										class="h-2 rounded-full transition-all duration-300"
 										:class="category.variance > 0 ? 'bg-red-500' : 'bg-green-500'"
-										:style="`width: ${Math.min(category.utilization, 100)}%`"
-									/>
+										:style="`width: ${Math.min(category.utilization, 100)}%`" />
 								</div>
 							</div>
 						</div>
@@ -123,8 +119,7 @@
 							<UIcon
 								:name="complianceStatus.compliant ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
 								class="w-12 h-12 mx-auto mb-2"
-								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'"
-							/>
+								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'" />
 							<p class="text-lg font-bold" :class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'">
 								{{ complianceStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
 							</p>
@@ -161,8 +156,7 @@
 				:options="monthOptions"
 				option-attribute="label"
 				value-attribute="value"
-				class="relative w-48"
-			>
+				class="relative w-48">
 				<template #label>
 					<span class="uppercase tracking-wide">{{ selectedMonth.replace('2025', '').trim() }} DETAILS</span>
 				</template>
@@ -181,8 +175,7 @@
 					<div class="flex items-center text-sm" :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'">
 						<UIcon
 							:name="monthlyChange >= 0 ? 'i-heroicons-arrow-up' : 'i-heroicons-arrow-down'"
-							class="w-4 h-4 mr-1"
-						/>
+							class="w-4 h-4 mr-1" />
 						<span>${{ Math.abs(monthlyChange).toLocaleString() }} MTD</span>
 					</div>
 				</div>
@@ -231,8 +224,7 @@
 				:description="alert.description"
 				color="red"
 				variant="subtle"
-				class="mb-3"
-			>
+				class="mb-3">
 				<template #icon>
 					<UIcon name="i-heroicons-exclamation-triangle" />
 				</template>
@@ -241,8 +233,7 @@
 						color="red"
 						variant="soft"
 						size="xs"
-						:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`"
-					>
+						:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`">
 						VIEW DETAILS
 					</UButton>
 				</template>
@@ -265,8 +256,7 @@
 						:insurance-expense="insuranceExpense"
 						:professional-expense="professionalExpense"
 						:utility-expense="utilityExpense"
-						:maintenance-expense="maintenanceExpense"
-					/>
+						:maintenance-expense="maintenanceExpense" />
 
 					<!-- Account Health Status -->
 					<UCard>
@@ -283,8 +273,7 @@
 									<div
 										class="h-2 rounded-full transition-all duration-500"
 										:class="account.barClass"
-										:style="`width: ${account.percent}%`"
-									/>
+										:style="`width: ${account.percent}%`" />
 								</div>
 								<p class="text-xs text-gray-600">{{ account.note }}</p>
 							</div>
@@ -306,8 +295,7 @@
 				<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 					<UCard
 						class="hover:shadow-lg transition-shadow cursor-pointer"
-						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)"
-					>
+						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)">
 						<div class="flex items-center space-x-3">
 							<div class="p-3 bg-blue-100 rounded-lg">
 								<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
@@ -397,8 +385,7 @@
 										fundSegregationStatus.compliant
 											? 'bg-green-50 border border-green-200'
 											: 'bg-red-50 border border-red-200'
-									"
-								>
+									">
 									<span class="font-medium">FUND SEGREGATION</span>
 									<span class="font-bold" :class="fundSegregationStatus.compliant ? 'text-green-600' : 'text-red-600'">
 										{{ fundSegregationStatus.compliant ? '✓ COMPLIANT' : '✗ VIOLATION' }}
@@ -408,8 +395,7 @@
 									<span class="font-medium">VIOLATIONS THIS MONTH</span>
 									<span
 										class="font-bold"
-										:class="fundSegregationStatus.violations > 0 ? 'text-red-600' : 'text-gray-900'"
-									>
+										:class="fundSegregationStatus.violations > 0 ? 'text-red-600' : 'text-gray-900'">
 										{{ fundSegregationStatus.violations }}
 									</span>
 								</div>
@@ -450,8 +436,8 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import { Line, Bar } from 'vue-chartjs';
+import {ref, computed} from 'vue';
+import {Line, Bar} from 'vue-chartjs';
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -468,7 +454,7 @@ import {
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Title, Tooltip, Legend, Filler);
 
 // Composables
-const { getOperatingData, getReserveData, calculateFinancialHealth, checkCompliance, getViolationCount } =
+const {getOperatingData, getReserveData, calculateFinancialHealth, checkCompliance, getViolationCount} =
 	useReconciliationData();
 
 // State
@@ -476,19 +462,19 @@ const selectedMonth = ref('June 2025');
 
 // Tabs
 const tabs = [
-	{ slot: 'overview', label: 'OVERVIEW', icon: 'i-heroicons-home' },
-	{ slot: 'budget', label: 'BUDGET ANALYSIS', icon: 'i-heroicons-chart-bar' },
-	{ slot: 'compliance', label: 'COMPLIANCE', icon: 'i-heroicons-shield-check' },
+	{slot: 'overview', label: 'OVERVIEW', icon: 'i-heroicons-home'},
+	{slot: 'budget', label: 'BUDGET ANALYSIS', icon: 'i-heroicons-chart-bar'},
+	{slot: 'compliance', label: 'COMPLIANCE', icon: 'i-heroicons-shield-check'},
 ];
 
 // Month options
 const monthOptions = [
-	{ label: 'JUNE 2025', value: 'June 2025' },
-	{ label: 'MAY 2025', value: 'May 2025' },
-	{ label: 'APRIL 2025', value: 'April 2025' },
-	{ label: 'MARCH 2025', value: 'March 2025' },
-	{ label: 'FEBRUARY 2025', value: 'February 2025' },
-	{ label: 'JANUARY 2025', value: 'January 2025' },
+	{label: 'JUNE 2025', value: 'June 2025'},
+	{label: 'MAY 2025', value: 'May 2025'},
+	{label: 'APRIL 2025', value: 'April 2025'},
+	{label: 'MARCH 2025', value: 'March 2025'},
+	{label: 'FEBRUARY 2025', value: 'February 2025'},
+	{label: 'JANUARY 2025', value: 'January 2025'},
 ];
 
 // Get account data
@@ -709,7 +695,7 @@ const monthlyBreakdownData = computed(() => ({
 				Math.max(
 					0,
 					monthlyExpenses.value -
-						(insuranceExpense.value + professionalExpense.value + utilityExpense.value + maintenanceExpense.value),
+						(insuranceExpense.value + professionalExpense.value + utilityExpense.value + maintenanceExpense.value)
 				),
 			],
 			backgroundColor: [
@@ -771,7 +757,7 @@ const professionalExpense = computed(() => {
 			(w) =>
 				w.category === 'Professional' ||
 				w.vendor?.toLowerCase().includes('consult') ||
-				w.vendor?.toLowerCase().includes('vte'),
+				w.vendor?.toLowerCase().includes('vte')
 		)
 		.reduce((sum, w) => sum + w.amount, 0);
 });
@@ -786,7 +772,7 @@ const utilityExpense = computed(() => {
 				w.vendor?.toLowerCase().includes('fpl') ||
 				w.vendor?.toLowerCase().includes('gas') ||
 				w.vendor?.toLowerCase().includes('elevator') ||
-				w.vendor?.toLowerCase().includes('breezeline'),
+				w.vendor?.toLowerCase().includes('breezeline')
 		)
 		.reduce((sum, w) => sum + w.amount, 0);
 });
@@ -867,11 +853,11 @@ const budgetVariances = computed(() => [
 ]);
 
 const budgetColumns = [
-	{ key: 'category', label: 'CATEGORY' },
-	{ key: 'budgeted', label: 'BUDGET' },
-	{ key: 'actual', label: 'ACTUAL' },
-	{ key: 'variance', label: 'VARIANCE' },
-	{ key: 'percent', label: '%' },
+	{key: 'category', label: 'CATEGORY'},
+	{key: 'budgeted', label: 'BUDGET'},
+	{key: 'actual', label: 'ACTUAL'},
+	{key: 'variance', label: 'VARIANCE'},
+	{key: 'percent', label: '%'},
 ];
 
 const budgetChartData = computed(() => ({
@@ -886,7 +872,7 @@ const budgetChartData = computed(() => ({
 			label: 'Actual',
 			data: budgetVariances.value.map((v) => v.actual),
 			backgroundColor: budgetVariances.value.map((v) =>
-				v.variance > 0 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(34, 197, 94, 0.8)',
+				v.variance > 0 ? 'rgba(239, 68, 68, 0.8)' : 'rgba(34, 197, 94, 0.8)'
 			),
 		},
 	],

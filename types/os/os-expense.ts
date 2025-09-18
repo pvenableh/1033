@@ -1,5 +1,5 @@
-import type { File, User } from '../system';
-import type { OsProject, OsInvoiceItem } from '../os';
+import type {File, User} from '../system';
+import type {OsProject, OsInvoiceItem} from '../os';
 
 export interface OsExpense {
 	id?: string;

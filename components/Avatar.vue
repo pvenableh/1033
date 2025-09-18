@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 const props = defineProps({
 	chip: {
@@ -33,7 +33,7 @@ watch(
 				} else {
 					// Using template literals for clarity and to handle possible undefined values gracefully
 					avatarSource.value = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-						newValue.first_name + ' ' + newValue.last_name,
+						newValue.first_name + ' ' + newValue.last_name
 					)}&background=eeeeee&color=00bfff`;
 				}
 			} else {
@@ -43,7 +43,7 @@ watch(
 	},
 	{
 		immediate: true, // This ensures the watcher runs immediately with the initial value
-	},
+	}
 );
 </script>
 <template>
@@ -54,8 +54,7 @@ watch(
 		chip-position="top-right"
 		:size="size"
 		:src="avatarSource"
-		:alt="user?.first_name + ' ' + user?.last_name"
-	/>
+		:alt="user?.first_name + ' ' + user?.last_name" />
 	<UAvatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
 </template>
 

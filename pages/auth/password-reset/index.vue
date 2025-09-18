@@ -1,10 +1,10 @@
 <script setup>
-import { jwtDecode } from 'jwt-decode';
-import { useForm, useField } from 'vee-validate';
+import {jwtDecode} from 'jwt-decode';
+import {useForm, useField} from 'vee-validate';
 import * as yup from 'yup';
-import { openScreen, closeScreen } from '~/composables/useScreen';
+import {openScreen, closeScreen} from '~/composables/useScreen';
 
-const { passwordReset } = useDirectusAuth();
+const {passwordReset} = useDirectusAuth();
 const route = useRoute();
 
 const reset_token = ref(route.query.token ? route.query.token : '');
@@ -24,12 +24,12 @@ const schema = yup.object({
 		.matches(/[0-9]/, 'Password must contain at least one number'),
 });
 
-const { handleSubmit } = useForm({
+const {handleSubmit} = useForm({
 	validationSchema: schema,
 });
 
 // Use useField for password
-const { value: password, errorMessage } = useField('password', schema.fields.password);
+const {value: password, errorMessage} = useField('password', schema.fields.password);
 
 onMounted(() => {
 	if (reset_token.value) {
@@ -88,17 +88,15 @@ const togglePassword = () => {
 								placeholder="Enter new password"
 								class=""
 								:ui="{
-									icon: { trailing: { pointer: 'cursor-pointer' } },
-								}"
-							>
+									icon: {trailing: {pointer: 'cursor-pointer'}},
+								}">
 								<template #trailing>
 									<UButton
 										:icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
 										color="gray"
 										variant="ghost"
 										@click="togglePassword"
-										:padded="false"
-									/>
+										:padded="false" />
 								</template>
 							</UInput>
 						</div>

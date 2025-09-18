@@ -1,4 +1,4 @@
-import { unref } from 'vue';
+import {unref} from 'vue';
 
 export interface Condition {
 	field: string;
@@ -35,7 +35,7 @@ export function transformSchema(schema: Array<object>) {
 	// This is required for FormKit to work
 	const items = unref(schema);
 	return items.map((item: any) => {
-		const { conditions, field, name, children, ...props } = item;
+		const {conditions, field, name, children, ...props} = item;
 
 		// console.log('conditions', conditions);
 		// console.log('mapCondition', mapCondition(conditions[0].condition, field));

@@ -28,8 +28,7 @@ const isDark = computed({
 			size="sm"
 			class="scale-75 sm:scale-100 rounded-full"
 			:class="[bg === 'dark' ? 'text-white' : '']"
-			@click="isDark = !isDark"
-		/>
+			@click="isDark = !isDark" />
 		<template #fallback>
 			<div class="" />
 		</template>

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { Chart as ChartJS, Title, ArcElement, CategoryScale } from 'chart.js';
+import {Chart as ChartJS, Title, ArcElement, CategoryScale} from 'chart.js';
 
-import { Doughnut } from 'vue-chartjs';
+import {Doughnut} from 'vue-chartjs';
 
 ChartJS.register(Title, ArcElement, CategoryScale);
 

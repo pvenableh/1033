@@ -1,9 +1,8 @@
 <!-- components/TenantRequestForm.vue -->
 <template>
 	<form @submit.prevent="submitRequest" class="space-y-6">
-
 		<div class="space-y-4">
-      <p>This is being submitted by {{ user }}</p>
+			<p>This is being submitted by {{ user }}</p>
 			<!-- Request Category -->
 			<UFormGroup label="Request Category" required>
 				<USelect v-model="formData.category" :options="categories" placeholder="Select a category" required />
@@ -25,16 +24,14 @@
 					v-model="formData.description"
 					placeholder="Please provide detailed information about your request"
 					rows="4"
-					required
-				/>
+					required />
 			</UFormGroup>
 
 			<!-- Access Permission -->
 			<UFormGroup>
 				<UCheckbox
 					v-model="formData.allowAccess"
-					label="I give permission for maintenance to enter my unit when I'm not present"
-				/>
+					label="I give permission for maintenance to enter my unit when I'm not present" />
 			</UFormGroup>
 
 			<!-- Preferred Contact Method -->
@@ -53,32 +50,32 @@
 </template>
 
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 const emit = defineEmits(['submitted']);
-const { $directus } = useNuxtApp();
+const {$directus} = useNuxtApp();
 const isSubmitting = ref(false);
 
 const categories = [
-	{ label: 'Plumbing', value: 'plumbing' },
-	{ label: 'Electrical', value: 'electrical' },
-	{ label: 'HVAC', value: 'hvac' },
-	{ label: 'Appliance', value: 'appliance' },
-	{ label: 'Structural', value: 'structural' },
-	{ label: 'Pest Control', value: 'pest_control' },
-	{ label: 'Other', value: 'other' },
+	{label: 'Plumbing', value: 'plumbing'},
+	{label: 'Electrical', value: 'electrical'},
+	{label: 'HVAC', value: 'hvac'},
+	{label: 'Appliance', value: 'appliance'},
+	{label: 'Structural', value: 'structural'},
+	{label: 'Pest Control', value: 'pest_control'},
+	{label: 'Other', value: 'other'},
 ];
 
 const priorities = [
-	{ label: 'Emergency', value: 'emergency' },
-	{ label: 'High', value: 'high' },
-	{ label: 'Medium', value: 'medium' },
-	{ label: 'Low', value: 'low' },
+	{label: 'Emergency', value: 'emergency'},
+	{label: 'High', value: 'high'},
+	{label: 'Medium', value: 'medium'},
+	{label: 'Low', value: 'low'},
 ];
 
 const contactMethods = [
-	{ label: 'Email', value: 'email' },
-	{ label: 'Phone', value: 'phone' },
-	{ label: 'SMS', value: 'sms' },
+	{label: 'Email', value: 'email'},
+	{label: 'Phone', value: 'phone'},
+	{label: 'SMS', value: 'sms'},
 ];
 
 const formData = ref({

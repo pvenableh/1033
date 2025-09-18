@@ -22,8 +22,8 @@ console.log(props.flatten);
 
 const emit = defineEmits(['update:modelValue', 'error', 'success']);
 
-const { dragging, onDragEnter, onDragLeave, onDrop } = useDragging();
-const { uploading, error, onSelect, processUpload } = useUpload();
+const {dragging, onDragEnter, onDragLeave, onDrop} = useDragging();
+const {uploading, error, onSelect, processUpload} = useUpload();
 
 // const files = computed(() => {
 // 	if (props.flatten) {
@@ -51,7 +51,7 @@ function useDragging() {
 	const dragging = ref(false);
 	let dragCounter = 0;
 
-	return { onDragEnter, onDragLeave, onDrop, dragging };
+	return {onDragEnter, onDragLeave, onDrop, dragging};
 
 	function onDragEnter() {
 		dragCounter++;
@@ -188,15 +188,13 @@ function useUpload() {
 			@dragenter.prevent="onDragEnter"
 			@dragover.prevent
 			@dragleave.prevent="onDragLeave"
-			@drop.stop.prevent="onDrop"
-		>
+			@drop.stop.prevent="onDrop">
 			<input
 				type="file"
 				class="absolute inset-0 opacity-0 appearance-none cursor-pointer"
 				:multiple="multiple"
 				:accept="accept"
-				@change="onSelect"
-			/>
+				@change="onSelect" />
 			<div class="h-full mx-auto text-sm font-medium text-center">
 				<Icon name="heroicons:cloud-arrow-up" class="w-8 h-8 mx-auto mb-2" />
 				<template v-if="dragging">
@@ -215,12 +213,10 @@ function useUpload() {
 				enter-to-class="transform scale-100 opacity-100"
 				leave-active-class="transition duration-100 ease-in"
 				leave-from-class="transform scale-100 opacity-100"
-				leave-to-class="transform scale-95 opacity-0"
-			>
+				leave-to-class="transform scale-95 opacity-0">
 				<div
 					v-if="uploading"
-					class="absolute inset-0 flex items-center justify-center bg-white rounded-md bg-opacity-70 dark:bg-gray-800 dark:bg-opacity-90"
-				>
+					class="absolute inset-0 flex items-center justify-center bg-white rounded-md bg-opacity-70 dark:bg-gray-800 dark:bg-opacity-90">
 					<FormVLoading class="w-16 h-16 text-primary dark:text-primary" />
 				</div>
 			</transition>
@@ -235,8 +231,7 @@ function useUpload() {
 					<NuxtImg
 						v-if="flatten"
 						:src="file.directus_files_id.id"
-						class="object-contain w-12 h-12 mr-4 dark:brightness-90"
-					/>
+						class="object-contain w-12 h-12 mr-4 dark:brightness-90" />
 					<NuxtImg v-else :src="file.id" class="object-contain w-12 h-12 mr-4 dark:brightness-90" />
 					<span v-if="flatten" class="sm:text-sm dark:text-gray-200">
 						{{ file.directus_files_id.filename_download }}
@@ -246,8 +241,7 @@ function useUpload() {
 						<button @click="deleteImage(fileIdx)">
 							<UIcon
 								name="i-heroicons-trash"
-								class="w-4 h-4 text-sky-500 stroke-current hover:text-red-600 flex-shrink-none"
-							/>
+								class="w-4 h-4 text-sky-500 stroke-current hover:text-red-600 flex-shrink-none" />
 						</button>
 					</span>
 				</div>

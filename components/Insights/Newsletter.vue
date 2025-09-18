@@ -1,5 +1,5 @@
 <script setup>
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const newsletters = await readItems('newsletters', {
 	fields: ['*'],
@@ -15,8 +15,7 @@ const newsletters = await readItems('newsletters', {
 			target="_blank"
 			style="
 				background-image: url('https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073?key=medium');
-			"
-		>
+			">
 			<h3 class="uppercase newsletter__title">
 				{{ newsletters[0].title }}
 			</h3>

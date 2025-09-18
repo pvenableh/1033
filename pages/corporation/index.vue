@@ -7,8 +7,7 @@
 				<UButton
 					:to="'https://admin.1033lenox.com/assets/' + file.directus_files_id.id"
 					target="_blank"
-					class="button uppercase test"
-				>
+					class="button uppercase test">
 					<span class="text-black px-4">Download {{ getSubstringAfterSlash(file.directus_files_id.type) }}</span>
 				</UButton>
 			</div>

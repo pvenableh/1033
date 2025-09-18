@@ -1,4 +1,4 @@
-import type { User, File } from '../system';
+import type {User, File} from '../system';
 import type {
 	BlockDivider,
 	BlockFaq,
@@ -9,7 +9,7 @@ import type {
 	BlockTeam,
 	BlockVideo,
 } from '../blocks';
-import type { Organization, Contact, OsDeal } from '../os';
+import type {Organization, Contact, OsDeal} from '../os';
 
 export interface OsProposal {
 	id?: string;
@@ -46,7 +46,7 @@ export interface OsProposalApproval {
 	organization?: string | null;
 	proposal?: (string | OsProposal) | null;
 	email?: string | null;
-	metadata?: { [key: string]: any } | null;
+	metadata?: {[key: string]: any} | null;
 	ip_address?: string | null;
 	esignature_agreement?: boolean | null;
 	contact?: (string | Contact) | null;

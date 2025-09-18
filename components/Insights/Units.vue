@@ -18,7 +18,7 @@ const {
 		readItems('units', {
 			fields: ['*'],
 			sort: 'number',
-		}),
+		})
 	);
 });
 
@@ -73,8 +73,7 @@ const subtitle = ownershipPercentage + '% of units are owner-occupied.';
 						<span class="">Occupied by:</span>
 						<span
 							class="font-bold px-1 py-[2px]"
-							:style="'background-color: ' + setBackgroundColor(unit.occupant) + ';'"
-						>
+							:style="'background-color: ' + setBackgroundColor(unit.occupant) + ';'">
 							{{ unit.occupant }}
 						</span>
 					</p>

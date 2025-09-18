@@ -1,4 +1,4 @@
-import type { User } from '../system';
+import type {User} from '../system';
 
 export interface Form {
 	date_created?: string | null;
@@ -8,7 +8,7 @@ export interface Form {
 	on_success?: string | null;
 	redirect_url?: string | null;
 	/** The fields for the form. */
-	schema?: { [key: string]: any } | null;
+	schema?: {[key: string]: any} | null;
 	sort?: number | null;
 	status?: string;
 	/** The text for the submit button label. */

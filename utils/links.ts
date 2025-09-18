@@ -1,7 +1,7 @@
 // Function to easily format a mailto link. Encodes the subject and body to preserve formatting.
 export function createMailto(
 	to: string,
-	{ subject, body, cc, bcc }: { subject?: string; body?: string; cc?: string; bcc?: string } = {},
+	{subject, body, cc, bcc}: {subject?: string; body?: string; cc?: string; bcc?: string} = {}
 ): string {
 	const params = [
 		subject && `subject=${encodeURIComponent(subject)}`,

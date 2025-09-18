@@ -30,7 +30,7 @@
 </template>
 
 <script setup>
-const { params } = useRoute();
+const {params} = useRoute();
 
 definePageMeta({
 	layout: 'auth',
@@ -52,7 +52,7 @@ const {
 				},
 			},
 			fields: ['*, people.people_id.*'],
-		}),
+		})
 	);
 });
 

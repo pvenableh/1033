@@ -14,7 +14,7 @@ const props = defineProps({
 	},
 });
 
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 const comment = ref(null);
 const max = ref(255);
 
@@ -32,7 +32,7 @@ async function postComment() {
 				user: user.value.id,
 				item: props.item,
 				collection: props.collection,
-			}),
+			})
 		);
 
 		connectComment(result.id);
@@ -47,14 +47,14 @@ async function connectComment(commentId) {
 			createItem(junctionTable, {
 				[junctionId]: props.item,
 				comments_id: commentId,
-			}),
+			})
 		);
 		updateParent();
 	}
 }
 
 async function updateParent() {
-	const result = await useDirectus(updateItem('tasks', props.item, { updated_on: new Date() }));
+	const result = await useDirectus(updateItem('tasks', props.item, {updated_on: new Date()}));
 }
 </script>
 <template>
@@ -67,13 +67,11 @@ async function updateParent() {
 				:maxlength="max"
 				class="w-full h-8 comment-input"
 				placeholder="Write a comment..."
-				@keyup.enter="postComment"
-			/>
+				@keyup.enter="postComment" />
 			<a
 				href="#"
 				class="absolute right-0 font-bold py-2 px-2 uppercase blue cursor-pointer post-btn"
-				@click.prevent="postComment"
-			>
+				@click.prevent="postComment">
 				Post
 			</a>
 		</div>

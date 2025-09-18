@@ -1,4 +1,4 @@
-import type { Role } from './role.js';
+import type {Role} from './role.js';
 
 export interface User {
 	/** Unique identifier for the user. */
@@ -38,7 +38,7 @@ export interface User {
 	last_page: string | null;
 	provider: string;
 	external_identifier: string | null;
-	auth_data: { [key: string]: any } | null;
+	auth_data: {[key: string]: any} | null;
 	github: string | null;
 	linkedin: string | null;
 	start_date: string | null;

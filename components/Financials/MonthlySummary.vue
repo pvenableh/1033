@@ -35,8 +35,7 @@
 			<div class="grid grid-cols-3 gap-2 text-xs">
 				<div
 					class="text-center p-2 rounded"
-					:class="endingBalance < 25000 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'"
-				>
+					:class="endingBalance < 25000 ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'">
 					<div class="font-semibold">5129</div>
 					<div>Operating</div>
 				</div>
@@ -46,8 +45,7 @@
 				</div>
 				<div
 					class="text-center p-2 rounded"
-					:class="violations > 0 ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700'"
-				>
+					:class="violations > 0 ? 'bg-orange-50 text-orange-700' : 'bg-blue-50 text-blue-700'">
 					<div class="font-semibold">5872</div>
 					<div>40-Year</div>
 				</div>
@@ -62,12 +60,10 @@
 				<div class="relative h-6 bg-gray-200 rounded-full overflow-hidden">
 					<div
 						class="absolute left-0 top-0 h-full bg-green-500 transition-all duration-500"
-						:style="`width: ${(income / (income + expenses)) * 100}%`"
-					/>
+						:style="`width: ${(income / (income + expenses)) * 100}%`" />
 					<div
 						class="absolute right-0 top-0 h-full bg-red-500 transition-all duration-500"
-						:style="`width: ${(expenses / (income + expenses)) * 100}%`"
-					/>
+						:style="`width: ${(expenses / (income + expenses)) * 100}%`" />
 				</div>
 				<div class="flex justify-between text-sm">
 					<span class="font-medium">Expenses</span>
@@ -81,12 +77,10 @@
 					v-for="alert in alerts"
 					:key="alert.id"
 					class="flex items-center p-2 rounded-lg text-sm"
-					:class="alert.type === 'critical' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'"
-				>
+					:class="alert.type === 'critical' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'">
 					<UIcon
 						:name="alert.type === 'critical' ? 'i-heroicons-exclamation-circle' : 'i-heroicons-exclamation-triangle'"
-						class="w-4 h-4 mr-2 flex-shrink-0"
-					/>
+						class="w-4 h-4 mr-2 flex-shrink-0" />
 					<span>{{ alert.message }}</span>
 				</div>
 			</div>
@@ -107,11 +101,9 @@
 						<div
 							class="absolute bottom-0 left-0 right-0 rounded transition-all duration-300"
 							:class="category.overBudget ? 'bg-red-500' : 'bg-green-500'"
-							:style="`height: ${Math.min(category.percent, 100)}%`"
-						/>
+							:style="`height: ${Math.min(category.percent, 100)}%`" />
 						<UTooltip
-							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`"
-						>
+							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`">
 							<div class="absolute inset-0" />
 						</UTooltip>
 					</div>
@@ -133,8 +125,7 @@
 							complianceRisk.riskLevel === 'CRITICAL' ? 'red' : complianceRisk.riskLevel === 'HIGH' ? 'orange' : 'green'
 						"
 						variant="soft"
-						size="xs"
-					>
+						size="xs">
 						{{ complianceRisk.riskLevel }}
 					</UBadge>
 				</div>
@@ -142,8 +133,7 @@
 				<div
 					v-if="complianceRisk.riskLevel !== 'LOW'"
 					class="mt-2 p-2 rounded text-xs"
-					:class="complianceRisk.riskLevel === 'CRITICAL' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'"
-				>
+					:class="complianceRisk.riskLevel === 'CRITICAL' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'">
 					<div class="flex items-center">
 						<UIcon name="i-heroicons-exclamation-triangle" class="w-3 h-3 mr-1" />
 						<span v-if="complianceRisk.personalLiability">Board liability risk</span>
@@ -156,8 +146,8 @@
 </template>
 
 <script lang="ts" setup>
-import { useBudgetData } from '../../composables/useBudgetData';
-import { useFloridaCompliance } from '../../composables/useFloridaCompliance';
+import {useBudgetData} from '../../composables/useBudgetData';
+import {useFloridaCompliance} from '../../composables/useFloridaCompliance';
 
 interface Props {
 	month: string;
@@ -185,8 +175,8 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 // Initialize composables
-const { budget2025: budget } = useBudgetData();
-const { calculateLiabilityRisk } = useFloridaCompliance();
+const {budget2025: budget} = useBudgetData();
+const {calculateLiabilityRisk} = useFloridaCompliance();
 
 // Computed values
 const netFlow = computed(() => props.income - props.expenses);

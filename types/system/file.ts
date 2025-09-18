@@ -1,5 +1,5 @@
-import type { Folder } from './folder.js';
-import type { User } from './user.js';
+import type {Folder} from './folder.js';
+import type {User} from './user.js';
 
 export interface File {
 	/** Unique identifier for the file. */
@@ -41,6 +41,6 @@ export interface File {
 	/** Tags for the file. Is automatically populated based on EXIF data for images. */
 	tags: string[] | null;
 	/** IPTC, EXIF, and ICC metadata extracted from file */
-	metadata: { [key: string]: any } | null;
+	metadata: {[key: string]: any} | null;
 	storage_divider: string;
 }

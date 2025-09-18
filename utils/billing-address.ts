@@ -1,4 +1,4 @@
-import type { Organization, OrganizationAddress } from '~/types';
+import type {Organization, OrganizationAddress} from '~/types';
 
 export function getPrimaryBillingAddress(organization: Organization): OrganizationAddress | null {
 	if (!organization || !organization.addresses || !Array.isArray(organization.addresses)) {

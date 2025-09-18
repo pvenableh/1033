@@ -72,8 +72,7 @@
 				name="list"
 				mode="out-in"
 				tag="div"
-				class="w-full flex flex-col align-middle justify-center items-center projects__completed"
-			>
+				class="w-full flex flex-col align-middle justify-center items-center projects__completed">
 				<!-- <EventsEventCard
           v-for="projectEvent in filteredEvents"
           :projectEvent="projectEvent"
@@ -89,8 +88,8 @@ definePageMeta({
 	layout: 'auth',
 });
 
-const { params } = useRoute();
-const { readItems } = useDirectusItems();
+const {params} = useRoute();
+const {readItems} = useDirectusItems();
 
 const projects = await readItems('projects', {
 	filter: {

@@ -10,8 +10,7 @@ const props = defineProps({
 	<div class="flex flex-row car">
 		<div
 			class="w-10 h-10 rounded-full bg-no-repeat bg-center bg-contain bg-black car__image"
-			:style="'background-image: url(https://admin.1033lenox.com/assets/' + car.image + '?key=small)'"
-		></div>
+			:style="'background-image: url(https://admin.1033lenox.com/assets/' + car.image + '?key=small)'"></div>
 		<div class="text-xs uppercase ml-4 pl-2 car__stats">
 			<h3 class="uppercase tracking-wide">{{ car.make }} {{ car.model }}</h3>
 			<h5 class="uppercase tracking-wide">License plate: {{ car.license_plate }}</h5>

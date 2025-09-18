@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
-import { Bar } from 'vue-chartjs';
+import {Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale} from 'chart.js';
+import {Bar} from 'vue-chartjs';
 
 // Register
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);

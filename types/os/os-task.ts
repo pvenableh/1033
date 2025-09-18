@@ -1,6 +1,6 @@
-import type { User } from '../system';
-import type { Form } from '../content';
-import type { OsProject } from '../os';
+import type {User} from '../system';
+import type {Form} from '../content';
+import type {OsProject} from '../os';
 
 export interface OsTaskFile {
 	id?: string;

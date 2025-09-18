@@ -70,11 +70,11 @@ export default defineEventHandler(async (event) => {
 				dynamicTemplateData: mainTemplateData,
 				personalizations: [
 					{
-						to: [{ name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com' }],
+						to: [{name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com'}],
 						bcc: [
-							{ email: 'huestudios.com@gmail.com' },
-							{ email: 'valentin@vteconsultingllc.com' },
-							{ email: 'camila@huestudios.com' },
+							{email: 'huestudios.com@gmail.com'},
+							{email: 'valentin@vteconsultingllc.com'},
+							{email: 'camila@huestudios.com'},
 						],
 					},
 				],
@@ -91,8 +91,8 @@ export default defineEventHandler(async (event) => {
 				},
 				personalizations: [
 					{
-						to: [{ name: firstName || requestData.name, email: requestData.email }],
-						bcc: [{ email: 'huestudios.com@gmail.com' }],
+						to: [{name: firstName || requestData.name, email: requestData.email}],
+						bcc: [{email: 'huestudios.com@gmail.com'}],
 					},
 				],
 				templateId: 'd-4222ef386310401583b8c55c384432f8',
@@ -102,7 +102,7 @@ export default defineEventHandler(async (event) => {
 		];
 
 		await sgMail.send(messages);
-		return { success: true };
+		return {success: true};
 	} catch (error) {
 		console.error('SendGrid error:', error);
 		return {

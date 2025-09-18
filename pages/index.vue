@@ -1,9 +1,9 @@
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
-const { x, y } = useMouse({ touch: false });
+const {x, y} = useMouse({touch: false});
 
-const { readSingleton } = useDirectusItems();
+const {readSingleton} = useDirectusItems();
 
 const features = await readSingleton('features', {
 	fields: [
@@ -63,25 +63,21 @@ const transformedImages = computed(() => {
 					<img
 						src="~/assets/img/palm-tree.png"
 						class="absolute h-[70px] w-auto top-[7px] sm:-top-[2px] -ml-28 -scale-x-100"
-						:style="{ marginRight: -x / 60 + 'px' }"
-					/>
+						:style="{marginRight: -x / 60 + 'px'}" />
 					<img
 						src="~/assets/img/palm-tree.png"
 						class="absolute h-[60px] sm:h-[90px] w-auto top-[8px] sm:top-[0px] ml-20 -scale-x-100"
-						:style="{ marginRight: -x / 50 + 'px' }"
-					/>
+						:style="{marginRight: -x / 50 + 'px'}" />
 					<img
 						src="~/assets/img/palm-tree.png"
 						class="absolute h-[50px] sm:h-[70px] w-auto top-[10px] sm:top-[3px] mr-32"
-						:style="{ marginLeft: -x / 30 + 'px' }"
-					/>
+						:style="{marginLeft: -x / 30 + 'px'}" />
 					<img
 						ref="movableElement"
 						src="https://admin.1033lenox.com/assets/22f2b886-0804-4fa4-9661-27da9d2ce6a6?key=medium"
 						alt="1033 Lenox Ave Miami Beach, FL Graphic"
 						class="lg:absolute mt-8 mb-8 px-8 drop-shadow-[15px_15px_10px_rgba(0,0,0,0.25)] dark:drop-shadow-[0_2px_20px_rgba(0,0,0,0.95)] transition-transform building"
-						:style="{ marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px' }"
-					/>
+						:style="{marginTop: -y / 40 + 'px', marginLeft: -x / 20 + 'px'}" />
 				</div>
 				<div class="w-full flex flex-row items-center justify-center">
 					<!-- <FormVButton
@@ -102,10 +98,9 @@ const transformedImages = computed(() => {
 						:close-on-click-outside="true"
 						:swipe-threshold="30"
 						@open="onOpen"
-						@close="onClose"
-					>
+						@close="onClose">
 						<!-- Custom trigger button -->
-						<template #trigger="{ toggle }">
+						<template #trigger="{toggle}">
 							<FormVButton type="submit" variant="outline" @click="toggle">Submit Inquiry</FormVButton>
 						</template>
 

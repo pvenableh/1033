@@ -1,4 +1,4 @@
-import type { NavigationItem, Page } from '~/types';
+import type {NavigationItem, Page} from '~/types';
 
 export function getNavItemUrl(item: NavigationItem): string | null {
 	if (item.type === 'page' && (item.page as Page)) {

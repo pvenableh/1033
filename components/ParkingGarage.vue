@@ -6,9 +6,8 @@
 					v-for="n in [28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]"
 					:key="n"
 					class="spot"
-					:class="{ occupied: getSpotInfo(n)?.vehicles.length > 0 }"
-					@click="showSpotDetails(n)"
-				>
+					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
@@ -21,9 +20,8 @@
 					v-for="n in [16, 15]"
 					:key="n"
 					class="spot"
-					:class="{ occupied: getSpotInfo(n)?.vehicles.length > 0 }"
-					@click="showSpotDetails(n)"
-				>
+					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
@@ -36,9 +34,8 @@
 					v-for="n in [13, 14]"
 					:key="n"
 					class="spot"
-					:class="{ occupied: getSpotInfo(n)?.vehicles.length > 0 }"
-					@click="showSpotDetails(n)"
-				>
+					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
@@ -51,9 +48,8 @@
 					v-for="n in [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]"
 					:key="n"
 					class="spot"
-					:class="{ occupied: getSpotInfo(n)?.vehicles.length > 0 }"
-					@click="showSpotDetails(n)"
-				>
+					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
@@ -72,16 +68,14 @@
 		<div
 			ref="spotDetailsRef"
 			v-if="isSpotDetailsVisible"
-			class="spot-details transition-transform duration-300 ease-out uppercase"
-		>
+			class="spot-details transition-transform duration-300 ease-out uppercase">
 			<div class="spot-details__inner">
 				<UButton
 					icon="heroicons:x-mark"
 					@click="closeSpotDetails"
 					variant="ghost"
 					class="h-12 w-12 absolute top-0 right-0 hidden lg:flex items-center justify-center"
-					:ui="{ rounded: 'rounded-full' }"
-				/>
+					:ui="{rounded: 'rounded-full'}" />
 				<div class="flex flex-col w-full items-start justify-start py-4">
 					<h3 class="border-b border-gray-200 mb-2 pb-2">
 						<Icon name="Parking" class="h-4 w-4 inline-block" />
@@ -97,8 +91,7 @@
 						<div
 							v-for="vehicle in selectedSpot.vehicles"
 							:key="vehicle.license_plate"
-							class="w-full flex items-center justify-start flex-co my-4 relative"
-						>
+							class="w-full flex items-center justify-start flex-co my-4 relative">
 							<div class="flex flex-col items-start">
 								<p class="w-full mr-1">
 									<span v-if="vehicle.category === 'Car'" class="">🚙</span>
@@ -111,8 +104,7 @@
 								<div class="w-full">
 									<span
 										v-if="vehicle.category"
-										class="absolute left-[16px] -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5"
-									>
+										class="absolute left-[16px] -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5">
 										{{ vehicle.category }}
 									</span>
 									<UButton
@@ -121,9 +113,8 @@
 										variant="outline"
 										label="image"
 										color="primary"
-										:ui="{ rounded: 'rounded-full' }"
-										@click.prevent="showVehicleImage(vehicle.image)"
-									></UButton>
+										:ui="{rounded: 'rounded-full'}"
+										@click.prevent="showVehicleImage(vehicle.image)"></UButton>
 								</div>
 							</div>
 						</div>
@@ -136,12 +127,10 @@
 						<div
 							v-for="resident in selectedSpot.residents"
 							:key="resident.email"
-							class="flex items-center justify-start flex-row my-4 relative"
-						>
+							class="flex items-center justify-start flex-row my-4 relative">
 							<span
 								v-if="resident.category"
-								class="absolute left-0 -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5"
-							>
+								class="absolute left-0 -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5">
 								{{ resident.category }}
 							</span>
 							<p class="mr-1 leading-4">{{ resident.first_name }} {{ resident.last_name }}</p>
@@ -150,32 +139,29 @@
 								v-if="resident.email"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center mr-1"
-								:ui="{ rounded: 'rounded-full' }"
+								:ui="{rounded: 'rounded-full'}"
 								:to="'mailto:' + resident.email"
 								target="_blank"
 								icon="heroicons:envelope"
-								size="xs"
-							/>
+								size="xs" />
 							<UButton
 								v-if="resident.phone"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center"
-								:ui="{ rounded: 'rounded-full' }"
+								:ui="{rounded: 'rounded-full'}"
 								:to="'tel:' + resident.phone"
 								target="_blank"
 								icon="heroicons:phone"
-								size="xs"
-							/>
+								size="xs" />
 							<UButton
 								v-if="resident.phone"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center"
-								:ui="{ rounded: 'rounded-full' }"
+								:ui="{rounded: 'rounded-full'}"
 								:to="'sms:' + resident.phone"
 								target="_blank"
 								icon="heroicons:chat-bubble-left"
-								size="xs"
-							/>
+								size="xs" />
 						</div>
 					</div>
 					<p v-else class="w-full md:w-1/2">No Residents Assigned</p>
@@ -192,8 +178,8 @@
 
 <script setup>
 import gsap from 'gsap';
-const { readItems } = useDirectusItems();
-import { onClickOutside } from '@vueuse/core';
+const {readItems} = useDirectusItems();
+import {onClickOutside} from '@vueuse/core';
 const selectedSpot = ref(null);
 const isSpotDetailsVisible = ref(false);
 const spotDetailsRef = ref(null);
@@ -206,7 +192,7 @@ const showVehicleImage = (image) => {
 	vehicleImageModal.value = true;
 };
 
-const { isSwipingDown } = useSwipe(containerRef, {
+const {isSwipingDown} = useSwipe(containerRef, {
 	minSwipeDistance: 50,
 	swipeDirection: 'vertical',
 	preventScroll: false,
@@ -267,7 +253,7 @@ const getSpotInfo = computed(() => (spotNumber) => {
 	};
 });
 
-const tl = gsap.timeline({ paused: true });
+const tl = gsap.timeline({paused: true});
 
 const showSpotDetails = async (n) => {
 	selectedSpot.value = getSpotInfo.value(n); // Set selected spot data
@@ -277,8 +263,8 @@ const showSpotDetails = async (n) => {
 
 	gsap.fromTo(
 		spotDetailsRef.value, // Target the details element
-		{ y: '100vh' }, // Start state
-		{ y: 0, duration: 0.2, ease: 'power3.bounce' }, // End state
+		{y: '100vh'}, // Start state
+		{y: 0, duration: 0.2, ease: 'power3.bounce'} // End state
 	);
 };
 

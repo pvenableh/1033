@@ -1,5 +1,5 @@
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 definePageMeta({
 	layout: 'auth',

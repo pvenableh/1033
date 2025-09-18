@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { gsap } from 'gsap';
+import {ref, onMounted} from 'vue';
+import {gsap} from 'gsap';
 
 const props = defineProps({
 	images: {
@@ -62,7 +62,7 @@ onMounted(() => {
 							onComplete: () => {
 								entry.target.setAttribute('data-animated', 'true');
 							},
-						},
+						}
 					);
 				} else if (!entry.isIntersecting && isAnimated) {
 					// Reset animation state when element leaves viewport
@@ -104,17 +104,15 @@ onMounted(() => {
 				640: 2,
 				400: 1,
 			}"
-			:rtl="false"
-		>
-			<template #default="{ item, index }">
+			:rtl="false">
+			<template #default="{item, index}">
 				<div
 					class="masonry-item"
 					:ref="
 						(el) => {
 							if (el) imageRefs[index] = el;
 						}
-					"
-				>
+					">
 					<img :src="item.src" :alt="item.alt" loading="lazy" />
 				</div>
 			</template>

@@ -1,4 +1,4 @@
-import type { Testimonial } from '../content';
+import type {Testimonial} from '../content';
 
 export interface BlockTestimonial {
 	headline?: string | null;

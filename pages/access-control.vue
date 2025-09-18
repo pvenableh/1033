@@ -13,24 +13,21 @@
 					<a
 						href="https://www.teleco.com/access-control-systems-miami-florida/"
 						target="_blank"
-						class="underline text-[var(--blue)]"
-					>
+						class="underline text-[var(--blue)]">
 						Teleco
 					</a>
 					featuring a
 					<a
 						href="https://www.paxton-access.com/product-types/entry-panels/"
 						target="_blank"
-						class="underline text-[var(--blue)]"
-					>
+						class="underline text-[var(--blue)]">
 						Paxton
 					</a>
 					system. This was removed from consideration due to the cost. You can review the
 					<a
 						href="https://admin.1033lenox.com/assets/b6fd998a-045d-4c8c-9708-dcc1d437f8fb"
 						target="_blank"
-						class="underline text-[var(--blue)]"
-					>
+						class="underline text-[var(--blue)]">
 						Teleco proposal here
 					</a>
 					.
@@ -43,14 +40,12 @@
 					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI</h3>
 					<div
 						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6" class="object-contain h-48 w-auto dark:brightness-90" />
 					</div>
 					<div
 						@click="showSelectedImage('ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7" class="object-cover h-48 w-auto dark:brightness-90" />
 					</div>
 					<div class="space-y-3">
@@ -59,8 +54,7 @@
 							variant="outline"
 							class="w-full mb-4"
 							to="https://ui.com/physical-security/door-access/intercoms"
-							target="_blank"
-						>
+							target="_blank">
 							UniFi G3 Intercom
 						</UButton>
 						<UButton
@@ -68,8 +62,7 @@
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/4d3b8941-86ce-4e66-b363-814369ecf7f5"
-							target="_blank"
-						>
+							target="_blank">
 							📄 VIEW PROPOSAL PDF
 						</UButton>
 					</div>
@@ -80,14 +73,12 @@
 					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE</h3>
 					<div
 						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="aefbb2a4-cc01-460d-a79b-2a627e80df38" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 					<div
 						@click="showSelectedImage('9e63d591-d814-439a-b68f-a9de7945c979')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="9e63d591-d814-439a-b68f-a9de7945c979" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 					<div class="space-y-3">
@@ -96,8 +87,7 @@
 							variant="outline"
 							class="w-full mb-4"
 							to="https://swiftlane.com/video-intercom/"
-							target="_blank"
-						>
+							target="_blank">
 							Swiftreader X INTERCOM
 						</UButton>
 						<UButton
@@ -105,8 +95,7 @@
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/1ac95363-f78a-442f-b76b-719242771aef"
-							target="_blank"
-						>
+							target="_blank">
 							📄 VIEW PROPOSAL PDF
 						</UButton>
 					</div>
@@ -117,14 +106,12 @@
 					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY</h3>
 					<div
 						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="f2db37c1-82cb-48c7-b3cd-162fcfbc120b" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 					<div
 						@click="showSelectedImage('dcb739e1-93bd-4fea-b187-9e9d3263f987')"
-						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer"
-					>
+						class="w-full h-48 flex items-center justify-center mb-4 cursor-pointer">
 						<NuxtImg src="dcb739e1-93bd-4fea-b187-9e9d3263f987" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 
@@ -134,8 +121,7 @@
 							variant="outline"
 							class="w-full mb-4"
 							to="https://www.amazon.com/b/node=207294570011"
-							target="_blank"
-						>
+							target="_blank">
 							VIEW AMAZON KEY
 						</UButton>
 						<UButton
@@ -143,8 +129,7 @@
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/bfe9fc3a-2a1e-4aa9-851c-dda04b15d39e"
-							target="_blank"
-						>
+							target="_blank">
 							📄 VIEW PROPOSAL PDF
 						</UButton>
 					</div>
@@ -155,8 +140,7 @@
 					<UIcon
 						@click="isOpen = false"
 						name="i-heroicons-x-circle"
-						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full"
-					/>
+						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full" />
 					<NuxtImg :src="selectedImage" class="h-[90svh] w-auto" />
 				</div>
 			</UModal>
@@ -549,8 +533,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-cog-6-tooth"
 						title="AMAZON KEY LINEAR INTEGRATION ADVANTAGE"
-						description="Amazon Key Virtual Key + Intercom Boost relies on Linear access panel as an add-on. However, requires maintaining existing phone line infrastructure at $40/month."
-					/>
+						description="Amazon Key Virtual Key + Intercom Boost relies on Linear access panel as an add-on. However, requires maintaining existing phone line infrastructure at $40/month." />
 
 					<UAlert
 						color="green"
@@ -558,8 +541,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-face-smile"
 						title="SWIFTLANE FACIAL RECOGNITION ADVANTAGE"
-						description="Swiftlane is the ONLY system offering facial recognition. With their innovative per-resident model, tenants who want facial recognition can pay $21.99/year individually, making it budget-friendly and optional for residents."
-					/>
+						description="Swiftlane is the ONLY system offering facial recognition. With their innovative per-resident model, tenants who want facial recognition can pay $21.99/year individually, making it budget-friendly and optional for residents." />
 
 					<UAlert
 						color="blue"
@@ -567,8 +549,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-shield-check"
 						title="SWIFTLANE COMPREHENSIVE FEATURES"
-						description="Complete video intercom solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging."
-					/>
+						description="Complete video intercom solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging." />
 
 					<UAlert
 						color="blue"
@@ -576,8 +557,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-calculator"
 						title="PHONE LINE SAVINGS"
-						description="UniFi and Swiftlane systems save $40/month by eliminating phone line requirements. Over 5 years, this represents $2,400 in additional savings versus Amazon Key."
-					/>
+						description="UniFi and Swiftlane systems save $40/month by eliminating phone line requirements. Over 5 years, this represents $2,400 in additional savings versus Amazon Key." />
 
 					<UAlert
 						color="green"
@@ -585,8 +565,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-percent-badge"
 						title="SWIFTLANE BULK PAYMENT DISCOUNTS"
-						description="Swiftlane offers significant discounts for longer commitments on their $30/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount."
-					/>
+						description="Swiftlane offers significant discounts for longer commitments on their $30/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount." />
 
 					<UAlert
 						color="amber"
@@ -594,8 +573,7 @@
 						class="mt-6 md:mt-0 font-bold"
 						icon="i-heroicons-exclamation-triangle"
 						title="SECURITY WARNING"
-						description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control."
-					/>
+						description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control." />
 				</div>
 			</UCard>
 
@@ -935,8 +913,7 @@
 												• Total: $120/month
 												<UIcon
 													name="i-heroicons-exclamation-triangle-solid"
-													class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0"
-												/>
+													class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
 											</li>
 										</ul>
 									</div>
@@ -1050,8 +1027,7 @@
 											• Security/privacy trade-offs are acceptable
 											<UIcon
 												name="i-heroicons-shield-exclamation-solid"
-												class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0"
-											/>
+												class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
 										</li>
 									</ul>
 								</div>
@@ -1127,7 +1103,7 @@
 </template>
 
 <script setup>
-import { Line } from 'vue-chartjs';
+import {Line} from 'vue-chartjs';
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -1165,9 +1141,9 @@ const selectedTimeframe = ref(2); // Default to 5 year (index 2)
 
 // Static data
 const timeframeOptions = [
-	{ key: 0, label: '1 YEAR' },
-	{ key: 1, label: '3 YEARS' },
-	{ key: 2, label: '5 YEARS' },
+	{key: 0, label: '1 YEAR'},
+	{key: 1, label: '3 YEARS'},
+	{key: 2, label: '5 YEARS'},
 ];
 
 const accordionItems = [
@@ -1221,12 +1197,12 @@ const swiftlaneProposal = {
 				price: 165,
 				features: ['8-port Layer 2', '52W PoE supply', 'Wall-mountable'],
 			},
-			{ name: 'Standard Shipping', price: 60, features: ['Included in total cost'] },
+			{name: 'Standard Shipping', price: 60, features: ['Included in total cost']},
 		],
 	},
 	subscription: {
 		monthly: 30, // Base monthly cost before discounts
-		breakdown: [{ name: 'Video Intercom + Mobile Unlock + Admin Dashboard', price: 30 }],
+		breakdown: [{name: 'Video Intercom + Mobile Unlock + Admin Dashboard', price: 30}],
 	},
 	facialRecognition: {
 		included: false,
@@ -1337,7 +1313,7 @@ const recurringCostComparison = computed(() => {
 const createGradients = (ctx, chartArea) => {
 	if (!chartArea) return null;
 
-	const { top, bottom } = chartArea;
+	const {top, bottom} = chartArea;
 
 	// UniFi gradient (Purple)
 	const unifiGradient = ctx.createLinearGradient(0, top, 0, bottom);
@@ -1418,14 +1394,14 @@ const cumulativeCostChartData = computed(() => {
 				label: 'UniFi G3',
 				borderColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return '#8B5CF6';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.unifiGradient || '#8B5CF6';
 				},
 				backgroundColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return 'rgba(139, 92, 246, 0.1)';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.unifiFillGradient || 'rgba(139, 92, 246, 0.1)';
@@ -1441,14 +1417,14 @@ const cumulativeCostChartData = computed(() => {
 				label: 'Swiftlane',
 				borderColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return '#3B82F6';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.swiftlaneGradient || '#3B82F6';
 				},
 				backgroundColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return 'rgba(59, 130, 246, 0.1)';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.swiftlaneFillGradient || 'rgba(59, 130, 246, 0.1)';
@@ -1464,14 +1440,14 @@ const cumulativeCostChartData = computed(() => {
 				label: 'Amazon Key',
 				borderColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return '#F59E0B';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.amazonGradient || '#F59E0B';
 				},
 				backgroundColor: (ctx) => {
 					const chart = ctx.chart;
-					const { ctx: canvasCtx, chartArea } = chart;
+					const {ctx: canvasCtx, chartArea} = chart;
 					if (!chartArea) return 'rgba(245, 158, 11, 0.1)';
 					const gradients = createGradients(canvasCtx, chartArea);
 					return gradients?.amazonFillGradient || 'rgba(245, 158, 11, 0.1)';

@@ -1,5 +1,5 @@
-import type { User } from '../system';
-import type { OsTaxRate } from '../os';
+import type {User} from '../system';
+import type {OsTaxRate} from '../os';
 
 export interface OsItem {
 	id?: string;

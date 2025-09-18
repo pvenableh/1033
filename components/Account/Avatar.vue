@@ -1,5 +1,5 @@
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 const props = defineProps({
 	chip: {
@@ -39,8 +39,7 @@ const avatar = computed(() => {
 			chip-position="top-right"
 			:size="size"
 			:src="avatar"
-			:alt="user?.first_name + ' ' + user?.last_name"
-		/>
+			:alt="user?.first_name + ' ' + user?.last_name" />
 		<UAvatar v-else :size="size" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
 	</div>
 	<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">

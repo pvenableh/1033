@@ -1,6 +1,6 @@
 <script setup>
-const { user } = useDirectusAuth();
-const { readItems } = useDirectusItems();
+const {user} = useDirectusAuth();
+const {readItems} = useDirectusItems();
 
 const meetings = await readItems('meetings', {
 	fields: [
@@ -45,7 +45,7 @@ const attendance = computed(() => {
 
 function formatDate(date) {
 	if (date) {
-		const options = { year: 'numeric', month: 'long', day: 'numeric' };
+		const options = {year: 'numeric', month: 'long', day: 'numeric'};
 		const [year, month, day] = date.split('-');
 		return new Date(year, month - 1, day).toLocaleDateString('en-US', options);
 	}
@@ -88,7 +88,7 @@ function minutes(files) {
 	<div class="insight meetings">
 		<h1 class="relative insight__label">
 			Board Meetings:
-			<UBadge size="xs" color="sky" :ui="{ rounded: 'rounded-full' }" class="absolute top-[-10px] scale-90">
+			<UBadge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ pastMeetings.length }}
 			</UBadge>
 		</h1>
@@ -110,7 +110,7 @@ function minutes(files) {
 				</h4>
 			</div>
 		</div>
-		<div v-if="pastMeetings" class="w-full" :class="{ 'mt-4': !futureMeetings.length }">
+		<div v-if="pastMeetings" class="w-full" :class="{'mt-4': !futureMeetings.length}">
 			<p class="font-handwritten">
 				You have attended
 				<span class="font-bold">{{ attendance }}</span>
@@ -128,8 +128,7 @@ function minutes(files) {
 					class="absolute right-0 top-0 insight__button"
 					v-if="minutes(item.files)"
 					:href="'https://admin.1033lenox.com/assets/' + minutes(item.files)"
-					target="_blank"
-				>
+					target="_blank">
 					Minutes
 				</a>
 				<MeetingsPeopleCalculator v-if="item.people.length" :people="item.people" :date="item.date" class="mt-0" />

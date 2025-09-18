@@ -58,7 +58,7 @@ export function useFileUpload() {
 		// Check total number of files
 		if (files.length > MAX_FILES) {
 			errors.push(`Maximum ${MAX_FILES} files can be uploaded at once`);
-			return { isValid: false, errors };
+			return {isValid: false, errors};
 		}
 
 		// Validate each file

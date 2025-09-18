@@ -1,4 +1,4 @@
-import { useEventListener, useDebounceFn } from '@vueuse/core';
+import {useEventListener, useDebounceFn} from '@vueuse/core';
 
 export function useSwipe(elementRef, options = {}) {
 	// Default options
@@ -9,7 +9,7 @@ export function useSwipe(elementRef, options = {}) {
 		swipeDirection: 'horizontal', // 'horizontal', 'vertical', or 'both'
 	};
 
-	const config = { ...defaultOptions, ...options };
+	const config = {...defaultOptions, ...options};
 
 	// Touch and swipe state tracking
 	const startX = ref(0);
@@ -27,7 +27,7 @@ export function useSwipe(elementRef, options = {}) {
 
 	// Emit custom swipe events
 	const emitSwipeEvent = useDebounceFn((direction) => {
-		elementRef.value?.dispatchEvent(new CustomEvent('swipe', { detail: { direction } }));
+		elementRef.value?.dispatchEvent(new CustomEvent('swipe', {detail: {direction}}));
 	}, 200);
 
 	// Touch event handlers
@@ -114,19 +114,19 @@ export function useSwipe(elementRef, options = {}) {
 
 	// Computed properties for swipe states
 	const isHorizontalSwipe = computed(
-		() => Math.abs(deltaX.value) >= config.minSwipeDistance && Math.abs(deltaX.value) > Math.abs(deltaY.value),
+		() => Math.abs(deltaX.value) >= config.minSwipeDistance && Math.abs(deltaX.value) > Math.abs(deltaY.value)
 	);
 
 	const isVerticalSwipe = computed(
-		() => Math.abs(deltaY.value) >= config.minSwipeDistance && Math.abs(deltaY.value) > Math.abs(deltaX.value),
+		() => Math.abs(deltaY.value) >= config.minSwipeDistance && Math.abs(deltaY.value) > Math.abs(deltaX.value)
 	);
 
 	// Setup event listeners
 	onMounted(() => {
 		if (elementRef.value) {
 			// Touch events
-			useEventListener(elementRef.value, 'touchstart', touchstart, { passive: !config.preventScroll });
-			useEventListener(elementRef.value, 'touchmove', touchmove, { passive: !config.preventScroll });
+			useEventListener(elementRef.value, 'touchstart', touchstart, {passive: !config.preventScroll});
+			useEventListener(elementRef.value, 'touchmove', touchmove, {passive: !config.preventScroll});
 			useEventListener(elementRef.value, 'touchend', touchend);
 			useEventListener(elementRef.value, 'touchcancel', touchend);
 

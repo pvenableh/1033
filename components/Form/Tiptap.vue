@@ -1,46 +1,42 @@
 <template>
 	<div v-if="editor">
-		<bubble-menu class="bubble-menu" :tippy-options="{ duration: 100 }" :editor="editor">
-			<button @click="editor.chain().focus().toggleBold().run()" :class="{ 'is-active': editor.isActive('bold') }">
+		<bubble-menu class="bubble-menu" :tippy-options="{duration: 100}" :editor="editor">
+			<button @click="editor.chain().focus().toggleBold().run()" :class="{'is-active': editor.isActive('bold')}">
 				Bold
 			</button>
-			<button @click="editor.chain().focus().toggleItalic().run()" :class="{ 'is-active': editor.isActive('italic') }">
+			<button @click="editor.chain().focus().toggleItalic().run()" :class="{'is-active': editor.isActive('italic')}">
 				Italic
 			</button>
-			<button @click="editor.chain().focus().toggleStrike().run()" :class="{ 'is-active': editor.isActive('strike') }">
+			<button @click="editor.chain().focus().toggleStrike().run()" :class="{'is-active': editor.isActive('strike')}">
 				Strike
 			</button>
 		</bubble-menu>
-		<floating-menu class="floating-menu" :tippy-options="{ duration: 100 }" :editor="editor">
+		<floating-menu class="floating-menu" :tippy-options="{duration: 100}" :editor="editor">
 			<button
-				@click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-				:class="{ 'is-active': editor.isActive('heading', { level: 1 }) }"
-			>
+				@click="editor.chain().focus().toggleHeading({level: 1}).run()"
+				:class="{'is-active': editor.isActive('heading', {level: 1})}">
 				H1
 			</button>
 			<button
-				@click="editor.chain().focus().toggleHeading({ level: 2 }).run()"
-				:class="{ 'is-active': editor.isActive('heading', { level: 2 }) }"
-			>
+				@click="editor.chain().focus().toggleHeading({level: 2}).run()"
+				:class="{'is-active': editor.isActive('heading', {level: 2})}">
 				H2
 			</button>
 			<button
 				@click="editor.chain().focus().toggleBulletList().run()"
-				:class="{ 'is-active': editor.isActive('bulletList') }"
-			>
+				:class="{'is-active': editor.isActive('bulletList')}">
 				Bullet List
 			</button>
 		</floating-menu>
 		<editor-content
 			:editor="editor"
 			class="rounded-md border p-2 pb-4 dark:text-white text-[14px] min-h-12 transition-all duration-200 tiptap-container"
-			:class="{ 'px-0 pt-0 border-none': disabled }"
-		/>
+			:class="{'px-0 pt-0 border-none': disabled}" />
 	</div>
 </template>
 <script>
 import StarterKit from '@tiptap/starter-kit';
-import { BubbleMenu, Editor, EditorContent, FloatingMenu } from '@tiptap/vue-3';
+import {BubbleMenu, Editor, EditorContent, FloatingMenu} from '@tiptap/vue-3';
 
 export default {
 	components: {

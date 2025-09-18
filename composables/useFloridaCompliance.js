@@ -40,12 +40,12 @@ export const useFloridaCompliance = () => {
 		// 1. FUND MIXING VIOLATIONS - CRITICAL
 		const fundMixingViolations = [
 			// From your existing data - these are REAL violations
-			{ date: '05/05/2025', from: '5129', to: '5872', amount: 1182.71, type: 'OPERATING_TO_RESERVE' },
-			{ date: '05/05/2025', from: '5129', to: '5872', amount: 700.0, type: 'OPERATING_TO_RESERVE' },
-			{ date: '05/05/2025', from: '5129', to: '5872', amount: 970.0, type: 'OPERATING_TO_RESERVE' },
-			{ date: '05/27/2025', from: '5129', to: '5872', amount: 2000.0, type: 'OPERATING_TO_RESERVE' },
-			{ date: '02/10/2025', from: '5872', to: '5129', amount: 4920.0, type: 'RESERVE_TO_OPERATING' },
-			{ date: '02/25/2025', from: '5129', to: '5872', amount: 999.0, type: 'OPERATING_TO_RESERVE' },
+			{date: '05/05/2025', from: '5129', to: '5872', amount: 1182.71, type: 'OPERATING_TO_RESERVE'},
+			{date: '05/05/2025', from: '5129', to: '5872', amount: 700.0, type: 'OPERATING_TO_RESERVE'},
+			{date: '05/05/2025', from: '5129', to: '5872', amount: 970.0, type: 'OPERATING_TO_RESERVE'},
+			{date: '05/27/2025', from: '5129', to: '5872', amount: 2000.0, type: 'OPERATING_TO_RESERVE'},
+			{date: '02/10/2025', from: '5872', to: '5129', amount: 4920.0, type: 'RESERVE_TO_OPERATING'},
+			{date: '02/25/2025', from: '5129', to: '5872', amount: 999.0, type: 'OPERATING_TO_RESERVE'},
 		];
 
 		if (fundMixingViolations.length > 0) {
@@ -129,7 +129,7 @@ export const useFloridaCompliance = () => {
 				(w) =>
 					w.category === 'VIOLATION' ||
 					w.vendor?.toLowerCase().includes('40-year') ||
-					w.vendor?.toLowerCase().includes('recert'),
+					w.vendor?.toLowerCase().includes('recert')
 			) || [];
 
 		if (improperExpenses.length > 0) {
@@ -149,7 +149,7 @@ export const useFloridaCompliance = () => {
 			});
 		}
 
-		return { violations, alerts, emergencyActions };
+		return {violations, alerts, emergencyActions};
 	};
 
 	// Generate board protection recommendations

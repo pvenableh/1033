@@ -4,19 +4,17 @@
 			:editor="editor"
 			class="border-gray-300 border-t border-r border-l dark:text-white text-[14px] transition-all duration-200 overflow-y-scroll focus:border focus:border-cyan-200 relative tiptap-container"
 			:class="[
-				{ 'px-0 pt-0 border-none': disabled },
-				{ ' !border-cyan-200': editor.isFocused },
-				{ 'border-b ': !showToolbar },
+				{'px-0 pt-0 border-none': disabled},
+				{' !border-cyan-200': editor.isFocused},
+				{'border-b ': !showToolbar},
 				height,
 				customClasses,
-			]"
-		/>
+			]" />
 
 		<div
 			v-if="showToolbar"
 			class="w-full flex flex-row justify-between border-gray-300 border-r border-l border-b toolbar"
-			:class="{ ' !border-cyan-200': editor.isFocused }"
-		>
+			:class="{' !border-cyan-200': editor.isFocused}">
 			<div class="flex items-center flex-row">
 				<UButton
 					v-for="(button, index) in toolbarButtons"
@@ -25,18 +23,16 @@
 					variant="ghost"
 					:icon="button.icon"
 					class="transform scale-75"
-					:class="{ 'is-active': editor.isActive(button.command) }"
-					@click="button.action"
-				/>
-				<UPopover :popper="{ placement: 'bottom-start' }" mode="click">
+					:class="{'is-active': editor.isActive(button.command)}"
+					@click="button.action" />
+				<UPopover :popper="{placement: 'bottom-start'}" mode="click">
 					<UButton
 						size="xs"
 						variant="ghost"
 						:icon="'i-heroicons-link'"
 						class="transform scale-75"
-						:class="{ 'is-active': editor.isActive('link') }"
-					/>
-					<template #panel="{ close }">
+						:class="{'is-active': editor.isActive('link')}" />
+					<template #panel="{close}">
 						<div class="p-2 w-72 space-y-4">
 							<UFormGroup label="URL">
 								<UInput v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
@@ -63,8 +59,7 @@
 						'text-red-500': characterCount > characterLimit && characterLimit > 0,
 						'text-gray-500': characterCount <= characterLimit || characterLimit === 0,
 						'px-1 mr-2': !allowUploads,
-					}"
-				>
+					}">
 					{{ characterCount }} / {{ characterLimit }}
 				</span>
 				<UButton
@@ -73,8 +68,7 @@
 					size="xs"
 					variant="ghost"
 					icon="i-heroicons-paper-clip"
-					class="px-1 mr-2 transform scale-75"
-				/>
+					class="px-1 mr-2 transform scale-75" />
 			</div>
 			<input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
 		</div>
@@ -88,16 +82,14 @@
 					color="gray"
 					variant="outline"
 					icon="i-heroicons-x-mark"
-					:ui="{ rounded: 'rounded-full' }"
-					@click="closeModal"
-				/>
+					:ui="{rounded: 'rounded-full'}"
+					@click="closeModal" />
 				<transition name="fade">
 					<img
 						v-if="currentImageSrc"
 						:src="currentImageSrc"
 						alt="Expanded view"
-						class="w-full h-auto max-h-screenrounded-none object-contain"
-					/>
+						class="w-full h-auto max-h-screenrounded-none object-contain" />
 				</transition>
 			</div>
 		</UModal>
@@ -106,13 +98,13 @@
 
 <script setup>
 import StarterKit from '@tiptap/starter-kit';
-import { Editor, EditorContent } from '@tiptap/vue-3';
-import { Extension } from '@tiptap/core';
-import { Plugin } from '@tiptap/pm/state';
+import {Editor, EditorContent} from '@tiptap/vue-3';
+import {Extension} from '@tiptap/core';
+import {Plugin} from '@tiptap/pm/state';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import CharacterCount from '@tiptap/extension-character-count';
-const { processUpload, validateFiles, MAX_FILES } = useFileUpload();
+const {processUpload, validateFiles, MAX_FILES} = useFileUpload();
 // import { Mention } from '@tiptap/extension-mention';
 
 const props = defineProps({
@@ -185,7 +177,7 @@ const fileInput = ref(null);
 const isUploading = ref(false);
 const linkUrl = ref('');
 const uploadProgress = ref(0);
-const { uploadFiles } = useDirectusFiles();
+const {uploadFiles} = useDirectusFiles();
 // const { notify } = useNotifications();
 // const { user: currentUser } = useDirectusAuth();
 const toast = useToast();
@@ -194,7 +186,7 @@ const toast = useToast();
 
 const setLink = (close) => {
 	if (linkUrl.value) {
-		editor.value.chain().focus().setLink({ href: linkUrl.value, target: '_blank' }).run();
+		editor.value.chain().focus().setLink({href: linkUrl.value, target: '_blank'}).run();
 	}
 	linkUrl.value = '';
 	close();
@@ -213,8 +205,8 @@ const updateLinkUrl = () => {
 };
 
 const toolbarButtons = [
-	{ icon: 'i-heroicons-bold', command: 'bold', action: () => editor.value.chain().focus().toggleBold().run() },
-	{ icon: 'i-heroicons-italic', command: 'italic', action: () => editor.value.chain().focus().toggleItalic().run() },
+	{icon: 'i-heroicons-bold', command: 'bold', action: () => editor.value.chain().focus().toggleBold().run()},
+	{icon: 'i-heroicons-italic', command: 'italic', action: () => editor.value.chain().focus().toggleItalic().run()},
 	{
 		icon: 'i-heroicons-strikethrough',
 		command: 'strike',
@@ -601,7 +593,7 @@ const handleFiles = async (files) => {
 		const folderId = '8d0a2da8-09fd-4035-941f-a1c752d67ff7';
 
 		// Process files using the composable
-		const { formData, processedFiles } = await processUpload(files);
+		const {formData, processedFiles} = await processUpload(files);
 
 		// Upload the processed files
 		const result = await uploadFiles(formData);
@@ -626,7 +618,7 @@ const handleFiles = async (files) => {
 					});
 					return file;
 				}
-			}),
+			})
 		);
 
 		// Insert files into editor with additional type checking
@@ -651,7 +643,7 @@ const handleFiles = async (files) => {
 				const fileType = file.type || 'document';
 				const displayText = `${file.filename_download} (${fileType} - ${fileSize})`;
 
-				editor.value.chain().focus().setLink({ href: fileUrl }).insertContent(displayText).run();
+				editor.value.chain().focus().setLink({href: fileUrl}).insertContent(displayText).run();
 			}
 		});
 	} catch (error) {
@@ -682,7 +674,7 @@ watch(
 		if (editor.value && editor.value.getHTML() !== value) {
 			editor.value.commands.setContent(value, false);
 		}
-	},
+	}
 );
 
 watch(
@@ -691,7 +683,7 @@ watch(
 		if (editor.value) {
 			editor.value.setEditable(!newValue);
 		}
-	},
+	}
 );
 
 const characterCount = computed(() => {
@@ -727,10 +719,10 @@ onMounted(() => {
 			}
 		},
 
-		onBlur: ({ event }) => {
+		onBlur: ({event}) => {
 			emit('blur', event);
 		},
-		onKeyDown: ({ event }) => {
+		onKeyDown: ({event}) => {
 			if (event.key === 'Enter' && !event.shiftKey) {
 				event.preventDefault();
 				emit('enter', event);

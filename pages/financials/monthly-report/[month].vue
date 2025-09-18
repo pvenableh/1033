@@ -24,8 +24,7 @@
 				variant="solid"
 				title="🚨 FLORIDA STATUTE VIOLATIONS DETECTED"
 				:description="`${totalViolationAmount.toLocaleString()} in unauthorized transfers between accounts`"
-				class="mb-4"
-			/>
+				class="mb-4" />
 
 			<div class="grid gap-3">
 				<UAlert
@@ -35,8 +34,7 @@
 					color="orange"
 					variant="soft"
 					:title="`${violation.accounts}: $${violation.amount.toLocaleString()}`"
-					:description="violation.description"
-				/>
+					:description="violation.description" />
 			</div>
 		</div>
 
@@ -180,21 +178,21 @@
 
 			<!-- Category Breakdown with Correct Budget Numbers -->
 			<UTable :rows="varianceAnalysis" :columns="budgetColumns">
-				<template #category-data="{ row }">
+				<template #category-data="{row}">
 					<span class="font-medium">{{ row.category }}</span>
 				</template>
-				<template #budgeted-data="{ row }">
+				<template #budgeted-data="{row}">
 					<span class="text-gray-900">${{ row.budgeted.toLocaleString() }}</span>
 				</template>
-				<template #actual-data="{ row }">
+				<template #actual-data="{row}">
 					<span class="font-semibold">${{ row.actual.toLocaleString() }}</span>
 				</template>
-				<template #variance-data="{ row }">
+				<template #variance-data="{row}">
 					<span :class="row.variance >= 0 ? 'text-red-600' : 'text-green-600'" class="font-semibold">
 						{{ row.variance >= 0 ? '+' : '' }}${{ Math.abs(row.variance).toLocaleString() }}
 					</span>
 				</template>
-				<template #status-data="{ row }">
+				<template #status-data="{row}">
 					<UBadge :color="row.statusColor" variant="soft" size="xs">
 						{{ row.status }}
 					</UBadge>
@@ -209,13 +207,12 @@
 			</template>
 
 			<UAccordion :items="expenseCategories" variant="soft" size="sm">
-				<template #insurance="{ item, index, open }">
+				<template #insurance="{item, index, open}">
 					<div class="space-y-2">
 						<div
 							v-for="expense in insuranceExpenses"
 							:key="expense.date"
-							class="flex justify-between items-center p-2 bg-gray-50 rounded"
-						>
+							class="flex justify-between items-center p-2 bg-gray-50 rounded">
 							<div>
 								<span class="font-medium">{{ expense.vendor }}</span>
 								<span class="text-sm text-gray-600 ml-2">{{ expense.date }}</span>
@@ -229,13 +226,12 @@
 					</div>
 				</template>
 
-				<template #professional="{ item, index, open }">
+				<template #professional="{item, index, open}">
 					<div class="space-y-2">
 						<div
 							v-for="expense in professionalExpenses"
 							:key="expense.date"
-							class="flex justify-between items-center p-2 bg-gray-50 rounded"
-						>
+							class="flex justify-between items-center p-2 bg-gray-50 rounded">
 							<div>
 								<span class="font-medium">{{ expense.vendor }}</span>
 								<span class="text-sm text-gray-600 ml-2">{{ expense.date }}</span>
@@ -249,13 +245,12 @@
 					</div>
 				</template>
 
-				<template #utilities="{ item, index, open }">
+				<template #utilities="{item, index, open}">
 					<div class="space-y-2">
 						<div
 							v-for="expense in utilityExpenses"
 							:key="expense.date"
-							class="flex justify-between items-center p-2 bg-gray-50 rounded"
-						>
+							class="flex justify-between items-center p-2 bg-gray-50 rounded">
 							<div>
 								<span class="font-medium">{{ expense.vendor }}</span>
 								<span class="text-sm text-gray-600 ml-2">{{ expense.date }}</span>
@@ -269,13 +264,12 @@
 					</div>
 				</template>
 
-				<template #maintenance="{ item, index, open }">
+				<template #maintenance="{item, index, open}">
 					<div class="space-y-2">
 						<div
 							v-for="expense in maintenanceExpenses"
 							:key="expense.date"
-							class="flex justify-between items-center p-2 bg-gray-50 rounded"
-						>
+							class="flex justify-between items-center p-2 bg-gray-50 rounded">
 							<div>
 								<span class="font-medium">{{ expense.vendor }}</span>
 								<span class="text-sm text-gray-600 ml-2">{{ expense.date }}</span>
@@ -289,13 +283,12 @@
 					</div>
 				</template>
 
-				<template #violations="{ item, index, open }">
+				<template #violations="{item, index, open}">
 					<div class="space-y-2">
 						<div
 							v-for="violation in improperExpenses"
 							:key="violation.date"
-							class="flex justify-between items-center p-2 bg-red-50 rounded border border-red-200"
-						>
+							class="flex justify-between items-center p-2 bg-red-50 rounded border border-red-200">
 							<div>
 								<span class="font-medium text-red-700">{{ violation.vendor }}</span>
 								<span class="text-sm text-red-600 ml-2">{{ violation.date }}</span>
@@ -348,12 +341,12 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import {ref, computed} from 'vue';
 
 // Import composables
-import { useReconciliationData } from '~/composables/useReconciliationData';
-import { useBudgetData } from '~/composables/useBudgetData';
-import { useFloridaCompliance } from '~/composables/useFloridaCompliance';
+import {useReconciliationData} from '~/composables/useReconciliationData';
+import {useBudgetData} from '~/composables/useBudgetData';
+import {useFloridaCompliance} from '~/composables/useFloridaCompliance';
 
 // Route params
 const route = useRoute();
@@ -373,9 +366,9 @@ const monthParam = computed(() => {
 const monthDisplay = computed(() => monthParam.value.replace('2025', '').trim());
 
 // Initialize composables
-const { getOperatingData, getReserveData, getSpecialAssessmentData } = useReconciliationData();
-const { budget2025: budget } = useBudgetData();
-const { checkViolations } = useFloridaCompliance();
+const {getOperatingData, getReserveData, getSpecialAssessmentData} = useReconciliationData();
+const {budget2025: budget} = useBudgetData();
+const {checkViolations} = useFloridaCompliance();
 
 // Get account data
 const operatingData = computed(() => getOperatingData(monthParam.value));
@@ -384,7 +377,7 @@ const specialAssessmentData = computed(() => getSpecialAssessmentData(monthParam
 
 // Financial calculations
 const operatingNetChange = computed(
-	() => (operatingData.value?.endingBalance || 0) - (operatingData.value?.beginningBalance || 0),
+	() => (operatingData.value?.endingBalance || 0) - (operatingData.value?.beginningBalance || 0)
 );
 
 const totalDeposits = computed(() => {
@@ -449,7 +442,7 @@ const complianceViolations = computed(() => {
 		rawViolations.reduce((acc, item) => {
 			acc[item.key] = item;
 			return acc;
-		}, {}),
+		}, {})
 	);
 
 	// Sort by amount descending
@@ -465,7 +458,7 @@ const budgetVariancePercent = computed(() => Math.round((budgetVariance.value / 
 // Expense categorization
 const expensesByCategory = computed(() => {
 	const withdrawals = operatingData.value?.withdrawals || [];
-	const categories = { Insurance: 0, Professional: 0, Utilities: 0, Maintenance: 0, Other: 0 };
+	const categories = {Insurance: 0, Professional: 0, Utilities: 0, Maintenance: 0, Other: 0};
 
 	withdrawals.forEach((w) => {
 		if (w.violation) return; // Skip violations for budget analysis
@@ -520,27 +513,27 @@ const varianceAnalysis = computed(() => [
 ]);
 
 const budgetColumns = [
-	{ key: 'category', label: 'CATEGORY' },
-	{ key: 'budgeted', label: 'BUDGET' },
-	{ key: 'actual', label: 'ACTUAL' },
-	{ key: 'variance', label: 'VARIANCE' },
-	{ key: 'status', label: 'STATUS' },
+	{key: 'category', label: 'CATEGORY'},
+	{key: 'budgeted', label: 'BUDGET'},
+	{key: 'actual', label: 'ACTUAL'},
+	{key: 'variance', label: 'VARIANCE'},
+	{key: 'status', label: 'STATUS'},
 ];
 
 // Expense details by category
 const insuranceExpenses = computed(() =>
-	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Insurance' && !w.violation),
+	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Insurance' && !w.violation)
 );
 const professionalExpenses = computed(() =>
 	(operatingData.value?.withdrawals || []).filter(
-		(w) => ['Professional', 'Management'].includes(w.category) && !w.violation,
-	),
+		(w) => ['Professional', 'Management'].includes(w.category) && !w.violation
+	)
 );
 const utilityExpenses = computed(() =>
-	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Utilities' && !w.violation),
+	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Utilities' && !w.violation)
 );
 const maintenanceExpenses = computed(() =>
-	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Maintenance' && !w.violation),
+	(operatingData.value?.withdrawals || []).filter((w) => w.category === 'Maintenance' && !w.violation)
 );
 const improperExpenses = computed(() => (operatingData.value?.withdrawals || []).filter((w) => w.violation === true));
 

@@ -1,18 +1,18 @@
-import type { BlockColumn } from './block-column';
-import type { BlockCta } from './block-cta';
-import type { BlockFaq } from './block-faq';
-import type { BlockForm } from './block-form';
-import type { BlockGallery } from './block-gallery';
-import type { BlockHero } from './block-hero';
-import type { BlockHtml } from './block-html';
-import type { BlockLogocloud } from './block-logocloud';
-import type { BlockQuote } from './block-quote';
-import type { BlockRichtext } from './block-richtext';
-import type { BlockStep } from './block-steps';
-import type { BlockTeam } from './block-team';
-import type { BlockTestimonial } from './block-testimonial';
-import type { BlockVideo } from './block-video';
-import type { BlockDivider } from './block-divider';
+import type {BlockColumn} from './block-column';
+import type {BlockCta} from './block-cta';
+import type {BlockFaq} from './block-faq';
+import type {BlockForm} from './block-form';
+import type {BlockGallery} from './block-gallery';
+import type {BlockHero} from './block-hero';
+import type {BlockHtml} from './block-html';
+import type {BlockLogocloud} from './block-logocloud';
+import type {BlockQuote} from './block-quote';
+import type {BlockRichtext} from './block-richtext';
+import type {BlockStep} from './block-steps';
+import type {BlockTeam} from './block-team';
+import type {BlockTestimonial} from './block-testimonial';
+import type {BlockVideo} from './block-video';
+import type {BlockDivider} from './block-divider';
 
 export type BlockType =
 	| 'block_column'

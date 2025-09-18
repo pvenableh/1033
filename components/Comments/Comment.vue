@@ -1,5 +1,5 @@
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 const props = defineProps({
 	comment: {
@@ -32,8 +32,7 @@ const avatar = computed(() => {
 			class="comment__user-avatar"
 			size="xs"
 			:src="avatar"
-			:alt="comment.comments_id.user.first_name + ' ' + comment.comments_id.user.last_name"
-		/>
+			:alt="comment.comments_id.user.first_name + ' ' + comment.comments_id.user.last_name" />
 		<div class="comment__comment">
 			<div class="flex flex-row comment__comment-name">
 				<h5 v-if="user">

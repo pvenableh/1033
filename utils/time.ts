@@ -1,4 +1,4 @@
-import { format } from '@formkit/tempo';
+import {format} from '@formkit/tempo';
 
 const months: string[] = [
 	'January',
@@ -31,7 +31,7 @@ const units: Record<string, number> = {
 	second: 1000,
 };
 
-const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+const rtf = new Intl.RelativeTimeFormat('en', {numeric: 'auto'});
 
 function getRelativeTime(d1: Date | string, d2: Date = new Date()): string {
 	if (!(d1 instanceof Date)) d1 = new Date(d1);
@@ -47,7 +47,7 @@ function getRelativeTime(d1: Date | string, d2: Date = new Date()): string {
 	return '';
 }
 
-function getFriendlyDate(dateString: string, { monthAbbr = {} } = {}): string {
+function getFriendlyDate(dateString: string, {monthAbbr = {}} = {}): string {
 	const d = new Date(dateString);
 	const year = d.getFullYear();
 	const date = d.getDate();
@@ -76,7 +76,7 @@ function getFriendlyDate(dateString: string, { monthAbbr = {} } = {}): string {
 	return formatted;
 }
 
-function getFriendlyDateTwo(dateString: string, { monthAbbr = {} } = {}): string {
+function getFriendlyDateTwo(dateString: string, {monthAbbr = {}} = {}): string {
 	const d = new Date(dateString.replace(/-/g, '/'));
 	const year = d.getFullYear();
 	const date = d.getDate();
@@ -104,7 +104,7 @@ function getFriendlyDateTwo(dateString: string, { monthAbbr = {} } = {}): string
 	return formatted;
 }
 
-function getFriendlyDateThree(dateString: string, { monthAbbr = {} } = {}): string {
+function getFriendlyDateThree(dateString: string, {monthAbbr = {}} = {}): string {
 	const d = new Date(dateString);
 	const year = d.getFullYear();
 	const date = d.getDate();
@@ -142,7 +142,7 @@ function destructureDate(date: string): Record<string, number | string> {
 	const hour = d.getHours();
 	const minute = d.getMinutes();
 	const second = d.getSeconds();
-	return { year, month, day, hour, minute, second, dayName, monthName };
+	return {year, month, day, hour, minute, second, dayName, monthName};
 }
 
 function greetUser(): string {

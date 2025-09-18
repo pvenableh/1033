@@ -15,8 +15,7 @@
 				enter-active-class="transition-opacity duration-300 ease-out"
 				leave-active-class="transition-opacity duration-200 ease-in"
 				enter-from-class="opacity-0"
-				leave-to-class="opacity-0"
-			>
+				leave-to-class="opacity-0">
 				<div v-if="isOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 z-40" @click="closeSheet" />
 			</Transition>
 
@@ -24,13 +23,11 @@
 			<div
 				ref="bottomSheet"
 				class="fixed left-0 right-0 bottom-0 z-50 transform translate-y-full"
-				:class="[{ 'pointer-events-none': !isOpen }, maxWidthClass]"
-			>
+				:class="[{'pointer-events-none': !isOpen}, maxWidthClass]">
 				<div
 					ref="sheetContent"
 					class="bg-white rounded-t-2xl shadow-xl mx-auto w-full overflow-y-auto no-scrollbar"
-					:class="[maxHeightClass]"
-				>
+					:class="[maxHeightClass]">
 					<!-- Handle -->
 					<div v-if="showHandle" class="w-full flex justify-center pt-4 pb-2 touch-none cursor-grab" ref="handle">
 						<div class="w-12 h-1.5 bg-gray-300 rounded-full" />
@@ -45,8 +42,7 @@
 						class="flex-1"
 						ref="content"
 						@touchstart="onContentTouchStart"
-						@touchmove="onContentTouchMove"
-					>
+						@touchmove="onContentTouchMove">
 						<slot />
 					</div>
 
@@ -124,11 +120,11 @@ const resetBodyOverflow = () => {
 // Touch handlers for the handle
 onMounted(() => {
 	if (handle.value) {
-		handle.value.addEventListener('touchstart', onHandleTouchStart, { passive: false });
-		handle.value.addEventListener('touchmove', onHandleTouchMove, { passive: false });
-		handle.value.addEventListener('touchend', onTouchEnd, { passive: true });
+		handle.value.addEventListener('touchstart', onHandleTouchStart, {passive: false});
+		handle.value.addEventListener('touchmove', onHandleTouchMove, {passive: false});
+		handle.value.addEventListener('touchend', onTouchEnd, {passive: true});
 	}
-	document.addEventListener('touchend', onTouchEnd, { passive: true });
+	document.addEventListener('touchend', onTouchEnd, {passive: true});
 });
 
 onUnmounted(() => {
@@ -159,7 +155,7 @@ function onHandleTouchMove(e) {
 
 	currentTranslateY.value = diff;
 	if (bottomSheet.value) {
-		gsap.to(bottomSheet.value, { y: diff, duration: 0.1, ease: 'none' });
+		gsap.to(bottomSheet.value, {y: diff, duration: 0.1, ease: 'none'});
 	}
 }
 
@@ -181,7 +177,7 @@ function onContentTouchMove(e) {
 		// Prevent any upward movement
 		e.preventDefault();
 		currentTranslateY.value = diff;
-		gsap.set(bottomSheet.value, { y: `${diff}px` });
+		gsap.set(bottomSheet.value, {y: `${diff}px`});
 	}
 }
 
@@ -212,15 +208,15 @@ function onTouchEnd() {
 let tl = null;
 
 onMounted(() => {
-	tl = gsap.timeline({ paused: true }).fromTo(
+	tl = gsap.timeline({paused: true}).fromTo(
 		bottomSheet.value,
-		{ y: '100%' },
+		{y: '100%'},
 		{
 			y: '0%',
 			duration: 0.5,
 			ease: 'power3.out',
 			onComplete: () => emit('opened'),
-		},
+		}
 	);
 });
 
@@ -228,7 +224,7 @@ onMounted(() => {
 const toggleSheet = () => {
 	isOpen.value = !isOpen.value;
 	if (isOpen.value) {
-		gsap.to(bottomSheet.value, { y: '0%', duration: 0.5, ease: 'power3.out' });
+		gsap.to(bottomSheet.value, {y: '0%', duration: 0.5, ease: 'power3.out'});
 		emit('opened');
 	} else {
 		gsap.to(bottomSheet.value, {

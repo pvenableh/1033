@@ -2,9 +2,9 @@
 // definePageMeta({
 // 	layout: 'email',
 // });
-const { gtag } = useGtag();
+const {gtag} = useGtag();
 
-const { readItems } = useDirectusItems();
+const {readItems} = useDirectusItems();
 
 const renderings = await readItems('renderings', {
 	fields: ['*'],
@@ -96,8 +96,7 @@ const mailtoLink = computed(() => {
 					</p>
 					<p
 						v-if="selectedImage.extra_cost"
-						class="hidden lg:flex lg:w-1/2 text-right uppercase text-[10px] mb-1 leading-4 max-w-[1200px] text-red-500"
-					>
+						class="hidden lg:flex lg:w-1/2 text-right uppercase text-[10px] mb-1 leading-4 max-w-[1200px] text-red-500">
 						<span class="inline-block ml-3">Extra Cost:</span>
 						{{ selectedImage.extra_cost }}
 					</p>
@@ -105,25 +104,21 @@ const mailtoLink = computed(() => {
 				<img
 					:src="'https://admin.1033lenox.com/assets/' + selectedImage.image + '?key=large'"
 					alt="1033 Lenox Design Rendering"
-					class="w-full h-auto max-w-[1200px]"
-				/>
+					class="w-full h-auto max-w-[1200px]" />
 			</div>
 		</UModal>
 		<div
 			v-for="(item, index) in renderings"
 			:key="index"
-			class="flex items-center justify-center flex-col lg:items-start lg:flex-row w-full mb-20 renderings__item"
-		>
+			class="flex items-center justify-center flex-col lg:items-start lg:flex-row w-full mb-20 renderings__item">
 			<div class="w-full lg:w-1/2 max-w-[500px] relative cursor-pointer" @click="toggleModal(item)">
 				<img
 					:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 					:alt="item.title"
-					class="w-full"
-				/>
+					class="w-full" />
 				<UIcon
 					name="i-heroicons-magnifying-glass-plus"
-					class="text-white cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]"
-				/>
+					class="text-white cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 			</div>
 			<div class="w-full flex items-start justify-start flex-col max-w-[500px] lg:pl-6 renderings__item-caption">
 				<h3 class="w-full mt-2 lg:mt-0 renderings__item-title">
