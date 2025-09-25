@@ -9,6 +9,7 @@ export const useHOAFinancialsEnhanced = () => {
 	const selectedVendor = ref('all');
 	const selectedStartMonth = ref('01'); // 'all' for YTD, or '01' for January, etc.
 	const selectedEndMonth = ref('08'); // 'all' for YTD, or '12' for December, etc.
+	const searchQuery = ref('');
 	const loading = ref(false);
 	const error = ref(null);
 
@@ -173,7 +174,6 @@ export const useHOAFinancialsEnhanced = () => {
 				limit: -1,
 			});
 			transactions.value = data || [];
-			console.log('✅ Fetched transactions:', transactions.value.length);
 		} catch (e) {
 			console.error('Error fetching transactions:', e);
 			throw e;
@@ -190,7 +190,6 @@ export const useHOAFinancialsEnhanced = () => {
 				fields: ['*'],
 			});
 			monthlyStatements.value = data || [];
-			console.log('✅ Fetched statements:', monthlyStatements.value.length);
 		} catch (e) {
 			console.error('Error fetching monthly statements:', e);
 			throw e;
@@ -921,12 +920,10 @@ export const useHOAFinancialsEnhanced = () => {
 		if (!transactionCategory) return 'Other';
 
 		const category = transactionCategory.toLowerCase().trim();
-		console.log(`Debug: Mapping category "${transactionCategory}" (lowercase: "${category}")`);
 
 		// Direct mapping - check exact matches first
 		for (const [key, value] of Object.entries(categoryMapping)) {
 			if (key.toLowerCase() === category) {
-				console.log(`Debug: Exact match: "${key}" -> "${value}"`);
 				return value;
 			}
 		}
@@ -934,12 +931,10 @@ export const useHOAFinancialsEnhanced = () => {
 		// Partial matching - check if category contains any of the keys
 		for (const [key, value] of Object.entries(categoryMapping)) {
 			if (category.includes(key.toLowerCase())) {
-				console.log(`Debug: Partial match: "${category}" contains "${key.toLowerCase()}" -> "${value}"`);
 				return value;
 			}
 		}
 
-		console.log(`Debug: No match found for "${category}", defaulting to "Other"`);
 		return 'Other';
 	};
 
@@ -1155,8 +1150,6 @@ export const useHOAFinancialsEnhanced = () => {
 	const getCategoryTransactions = (budgetCategory) => {
 		try {
 			const transactions = allAccountTransactions.value || [];
-			console.log(`Debug: Looking for transactions in budget category: ${budgetCategory}`);
-			console.log(`Debug: Total account transactions: ${transactions.length}`);
 
 			// Debug: Log all unique database categories
 			const allCategories = new Set();
@@ -1166,7 +1159,6 @@ export const useHOAFinancialsEnhanced = () => {
 					allCategories.add(dbCategoryName);
 				}
 			});
-			console.log(`Debug: All database categories found:`, Array.from(allCategories));
 
 			// Filter transactions that belong to this budget category
 			const filteredTransactions = transactions.filter((transaction) => {
@@ -1182,15 +1174,8 @@ export const useHOAFinancialsEnhanced = () => {
 				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
 				const mappedCategory = mapToBudgetCategory(transactionCategory);
 
-				// Debug logging
-				console.log(
-					`Debug: Transaction ${transaction.id}: DB category="${transactionCategory}", mapped to="${mappedCategory}", looking for="${budgetCategory}"`
-				);
-
 				return mappedCategory === budgetCategory;
 			});
-
-			console.log(`Debug: Found ${filteredTransactions.length} transactions for budget category ${budgetCategory}`);
 
 			return filteredTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
 		} catch (error) {
@@ -1259,7 +1244,6 @@ export const useHOAFinancialsEnhanced = () => {
 			});
 
 			const latestMonth = sortedMonths[sortedMonths.length - 1];
-			console.log(`Latest month with data: ${latestMonth}`);
 
 			return latestMonth;
 		} catch (error) {
@@ -1272,7 +1256,6 @@ export const useHOAFinancialsEnhanced = () => {
 		const latest = latestMonthWithData.value;
 		if (latest && latest !== selectedEndMonth.value) {
 			selectedEndMonth.value = latest;
-			console.log(`Auto-initialized end month to: ${latest}`);
 		}
 	};
 
@@ -1301,6 +1284,38 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
+	// Add this computed property in your composable
+	const searchFilteredTransactions = computed(() => {
+		try {
+			const query = unref(searchQuery).toLowerCase().trim();
+
+			// If no search query, return all account transactions
+			if (!query) {
+				return allAccountTransactions.value || [];
+			}
+
+			return (allAccountTransactions.value || []).filter((transaction) => {
+				if (!transaction) return false;
+
+				// Search across multiple fields
+				const searchableText = [
+					transaction.description || '',
+					transaction.vendor || '',
+					transaction.amount?.toString() || '',
+					getCategoryName(transaction.category_id) || '',
+					transaction.transaction_type || '',
+				]
+					.join(' ')
+					.toLowerCase();
+
+				return searchableText.includes(query);
+			});
+		} catch (error) {
+			console.error('Error in searchFilteredTransactions:', error);
+			return [];
+		}
+	});
+
 	// Watch for filter changes
 	watch([selectedYear], async () => {
 		await refreshAll();
@@ -1314,6 +1329,8 @@ export const useHOAFinancialsEnhanced = () => {
 		selectedVendor,
 		selectedStartMonth,
 		selectedEndMonth,
+		searchQuery,
+		searchFilteredTransactions,
 		loading,
 		error,
 

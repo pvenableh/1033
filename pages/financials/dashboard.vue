@@ -834,22 +834,31 @@
 							<UCard>
 								<div class="flex flex-wrap gap-4 items-center">
 									<div class="flex items-center gap-2">
-										<label class="text-sm font-medium text-gray-700">Category:</label>
+										<label class="text-sm font-medium text-gray-700 uppercase">Search:</label>
+										<UInput
+											v-model="searchQuery"
+											placeholder="Search description, vendor, amount..."
+											icon="i-heroicons-magnifying-glass"
+											size="sm"
+											class="w-64" />
+									</div>
+									<div class="flex items-center gap-2">
+										<label class="text-sm font-medium text-gray-700 uppercase">Category:</label>
 										<USelect v-model="selectedCategory" :options="categoryOptions" size="sm" class="w-40" />
 									</div>
 									<div class="flex items-center gap-2">
-										<label class="text-sm font-medium text-gray-700">Vendor:</label>
+										<label class="text-sm font-medium text-gray-700 uppercase">Vendor:</label>
 										<USelect v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-40" />
 									</div>
 									<UButton @click="clearAllFilters" size="sm" variant="outline">Clear All Filters</UButton>
-									<UButton
+									<!-- <UButton
 										@click="refreshAll"
 										:loading="loading"
 										icon="i-heroicons-arrow-path"
 										size="sm"
 										variant="outline">
 										Refresh
-									</UButton>
+									</UButton> -->
 								</div>
 							</UCard>
 
@@ -950,6 +959,8 @@ const {
 	selectedVendor,
 	selectedStartMonth,
 	selectedEndMonth,
+	searchQuery,
+	searchFilteredTransactions,
 	loading,
 	error,
 	accounts,
@@ -1171,12 +1182,48 @@ const transactionColumnsDetailed = [
 // const displayTransactions = computed(() => accountTransactions.value.slice(0, 100) || []);
 
 const displayTransactions = computed(() => {
-	// For the "All Transactions" view, show unfiltered transactions when no filters are applied
-	if (selectedCategory.value === 'all' && selectedVendor.value === 'all') {
-		return allAccountTransactions.value.slice(0, 100) || [];
+	try {
+		let transactions = [];
+
+		// Start with search-filtered transactions if there's a search query
+		if (unref(searchQuery).trim()) {
+			transactions = searchFilteredTransactions.value;
+		} else {
+			// Otherwise use the normal category/vendor filtered transactions
+			if (selectedCategory.value === 'all' && selectedVendor.value === 'all') {
+				transactions = allAccountTransactions.value || [];
+			} else {
+				transactions = accountTransactions.value || [];
+			}
+		}
+
+		// Apply additional category/vendor filters on top of search if they exist
+		const currentCategory = unref(selectedCategory);
+		const currentVendor = unref(selectedVendor);
+
+		if (currentCategory !== 'all') {
+			transactions = transactions.filter((t) => {
+				if (currentCategory === 'uncategorized') {
+					return !t.category_id;
+				}
+				return t.category_id === parseInt(currentCategory);
+			});
+		}
+
+		if (currentVendor !== 'all') {
+			if (currentVendor === 'no_vendor') {
+				transactions = transactions.filter((t) => !t.vendor || t.vendor.trim() === '');
+			} else {
+				transactions = transactions.filter((t) => (t.vendor || '').toLowerCase().includes(currentVendor.toLowerCase()));
+			}
+		}
+
+		// Remove the 100 limit so you can see all matching transactions
+		return transactions;
+	} catch (error) {
+		console.error('Error in displayTransactions:', error);
+		return [];
 	}
-	// Otherwise show filtered transactions
-	return accountTransactions.value.slice(0, 100) || [];
 });
 
 // Helper functions
@@ -1242,6 +1289,7 @@ const getCategoryColor = (categoryId) => {
 const clearAllFilters = () => {
 	selectedCategory.value = 'all';
 	selectedVendor.value = 'all';
+	searchQuery.value = '';
 };
 
 const getTotalVendorSpending = () => {
