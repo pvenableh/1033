@@ -1358,7 +1358,6 @@ export const useHOAFinancialsEnhanced = () => {
 		getCategoryMonthSpread,
 		getCategoryName,
 		getCategoryColor,
-		mapToBudgetCategory,
 
 		// Methods
 		refreshAll,
