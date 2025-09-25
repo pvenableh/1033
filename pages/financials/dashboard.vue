@@ -75,7 +75,7 @@
 							]">
 							<div class="flex items-center gap-3">
 								<!-- <div class="w-4 h-4 rounded-full bg-green-500"></div> -->
-								<UIcon name="lucide:chart-pie" class="w-6 h-6 text-green-500" />
+								<UIcon name="lucide:chart-pie" class="w-6 h-6 text-[var(--cyan)]" />
 								<div class="text-left uppercase tracking-wide">
 									<div class="font-semibold">Operating Budget</div>
 									<div class="text-xs text-gray-500">2025</div>
@@ -324,7 +324,7 @@
 								<template #header>
 									<div class="flex items-center justify-between">
 										<h3 class="text-lg font-semibold uppercase tracking-wide">
-											BUDGET VS ACTUAL BY CATEGORY - {{ getRangeDescription() }} {{ selectedYear }}
+											BUDGET VS ACTUAL BY CATEGORY [{{ getRangeDescription() }} {{ selectedYear }}]
 										</h3>
 										<UBadge color="primary" variant="soft">
 											{{ budgetSummary.monthsSelected }} MONTH{{ budgetSummary.monthsSelected !== 1 ? 'S' : '' }}
@@ -726,7 +726,7 @@
 							<UCard>
 								<template #header>
 									<h3 class="text-lg font-semibold uppercase tracking-wide">
-										VENDOR TRANSACTIONS WITH TOTALS - {{ getRangeDescription() }}
+										VENDOR TRANSACTIONS WITH TOTALS [{{ getRangeDescription() }}]
 									</h3>
 									<p class="text-sm text-gray-600 mt-2">
 										Each vendor shows individual transactions and totals. Only expense transactions are included.
