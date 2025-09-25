@@ -357,7 +357,7 @@
 </template>
 
 <script setup>
-import Papa from 'papaparse';
+import {parse} from 'csv-parse/sync';
 
 definePageMeta({
 	layout: 'default',
@@ -676,39 +676,39 @@ const parseCSV = async () => {
 	try {
 		const text = await csvFile.value.text();
 
-		Papa.parse(text, {
-			header: true,
-			skipEmptyLines: true,
-			complete: (results) => {
-				parsedData.value = results.data;
+		try {
+			// Replace Papa.parse with csv-parse
+			const results = parse(text, {
+				columns: true, // equivalent to header: true
+				skip_empty_lines: true,
+				trim: true,
+			});
 
-				// Separate transactions from balance entries
-				transactionData.value = results.data.filter(
-					(row) => row.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(row.Type)
-				);
+			parsedData.value = results;
 
-				balanceData.value = results.data.filter((row) => row.Type === 'BALANCE');
+			// Separate transactions from balance entries
+			transactionData.value = results.filter((row) => row.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(row.Type));
 
-				console.log('Parsed CSV:', {
-					total: results.data.length,
-					transactions: transactionData.value.length,
-					balances: balanceData.value.length,
-				});
+			balanceData.value = results.filter((row) => row.Type === 'BALANCE');
 
-				// Auto-detect month from CSV data if not already selected
-				if (!selectedMonth.value) {
-					const detectedMonth = detectMonthFromData();
-					if (detectedMonth) {
-						selectedMonth.value = detectedMonth;
-						console.log('Auto-detected month:', detectedMonth);
-					}
+			console.log('Parsed CSV:', {
+				total: results.length,
+				transactions: transactionData.value.length,
+				balances: balanceData.value.length,
+			});
+
+			// Auto-detect month from CSV data if not already selected
+			if (!selectedMonth.value) {
+				const detectedMonth = detectMonthFromData();
+				if (detectedMonth) {
+					selectedMonth.value = detectedMonth;
+					console.log('Auto-detected month:', detectedMonth);
 				}
-			},
-			error: (error) => {
-				console.error('CSV parsing error:', error);
-				alert('Error parsing CSV file: ' + error.message);
-			},
-		});
+			}
+		} catch (parseError) {
+			console.error('CSV parsing error:', parseError);
+			alert('Error parsing CSV file: ' + parseError.message);
+		}
 	} catch (error) {
 		console.error('File reading error:', error);
 		alert('Error reading file: ' + error.message);
