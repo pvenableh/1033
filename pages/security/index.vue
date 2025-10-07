@@ -1,16 +1,28 @@
 <template>
-	<div class="w-full flex flex-row flex-wrap min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-600">
-		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white py-6 mt-8">Access Control</h1>
+	<div class="w-full flex flex-row flex-wrap items-start min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-600">
+		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white lg:py-6 mt-4 md:mt-8">
+			Access Control
+		</h1>
 
 		<!-- Mobile Tabs (hidden on lg and up) -->
-		<div class="w-full px-6 lg:hidden">
-			<UTabs :items="tabs" class="w-full" :ui="{rounded: 'rounded-none'}">
+		<div class="w-full md:px-6 lg:hidden mt-0">
+			<UTabs
+				:items="tabs"
+				class="w-full"
+				:ui="{
+					list: {
+						tab: {
+							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary-500 dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide rounded-none',
+							rounded: 'rounded-none',
+						},
+					},
+				}">
 				<template #item="{item}">
 					<div v-if="item.key === 'directory'">
 						<!-- Tenants Directory Content -->
 						<div class="bg-zinc-950 shadow-2xl overflow-hidden mt-4">
 							<div class="swiftlane-bg p-4">
-								<h2 class="text-white text-xl font-bold tracking-wide mb-3">RESIDENT DIRECTORY</h2>
+								<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3">RESIDENT DIRECTORY</h2>
 
 								<!-- Search Input -->
 								<div class="relative">
@@ -76,10 +88,10 @@
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
 							<div class="swiftlane-bg p-4">
 								<div class="w-full flex flex-row items-center justify-between">
-									<h2 class="text-white text-xl font-bold tracking-wide mb-3 uppercase">ACTIVITY FEED</h2>
+									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3 uppercase">ACTIVITY FEED</h2>
 									<h5
 										v-if="!loadingMore"
-										class="text-white/60 text-sm mb-3 flex flex-col text-right uppercase tracking-wide">
+										class="text-white/60 mb-3 flex flex-col text-right uppercase tracking-wide text-[8px] leading-3">
 										{{ filteredEvents.length }} of {{ totalEvents }} events
 										<span class="text-white/70 text-[8px] uppercase tracking-wide">Updated {{ lastUpdatedText }}</span>
 									</h5>
@@ -91,7 +103,7 @@
 										v-model="activitySearchQuery"
 										type="text"
 										placeholder="Search by name, access point, or status..."
-										class="w-full swiftlane-bg border border-white/20 px-4 py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+										class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
 									<UIcon
 										name="i-heroicons-magnifying-glass"
 										class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
@@ -236,7 +248,7 @@
 							v-model="searchQuery"
 							type="text"
 							placeholder="Search by name or unit number..."
-							class="w-full swiftlane-bg border border-white/20 px-4 py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+							class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
 						<UIcon
 							name="i-heroicons-magnifying-glass"
 							class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
