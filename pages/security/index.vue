@@ -11,9 +11,15 @@
 				class="w-full"
 				:ui="{
 					list: {
+						background: 'bg-zinc-600',
+						marker: {
+							background: 'bg-[#330df2]',
+							rounded: 'rounded-[3px]',
+						},
+						rounded: 'rounded-[3px]',
 						tab: {
-							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary-500 dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide rounded-none',
-							rounded: 'rounded-none',
+							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary-500 dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide  rounded-none text-white hover:text-white/80 font-semibold',
+							rounded: 'rounded-[3px]',
 						},
 					},
 				}">
@@ -21,29 +27,48 @@
 					<div v-if="item.key === 'directory'">
 						<!-- Tenants Directory Content -->
 						<div class="bg-zinc-950 shadow-2xl overflow-hidden mt-4">
+							<!-- Directory Header with Toggle -->
 							<div class="swiftlane-bg p-4">
-								<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3">RESIDENT DIRECTORY</h2>
-
-								<!-- Search Input -->
-								<div class="relative">
-									<input
-										v-model="searchQuery"
-										type="text"
-										placeholder="Search by name or unit number..."
-										class="w-full swiftlane-bg border border-white/20 px-4 py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-									<UIcon
-										name="i-heroicons-magnifying-glass"
-										class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+								<div class="flex items-center justify-start">
+									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mr-4">RESIDENT DIRECTORY</h2>
 									<button
-										v-if="searchQuery"
-										@click="searchQuery = ''"
-										class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-										<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+										@click="toggleDirectorySearch"
+										class="text-white/80 hover:text-white transition-colors focus:outline-none">
+										<UIcon
+											name="i-heroicons-magnifying-glass-circle"
+											:class="[
+												'w-5 h-5 transition-transform duration-300 mt-1',
+												isDirectorySearchOpen ? 'rotate-180' : '',
+											]" />
 									</button>
+								</div>
+
+								<!-- Collapsible Search Container -->
+								<div ref="directorySearchMobile" class="overflow-hidden" style="height: 0">
+									<div class="relative mt-3">
+										<input
+											v-model="searchQuery"
+											type="text"
+											placeholder="Search by name or unit number..."
+											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+										<UIcon
+											name="i-heroicons-magnifying-glass"
+											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+										<button
+											v-if="searchQuery"
+											@click="searchQuery = ''"
+											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+										</button>
+									</div>
 								</div>
 							</div>
 
-							<div class="max-h-[600px] overflow-y-auto">
+							<div
+								:class="[
+									'overflow-y-auto transition-all duration-300',
+									isDirectorySearchOpen ? 'max-h-[520px]' : 'max-h-[600px]',
+								]">
 								<!-- No Results Message -->
 								<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
 									<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
@@ -86,50 +111,71 @@
 					<div v-if="item.key === 'activity'">
 						<!-- Activity Feed Content -->
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
-							<div class="swiftlane-bg p-4 md:p-4">
+							<!-- Activity Header with Toggle -->
+							<div class="swiftlane-bg p-4">
 								<div class="w-full flex flex-row items-center justify-between relative">
-									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3 uppercase">ACTIVITY FEED</h2>
+									<div class="flex items-center gap-3">
+										<h2 class="text-white text-sm md:text-xl font-bold tracking-wide uppercase">ACTIVITY FEED</h2>
+										<button
+											@click="toggleActivitySearch"
+											class="text-white/80 hover:text-white transition-colors focus:outline-none">
+											<UIcon
+												name="i-heroicons-magnifying-glass-circle"
+												:class="[
+													'w-5 h-5 transition-transform duration-300 mt-1',
+													isActivitySearchOpen ? 'rotate-180' : '',
+												]" />
+										</button>
+									</div>
 									<h5
 										v-if="!loadingMore"
-										class="text-white/60 mb-3 flex flex-col text-right uppercase tracking-wide text-[8px] leading-3 absolute right-[5px]">
+										class="text-white/60 flex flex-col text-right uppercase tracking-wide text-[8px] leading-3">
 										{{ filteredEvents.length }} of {{ totalEvents }} events
 										<span class="text-white/70 text-[8px] uppercase tracking-wide">Updated {{ lastUpdatedText }}</span>
 									</h5>
 								</div>
 
-								<!-- Activity Search Input -->
-								<div class="relative">
-									<input
-										v-model="activitySearchQuery"
-										type="text"
-										placeholder="Search by name, access point, or status..."
-										class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-									<UIcon
-										name="i-heroicons-magnifying-glass"
-										class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-
-									<!-- Auto-refresh indicator / Manual refresh button -->
-									<button
-										v-if="!activitySearchQuery"
-										@click="manualRefresh"
-										:disabled="pending || loadingMore"
-										class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
+								<!-- Collapsible Activity Search Container -->
+								<div ref="activitySearchMobile" class="overflow-hidden" style="height: 0">
+									<div class="relative mt-3">
+										<input
+											v-model="activitySearchQuery"
+											type="text"
+											placeholder="Search by name, access point, or status..."
+											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
 										<UIcon
-											name="i-heroicons-arrow-path"
-											class="w-5 h-5"
-											:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
-									</button>
+											name="i-heroicons-magnifying-glass"
+											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 
-									<button
-										v-else
-										@click="activitySearchQuery = ''"
-										class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-										<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
-									</button>
+										<!-- Auto-refresh indicator / Manual refresh button -->
+										<button
+											v-if="!activitySearchQuery"
+											@click="manualRefresh"
+											:disabled="pending || loadingMore"
+											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
+											<UIcon
+												name="i-heroicons-arrow-path"
+												class="w-5 h-5"
+												:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
+										</button>
+
+										<button
+											v-else
+											@click="activitySearchQuery = ''"
+											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+										</button>
+									</div>
 								</div>
 							</div>
 
-							<div ref="activityScrollMobile" @scroll="handleScrollMobile" class="max-h-[600px] overflow-y-auto">
+							<div
+								ref="activityScrollMobile"
+								@scroll="handleScrollMobile"
+								:class="[
+									'overflow-y-auto transition-all duration-300',
+									isActivitySearchOpen ? 'max-h-[520px]' : 'max-h-[600px]',
+								]">
 								<div v-if="pending && events.length === 0" class="px-4 py-8 text-center text-zinc-500">
 									<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
 									<p class="mt-4">Loading activity...</p>
@@ -239,29 +285,48 @@
 		<!-- Tenants Directory - Digital Intercom Style -->
 		<div class="hidden lg:block w-1/2 p-6">
 			<div class="bg-zinc-950 shadow-2xl overflow-hidden">
-				<div class="swiftlane-bg p-4">
-					<h2 class="text-white text-xl font-bold tracking-wide mb-3">RESIDENT DIRECTORY</h2>
-
-					<!-- Search Input -->
-					<div class="relative">
-						<input
-							v-model="searchQuery"
-							type="text"
-							placeholder="Search by name or unit number..."
-							class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-						<UIcon
-							name="i-heroicons-magnifying-glass"
-							class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+				<!-- Directory Header with Toggle -->
+				<div class="swiftlane-bg p-4 mb-4">
+					<div class="flex items-center justify-start">
+						<h2 class="text-white text-xl font-bold tracking-wide">RESIDENT DIRECTORY</h2>
 						<button
-							v-if="searchQuery"
-							@click="searchQuery = ''"
-							class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-							<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+							@click="toggleDirectorySearch"
+							class="text-white/80 hover:text-white transition-colors focus:outline-none ml-4">
+							<UIcon
+								name="i-heroicons-magnifying-glass-circle"
+								:class="[
+									'w-6 h-6 transition-transform duration-300 mt-1',
+									isDirectorySearchOpen ? 'rotate-180' : '',
+								]" />
 						</button>
+					</div>
+
+					<!-- Collapsible Search Container -->
+					<div ref="directorySearchDesktop" class="overflow-hidden" style="height: 0">
+						<div class="relative mt-3">
+							<input
+								v-model="searchQuery"
+								type="text"
+								placeholder="Search by name or unit number..."
+								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+							<UIcon
+								name="i-heroicons-magnifying-glass"
+								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+							<button
+								v-if="searchQuery"
+								@click="searchQuery = ''"
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+							</button>
+						</div>
 					</div>
 				</div>
 
-				<div class="max-h-[800px] overflow-y-auto">
+				<div
+					:class="[
+						'overflow-y-auto transition-all duration-300',
+						isDirectorySearchOpen ? 'max-h-[720px]' : 'max-h-[800px]',
+					]">
 					<!-- No Results Message -->
 					<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
 						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
@@ -302,50 +367,71 @@
 		<!-- Activity Feed - Digital Intercom Style -->
 		<div class="hidden lg:block w-1/2 p-6">
 			<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden">
+				<!-- Activity Header with Toggle -->
 				<div class="swiftlane-bg p-4">
-					<div class="w-full flex flex-row items-center justify-between">
-						<h2 class="text-white text-xl font-bold tracking-wide mb-3">ACTIVITY FEED</h2>
+					<div class="w-full flex flex-row items-center justify-between relative">
+						<div class="flex items-center gap-3">
+							<h2 class="text-white text-xl font-bold tracking-wide">ACTIVITY FEED</h2>
+							<button
+								@click="toggleActivitySearch"
+								class="text-white/80 hover:text-white transition-colors focus:outline-none">
+								<UIcon
+									name="i-heroicons-magnifying-glass-circle"
+									:class="[
+										'w-6 h-6 transition-transform duration-300 mt-1',
+										isActivitySearchOpen ? 'rotate-180' : '',
+									]" />
+							</button>
+						</div>
 						<h5
 							v-if="!loadingMore"
-							class="text-white/60 text-sm mb-3 flex flex-col uppercase tracking-wide leading-4 text-right">
+							class="text-white/75 font-semibold text-[9px] flex flex-col uppercase tracking-wide leading-[11px] text-right">
 							{{ filteredEvents.length }} of {{ totalEvents }} events
-							<span class="text-white/40 text-[9px] mt-0.5">Updated {{ lastUpdatedText }}</span>
+							<span class="text-white/40 text-[9px] font-semibold mt-0">Updated {{ lastUpdatedText }}</span>
 						</h5>
 					</div>
 
-					<!-- Activity Search Input -->
-					<div class="relative">
-						<input
-							v-model="activitySearchQuery"
-							type="text"
-							placeholder="Search by name, access point, or status..."
-							class="w-full swiftlane-bg border border-white/20 px-4 py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-						<UIcon
-							name="i-heroicons-magnifying-glass"
-							class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-
-						<!-- Auto-refresh indicator / Manual refresh button -->
-						<button
-							v-if="!activitySearchQuery"
-							@click="manualRefresh"
-							:disabled="pending || loadingMore"
-							class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
+					<!-- Collapsible Activity Search Container -->
+					<div ref="activitySearchDesktop" class="overflow-hidden" style="height: 0">
+						<div class="relative mt-3">
+							<input
+								v-model="activitySearchQuery"
+								type="text"
+								placeholder="Search by name, access point, or status..."
+								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
 							<UIcon
-								name="i-heroicons-arrow-path"
-								class="w-5 h-5"
-								:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
-						</button>
+								name="i-heroicons-magnifying-glass"
+								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 
-						<button
-							v-else
-							@click="activitySearchQuery = ''"
-							class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-							<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
-						</button>
+							<!-- Auto-refresh indicator / Manual refresh button -->
+							<button
+								v-if="!activitySearchQuery"
+								@click="manualRefresh"
+								:disabled="pending || loadingMore"
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
+								<UIcon
+									name="i-heroicons-arrow-path"
+									class="w-5 h-5"
+									:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
+							</button>
+
+							<button
+								v-else
+								@click="activitySearchQuery = ''"
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+							</button>
+						</div>
 					</div>
 				</div>
 
-				<div ref="activityScroll" @scroll="handleScroll" class="max-h-[800px] overflow-y-auto">
+				<div
+					ref="activityScroll"
+					@scroll="handleScroll"
+					:class="[
+						'overflow-y-auto transition-all duration-300',
+						isActivitySearchOpen ? 'max-h-[720px]' : 'max-h-[800px]',
+					]">
 					<div v-if="pending && events.length === 0" class="px-4 py-8 text-center text-zinc-500">
 						<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
 						<p class="mt-4">Loading activity...</p>
@@ -506,7 +592,20 @@
 </template>
 
 <script setup>
+import {gsap} from 'gsap';
+
+// Fetch tenants data
 const {data: tenants} = await useFetch('/api/swiftlane/tenants');
+
+// Collapsible search state
+const isDirectorySearchOpen = ref(false);
+const isActivitySearchOpen = ref(false);
+
+// Search container refs
+const directorySearchDesktop = ref(null);
+const directorySearchMobile = ref(null);
+const activitySearchDesktop = ref(null);
+const activitySearchMobile = ref(null);
 
 // Activity Feed State
 const events = ref([]);
@@ -517,7 +616,7 @@ const hasMore = ref(true);
 const currentPage = ref(1);
 const totalEvents = ref(0);
 const activityScroll = ref(null);
-const activityScrollMobile = ref(null); // Add mobile ref
+const activityScrollMobile = ref(null);
 
 // Search
 const searchQuery = ref('');
@@ -549,13 +648,99 @@ const tabs = [
 	},
 ];
 
+// Toggle functions with GSAP animations
+const toggleDirectorySearch = () => {
+	isDirectorySearchOpen.value = !isDirectorySearchOpen.value;
+
+	nextTick(() => {
+		const desktopElement = directorySearchDesktop.value;
+		const mobileElement = directorySearchMobile.value;
+
+		if (isDirectorySearchOpen.value) {
+			// Animate to open
+			if (desktopElement) {
+				gsap.to(desktopElement, {
+					height: 'auto',
+					duration: 0.4,
+					ease: 'power2.out',
+				});
+			}
+			if (mobileElement) {
+				gsap.to(mobileElement, {
+					height: 'auto',
+					duration: 0.4,
+					ease: 'power2.out',
+				});
+			}
+		} else {
+			// Animate to close
+			if (desktopElement) {
+				gsap.to(desktopElement, {
+					height: 0,
+					duration: 0.3,
+					ease: 'power2.in',
+				});
+			}
+			if (mobileElement) {
+				gsap.to(mobileElement, {
+					height: 0,
+					duration: 0.3,
+					ease: 'power2.in',
+				});
+			}
+		}
+	});
+};
+
+const toggleActivitySearch = () => {
+	isActivitySearchOpen.value = !isActivitySearchOpen.value;
+
+	nextTick(() => {
+		const desktopElement = activitySearchDesktop.value;
+		const mobileElement = activitySearchMobile.value;
+
+		if (isActivitySearchOpen.value) {
+			// Animate to open
+			if (desktopElement) {
+				gsap.to(desktopElement, {
+					height: 'auto',
+					duration: 0.4,
+					ease: 'power2.out',
+				});
+			}
+			if (mobileElement) {
+				gsap.to(mobileElement, {
+					height: 'auto',
+					duration: 0.4,
+					ease: 'power2.out',
+				});
+			}
+		} else {
+			// Animate to close
+			if (desktopElement) {
+				gsap.to(desktopElement, {
+					height: 0,
+					duration: 0.3,
+					ease: 'power2.in',
+				});
+			}
+			if (mobileElement) {
+				gsap.to(mobileElement, {
+					height: 0,
+					duration: 0.3,
+					ease: 'power2.in',
+				});
+			}
+		}
+	});
+};
+
 // Open photo modal
 const openPhotoModal = (event) => {
 	selectedEvent.value = event;
 	isPhotoModalOpen.value = true;
 };
 
-// Fetch events with proper pagination
 // Fetch events with proper pagination
 const fetchEvents = async (page = 1, append = false, silent = false) => {
 	try {
@@ -580,7 +765,7 @@ const fetchEvents = async (page = 1, append = false, silent = false) => {
 			events.value = [...events.value, ...response.data.data.events_feed];
 		} else {
 			events.value = response.data.data.events_feed;
-			lastUpdated.value = new Date(); // ADD THIS LINE - only update on fresh data, not append
+			lastUpdated.value = new Date();
 		}
 
 		hasMore.value = response.data.metadata.has_next;
@@ -596,23 +781,31 @@ const fetchEvents = async (page = 1, append = false, silent = false) => {
 	}
 };
 
-// Auto-refresh function - only refreshes first page
+// Auto-refresh function
 const autoRefresh = () => {
-	// Don't refresh if user is:
-	// - Searching
-	// - Viewing a photo modal
-	// - Has scrolled past first page
 	if (activitySearchQuery.value || isPhotoModalOpen.value || currentPage.value > 1) {
 		return;
 	}
-
-	// Silent refresh (doesn't show loading spinner)
 	fetchEvents(1, false, true);
+};
+
+// Manual refresh button handler
+const manualRefresh = async () => {
+	currentPage.value = 1;
+	wasScrolledDown.value = false;
+	await fetchEvents(1, false, false);
+
+	if (activityScroll.value) {
+		activityScroll.value.scrollTop = 0;
+	}
+	if (activityScrollMobile.value) {
+		activityScrollMobile.value.scrollTop = 0;
+	}
 };
 
 // Format last updated time
 const lastUpdatedText = computed(() => {
-	const currentTime = now.value; // Use reactive now
+	const currentTime = now.value;
 	const diffMs = currentTime - lastUpdated.value;
 	const diffSecs = Math.floor(diffMs / 1000);
 	const diffMins = Math.floor(diffMs / 60000);
@@ -627,7 +820,7 @@ const lastUpdatedText = computed(() => {
 	});
 });
 
-// Start auto-refresh interval
+// Start/stop auto-refresh
 const startAutoRefresh = () => {
 	if (refreshInterval.value) {
 		clearInterval(refreshInterval.value);
@@ -635,7 +828,6 @@ const startAutoRefresh = () => {
 	refreshInterval.value = setInterval(autoRefresh, REFRESH_INTERVAL_MS);
 };
 
-// Stop auto-refresh interval
 const stopAutoRefresh = () => {
 	if (refreshInterval.value) {
 		clearInterval(refreshInterval.value);
@@ -643,89 +835,40 @@ const stopAutoRefresh = () => {
 	}
 };
 
-// Manual refresh button handler
-// Manual refresh button handler - REPLACE THIS FUNCTION
-const manualRefresh = async () => {
-	// Reset to page 1 and clear any pagination state
-	currentPage.value = 1;
-	wasScrolledDown.value = false;
-
-	// Fetch fresh data (not silent, so shows loading state)
-	await fetchEvents(1, false, false);
-
-	// Scroll to top of activity feed
-	if (activityScroll.value) {
-		activityScroll.value.scrollTop = 0;
-	}
-	if (activityScrollMobile.value) {
-		activityScrollMobile.value.scrollTop = 0;
-	}
-};
-
-// Load initial data
-onMounted(() => {
-	fetchEvents(1);
-	startAutoRefresh();
-	setInterval(() => {
-		now.value = new Date();
-	}, 1000);
-});
-
-// Cleanup on unmount
-onBeforeUnmount(() => {
-	stopAutoRefresh();
-});
-
-// Pause auto-refresh when modal is open, resume when closed
-watch(isPhotoModalOpen, (isOpen) => {
-	if (isOpen) {
-		stopAutoRefresh();
-	} else {
-		startAutoRefresh();
-	}
-});
-
-// Infinite scroll handler - Desktop
+// Infinite scroll handlers
 const handleScroll = (e) => {
 	const element = e.target;
 	const bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 100;
 	const isNearTop = element.scrollTop < 50;
 
-	// Track scroll position
 	if (!isNearTop && currentPage.value > 1) {
 		wasScrolledDown.value = true;
 	}
 
-	// If scrolled back to top after being down, refresh
 	if (isNearTop && wasScrolledDown.value && !activitySearchQuery.value) {
 		wasScrolledDown.value = false;
 		fetchEvents(1, false, true);
 	}
 
-	// Load more at bottom
 	if (bottom && hasMore.value && !loadingMore.value && !activitySearchQuery.value) {
 		fetchEvents(currentPage.value + 1, true);
 	}
 };
 
-// Infinite scroll handler - Mobile
 const handleScrollMobile = (e) => {
 	const element = e.target;
 	const bottom = element.scrollHeight - element.scrollTop <= element.clientHeight + 100;
 	const isNearTop = element.scrollTop < 50;
 
-	// Track scroll position
 	if (!isNearTop && currentPage.value > 1) {
 		wasScrolledDown.value = true;
 	}
 
-	// If scrolled back to top after being down, refresh
 	if (isNearTop && wasScrolledDown.value && !activitySearchQuery.value) {
 		wasScrolledDown.value = false;
 		fetchEvents(1, false, true);
 	}
 
-	// Load more at bottom
 	if (bottom && hasMore.value && !loadingMore.value && !activitySearchQuery.value) {
 		fetchEvents(currentPage.value + 1, true);
 	}
@@ -738,7 +881,6 @@ const filteredEvents = computed(() => {
 	}
 
 	const query = activitySearchQuery.value.toLowerCase().trim();
-
 	return events.value.filter((event) => {
 		const employeeName = event.employee_name?.toLowerCase() || '';
 		const subject = event.subject?.toLowerCase() || '';
@@ -838,6 +980,29 @@ const filteredTenants = computed(() => {
 	});
 
 	return filtered;
+});
+
+// Load initial data and setup intervals
+onMounted(() => {
+	fetchEvents(1);
+	startAutoRefresh();
+	setInterval(() => {
+		now.value = new Date();
+	}, 1000);
+});
+
+// Cleanup on unmount
+onBeforeUnmount(() => {
+	stopAutoRefresh();
+});
+
+// Pause auto-refresh when modal is open
+watch(isPhotoModalOpen, (isOpen) => {
+	if (isOpen) {
+		stopAutoRefresh();
+	} else {
+		startAutoRefresh();
+	}
 });
 </script>
 
