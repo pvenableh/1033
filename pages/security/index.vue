@@ -86,7 +86,7 @@
 					<div v-if="item.key === 'activity'">
 						<!-- Activity Feed Content -->
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
-							<div class="swiftlane-bg p-4">
+							<div class="swiftlane-bg p-4 md:p-4">
 								<div class="w-full flex flex-row items-center justify-between relative">
 									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3 uppercase">ACTIVITY FEED</h2>
 									<h5
