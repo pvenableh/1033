@@ -87,11 +87,11 @@
 						<!-- Activity Feed Content -->
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
 							<div class="swiftlane-bg p-4">
-								<div class="w-full flex flex-row items-center justify-between">
+								<div class="w-full flex flex-row items-center justify-between relative">
 									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mb-3 uppercase">ACTIVITY FEED</h2>
 									<h5
 										v-if="!loadingMore"
-										class="text-white/60 mb-3 flex flex-col text-right uppercase tracking-wide text-[8px] leading-3">
+										class="text-white/60 mb-3 flex flex-col text-right uppercase tracking-wide text-[8px] leading-3 absolute right-[5px]">
 										{{ filteredEvents.length }} of {{ totalEvents }} events
 										<span class="text-white/70 text-[8px] uppercase tracking-wide">Updated {{ lastUpdatedText }}</span>
 									</h5>
