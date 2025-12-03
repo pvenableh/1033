@@ -1,0 +1,12 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,46132.97,,,,,,Beginning,
+BALANCE,,,31406.58,,,,,,Ending,
+DEPOSIT,06/02,Online Transfer From Chk 5129,1000,Account 5129,,Transfer,false,June,
+DEPOSIT,06/04,Online Transfer From Chk 5129,1270,Account 5129,,Transfer,false,June,
+DEPOSIT,06/10,Online Transfer From Chk 5129,35398.42,Account 5129,,Transfer,false,June,
+DEPOSIT,06/10,Online Transfer From Chk 5129,3060.5,Account 5129,,Transfer,false,June,
+DEPOSIT,06/10,Online Transfer From Chk 5129,90,Account 5129,,Transfer,false,June,
+DEPOSIT,06/23,Remote Online Deposit,497,Remote Deposit,,Operating,false,June,
+DEPOSIT,06/30,Interest Payment,0.32,Chase Bank,,Interest,false,June,
+WITHDRAWAL,06/02,Popular Bank Loan Payment,1042.63,Popular Bank,,Loan,false,June,
+WITHDRAWAL,06/11,Online ACH Payment To Bploan,55000,Bploan,,Loan,false,June,

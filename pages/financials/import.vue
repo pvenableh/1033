@@ -1,355 +1,435 @@
 <template>
-	<div class="max-w-6xl mx-auto p-6 space-y-8">
+	<div class="max-w-7xl mx-auto p-6 space-y-8">
 		<!-- Header -->
 		<div class="bg-white rounded-lg shadow-sm border p-6">
-			<h1 class="text-3xl font-bold text-gray-900 mb-2">CSV Import</h1>
-			<p class="text-gray-600">Import bank statement CSV files into your HOA financial system</p>
+			<h1 class="text-3xl font-bold text-gray-900 mb-2">Multi-Account CSV Import</h1>
+			<p class="text-gray-600">
+				Import bank statements for multiple accounts and automatically link inter-account transfers
+			</p>
 		</div>
 
 		<!-- Step 1: File Upload -->
 		<div class="bg-white rounded-lg shadow-sm border">
 			<div class="border-b px-6 py-4">
-				<h2 class="text-xl font-semibold text-gray-900">Step 1: Upload CSV File</h2>
+				<h2 class="text-xl font-semibold text-gray-900">Step 1: Upload CSV Files</h2>
+				<p class="text-sm text-gray-600 mt-1">Upload statements for all accounts from the same month</p>
 			</div>
-			<div class="p-6">
+			<div class="p-6 space-y-4">
+				<!-- Operating Account -->
 				<div
-					class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-					:class="{'border-blue-500 bg-blue-50': isDragging}"
-					@dragover.prevent="isDragging = true"
-					@dragleave.prevent="isDragging = false"
-					@drop.prevent="handleFileDrop">
-					<input ref="fileInput" type="file" accept=".csv" @change="handleFileSelect" class="hidden" />
-
-					<div v-if="!csvFile">
-						<svg class="w-12 h-12 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-							<path
-								stroke-linecap="round"
-								stroke-linejoin="round"
-								stroke-width="2"
-								d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-						</svg>
-						<p class="text-lg text-gray-600 mb-2">Drop your CSV file here or click to browse</p>
-						<p class="text-sm text-gray-500 mb-4">Supports Chase bank statement exports</p>
+					:class="[
+						'border-2 border-dashed rounded-lg p-4 transition-colors',
+						uploadedFiles.operating ? 'border-green-500 bg-green-50' : 'border-gray-300',
+					]"
+					@dragover.prevent="handleDragOver('operating')"
+					@dragleave.prevent="handleDragLeave('operating')"
+					@drop.prevent="handleDrop('operating', $event)">
+					<div class="flex items-center justify-between">
+						<div class="flex-1">
+							<h3 class="font-semibold text-gray-900">Operating Account (5129)</h3>
+							<p class="text-sm text-gray-500 mt-1">
+								{{ uploadedFiles.operating ? uploadedFiles.operating.name : 'No file selected' }}
+							</p>
+							<p v-if="uploadedFiles.operating" class="text-xs text-green-600 mt-1">
+								{{ parsedFiles.operating.length }} transactions parsed
+							</p>
+						</div>
 						<button
-							@click="$refs.fileInput.click()"
-							class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-							Choose File
+							@click="() => $refs.operatingInput.click()"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+							{{ uploadedFiles.operating ? 'Change File' : 'Choose File' }}
 						</button>
 					</div>
+					<input
+						ref="operatingInput"
+						type="file"
+						accept=".csv"
+						class="hidden"
+						@change="handleFileSelect('operating', $event)" />
+				</div>
 
-					<div v-else class="text-green-600">
-						<svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+				<!-- Special Assessment Account -->
+				<div
+					:class="[
+						'border-2 border-dashed rounded-lg p-4 transition-colors',
+						uploadedFiles.special ? 'border-green-500 bg-green-50' : 'border-gray-300',
+					]"
+					@dragover.prevent="handleDragOver('special')"
+					@dragleave.prevent="handleDragLeave('special')"
+					@drop.prevent="handleDrop('special', $event)">
+					<div class="flex items-center justify-between">
+						<div class="flex-1">
+							<h3 class="font-semibold text-gray-900">Special Assessment (5872)</h3>
+							<p class="text-sm text-gray-500 mt-1">
+								{{ uploadedFiles.special ? uploadedFiles.special.name : 'No file selected' }}
+							</p>
+							<p v-if="uploadedFiles.special" class="text-xs text-green-600 mt-1">
+								{{ parsedFiles.special.length }} transactions parsed
+							</p>
+						</div>
+						<button
+							@click="() => $refs.specialInput.click()"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+							{{ uploadedFiles.special ? 'Change File' : 'Choose File' }}
+						</button>
+					</div>
+					<input
+						ref="specialInput"
+						type="file"
+						accept=".csv"
+						class="hidden"
+						@change="handleFileSelect('special', $event)" />
+				</div>
+
+				<!-- Reserves Account -->
+				<div
+					:class="[
+						'border-2 border-dashed rounded-lg p-4 transition-colors',
+						uploadedFiles.reserves ? 'border-green-500 bg-green-50' : 'border-gray-300',
+					]"
+					@dragover.prevent="handleDragOver('reserves')"
+					@dragleave.prevent="handleDragLeave('reserves')"
+					@drop.prevent="handleDrop('reserves', $event)">
+					<div class="flex items-center justify-between">
+						<div class="flex-1">
+							<h3 class="font-semibold text-gray-900">Reserves (7011)</h3>
+							<p class="text-sm text-gray-500 mt-1">
+								{{ uploadedFiles.reserves ? uploadedFiles.reserves.name : 'No file selected' }}
+							</p>
+							<p v-if="uploadedFiles.reserves" class="text-xs text-green-600 mt-1">
+								{{ parsedFiles.reserves.length }} transactions parsed
+							</p>
+						</div>
+						<button
+							@click="() => $refs.reservesInput.click()"
+							class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+							{{ uploadedFiles.reserves ? 'Change File' : 'Choose File' }}
+						</button>
+					</div>
+					<input
+						ref="reservesInput"
+						type="file"
+						accept=".csv"
+						class="hidden"
+						@change="handleFileSelect('reserves', $event)" />
+				</div>
+
+				<!-- Parse Button -->
+				<div class="flex items-center justify-between pt-4">
+					<p class="text-sm text-gray-600">
+						{{ uploadedFileCount }} of 3 accounts uploaded
+						<span v-if="uploadedFileCount >= 2" class="text-green-600 ml-2">✓ Ready to parse</span>
+					</p>
+					<button
+						@click="parseAllFiles"
+						:disabled="uploadedFileCount < 2 || isParsing"
+						class="px-8 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+						<span v-if="isParsing" class="flex items-center">
+							<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+								<path
+									class="opacity-75"
+									fill="currentColor"
+									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+							</svg>
+							Parsing CSV Files...
+						</span>
+						<span v-else>Parse Files & Match Transfers</span>
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<!-- Step 2: Transfer Matching Results -->
+		<div v-if="matchingComplete" class="bg-white rounded-lg shadow-sm border">
+			<div class="border-b px-6 py-4">
+				<h2 class="text-xl font-semibold text-gray-900">Step 2: Transfer Matching Results</h2>
+			</div>
+			<div class="p-6">
+				<!-- Stats -->
+				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+					<div class="bg-blue-50 p-4 rounded-lg">
+						<p class="text-sm text-blue-600">Total Transactions</p>
+						<p class="text-2xl font-bold text-blue-900">{{ totalTransactions }}</p>
+					</div>
+					<div class="bg-green-50 p-4 rounded-lg">
+						<p class="text-sm text-green-600">Matched Transfer Pairs</p>
+						<p class="text-2xl font-bold text-green-900">{{ transferMatches.matches.length }}</p>
+					</div>
+					<div class="bg-yellow-50 p-4 rounded-lg">
+						<p class="text-sm text-yellow-600">Unmatched Transfers</p>
+						<p class="text-2xl font-bold text-yellow-900">{{ transferMatches.unmatched.length }}</p>
+					</div>
+					<div class="bg-purple-50 p-4 rounded-lg">
+						<p class="text-sm text-purple-600">Regular Transactions</p>
+						<p class="text-2xl font-bold text-purple-900">{{ regularTransactions }}</p>
+					</div>
+				</div>
+
+				<!-- Matched Transfers -->
+				<div v-if="transferMatches.matches.length > 0" class="mb-6">
+					<h3 class="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+						<svg class="w-6 h-6 text-green-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 							<path
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
 								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 						</svg>
-						<p class="text-lg font-semibold">{{ csvFile.name }}</p>
-						<p class="text-sm text-gray-500">{{ (csvFile.size / 1024).toFixed(1) }} KB</p>
-						<button @click="clearFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">Remove file</button>
+						Matched Transfer Pairs ({{ transferMatches.matches.length }})
+					</h3>
+					<div class="space-y-3 max-h-96 overflow-y-auto">
+						<div
+							v-for="(match, idx) in transferMatches.matches"
+							:key="idx"
+							class="border border-green-200 bg-green-50 rounded-lg p-4">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<div class="flex items-center space-x-3 mb-3">
+										<span class="px-2 py-1 bg-green-600 text-white text-xs rounded font-medium">
+											Pair #{{ idx + 1 }}
+										</span>
+										<span class="text-sm font-medium text-gray-900">{{ match.outTransfer.date }}</span>
+										<span class="text-sm font-bold text-green-700">${{ match.outTransfer.amount.toFixed(2) }}</span>
+									</div>
+									<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div class="bg-white p-3 rounded border border-green-200">
+											<p class="text-xs text-gray-500 mb-1">Transfer Out</p>
+											<p class="font-medium text-sm text-gray-900">
+												{{ accountNames[match.outTransfer.accountType] }}
+											</p>
+											<p class="text-xs text-gray-600 mt-1 truncate" :title="match.outTransfer.description">
+												{{ match.outTransfer.description }}
+											</p>
+										</div>
+										<div class="bg-white p-3 rounded border border-green-200">
+											<p class="text-xs text-gray-500 mb-1">Transfer In</p>
+											<p class="font-medium text-sm text-gray-900">
+												{{ accountNames[match.inTransfer.accountType] }}
+											</p>
+											<p class="text-xs text-gray-600 mt-1 truncate" :title="match.inTransfer.description">
+												{{ match.inTransfer.description }}
+											</p>
+										</div>
+									</div>
+								</div>
+								<div class="ml-4">
+									<svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+										<path
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+									</svg>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 
-				<!-- Parse Button -->
-				<div v-if="csvFile" class="mt-4 text-center">
-					<button
-						@click="parseCSV"
-						:disabled="isLoading"
-						class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-						<span v-if="isLoading" class="flex items-center">
-							<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-								<path
-									class="opacity-75"
-									fill="currentColor"
-									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-							</svg>
-							Parsing CSV...
-						</span>
-						<span v-else>Parse CSV Data</span>
-					</button>
+				<!-- Unmatched Transfers -->
+				<div v-if="transferMatches.unmatched.length > 0" class="p-4 bg-yellow-50 border-l-4 border-yellow-400 rounded">
+					<h3 class="text-yellow-800 font-semibold mb-2 flex items-center">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+						</svg>
+						Unmatched Transfers ({{ transferMatches.unmatched.length }})
+					</h3>
+					<p class="text-yellow-700 text-sm mb-3">
+						These transfers don't have matching counterparts and will be flagged for manual review.
+					</p>
+					<div class="space-y-2 max-h-60 overflow-y-auto">
+						<div
+							v-for="(transfer, idx) in transferMatches.unmatched"
+							:key="idx"
+							class="bg-white p-3 rounded border border-yellow-200">
+							<div class="flex items-center justify-between">
+								<div class="flex-1">
+									<p class="text-sm font-medium text-gray-900">
+										{{ transfer.date }} | {{ accountNames[transfer.accountType] }}
+										{{ transfer.direction === 'out' ? '→' : '←' }} Account {{ transfer.targetAccount }}
+									</p>
+									<p class="text-xs text-gray-600 mt-1">{{ transfer.description }}</p>
+								</div>
+								<p class="text-sm font-bold text-yellow-700 ml-4">${{ transfer.amount.toFixed(2) }}</p>
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
 
-		<!-- Step 2: Preview & Mapping -->
-		<div v-if="parsedData.length > 0" class="bg-white rounded-lg shadow-sm border">
+		<!-- Step 3: Import Configuration -->
+		<div v-if="matchingComplete" class="bg-white rounded-lg shadow-sm border">
 			<div class="border-b px-6 py-4">
-				<h2 class="text-xl font-semibold text-gray-900">Step 2: Preview & Configure Import</h2>
-				<div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-					<div>
-						<label class="block text-sm font-medium text-gray-700 mb-2">Account</label>
-						<select v-model="selectedAccount" class="w-full border rounded-lg px-3 py-2 text-sm">
-							<option value="">Select Account</option>
-							<option v-for="account in accounts" :key="account.id" :value="account">
-								{{ account.account_name }} ({{ account.account_number }})
-							</option>
-						</select>
-					</div>
-
+				<h2 class="text-xl font-semibold text-gray-900">Step 3: Configure Import</h2>
+			</div>
+			<div class="p-6">
+				<div class="grid grid-cols-2 gap-4 mb-6">
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">Fiscal Year</label>
-						<select v-model="selectedFiscalYear" class="w-full border rounded-lg px-3 py-2 text-sm">
-							<option v-for="year in fiscalYearOptions" :key="year.value" :value="year.value">
-								{{ year.label }}
-							</option>
+						<select v-model="selectedFiscalYear" class="w-full border rounded-lg px-3 py-2">
+							<option value="2025">2025</option>
+							<option value="2024">2024</option>
+							<option value="2026">2026</option>
 						</select>
 					</div>
-
 					<div>
 						<label class="block text-sm font-medium text-gray-700 mb-2">Statement Month</label>
-						<select v-model="selectedMonth" class="w-full border rounded-lg px-3 py-2 text-sm">
-							<option value="">Auto-detect from CSV</option>
-							<option v-for="month in monthOptions" :key="month.value" :value="month.value">
-								{{ month.label }}
-							</option>
+						<select v-model="selectedMonth" class="w-full border rounded-lg px-3 py-2">
+							<option value="01">January</option>
+							<option value="02">February</option>
+							<option value="03">March</option>
+							<option value="04">April</option>
+							<option value="05">May</option>
+							<option value="06">June</option>
+							<option value="07">July</option>
+							<option value="08">August</option>
+							<option value="09">September</option>
+							<option value="10">October</option>
+							<option value="11">November</option>
+							<option value="12">December</option>
 						</select>
 					</div>
 				</div>
 
-				<div class="mt-2 text-right">
-					<span class="text-sm text-gray-600">{{ parsedData.length }} rows found</span>
-				</div>
-			</div>
-
-			<div class="p-6">
-				<!-- Account Info -->
-				<div v-if="selectedAccount" class="mb-6 p-4 bg-blue-50 rounded-lg">
-					<h3 class="font-semibold text-blue-900">Import Target</h3>
-					<p class="text-blue-800">{{ selectedAccount.account_name }} - Chase {{ selectedAccount.account_number }}</p>
-					<p class="text-sm text-blue-600">{{ selectedAccount.description }}</p>
-				</div>
-
-				<!-- Data Summary -->
-				<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-					<div class="bg-gray-50 p-4 rounded-lg">
-						<p class="text-sm text-gray-600">Total Transactions</p>
-						<p class="text-2xl font-bold text-gray-900">{{ transactionData.length }}</p>
-					</div>
-					<div class="bg-green-50 p-4 rounded-lg">
-						<p class="text-sm text-green-600">Deposits</p>
-						<p class="text-2xl font-bold text-green-700">${{ totalDeposits.toLocaleString() }}</p>
-					</div>
-					<div class="bg-red-50 p-4 rounded-lg">
-						<p class="text-sm text-red-600">Withdrawals</p>
-						<p class="text-2xl font-bold text-red-700">${{ totalWithdrawals.toLocaleString() }}</p>
-					</div>
-					<div class="bg-yellow-50 p-4 rounded-lg">
-						<p class="text-sm text-yellow-600">Violations Detected</p>
-						<p class="text-2xl font-bold text-yellow-700">{{ violationCount }}</p>
-					</div>
-				</div>
-
-				<!-- Violations Alert -->
-				<div v-if="violationCount > 0" class="mb-6 p-4 bg-red-50 border-l-4 border-red-400">
-					<h3 class="text-red-800 font-semibold">⚠️ Compliance Violations Detected</h3>
-					<p class="text-red-700 text-sm">
-						{{ violationCount }} transactions flagged as potential violations will be marked accordingly.
-					</p>
-				</div>
-
-				<!-- Preview Table -->
-				<div class="overflow-x-auto">
-					<table class="min-w-full divide-y divide-gray-200">
-						<thead class="bg-gray-50">
-							<tr>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-									Description
-								</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vendor</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-								<th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-							</tr>
-						</thead>
-						<tbody class="bg-white divide-y divide-gray-200">
-							<tr v-for="(transaction, index) in transactionData.slice(0, 20)" :key="index">
-								<td class="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-									{{ formatDate(transaction.Date) }}
-								</td>
-								<td class="px-4 py-4 whitespace-nowrap">
-									<span
-										class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-										:class="getTypeClass(transaction.Type)">
-										{{ transaction.Type }}
-									</span>
-								</td>
-								<td class="px-4 py-4 text-sm text-gray-900 max-w-xs truncate" :title="transaction.Description">
-									{{ transaction.Description }}
-								</td>
-								<td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-									{{ transaction.Vendor || '-' }}
-								</td>
-								<td
-									class="px-4 py-4 whitespace-nowrap text-sm font-mono"
-									:class="transaction.Type === 'DEPOSIT' ? 'text-green-600' : 'text-red-600'">
-									${{ parseFloat(transaction.Amount).toLocaleString() }}
-								</td>
-								<td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600">
-									{{ mapCategory(transaction.Category) }}
-								</td>
-								<td class="px-4 py-4 whitespace-nowrap">
-									<span
-										v-if="detectViolation(transaction).isViolation"
-										class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-										:class="
-											detectViolation(transaction).severity === 'CRITICAL'
-												? 'bg-red-200 text-red-900'
-												: detectViolation(transaction).severity === 'HIGH'
-													? 'bg-red-100 text-red-800'
-													: 'bg-yellow-100 text-yellow-800'
-										">
-										{{ detectViolation(transaction).severity }} VIOLATION
-									</span>
-									<span
-										v-else
-										class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-										Normal
-									</span>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					<p v-if="transactionData.length > 20" class="mt-2 text-sm text-gray-500 text-center">
-						Showing first 20 transactions of {{ transactionData.length }} total
-					</p>
-				</div>
-			</div>
-		</div>
-
-		<!-- Step 3: Import -->
-		<div v-if="parsedData.length > 0 && selectedAccount" class="bg-white rounded-lg shadow-sm border">
-			<div class="border-b px-6 py-4">
-				<h2 class="text-xl font-semibold text-gray-900">Step 3: Import to Directus</h2>
-			</div>
-			<div class="p-6">
-				<div class="space-y-4">
-					<div class="flex items-center">
-						<input
-							id="import-transactions"
-							v-model="importOptions.transactions"
-							type="checkbox"
-							class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-						<label for="import-transactions" class="ml-2 text-sm text-gray-700">
-							Import {{ transactionData.length }} transactions
-						</label>
-					</div>
-
-					<div class="flex items-center">
-						<input
-							id="import-statement"
-							v-model="importOptions.monthlyStatement"
-							type="checkbox"
-							class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-						<label for="import-statement" class="ml-2 text-sm text-gray-700">
-							Create/update monthly statement record ({{ statementPeriod }})
-						</label>
-					</div>
-
-					<div class="flex items-center">
-						<input
-							id="import-violations"
-							v-model="importOptions.violations"
-							type="checkbox"
-							class="h-4 w-4 text-blue-600 border-gray-300 rounded" />
-						<label for="import-violations" class="ml-2 text-sm text-gray-700">
-							Generate violation report ({{ violationCount }} violations detected)
-						</label>
-					</div>
-				</div>
-
-				<div class="mt-6">
-					<button
-						@click="importData"
-						:disabled="isImporting || !canImport"
-						class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-						<span v-if="isImporting" class="flex items-center justify-center">
-							<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-								<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+				<!-- Import Summary -->
+				<div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+					<h3 class="font-semibold text-blue-900 mb-3">Import Summary</h3>
+					<ul class="text-sm text-blue-800 space-y-2">
+						<li class="flex items-start">
+							<svg class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path
-									class="opacity-75"
-									fill="currentColor"
-									d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
 							</svg>
-							Importing Data... ({{ importProgress }}/{{ totalImportSteps }})
-						</span>
-						<span v-else>Import Data to Directus</span>
-					</button>
+							<span>
+								<strong>{{ totalTransactions }}</strong>
+								total transactions will be imported across all accounts
+							</span>
+						</li>
+						<li class="flex items-start">
+							<svg
+								class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0 text-green-600"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+							</svg>
+							<span>
+								<strong>{{ transferMatches.matches.length }}</strong>
+								transfer pairs will be automatically linked
+							</span>
+						</li>
+						<li v-if="transferMatches.unmatched.length > 0" class="flex items-start">
+							<svg
+								class="w-5 h-5 mr-2 mt-0.5 flex-shrink-0 text-yellow-600"
+								fill="none"
+								stroke="currentColor"
+								viewBox="0 0 24 24">
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									stroke-width="2"
+									d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+							</svg>
+							<span>
+								<strong>{{ transferMatches.unmatched.length }}</strong>
+								unmatched transfers will be flagged for manual review
+							</span>
+						</li>
+					</ul>
 				</div>
+
+				<!-- Import Button -->
+				<button
+					@click="importAllData"
+					:disabled="isImporting || !selectedFiscalYear || !selectedMonth"
+					class="w-full px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-lg font-semibold">
+					<span v-if="isImporting" class="flex items-center justify-center">
+						<svg class="animate-spin -ml-1 mr-3 h-6 w-6 text-white" fill="none" viewBox="0 0 24 24">
+							<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+						</svg>
+						Importing... ({{ importProgress.current }} / {{ importProgress.total }})
+					</span>
+					<span v-else>Import All Transactions to Directus</span>
+				</button>
 			</div>
 		</div>
 
 		<!-- Import Results -->
 		<div v-if="importResults" class="bg-white rounded-lg shadow-sm border">
 			<div class="border-b px-6 py-4">
-				<h2 class="text-xl font-semibold text-gray-900">Import Results</h2>
+				<h2 class="text-xl font-semibold text-gray-900">Import Complete</h2>
 			</div>
 			<div class="p-6">
-				<div class="space-y-4">
-					<div v-if="importResults.success" class="p-4 bg-green-50 border-l-4 border-green-400">
-						<h3 class="text-green-800 font-semibold">✅ Import Successful!</h3>
-						<ul class="text-green-700 text-sm mt-2 space-y-1">
-							<li v-if="importResults.transactions">
-								• {{ importResults.transactions.created }} transactions imported
-							</li>
-							<li v-if="importResults.statement">• Monthly statement {{ importResults.statement.action }}</li>
-							<li v-if="importResults.violations">• Violation report {{ importResults.violations.action }}</li>
-						</ul>
-					</div>
+				<div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4">
+					<h3 class="text-green-800 font-semibold flex items-center">
+						<svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+						</svg>
+						Import Successful!
+					</h3>
+					<ul class="text-green-700 text-sm mt-3 space-y-1">
+						<li>• {{ importResults.imported }} transactions imported successfully</li>
+						<li>• {{ importResults.linked }} transfer pairs automatically linked</li>
+						<li v-if="importResults.unmatched > 0">
+							• {{ importResults.unmatched }} unmatched transfers flagged for review
+						</li>
+					</ul>
+				</div>
 
-					<div v-if="importResults.errors?.length > 0" class="p-4 bg-red-50 border-l-4 border-red-400">
-						<h3 class="text-red-800 font-semibold">⚠️ Import Warnings</h3>
-						<ul class="text-red-700 text-sm mt-2 space-y-1">
-							<li v-for="error in importResults.errors" :key="error">• {{ error }}</li>
-						</ul>
-					</div>
+				<div v-if="importResults.errors.length > 0" class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+					<h3 class="text-red-800 font-semibold">⚠️ Issues Encountered</h3>
+					<ul class="text-red-700 text-sm mt-2 space-y-1">
+						<li v-for="(error, idx) in importResults.errors" :key="idx">• {{ error }}</li>
+					</ul>
+				</div>
 
-					<!-- Links to view imported data -->
-					<div v-if="importResults.success" class="flex flex-wrap gap-4 mt-6">
-						<a
-							:href="`${directusUrl}/admin/content/transactions?filter[account_id][_eq]=${selectedAccount.id}`"
-							target="_blank"
-							class="inline-flex items-center px-4 py-2 border border-blue-300 text-blue-700 rounded-lg hover:bg-blue-50">
-							View Transactions
-							<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-							</svg>
-						</a>
-
-						<a
-							:href="`${directusUrl}/admin/content/monthly_statements?filter[account_id][_eq]=${selectedAccount.id}`"
-							target="_blank"
-							class="inline-flex items-center px-4 py-2 border border-green-300 text-green-700 rounded-lg hover:bg-green-50">
-							View Statements
-							<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-							</svg>
-						</a>
-
-						<NuxtLink
-							to="/financials"
-							class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-							View Dashboard
-							<svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path
-									stroke-linecap="round"
-									stroke-linejoin="round"
-									stroke-width="2"
-									d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
-							</svg>
-						</NuxtLink>
-					</div>
+				<!-- Action Buttons -->
+				<div class="flex flex-wrap gap-4 mt-6">
+					<NuxtLink
+						to="/financials"
+						class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+						</svg>
+						View Dashboard
+					</NuxtLink>
+					<button
+						@click="resetImport"
+						class="inline-flex items-center px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+						<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+						</svg>
+						Import Another Month
+					</button>
 				</div>
 			</div>
 		</div>
@@ -357,284 +437,231 @@
 </template>
 
 <script setup>
-import {parse} from 'csv-parse/sync';
+// Remove this line:
+// import Papa from 'papaparse';
 
 definePageMeta({
 	layout: 'default',
 });
 
-// Use the Directus integration from your existing project
+// Directus configuration
 const config = useRuntimeConfig();
 const directusUrl = config.public.directusUrl || 'https://admin.1033lenox.com';
-const directusToken = config.public.staticToken || process.env.DIRECTUS_TOKEN;
+const directusToken = config.public.staticToken;
 
-// Create headers with authentication
-const getAuthHeaders = () => {
-	const headers = {
-		'Content-Type': 'application/json',
+// Authentication headers
+const getAuthHeaders = () => ({
+	'Content-Type': 'application/json',
+	...(directusToken && {Authorization: `Bearer ${directusToken}`}),
+});
+
+// Native CSV parser - no external dependencies
+const parseCSV = (csvText) => {
+	const lines = csvText.split('\n').filter((line) => line.trim());
+	if (lines.length === 0) return {data: [], meta: {fields: []}};
+
+	const parseLine = (line) => {
+		const result = [];
+		let current = '';
+		let inQuotes = false;
+
+		for (let i = 0; i < line.length; i++) {
+			const char = line[i];
+			const nextChar = line[i + 1];
+
+			if (char === '"') {
+				if (inQuotes && nextChar === '"') {
+					current += '"';
+					i++;
+				} else {
+					inQuotes = !inQuotes;
+				}
+			} else if (char === ',' && !inQuotes) {
+				result.push(current.trim());
+				current = '';
+			} else {
+				current += char;
+			}
+		}
+		result.push(current.trim());
+		return result;
 	};
 
-	if (directusToken) {
-		headers['Authorization'] = `Bearer ${directusToken}`;
+	const headers = parseLine(lines[0]);
+	const data = [];
+
+	for (let i = 1; i < lines.length; i++) {
+		const values = parseLine(lines[i]);
+		if (values.length === headers.length) {
+			const row = {};
+			headers.forEach((header, index) => {
+				let value = values[index];
+
+				// Dynamic typing
+				if (value && !isNaN(value) && value !== '') {
+					const num = parseFloat(value);
+					if (!isNaN(num)) {
+						value = num;
+					}
+				}
+
+				row[header] = value;
+			});
+			data.push(row);
+		}
 	}
 
-	return headers;
+	return {data, meta: {fields: headers}};
 };
 
 // Reactive state
-const csvFile = ref(null);
-const parsedData = ref([]);
-const transactionData = ref([]);
-const balanceData = ref([]);
-const accounts = ref([]);
-const budgetCategories = ref([]);
-const selectedAccount = ref(null);
-const selectedFiscalYear = ref(2025);
-const selectedMonth = ref('');
-const isDragging = ref(false);
-const isLoading = ref(false);
-const isImporting = ref(false);
-const importProgress = ref(0);
-const totalImportSteps = ref(0);
-const importResults = ref(null);
-
-// Available options for dropdowns
-const fiscalYearOptions = [
-	{label: '2024', value: 2024},
-	{label: '2025', value: 2025},
-	{label: '2026', value: 2026},
-	{label: '2027', value: 2027},
-];
-
-const monthOptions = [
-	{label: 'January', value: '01'},
-	{label: 'February', value: '02'},
-	{label: 'March', value: '03'},
-	{label: 'April', value: '04'},
-	{label: 'May', value: '05'},
-	{label: 'June', value: '06'},
-	{label: 'July', value: '07'},
-	{label: 'August', value: '08'},
-	{label: 'September', value: '09'},
-	{label: 'October', value: '10'},
-	{label: 'November', value: '11'},
-	{label: 'December', value: '12'},
-];
-
-const importOptions = ref({
-	transactions: true,
-	monthlyStatement: true,
-	violations: true,
+const uploadedFiles = ref({
+	operating: null,
+	special: null,
+	reserves: null,
 });
 
-// Enhanced violation detection for Florida HOA compliance
-const detectViolation = (transaction) => {
-	// COMPREHENSIVE FLORIDA HOA FUND SEGREGATION COMPLIANCE CHECK
+const parsedFiles = ref({
+	operating: [],
+	special: [],
+	reserves: [],
+});
 
-	// 1. CRITICAL: Any transfer between Operating (5129) and Special Assessment (5872) accounts
-	// Florida Statutes 718.111(11)(f) - Special assessment funds must be segregated
-	if (transaction.Description) {
-		const desc = transaction.Description.toLowerCase();
+const transferMatches = ref({
+	matches: [],
+	unmatched: [],
+});
 
-		// Transfers TO special assessment account from operating
-		if (desc.includes('transfer to') && desc.includes('5872')) {
-			return {isViolation: true, type: 'fund_mixing', severity: 'CRITICAL'};
-		}
-
-		// Transfers FROM special assessment account to operating
-		if (desc.includes('transfer from') && desc.includes('5872')) {
-			return {isViolation: true, type: 'fund_mixing', severity: 'CRITICAL'};
-		}
-
-		// Any reference to MMA account 5872 in operating account
-		if (desc.includes('5872') || desc.includes('mma account 5872')) {
-			return {isViolation: true, type: 'fund_mixing', severity: 'CRITICAL'};
-		}
-	}
-
-	// 2. Check vendor field for account transfers
-	if (transaction.Vendor) {
-		const vendor = transaction.Vendor.toLowerCase();
-		if (vendor.includes('5872') || vendor.includes('transfer to 5872')) {
-			return {isViolation: true, type: 'fund_mixing', severity: 'CRITICAL'};
-		}
-	}
-
-	// 3. CRITICAL: Special assessment expenses in operating account
-	if (transaction.Description) {
-		const desc = transaction.Description.toLowerCase();
-		const suspiciousTerms = [
-			'recertification',
-			'40 year',
-			'structural',
-			'engineering report',
-			'milestone inspection',
-			'building certification',
-			'reserve study',
-		];
-
-		if (suspiciousTerms.some((term) => desc.includes(term))) {
-			return {isViolation: true, type: 'unauthorized_expense', severity: 'HIGH'};
-		}
-	}
-
-	// 4. Large maintenance payments that might be special assessments
-	if (transaction.Category === 'Maintenance' && parseFloat(transaction.Amount) > 3000) {
-		return {isViolation: true, type: 'budget_overage', severity: 'MEDIUM'};
-	}
-
-	// 5. Explicit violation marking from CSV
-	if (transaction.Violation === 'true' || transaction.Violation === true) {
-		return {isViolation: true, type: 'explicit_violation', severity: 'HIGH'};
-	}
-
-	return {isViolation: false, type: null, severity: null};
+const accounts = {
+	operating: {id: 1, number: '5129', name: 'Operating Account'},
+	special: {id: 3, number: '5872', name: 'Special Assessment'},
+	reserves: {id: 2, number: '7011', name: 'Reserves'},
 };
 
-// Auto-detect month from CSV data or filename
-const detectMonthFromData = () => {
-	if (transactionData.value.length > 0) {
-		// Try to get from Period field
-		const period = transactionData.value[0]?.Period;
-		if (period) {
-			const monthNum = new Date(`${period} 1, 2025`).getMonth() + 1;
-			return monthNum.toString().padStart(2, '0');
-		}
+const accountNames = {
+	operating: 'Operating (5129)',
+	special: 'Special Assessment (5872)',
+	reserves: 'Reserves (7011)',
+};
 
-		// Try to get from transaction date
-		const firstDate = transactionData.value[0]?.Date;
-		if (firstDate) {
-			const parts = firstDate.split('/');
-			if (parts.length >= 2) {
-				return parts[0].padStart(2, '0');
+const isParsing = ref(false);
+const matchingComplete = ref(false);
+const isImporting = ref(false);
+const selectedFiscalYear = ref(2025);
+const selectedMonth = ref('01');
+const importProgress = ref({current: 0, total: 0});
+const importResults = ref(null);
+
+// Template refs
+const operatingInput = ref(null);
+const specialInput = ref(null);
+const reservesInput = ref(null);
+
+// Computed
+const uploadedFileCount = computed(() => {
+	return Object.values(uploadedFiles.value).filter((f) => f !== null).length;
+});
+
+const totalTransactions = computed(() => {
+	return Object.values(parsedFiles.value).reduce((sum, data) => sum + data.length, 0);
+});
+
+const regularTransactions = computed(() => {
+	const allTransfers = [
+		...transferMatches.value.matches.flatMap((m) => [m.outTransfer, m.inTransfer]),
+		...transferMatches.value.unmatched,
+	];
+	return totalTransactions.value - allTransfers.length;
+});
+
+// Helper functions
+const extractAccountNumber = (description) => {
+	if (!description) return null;
+	const patterns = [/\.{3}(\d{4})/, /Chk ?(\d{4})/, /Mma \.{3}(\d{4})/, /Account (\d{4})/, /(\d{4})$/];
+
+	for (const pattern of patterns) {
+		const match = description.match(pattern);
+		if (match) return match[1];
+	}
+	return null;
+};
+
+const isTransfer = (description) => {
+	if (!description) return false;
+	const desc = description.toLowerCase();
+	return desc.includes('online transfer') || desc.includes('transfer from') || desc.includes('transfer to');
+};
+
+const extractTransfers = (data, sourceAccount, accountType) => {
+	return data
+		.filter((row) => row.Date && isTransfer(row.Description))
+		.map((row, index) => ({
+			csvIndex: index,
+			date: row.Date,
+			type: row.Type,
+			description: row.Description,
+			amount: Math.abs(parseFloat(row.Amount || 0)),
+			targetAccount: extractAccountNumber(row.Description),
+			direction: row.Type === 'WITHDRAWAL' ? 'out' : 'in',
+			sourceAccount,
+			accountType,
+			originalRow: row,
+		}));
+};
+
+const matchTransfers = (allTransfers) => {
+	const matches = [];
+	const used = new Set();
+
+	for (let i = 0; i < allTransfers.length; i++) {
+		if (used.has(i)) continue;
+
+		const transfer1 = allTransfers[i];
+
+		for (let j = i + 1; j < allTransfers.length; j++) {
+			if (used.has(j)) continue;
+
+			const transfer2 = allTransfers[j];
+
+			const oppositeDirection =
+				(transfer1.direction === 'out' && transfer2.direction === 'in') ||
+				(transfer1.direction === 'in' && transfer2.direction === 'out');
+
+			if (!oppositeDirection) continue;
+
+			const amountMatch = Math.abs(transfer1.amount - transfer2.amount) < 0.01;
+			if (!amountMatch) continue;
+
+			const dateMatch = transfer1.date === transfer2.date;
+			if (!dateMatch) continue;
+
+			const accountsMatch =
+				transfer1.targetAccount === transfer2.sourceAccount && transfer2.targetAccount === transfer1.sourceAccount;
+
+			if (accountsMatch) {
+				const outTransfer = transfer1.direction === 'out' ? transfer1 : transfer2;
+				const inTransfer = transfer1.direction === 'in' ? transfer1 : transfer2;
+
+				matches.push({
+					outTransfer,
+					inTransfer,
+					matchQuality: 'perfect',
+				});
+				used.add(i);
+				used.add(j);
+				break;
 			}
 		}
 	}
 
-	// Try to detect from filename
-	if (csvFile.value?.name) {
-		const filename = csvFile.value.name.toLowerCase();
-		if (filename.includes('january') || filename.includes('-01-')) return '01';
-		if (filename.includes('february') || filename.includes('-02-')) return '02';
-		if (filename.includes('march') || filename.includes('-03-')) return '03';
-		if (filename.includes('april') || filename.includes('-04-')) return '04';
-		if (filename.includes('may') || filename.includes('-05-')) return '05';
-		if (filename.includes('june') || filename.includes('-06-')) return '06';
-		if (filename.includes('july') || filename.includes('-07-')) return '07';
-		if (filename.includes('august') || filename.includes('-08-')) return '08';
-		if (filename.includes('september') || filename.includes('-09-')) return '09';
-		if (filename.includes('october') || filename.includes('-10-')) return '10';
-		if (filename.includes('november') || filename.includes('-11-')) return '11';
-		if (filename.includes('december') || filename.includes('-12-')) return '12';
-	}
+	const unmatched = allTransfers.filter((_, idx) => !used.has(idx));
 
-	return '';
+	return {matches, unmatched};
 };
 
-// Computed properties
-const totalDeposits = computed(() => {
-	return transactionData.value
-		.filter((t) => t.Type === 'DEPOSIT')
-		.reduce((sum, t) => sum + parseFloat(t.Amount || 0), 0);
-});
-
-const totalWithdrawals = computed(() => {
-	return transactionData.value
-		.filter((t) => ['WITHDRAWAL', 'FEE'].includes(t.Type))
-		.reduce((sum, t) => sum + parseFloat(t.Amount || 0), 0);
-});
-
-const violationCount = computed(() => {
-	return transactionData.value.filter((t) => {
-		const violation = detectViolation(t);
-		return violation.isViolation;
-	}).length;
-});
-
-const statementPeriod = computed(() => {
-	if (!selectedMonth.value || !selectedFiscalYear.value) return '';
-	const monthName = monthOptions.find((m) => m.value === selectedMonth.value)?.label || '';
-	return `${monthName} ${selectedFiscalYear.value}`;
-});
-
-const canImport = computed(() => {
-	return (
-		selectedAccount.value &&
-		selectedFiscalYear.value &&
-		selectedMonth.value &&
-		(importOptions.value.transactions || importOptions.value.monthlyStatement || importOptions.value.violations)
-	);
-});
-
-// Data mapping methods
-const mapCategory = (csvCategory) => {
-	if (!csvCategory) return 'Uncategorized';
-
-	// Updated mapping for your specific CSV format → Directus budget_categories
-	const categoryMap = {
-		// Direct matches to your Directus categories
-		Insurance: 'Insurance',
-		Utilities: 'Utilities',
-		Maintenance: 'Maintenance',
-		Regulatory: 'Regulatory',
-		Banking: 'Banking',
-		Revenue: 'Revenue',
-
-		// Professional services (multiple CSV names → Professional)
-		'Professional Services': 'Professional',
-		Professional: 'Professional',
-		Management: 'Professional',
-
-		// Operating expenses map to Banking (bank fees, office supplies)
-		Operating: 'Banking',
-
-		// Special handling
-		Transfer: 'Transfer', // Keep transfers as-is for violation detection
-	};
-
-	return categoryMap[csvCategory] || 'Maintenance'; // Default to Maintenance for uncategorized
-};
-
-const findBudgetCategory = (csvCategory) => {
-	const mappedCategoryName = mapCategory(csvCategory);
-
-	// Skip category lookup for transfers
-	if (mappedCategoryName === 'Transfer') return null;
-
-	// Find matching Directus budget category using selected fiscal year
-	const category = budgetCategories.value.find(
-		(c) => c.category_name === mappedCategoryName && c.fiscal_year === selectedFiscalYear.value
-	);
-
-	if (!category) {
-		console.warn(
-			`Budget category not found: ${mappedCategoryName} (from CSV: ${csvCategory}) for fiscal year ${selectedFiscalYear.value}`
-		);
-		// Fallback to Maintenance category
-		return budgetCategories.value.find(
-			(c) => c.category_name === 'Maintenance' && c.fiscal_year === selectedFiscalYear.value
-		);
-	}
-
-	return category;
-};
-
-const getTypeClass = (type) => {
-	const classes = {
-		DEPOSIT: 'bg-green-100 text-green-800',
-		WITHDRAWAL: 'bg-red-100 text-red-800',
-		FEE: 'bg-yellow-100 text-yellow-800',
-	};
-	return classes[type] || 'bg-gray-100 text-gray-800';
-};
-
-const formatDate = (dateStr) => {
-	if (!dateStr) return '';
-
-	// Handle MM/DD format from CSV
+const formatDate = (dateStr, year) => {
 	const parts = dateStr.split('/');
 	if (parts.length === 2) {
-		const year = selectedFiscalYear.value; // Use selected fiscal year
 		const month = parts[0].padStart(2, '0');
 		const day = parts[1].padStart(2, '0');
 		return `${year}-${month}-${day}`;
@@ -642,139 +669,111 @@ const formatDate = (dateStr) => {
 	return dateStr;
 };
 
-// File handling methods
-const handleFileDrop = (event) => {
-	isDragging.value = false;
+// File handling
+const handleDragOver = (accountType) => {
+	// Visual feedback for drag over
+};
+
+const handleDragLeave = (accountType) => {
+	// Visual feedback for drag leave
+};
+
+const handleDrop = (accountType, event) => {
 	const files = event.dataTransfer.files;
 	if (files.length > 0) {
-		csvFile.value = files[0];
+		uploadedFiles.value[accountType] = files[0];
 	}
 };
 
-const handleFileSelect = (event) => {
+const handleFileSelect = (accountType, event) => {
 	const files = event.target.files;
 	if (files.length > 0) {
-		csvFile.value = files[0];
+		uploadedFiles.value[accountType] = files[0];
 	}
 };
 
-const clearFile = () => {
-	csvFile.value = null;
-	parsedData.value = [];
-	transactionData.value = [];
-	balanceData.value = [];
-	importResults.value = null;
-	selectedMonth.value = '';
-};
+// Parse all files
+const parseAllFiles = async () => {
+	if (uploadedFileCount.value < 2) return;
 
-// CSV parsing method
-const parseCSV = async () => {
-	if (!csvFile.value) return;
-
-	isLoading.value = true;
+	isParsing.value = true;
+	matchingComplete.value = false;
 
 	try {
-		const text = await csvFile.value.text();
+		for (const [accountType, file] of Object.entries(uploadedFiles.value)) {
+			if (!file) continue;
 
-		try {
-			// Replace Papa.parse with csv-parse
-			const results = parse(text, {
-				columns: true, // equivalent to header: true
-				skip_empty_lines: true,
-				trim: true,
-			});
+			const text = await file.text();
+			const parsed = parseCSV(text);
 
-			parsedData.value = results;
-
-			// Separate transactions from balance entries
-			transactionData.value = results.filter((row) => row.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(row.Type));
-
-			balanceData.value = results.filter((row) => row.Type === 'BALANCE');
-
-			console.log('Parsed CSV:', {
-				total: results.length,
-				transactions: transactionData.value.length,
-				balances: balanceData.value.length,
-			});
-
-			// Auto-detect month from CSV data if not already selected
-			if (!selectedMonth.value) {
-				const detectedMonth = detectMonthFromData();
-				if (detectedMonth) {
-					selectedMonth.value = detectedMonth;
-					console.log('Auto-detected month:', detectedMonth);
-				}
-			}
-		} catch (parseError) {
-			console.error('CSV parsing error:', parseError);
-			alert('Error parsing CSV file: ' + parseError.message);
+			parsedFiles.value[accountType] = parsed.data.filter(
+				(row) => row.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(row.Type)
+			);
 		}
+
+		const allTransfers = [];
+		for (const [accountType, data] of Object.entries(parsedFiles.value)) {
+			if (data.length === 0) continue;
+			const accountNumber = accounts[accountType].number;
+			const transfers = extractTransfers(data, accountNumber, accountType);
+			allTransfers.push(...transfers);
+		}
+
+		transferMatches.value = matchTransfers(allTransfers);
+		matchingComplete.value = true;
 	} catch (error) {
-		console.error('File reading error:', error);
-		alert('Error reading file: ' + error.message);
+		console.error('Parse error:', error);
+		alert('Error parsing CSV files: ' + error.message);
 	} finally {
-		isLoading.value = false;
+		isParsing.value = false;
 	}
 };
 
-// Import method
-const importData = async () => {
-	if (!selectedAccount.value || transactionData.value.length === 0 || !selectedMonth.value) return;
+// Import all data
+const importAllData = async () => {
+	if (!selectedFiscalYear.value || !selectedMonth.value) return;
 
 	isImporting.value = true;
-	importProgress.value = 0;
-	totalImportSteps.value = 0;
-
-	// Calculate total steps
-	if (importOptions.value.transactions) totalImportSteps.value += transactionData.value.length;
-	if (importOptions.value.monthlyStatement) totalImportSteps.value += 1;
-	if (importOptions.value.violations) totalImportSteps.value += 1;
+	importProgress.value = {current: 0, total: totalTransactions.value};
 
 	const results = {
-		success: true,
+		imported: 0,
+		linked: 0,
+		unmatched: transferMatches.value.unmatched.length,
 		errors: [],
-		transactions: null,
-		statement: null,
-		violations: null,
 	};
 
 	try {
-		// Import transactions
-		if (importOptions.value.transactions) {
-			console.log('Starting transaction import...');
+		const transactionIdMap = new Map();
 
-			let created = 0;
-			for (const transaction of transactionData.value) {
+		for (const [accountType, data] of Object.entries(parsedFiles.value)) {
+			if (data.length === 0) continue;
+
+			const account = accounts[accountType];
+
+			for (let i = 0; i < data.length; i++) {
+				const row = data[i];
+				const key = `${account.number}-${i}`;
+
 				try {
-					// Find matching budget category using dynamic lookup
-					const budgetCategory = findBudgetCategory(transaction.Category);
-
-					// Enhanced violation detection
-					const violation = detectViolation(transaction);
-
-					// Convert date
-					const transactionDate = formatDate(transaction.Date);
+					const isTransferTx = isTransfer(row.Description);
 
 					const transactionData = {
 						fiscal_year: selectedFiscalYear.value,
-						account_id: selectedAccount.value.id,
-						transaction_date: transactionDate,
-						description: transaction.Description || '',
-						vendor: transaction.Vendor || null,
-						amount: parseFloat(transaction.Amount || 0),
-						transaction_type: transaction.Type.toLowerCase(),
-						category_id: budgetCategory?.id || null,
-						is_violation: violation.isViolation,
-						violation_type: violation.type,
-						auto_categorized: true,
+						account_id: account.id,
+						transaction_date: formatDate(row.Date, selectedFiscalYear.value),
+						description: row.Description || '',
+						vendor: row.Vendor || null,
+						amount: Math.abs(parseFloat(row.Amount || 0)),
+						transaction_type: isTransferTx
+							? row.Type === 'WITHDRAWAL'
+								? 'transfer_out'
+								: 'transfer_in'
+							: row.Type.toLowerCase(),
 						statement_month: selectedMonth.value,
-						board_notes: violation.isViolation
-							? `COMPLIANCE ALERT: ${violation.type} (${violation.severity}) - Review for Florida HOA law compliance`
-							: null,
 						status: 'published',
 					};
 
-					// Use direct API call with authentication
 					const response = await fetch(`${directusUrl}/items/transactions`, {
 						method: 'POST',
 						headers: getAuthHeaders(),
@@ -782,240 +781,78 @@ const importData = async () => {
 					});
 
 					if (!response.ok) {
-						throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+						throw new Error(`HTTP ${response.status}`);
 					}
 
-					created++;
-					importProgress.value++;
+					const responseData = await response.json();
+					const newId = responseData.data.id;
+
+					transactionIdMap.set(key, newId);
+					results.imported++;
+					importProgress.value.current++;
 				} catch (error) {
 					console.error('Error importing transaction:', error);
-					results.errors.push(`Transaction import error: ${error.message}`);
+					results.errors.push(`${accountNames[accountType]} transaction import failed`);
 				}
 			}
-
-			results.transactions = {created};
 		}
 
-		// Create/update monthly statement
-		if (importOptions.value.monthlyStatement) {
+		for (const match of transferMatches.value.matches) {
 			try {
-				const beginningBalance = balanceData.value.find((b) => b.SubType === 'Beginning')?.Amount || 0;
-				const endingBalance = balanceData.value.find((b) => b.SubType === 'Ending')?.Amount || 0;
+				const outKey = `${match.outTransfer.sourceAccount}-${match.outTransfer.csvIndex}`;
+				const inKey = `${match.inTransfer.sourceAccount}-${match.inTransfer.csvIndex}`;
 
-				const statementData = {
-					fiscal_year: selectedFiscalYear.value,
-					account_id: selectedAccount.value.id,
-					statement_month: selectedMonth.value,
-					beginning_balance: parseFloat(beginningBalance),
-					ending_balance: parseFloat(endingBalance),
-					reconciled: false,
-					status: 'published',
-				};
+				const outId = transactionIdMap.get(outKey);
+				const inId = transactionIdMap.get(inKey);
 
-				// Try to find existing statement
-				const checkUrl = `${directusUrl}/items/monthly_statements?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[account_id][_eq]=${selectedAccount.value.id}&filter[statement_month][_eq]=${selectedMonth.value}`;
-				const checkResponse = await fetch(checkUrl, {headers: getAuthHeaders()});
-
-				if (checkResponse.ok) {
-					const checkData = await checkResponse.json();
-					const existingStatements = checkData.data || [];
-
-					if (existingStatements.length > 0) {
-						// Update existing
-						const updateResponse = await fetch(`${directusUrl}/items/monthly_statements/${existingStatements[0].id}`, {
+				if (outId && inId) {
+					await Promise.all([
+						fetch(`${directusUrl}/items/transactions/${outId}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
-							body: JSON.stringify(statementData),
-						});
-						if (updateResponse.ok) {
-							results.statement = {action: 'updated'};
-						}
-					} else {
-						// Create new
-						const createResponse = await fetch(`${directusUrl}/items/monthly_statements`, {
-							method: 'POST',
-							headers: getAuthHeaders(),
-							body: JSON.stringify(statementData),
-						});
-						if (createResponse.ok) {
-							results.statement = {action: 'created'};
-						}
-					}
-				}
-
-				importProgress.value++;
-			} catch (error) {
-				console.error('Error with monthly statement:', error);
-				results.errors.push(`Statement error: ${error.message}`);
-			}
-		}
-
-		// Generate violation report
-		if (importOptions.value.violations && violationCount.value > 0) {
-			try {
-				const totalViolationAmount = transactionData.value
-					.filter((t) => detectViolation(t).isViolation)
-					.reduce((sum, t) => sum + parseFloat(t.Amount || 0), 0);
-
-				const reportData = {
-					fiscal_year: selectedFiscalYear.value,
-					report_month: selectedMonth.value,
-					violation_count: violationCount.value,
-					total_violation_amount: totalViolationAmount,
-					compliance_status: violationCount.value > 5 ? 'critical_violations' : 'minor_issues',
-					board_actions_required: `${violationCount.value} fund segregation violations detected from CSV import. Review transfers between accounts.`,
-					status: 'published',
-				};
-
-				// Try to find existing report
-				const checkUrl = `${directusUrl}/items/violation_reports?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[report_month][_eq]=${selectedMonth.value}`;
-				const checkResponse = await fetch(checkUrl, {headers: getAuthHeaders()});
-
-				if (checkResponse.ok) {
-					const checkData = await checkResponse.json();
-					const existingReports = checkData.data || [];
-
-					if (existingReports.length > 0) {
-						// Update existing
-						const updateResponse = await fetch(`${directusUrl}/items/violation_reports/${existingReports[0].id}`, {
+							body: JSON.stringify({linked_transfer_id: inId}),
+						}),
+						fetch(`${directusUrl}/items/transactions/${inId}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
-							body: JSON.stringify(reportData),
-						});
-						if (updateResponse.ok) {
-							results.violations = {action: 'updated'};
-						}
-					} else {
-						// Create new
-						const createResponse = await fetch(`${directusUrl}/items/violation_reports`, {
-							method: 'POST',
-							headers: getAuthHeaders(),
-							body: JSON.stringify(reportData),
-						});
-						if (createResponse.ok) {
-							results.violations = {action: 'created'};
-						}
-					}
-				}
+							body: JSON.stringify({linked_transfer_id: outId}),
+						}),
+					]);
 
-				importProgress.value++;
+					results.linked++;
+				}
 			} catch (error) {
-				console.error('Error with violation report:', error);
-				results.errors.push(`Violation report error: ${error.message}`);
+				console.error('Error linking transfers:', error);
+				results.errors.push('Transfer linking failed for one pair');
 			}
 		}
+
+		importResults.value = results;
 	} catch (error) {
 		console.error('Import error:', error);
-		results.success = false;
-		results.errors.push(`General import error: ${error.message}`);
+		alert('Import failed: ' + error.message);
 	} finally {
 		isImporting.value = false;
-		importResults.value = results;
 	}
 };
 
-// Load reference data on mount
-onMounted(async () => {
-	try {
-		// Load accounts using fetch API with authentication
-		console.log('Loading accounts and budget categories...');
-
-		const authHeaders = getAuthHeaders();
-
-		// Try direct API calls to your Directus instance with auth
-		const accountsUrl = `${directusUrl}/items/accounts?filter[status][_eq]=published&sort=account_number`;
-		const categoriesUrl = `${directusUrl}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=2025&sort=category_name`;
-
-		const [accountsResponse, categoriesResponse] = await Promise.all([
-			fetch(accountsUrl, {headers: authHeaders}),
-			fetch(categoriesUrl, {headers: authHeaders}),
-		]);
-
-		if (accountsResponse.ok) {
-			const accountsData = await accountsResponse.json();
-			accounts.value = accountsData.data || [];
-			console.log('Loaded accounts:', accounts.value.length);
-		} else {
-			console.error('Failed to load accounts:', accountsResponse.status, accountsResponse.statusText);
-			// Fallback with hardcoded accounts based on your Directus data
-			accounts.value = [
-				{
-					id: 1,
-					account_number: '5129',
-					account_name: 'Operating Account',
-					account_type: 'operating',
-					description: 'Chase Business Complete Checking - Day-to-day operational expenses',
-				},
-				{
-					id: 2,
-					account_number: '7011',
-					account_name: 'Reserve Account',
-					account_type: 'reserve',
-					description: 'Chase Business Total Savings - General reserves',
-				},
-				{
-					id: 3,
-					account_number: '5872',
-					account_name: '40-Year Special Assessment',
-					account_type: 'special',
-					description: 'Chase Business Total Savings - 40-year recertification project only',
-				},
-			];
-		}
-
-		if (categoriesResponse.ok) {
-			const categoriesData = await categoriesResponse.json();
-			budgetCategories.value = categoriesData.data || [];
-			console.log('Loaded budget categories:', budgetCategories.value.length);
-		} else {
-			console.error('Failed to load budget categories:', categoriesResponse.status, categoriesResponse.statusText);
-			// Fallback with hardcoded categories based on your Directus data
-			budgetCategories.value = [
-				{id: 1, category_name: 'Insurance', fiscal_year: 2025},
-				{id: 2, category_name: 'Professional', fiscal_year: 2025},
-				{id: 3, category_name: 'Utilities', fiscal_year: 2025},
-				{id: 4, category_name: 'Maintenance', fiscal_year: 2025},
-				{id: 5, category_name: 'Regulatory', fiscal_year: 2025},
-				{id: 6, category_name: 'Banking', fiscal_year: 2025},
-				{id: 7, category_name: 'Revenue', fiscal_year: 2025},
-			];
-		}
-	} catch (error) {
-		console.error('Error loading reference data:', error);
-		// Use fallback data so the import can still work
-		accounts.value = [
-			{
-				id: 1,
-				account_number: '5129',
-				account_name: 'Operating Account',
-				account_type: 'operating',
-				description: 'Chase Business Complete Checking - Day-to-day operational expenses',
-			},
-			{
-				id: 2,
-				account_number: '7011',
-				account_name: 'Reserve Account',
-				account_type: 'reserve',
-				description: 'Chase Business Total Savings - General reserves',
-			},
-			{
-				id: 3,
-				account_number: '5872',
-				account_name: '40-Year Special Assessment',
-				account_type: 'special',
-				description: 'Chase Business Total Savings - 40-year recertification project only',
-			},
-		];
-
-		budgetCategories.value = [
-			{id: 1, category_name: 'Insurance', fiscal_year: 2025},
-			{id: 2, category_name: 'Professional', fiscal_year: 2025},
-			{id: 3, category_name: 'Utilities', fiscal_year: 2025},
-			{id: 4, category_name: 'Maintenance', fiscal_year: 2025},
-			{id: 5, category_name: 'Regulatory', fiscal_year: 2025},
-			{id: 6, category_name: 'Banking', fiscal_year: 2025},
-			{id: 7, category_name: 'Revenue', fiscal_year: 2025},
-		];
-	}
-});
+// Reset for new import
+const resetImport = () => {
+	uploadedFiles.value = {
+		operating: null,
+		special: null,
+		reserves: null,
+	};
+	parsedFiles.value = {
+		operating: [],
+		special: [],
+		reserves: [],
+	};
+	transferMatches.value = {
+		matches: [],
+		unmatched: [],
+	};
+	matchingComplete.value = false;
+	importResults.value = null;
+};
 </script>

@@ -1,0 +1,48 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,44227.14,,,,,,Beginning,
+BALANCE,,,23195.16,,,,,,Ending,
+DEPOSIT,08/01,Zelle Payment From Bernard Lenz,90,Bernard Lenz,,Maintenance,false,,
+DEPOSIT,08/04,Remote Online Deposit,726,Multiple Units,,Maintenance,false,,
+DEPOSIT,08/04,Zelle Payment From Brandon Sirrico,15000,Brandon Sirrico,,Maintenance,false,,
+DEPOSIT,08/04,Zelle Payment From Mala Germaine Bryan,700,Mala Germaine Bryan,,Maintenance,false,,
+DEPOSIT,08/04,Zelle Payment From Kristine Blanco,570,Kristine Blanco,,Maintenance,false,,
+DEPOSIT,08/05,Zelle Payment From Brandon Sirrico,3149.06,Brandon Sirrico,,Maintenance,false,,
+DEPOSIT,08/05,Transfer from Wave,1047.25,Wave,,Operating,false,,
+DEPOSIT,08/08,Zelle Payment From Nidia L Cortes,90,Nidia L Cortes,,Maintenance,false,,
+DEPOSIT,08/18,Zelle Payment From Nidia L Cortes,90,Nidia L Cortes,,Maintenance,false,,
+DEPOSIT,08/28,Transfer from Wash Multifamily,475.92,Wash Multifamily,,Operating,false,,
+WITHDRAWAL,08/01,Online Transfer To Account 5872,90,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/04,Breezeline FL,56.01,,Breezeline,Utilities,false,,
+WITHDRAWAL,08/04,Online Transfer To Account 5872,1270,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/04,Online Transfer To Account 5872,15000,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/05,Online Transfer To Account 5872,3149.06,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/05,Online Transfer To Account 5872,1047.25,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/06,Teco/People Gas,288,,Teco/People Gas,Utilities,false,,
+WITHDRAWAL,08/08,Online Transfer To Account 5872,90,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/08,Zelle Payment To Nenad Rakita,9.62,,Nenad Rakita,Maintenance,false,,
+WITHDRAWAL,08/12,Zelle Payment To Maverick Elevators,7500,,Maverick Elevators,Maintenance,false,,
+WITHDRAWAL,08/13,Zelle Payment To Maverick Elevators,120,,Maverick Elevators,Maintenance,false,,
+WITHDRAWAL,08/13,Online Payment To Rhonda Hollander Esq,321.14,,Rhonda Hollander Esq,Professional,false,,
+WITHDRAWAL,08/13,Zelle Payment To Harry Tempkins,210,,Harry Tempkins,Maintenance,false,,
+WITHDRAWAL,08/13,Zelle Payment To Harry Tempkins,720,,Harry Tempkins,Maintenance,false,,
+WITHDRAWAL,08/13,Zelle Payment To Harry Tempkins,2520,,Harry Tempkins,Maintenance,false,,
+WITHDRAWAL,08/14,General Deposit Water,2422.55,,General Deposit,Utilities,false,,
+WITHDRAWAL,08/15,Waste Management,416.63,,Waste Management,Utilities,false,,
+WITHDRAWAL,08/15,Waste Management,44.26,,Waste Management,Utilities,false,,
+WITHDRAWAL,08/18,FPL Direct Debit,213.71,,FPL Electric,Utilities,false,,
+WITHDRAWAL,08/19,Online Transfer To Account 5872,90,,Transfer to 5872,VIOLATION,true,,
+WITHDRAWAL,08/19,Zelle Payment To Florida Garage Door,185,,Florida Garage Door,Maintenance,false,,
+WITHDRAWAL,08/22,First Insurance,6053.06,,First Insurance,Insurance,false,,
+WITHDRAWAL,08/27,Miami Beach City Fee,250,,City of Miami Beach,Regulatory,false,,
+WITHDRAWAL,08/28,Online Payment To Jani-King of Miami,428,,Jani-King,Maintenance,false,,
+WITHDRAWAL,08/29,Online Transfer To Account 7011,475.92,,Transfer to 7011,Transfer,false,,
+VIOLATION,08/01,Improper transfer to Special Assessment,90,,,,,,,outgoing
+VIOLATION,08/04,Improper transfer to Special Assessment,1270,,,,,,,outgoing
+VIOLATION,08/04,Large improper transfer to Special Assessment,15000,,,,,,,outgoing
+VIOLATION,08/05,Improper transfer to Special Assessment,3149.06,,,,,,,outgoing
+VIOLATION,08/05,Improper transfer to Special Assessment,1047.25,,,,,,,outgoing
+VIOLATION,08/08,Improper transfer to Special Assessment,90,,,,,,,outgoing
+VIOLATION,08/19,Improper transfer to Special Assessment,90,,,,,,,outgoing
+WARNING,,Critical: Large fund segregation violations continue,,,,,,,
+WARNING,,Operating balance declining rapidly,,,,,,,
+WARNING,,Excessive transfers to special assessment account,,,,,,,

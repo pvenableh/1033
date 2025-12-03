@@ -1,0 +1,66 @@
+Date,Type,Description,Vendor,Amount,Category,Period
+01/02,DEPOSIT,Remote Online Deposit 1,,1497.00,Revenue,January 2024
+01/02,DEPOSIT,Zelle Payment From Alejandro Salinas Bacr4O4Tcw1F,Alejandro Salinas,3500.00,Revenue,January 2024
+01/02,DEPOSIT,Buildium ACH Payment 329653,Buildium,1447.24,Revenue,January 2024
+01/04,DEPOSIT,Buildium ACH Payment 329653,Buildium,4491.00,Revenue,January 2024
+01/05,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/05,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/05,DEPOSIT,Buildium ACH Payment 329653,Buildium,457.00,Revenue,January 2024
+01/08,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/08,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/08,DEPOSIT,Zelle Payment From Camila Hoffman Ctz006Wbrngv,Camila Hoffman,1950.00,Revenue,January 2024
+01/09,DEPOSIT,Buildium ACH Payment 329653,Buildium,1356.00,Revenue,January 2024
+01/11,DEPOSIT,Wash Multifamily EDI Payment,Wash Multifamily,449.04,Revenue,January 2024
+01/12,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/12,DEPOSIT,Deposit 2036743477,,1950.00,Revenue,January 2024
+01/12,DEPOSIT,Buildium ACH Payment 329653,Buildium,453.00,Revenue,January 2024
+01/16,DEPOSIT,Remote Online Deposit 1,,1950.00,Revenue,January 2024
+01/16,DEPOSIT,Remote Online Deposit 1,,453.00,Revenue,January 2024
+01/16,DEPOSIT,Zelle Payment From Nenad Rakita Hna01V3Fm0Cp,Nenad Rakita,3000.00,Revenue,January 2024
+01/16,DEPOSIT,Zelle Payment From Alejandro Salinas Bacy02Ibaylx,Alejandro Salinas,2500.00,Revenue,January 2024
+01/19,DEPOSIT,Deposit 1224285580,,2994.00,Revenue,January 2024
+01/19,DEPOSIT,Deposit 1224285581,,2994.00,Revenue,January 2024
+01/19,DEPOSIT,Online Transfer From Mma ...5872 Transaction#: 19619181048,,5940.00,Transfer,January 2024
+01/19,DEPOSIT,Zelle Payment From Brennen Edwards Cofrpiywzn46,Brennen Edwards,1950.00,Revenue,January 2024
+01/19,DEPOSIT,Zelle Payment From Alejandro Salinas Bacwdatc1Kmo,Alejandro Salinas,1000.00,Revenue,January 2024
+01/22,DEPOSIT,Buildium ACH Payment 329653,Buildium,1950.00,Revenue,January 2024
+01/24,DEPOSIT,Wash Multifamily EDI Payment,Wash Multifamily,462.00,Revenue,January 2024
+01/26,DEPOSIT,Buildium ACH Payment 329653,Buildium,2009.81,Revenue,January 2024
+01/26,DEPOSIT,Zelle Payment From Alejandro Salinas Bacysz1Ww6Bt,Alejandro Salinas,2000.00,Revenue,January 2024
+01/29,DEPOSIT,Zelle Payment From Sunshine Apts LLC 19710065670,Sunshine Apts LLC,6100.00,Revenue,January 2024
+01/30,DEPOSIT,Remote Online Deposit 1,,453.00,Revenue,January 2024
+01/31,DEPOSIT,Remote Online Deposit 1,,3347.00,Revenue,January 2024
+01/31,DEPOSIT,Remote Online Deposit 1,,3000.00,Revenue,January 2024
+01/19,WITHDRAWAL,Check 102,,800.00,Operating,January 2024
+01/19,WITHDRAWAL,Check 103,,160.00,Operating,January 2024
+01/18,WITHDRAWAL,Check 104,,780.00,Operating,January 2024
+01/18,WITHDRAWAL,Check 105,,32.50,Operating,January 2024
+01/19,WITHDRAWAL,Check 106,,160.00,Operating,January 2024
+01/03,WITHDRAWAL,Betterwaste Management Sale,Betterwaste Management,1531.40,Utilities,January 2024
+01/03,WITHDRAWAL,Teco/People Gas Utility Payment,Teco/People Gas,300.95,Utilities,January 2024
+01/03,WITHDRAWAL,Zelle Payment To Maverick Elevators 19476354878,Maverick Elevators,2082.00,Maintenance,January 2024
+01/04,WITHDRAWAL,Mdcbuildings Purchase,Mdcbuildings,54.50,Maintenance,January 2024
+01/05,WITHDRAWAL,Online Transfer To Mma ...5872 Transaction#: 19495323870,,3500.00,Transfer,January 2024
+01/05,WITHDRAWAL,Zelle Payment To Diana Wyatt Jpm99A7Jm3Wc,Diana Wyatt,260.50,Professional,January 2024
+01/08,WITHDRAWAL,Buildium ACH Payment 329653,Buildium,250.00,Professional,January 2024
+01/10,WITHDRAWAL,Zelle Payment To Maverick Elevators 19537500166,Maverick Elevators,1388.00,Maintenance,January 2024
+01/11,WITHDRAWAL,Online Payment To 1 Touch Elevator Phones Inc,1 Touch Elevator Phones,270.00,Maintenance,January 2024
+01/16,WITHDRAWAL,Zelle Payment To Harry Tempkins Jpm99A7X8Y6A,Harry Tempkins,608.77,Maintenance,January 2024
+01/16,WITHDRAWAL,Zelle Payment To Harry Tempkins Jpm99A7X9A0U,Harry Tempkins,248.77,Maintenance,January 2024
+01/16,WITHDRAWAL,Zelle Payment To Harry Tempkins Jpm99A7X9C75,Harry Tempkins,353.25,Maintenance,January 2024
+01/16,WITHDRAWAL,Zelle Payment To Harry Tempkins Jpm99A7Zolwy,Harry Tempkins,2340.00,Maintenance,January 2024
+01/16,WITHDRAWAL,Online Transfer To Mma ...5872 Transaction#: 19596638123,,3000.00,Transfer,January 2024
+01/17,WITHDRAWAL,Betterwaste Management Sale,Betterwaste Management,518.70,Utilities,January 2024
+01/17,WITHDRAWAL,General Deposit UB Payment,General Deposit,1885.75,Utilities,January 2024
+01/18,WITHDRAWAL,Online Payment To Florida Power And Light,Florida Power And Light,203.00,Utilities,January 2024
+01/18,WITHDRAWAL,Online Transfer To Mma ...5872 Transaction#: 19608428607,,2500.00,Transfer,January 2024
+01/18,WITHDRAWAL,Zelle Payment To Maverick Elevators 19608531444,Maverick Elevators,450.00,Maintenance,January 2024
+01/19,WITHDRAWAL,Buildium ACH Payment 329653,Buildium,625.00,Professional,January 2024
+01/19,WITHDRAWAL,Zelle Payment To Harry Tempkins Jpm99A8644Yj,Harry Tempkins,5940.00,Maintenance,January 2024
+01/19,WITHDRAWAL,Online Transfer To Mma ...5872 Transaction#: 19627263084,,1000.00,Transfer,January 2024
+01/23,WITHDRAWAL,First Insurance Payment,First Insurance,17978.27,Insurance,January 2024
+01/24,WITHDRAWAL,Online Transfer To Mma ...7011 Transaction#: 19664889089,,462.00,Transfer,January 2024
+01/25,WITHDRAWAL,Buildium ACH Payment 329653,Buildium,150.00,Professional,January 2024
+01/29,WITHDRAWAL,Zelle Payment To Diana Wyatt Jpm99A8Iurdx,Diana Wyatt,70.00,Professional,January 2024
+01/02,BALANCE,Beginning Balance,,12155.63,Beginning,January 2024
+01/31,BALANCE,Ending Balance,,31655.36,Ending,January 2024

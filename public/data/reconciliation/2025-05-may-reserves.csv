@@ -1,0 +1,5 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,13375.63,,,,,,Beginning,
+BALANCE,,,13498.99,,,,,,Ending,
+DEPOSIT,05/01,Online Transfer From Chk Account 5129,123.25,Account 5129,,Transfer,false,May,Transfer
+DEPOSIT,05/30,Interest Payment,0.11,Chase Bank,,Interest,false,May,Interest

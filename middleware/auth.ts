@@ -3,14 +3,11 @@ export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number |
 
 	if (user.value) {
 		try {
-			console.log('trying refresh');
 			await refresh(); // Attempt to refresh the token
 			const refreshedUser = await readMe(); // Re-fetch user data after refreshing the token
-			console.log('refreshed user:');
-			console.log(refreshedUser);
+
 			setUser(refreshedUser);
 		} catch (error) {
-			console.error('Error refreshing token or fetching user data:', error);
 			// Redirect to sign-in with a `redirect` query parameter pointing to the intended destination
 			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
 		}
@@ -27,7 +24,6 @@ export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number |
 				return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
 			}
 		} catch (error) {
-			console.error('Error fetching user data:', error);
 			// Redirect to sign-in with a `redirect` query parameter in case of any error
 			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
 		}

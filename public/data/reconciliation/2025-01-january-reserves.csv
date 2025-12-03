@@ -1,0 +1,4 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,12537.02,,,,,,Beginning,
+BALANCE,,,12537.12,,,,,,Ending,
+DEPOSIT,01/31,Interest Payment,0.1,Chase Bank,,Interest,false,January,Interest

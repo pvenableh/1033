@@ -1,6 +1,7 @@
 <template>
-	<div class="w-full flex flex-row flex-wrap items-start min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-600">
-		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white lg:py-6 mt-4 md:mt-8">
+	<div
+		class="w-full flex flex-col lg:flex-row flex-wrap items-start justify-start min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-600">
+		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white lg:py-6 mt-4 md:mt-8 mb-6">
 			Access Control
 		</h1>
 
@@ -66,8 +67,8 @@
 
 							<div
 								:class="[
-									'overflow-y-auto transition-all duration-300',
-									isDirectorySearchOpen ? 'max-h-[520px]' : 'max-h-[600px]',
+									'overflow-y-auto transition-all duration-300 mt-5 mb-5',
+									isDirectorySearchOpen ? 'max-h-[100svh - 275px]' : 'max-h-[100svh - 195px]',
 								]">
 								<!-- No Results Message -->
 								<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
@@ -174,7 +175,7 @@
 								@scroll="handleScrollMobile"
 								:class="[
 									'overflow-y-auto transition-all duration-300',
-									isActivitySearchOpen ? 'max-h-[520px]' : 'max-h-[600px]',
+									isActivitySearchOpen ? 'max-h-[100svh - 275px]' : 'max-h-[100svh - 195px]',
 								]">
 								<div v-if="pending && events.length === 0" class="px-4 py-8 text-center text-zinc-500">
 									<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
@@ -325,7 +326,7 @@
 				<div
 					:class="[
 						'overflow-y-auto transition-all duration-300',
-						isDirectorySearchOpen ? 'max-h-[720px]' : 'max-h-[800px]',
+						isDirectorySearchOpen ? 'max-h-[90svh - 275px]' : 'max-h-[90svh - 195px]',
 					]">
 					<!-- No Results Message -->
 					<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">

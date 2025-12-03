@@ -28,8 +28,19 @@ export const useHOAFinancialsEnhanced = () => {
 
 	// Check if transaction is a transfer
 	const isTransferTransaction = (transaction) => {
+		// Check explicit transfer types (for data with explicit types)
+		if (transaction.transaction_type === 'transfer_in' || transaction.transaction_type === 'transfer_out') {
+			return true;
+		}
+
+		// Check description keywords (for description-based detection)
 		const desc = (transaction.description || '').toLowerCase();
 		const vendor = (transaction.vendor || '').toLowerCase();
+
+		// EXCLUDE Wash Multifamily from transfer detection
+		if (desc.includes('wash multifamily') || vendor.includes('wash multifamily')) {
+			return false;
+		}
 
 		const transferKeywords = [
 			'online transfer',
@@ -38,8 +49,9 @@ export const useHOAFinancialsEnhanced = () => {
 			'account 5872',
 			'account 7011',
 			'account 5129',
-			'chk 5129',
+			'chk 5129', // Keep specific check account references
 			'mma account',
+			'mma ...',
 		];
 
 		return (
@@ -47,6 +59,155 @@ export const useHOAFinancialsEnhanced = () => {
 			transaction.violation_type === 'fund_mixing'
 		);
 	};
+
+	// Get all transfer transactions for current account
+	const accountTransferTransactions = computed(() => {
+		try {
+			const transactions = allAccountTransactions.value || [];
+			return transactions
+				.filter((t) => t && isTransferTransaction(t))
+				.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+		} catch (error) {
+			console.error('Error in accountTransferTransactions:', error);
+			return [];
+		}
+	});
+
+	// Transfer activity metrics with linked/unlinked tracking
+	const transferActivity = computed(() => {
+		try {
+			const transactions = allAccountTransactions.value || [];
+
+			// Get all transfers
+			const allTransfers = transactions.filter((t) => t && isTransferTransaction(t));
+
+			const transfersOut = allTransfers
+				.filter((t) => t.transaction_type === 'withdrawal')
+				.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+			const transfersIn = allTransfers
+				.filter((t) => t.transaction_type === 'deposit')
+				.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+			// Count linked and unlinked transfers
+			const linkedTransfers = allTransfers.filter((t) => t.linked_transfer_id !== null);
+			const unmatchedTransfers = allTransfers.filter((t) => t.linked_transfer_id === null);
+
+			return {
+				transfersOut,
+				transfersIn,
+				netTransferActivity: transfersIn - transfersOut,
+				linkedCount: linkedTransfers.length,
+				unmatchedCount: unmatchedTransfers.length,
+				totalTransfers: allTransfers.length,
+				linkedTransfers,
+				unmatchedTransfers,
+			};
+		} catch (error) {
+			console.error('Error in transferActivity:', error);
+			return {
+				transfersOut: 0,
+				transfersIn: 0,
+				netTransferActivity: 0,
+				linkedCount: 0,
+				unmatchedCount: 0,
+				totalTransfers: 0,
+				linkedTransfers: [],
+				unmatchedTransfers: [],
+			};
+		}
+	});
+
+	// Get transfer pairs (grouped by linked_transfer_id)
+	const transferPairs = computed(() => {
+		try {
+			const allTransactionsAcrossAccounts = transactions.value || [];
+			const pairs = [];
+			const processed = new Set();
+
+			// Only look at transactions that have a linked_transfer_id
+			const linkedTransfers = allTransactionsAcrossAccounts.filter(
+				(t) => t && isTransferTransaction(t) && t.linked_transfer_id !== null
+			);
+
+			linkedTransfers.forEach((transfer) => {
+				// Skip if already processed
+				if (processed.has(transfer.id)) return;
+
+				// Find the linked transaction
+				const linkedTransaction = allTransactionsAcrossAccounts.find((t) => t && t.id === transfer.linked_transfer_id);
+
+				if (linkedTransaction) {
+					// Determine which is out and which is in
+					const outTransfer = transfer.transaction_type === 'withdrawal' ? transfer : linkedTransaction;
+					const inTransfer = transfer.transaction_type === 'deposit' ? transfer : linkedTransaction;
+
+					pairs.push({
+						id: `${transfer.id}-${linkedTransaction.id}`,
+						outTransfer,
+						inTransfer,
+						amount: safeParseFloat(outTransfer.amount),
+						date: outTransfer.transaction_date,
+						fromAccount: getAccountById(outTransfer.account_id),
+						toAccount: getAccountById(inTransfer.account_id),
+					});
+
+					// Mark both as processed
+					processed.add(transfer.id);
+					processed.add(linkedTransaction.id);
+				}
+			});
+
+			return pairs.sort((a, b) => new Date(b.date) - new Date(a.date));
+		} catch (error) {
+			console.error('Error in transferPairs:', error);
+			return [];
+		}
+	});
+
+	const isClumpedPayment = (transaction) => {
+		const desc = (transaction.description || '').toLowerCase();
+		const vendor = (transaction.vendor || '').toLowerCase();
+
+		// Patterns that indicate clumped payments
+		const clumpedPaymentIndicators = ['google pay', 'google wave', 'zelle', 'venmo'];
+
+		// Check if it's a deposit with these payment methods
+		if (transaction.transaction_type !== 'deposit') return false;
+
+		return clumpedPaymentIndicators.some((indicator) => desc.includes(indicator) || vendor.includes(indicator));
+	};
+
+	const clumpedPayments = computed(() => {
+		try {
+			const transactions = allAccountTransactions.value || [];
+
+			return transactions
+				.filter((t) => isClumpedPayment(t))
+				.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+		} catch (error) {
+			console.error('Error in clumpedPayments:', error);
+			return [];
+		}
+	});
+
+	const clumpedPaymentTotal = computed(() => {
+		return clumpedPayments.value.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+	});
+
+	// Unmatched transfers - only for current account
+	const unmatchedTransfers = computed(() => {
+		try {
+			const transactions = allAccountTransactions.value || [];
+
+			return transactions
+				.filter((t) => t && isTransferTransaction(t) && t.linked_transfer_id === null)
+				.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+		} catch (error) {
+			console.error('Error in unmatchedTransfers:', error);
+			return [];
+		}
+	});
 
 	// Helper function to check if a month is in the selected range
 	const isMonthInRange = (transactionMonth) => {
@@ -110,6 +271,115 @@ export const useHOAFinancialsEnhanced = () => {
 			return '#6B7280';
 		}
 	};
+
+	// Add after the existing transfer functions
+
+	// Detect suspicious transfer patterns
+	const suspiciousTransfers = computed(() => {
+		try {
+			const allTransfers = accountTransferTransactions.value || [];
+			const suspicious = [];
+
+			allTransfers.forEach((transfer) => {
+				const issues = [];
+
+				// FLAG 1: Transfer FROM Special Assessment (Account 3) TO Operating (Account 1)
+				if (transfer.account_id === 1 && transfer.transaction_type === 'deposit') {
+					// This is a deposit into operating - check if it's from special assessment
+					const linkedTransfer = transactions.value.find((t) => t.id === transfer.linked_transfer_id);
+					if (linkedTransfer && linkedTransfer.account_id === 3) {
+						issues.push({
+							severity: 'critical',
+							type: 'restricted_fund_misuse',
+							message: 'Transfer FROM Special Assessment TO Operating - possible misappropriation of restricted funds',
+						});
+					}
+				}
+
+				// FLAG 2: Large unmatched transfers (> $5,000)
+				if (!transfer.linked_transfer_id && safeParseFloat(transfer.amount) > 5000) {
+					issues.push({
+						severity: 'high',
+						type: 'large_unmatched',
+						message: `Large unmatched transfer of ${formatCurrency(transfer.amount)} - missing counterpart transaction`,
+					});
+				}
+
+				// FLAG 3: Unmatched transfers (any size)
+				if (!transfer.linked_transfer_id) {
+					issues.push({
+						severity: 'medium',
+						type: 'unmatched',
+						message: 'Transfer not linked to counterpart - possible data entry error or fund mixing',
+					});
+				}
+
+				// FLAG 4: Round number transfers (often indicate manual adjustments)
+				const amount = safeParseFloat(transfer.amount);
+				if (amount % 1000 === 0 && amount >= 5000) {
+					issues.push({
+						severity: 'low',
+						type: 'round_number',
+						message: 'Round-number transfer may indicate cash flow manipulation',
+					});
+				}
+
+				if (issues.length > 0) {
+					suspicious.push({
+						...transfer,
+						issues,
+						highestSeverity: issues[0].severity, // First issue is usually highest priority
+					});
+				}
+			});
+
+			return suspicious.sort((a, b) => {
+				const severityOrder = {critical: 0, high: 1, medium: 2, low: 3};
+				return severityOrder[a.highestSeverity] - severityOrder[b.highestSeverity];
+			});
+		} catch (error) {
+			console.error('Error detecting suspicious transfers:', error);
+			return [];
+		}
+	});
+
+	// Transfer direction analysis - identify problematic flows
+	const transferFlowAnalysis = computed(() => {
+		try {
+			const pairs = transferPairs.value || [];
+
+			const flows = {
+				operatingToSpecial: [], // Account 1 → 3 (usually OK)
+				specialToOperating: [], // Account 3 → 1 (RED FLAG)
+				operatingToReserve: [], // Account 1 → 2 (usually OK)
+				reserveToOperating: [], // Account 2 → 1 (needs documentation)
+				specialToReserve: [], // Account 3 → 2 (rare)
+				reserveToSpecial: [], // Account 2 → 3 (rare)
+			};
+
+			pairs.forEach((pair) => {
+				const from = pair.fromAccount?.id;
+				const to = pair.toAccount?.id;
+
+				if (from === 1 && to === 3) flows.operatingToSpecial.push(pair);
+				if (from === 3 && to === 1) flows.specialToOperating.push(pair);
+				if (from === 1 && to === 2) flows.operatingToReserve.push(pair);
+				if (from === 2 && to === 1) flows.reserveToOperating.push(pair);
+				if (from === 3 && to === 2) flows.specialToReserve.push(pair);
+				if (from === 2 && to === 3) flows.reserveToSpecial.push(pair);
+			});
+
+			return {
+				flows,
+				criticalIssues: flows.specialToOperating.length > 0,
+				warningCount: flows.reserveToOperating.length,
+				totalCriticalAmount: flows.specialToOperating.reduce((sum, p) => sum + safeParseFloat(p.amount), 0),
+			};
+		} catch (error) {
+			console.error('Error analyzing transfer flows:', error);
+			return {flows: {}, criticalIssues: false, warningCount: 0, totalCriticalAmount: 0};
+		}
+	});
 
 	const getBudgetForCategory = (categoryId) => {
 		try {
@@ -604,7 +874,7 @@ export const useHOAFinancialsEnhanced = () => {
 	// Available filter options
 	const yearOptions = computed(() => [
 		// {label: '2023', value: 2023},
-		// {label: '2024', value: 2024},
+		{label: '2024', value: 2024},
 		{label: '2025', value: 2025},
 		// {label: '2026', value: 2026},
 		// {label: '2027', value: 2027},
@@ -856,6 +1126,8 @@ export const useHOAFinancialsEnhanced = () => {
 		Gas: 'Utilities',
 		Internet: 'Utilities',
 		Cable: 'Utilities',
+		Laundry: 'Utilities', // Add this
+		'Wash Multifamily': 'Utilities',
 
 		// Maintenance
 		Maintenance: 'Maintenance',
@@ -1376,12 +1648,24 @@ export const useHOAFinancialsEnhanced = () => {
 		getCategoryName,
 		getCategoryColor,
 
+		// Transfer-specific
+		accountTransferTransactions,
+		transferActivity,
+		transferPairs,
+		unmatchedTransfers,
+		isTransferTransaction,
+		isClumpedPayment,
+		clumpedPayments,
+		clumpedPaymentTotal,
+		suspiciousTransfers,
+		transferFlowAnalysis,
+
 		// Methods
 		refreshAll,
 		formatCurrency,
 		getMonthName,
 		getAccountById,
-		isTransferTransaction,
+
 		safeParseFloat,
 		getRangeDescription,
 	};

@@ -1,0 +1,12 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,31985.25,,,,,,Beginning,
+BALANCE,,,23076.98,,,,,,Ending,
+DEPOSIT,02/05,Remote Online Deposit,5000,Remote Deposit,,Operating,false,February,
+DEPOSIT,02/10,Online Transfer From Chk 5129,999,Account 5129,,Transfer,false,February,
+DEPOSIT,02/24,Remote Online Deposit,407,Remote Deposit,,Operating,false,February,
+DEPOSIT,02/25,Online Transfer From Chk 5129,999,Account 5129,,Transfer,false,February,
+DEPOSIT,02/27,Remote Online Deposit,407,Remote Deposit,,Operating,false,February,
+DEPOSIT,02/28,Interest Payment,0.25,Chase Bank,,Interest,false,February,
+WITHDRAWAL,02/03,Popular Bank Loan Payment,460.52,Popular Bank,,Loan,false,February,
+WITHDRAWAL,02/10,Online Transfer To Chk 5129,4920,Account 5129,,Transfer,false,February,
+WITHDRAWAL,02/28,Online ACH Payment To Ryder,11340,Ryder,,Equipment,false,February,

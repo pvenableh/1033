@@ -1,0 +1,6 @@
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,18479.85,,,,,,Beginning,
+BALANCE,,,20850.21,,,,,,Ending,
+DEPOSIT,08/27,Remote Online Deposit,1894.29,Online Deposit,,Deposit,false,August,Online
+DEPOSIT,08/29,Online Transfer From Chk Account 5129,475.92,Account 5129,,Transfer,false,August,Transfer
+DEPOSIT,08/29,Interest Payment,0.15,Chase Bank,,Interest,false,August,Interest
