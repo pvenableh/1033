@@ -58,8 +58,8 @@
             <p class="w-full font-bold greeting">{{ email.closing }}</p>
             <p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
-              Peter Wyatt
-              <span class="icon peter">🕶</span>
+              Camila Hoffman
+              <span class="icon">✨</span>
               <span class="title">President</span>
             </p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
@@ -68,8 +68,8 @@
               <span class="title">Vice-President</span>
             </p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
-              Camila Hoffman
-              <span class="icon">✨</span>
+              Peter Wyatt
+              <span class="icon peter">🕶</span>
               <span class="title">Secretary</span>
             </p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
@@ -78,8 +78,8 @@
               <span class="title">Treasurer</span>
             </p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
-              Cecilia V. Demattos
-              <span class="icon">🪴</span>
+              Nidia Cortes
+              <span class="icon"></span>
             </p>
           </div>
         </div>
