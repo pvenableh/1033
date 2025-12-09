@@ -79,7 +79,8 @@
             </p>
             <p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
               Nidia Cortes
-              <span class="icon"></span>
+              <span class="icon">🪴</span>
+			  <span class="title">Board Member</span>
             </p>
           </div>
         </div>
