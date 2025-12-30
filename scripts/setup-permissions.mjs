@@ -25,6 +25,20 @@ const ROLES = {
   PENDING: 'd45c208e-4223-41ef-85e8-24e0528d65ab',
 };
 
+// Policy UUIDs from your Directus instance (Directus 11+)
+const POLICIES = {
+  BOARD_MEMBER: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2',
+  MEMBER: 'ab66d5f6-8eb0-48e4-a021-68d758aae525',
+  PENDING: '2a9627a9-424d-472f-aaf1-478948d7549b',
+};
+
+// Map roles to their policies
+const ROLE_TO_POLICY = {
+  [ROLES.BOARD_MEMBER]: POLICIES.BOARD_MEMBER,
+  [ROLES.MEMBER]: POLICIES.MEMBER,
+  [ROLES.PENDING]: POLICIES.PENDING,
+};
+
 // Permission definitions
 const PERMISSIONS = {
   // ============================================
@@ -429,17 +443,6 @@ async function main() {
     process.exit(1);
   }
 
-  // Get existing policies
-  console.log('📋 Fetching existing policies...');
-  let existingPolicies = [];
-  try {
-    existingPolicies = await client.request(readPolicies({ limit: -1, fields: ['*', 'roles.*'] }));
-    console.log(`   Found ${existingPolicies.length} existing policies\n`);
-  } catch (error) {
-    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
-    console.log(`   Unable to read policies: ${errorMessage}\n`);
-  }
-
   // Get existing permissions
   console.log('📋 Fetching existing permissions...');
   let existingPermissions = [];
@@ -451,25 +454,10 @@ async function main() {
     console.log(`   Unable to read permissions: ${errorMessage}\n`);
   }
 
-  // Map role IDs to their policies
-  const roleToPolicyMap = {};
-  for (const policy of existingPolicies) {
-    if (policy.roles) {
-      for (const roleLink of policy.roles) {
-        const roleId = typeof roleLink === 'object' ? roleLink.role : roleLink;
-        if (!roleToPolicyMap[roleId]) {
-          roleToPolicyMap[roleId] = [];
-        }
-        roleToPolicyMap[roleId].push(policy.id);
-      }
-    }
-  }
-
-  console.log('📊 Role to Policy mapping:');
-  for (const [roleId, policyIds] of Object.entries(roleToPolicyMap)) {
-    const roleName = Object.keys(ROLES).find(key => ROLES[key] === roleId) || 'Unknown';
-    console.log(`   ${roleName}: ${policyIds.length} policies`);
-  }
+  console.log('📊 Using predefined Role to Policy mapping:');
+  console.log(`   BOARD_MEMBER -> ${POLICIES.BOARD_MEMBER}`);
+  console.log(`   MEMBER -> ${POLICIES.MEMBER}`);
+  console.log(`   PENDING -> ${POLICIES.PENDING}`);
   console.log('');
 
   // Process each role
@@ -483,13 +471,11 @@ async function main() {
       continue;
     }
 
-    // Find or note the policy for this role
-    const policyIds = roleToPolicyMap[roleId] || [];
-    const policyId = policyIds[0]; // Use the first policy if multiple exist
+    // Get the policy ID from our predefined mapping
+    const policyId = ROLE_TO_POLICY[roleId];
 
     if (!policyId) {
-      console.log(`   ⚠️  No policy found for this role. Create a policy in Directus Admin first.`);
-      console.log(`      Go to Settings > Access Control > Policies, create a policy, and attach it to this role.`);
+      console.log(`   ⚠️  No policy defined for this role in ROLE_TO_POLICY mapping.`);
       continue;
     }
 
@@ -545,8 +531,6 @@ async function main() {
   console.log('   - Manage pets and vehicles for their unit');
   console.log('   - View announcements and meetings');
   console.log('   - Submit requests/inquiries');
-  console.log('\n⚠️  Note: If you see "No policy found", create policies in Directus Admin:');
-  console.log('   Settings > Access Control > Policies > Create Policy > Attach to Role');
 }
 
 main().catch(console.error);
