@@ -14,7 +14,7 @@
  *   DIRECTUS_PASSWORD - Admin password
  */
 
-import { createDirectus, rest, authentication, readRoles, createPermission, readPermissions, updatePermission, deletePermission } from '@directus/sdk';
+import { createDirectus, rest, authentication, readRoles, createPermission, readPermissions, updatePermission, deletePermission, readPolicies, createPolicy, updatePolicy } from '@directus/sdk';
 import * as readline from 'readline';
 
 // Role UUIDs from your Directus instance
@@ -23,6 +23,20 @@ const ROLES = {
   BOARD_MEMBER: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2',
   MEMBER: 'ab66d5f6-8eb0-48e4-a021-68d758aae525',
   PENDING: 'd45c208e-4223-41ef-85e8-24e0528d65ab',
+};
+
+// Policy UUIDs from your Directus instance (Directus 11+)
+const POLICIES = {
+  BOARD_MEMBER: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2',
+  MEMBER: 'ab66d5f6-8eb0-48e4-a021-68d758aae525',
+  PENDING: '2a9627a9-424d-472f-aaf1-478948d7549b',
+};
+
+// Map roles to their policies
+const ROLE_TO_POLICY = {
+  [ROLES.BOARD_MEMBER]: POLICIES.BOARD_MEMBER,
+  [ROLES.MEMBER]: POLICIES.MEMBER,
+  [ROLES.PENDING]: POLICIES.PENDING,
 };
 
 // Permission definitions
@@ -404,8 +418,9 @@ function prompt(question) {
 
 // Main function
 async function main() {
-  console.log('🔐 Directus Permissions Setup Script');
-  console.log('=====================================\n');
+  console.log('🔐 Directus 11 Permissions Setup Script');
+  console.log('========================================\n');
+  console.log('ℹ️  Directus 11 uses Policies for permissions.\n');
 
   // Get credentials
   const directusUrl = process.env.DIRECTUS_URL || await prompt('Directus URL (e.g., https://admin.1033lenox.com): ');
@@ -423,19 +438,27 @@ async function main() {
     await client.login(email, password);
     console.log('✅ Authentication successful\n');
   } catch (error) {
-    console.error('❌ Authentication failed:', error.message);
+    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
+    console.error('❌ Authentication failed:', errorMessage);
     process.exit(1);
   }
 
-  // Get existing permissions to avoid duplicates
+  // Get existing permissions
   console.log('📋 Fetching existing permissions...');
   let existingPermissions = [];
   try {
     existingPermissions = await client.request(readPermissions({ limit: -1 }));
     console.log(`   Found ${existingPermissions.length} existing permissions\n`);
   } catch (error) {
-    console.log('   No existing permissions found or unable to read\n');
+    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
+    console.log(`   Unable to read permissions: ${errorMessage}\n`);
   }
+
+  console.log('📊 Using predefined Role to Policy mapping:');
+  console.log(`   BOARD_MEMBER -> ${POLICIES.BOARD_MEMBER}`);
+  console.log(`   MEMBER -> ${POLICIES.MEMBER}`);
+  console.log(`   PENDING -> ${POLICIES.PENDING}`);
+  console.log('');
 
   // Process each role
   for (const [roleId, permissions] of Object.entries(PERMISSIONS)) {
@@ -448,16 +471,26 @@ async function main() {
       continue;
     }
 
+    // Get the policy ID from our predefined mapping
+    const policyId = ROLE_TO_POLICY[roleId];
+
+    if (!policyId) {
+      console.log(`   ⚠️  No policy defined for this role in ROLE_TO_POLICY mapping.`);
+      continue;
+    }
+
+    console.log(`   📜 Using policy ID: ${policyId}`);
+
     for (const perm of permissions) {
       const { collection, action, fields, permissions: permFilter, validation } = perm;
 
-      // Check if permission already exists
+      // Check if permission already exists for this policy
       const existing = existingPermissions.find(
-        (p) => p.role === roleId && p.collection === collection && p.action === action
+        (p) => p.policy === policyId && p.collection === collection && p.action === action
       );
 
       const permissionData = {
-        role: roleId,
+        policy: policyId,
         collection,
         action,
         fields: fields || ['*'],
@@ -476,7 +509,11 @@ async function main() {
           console.log(`   ✅ Created: ${collection}.${action}`);
         }
       } catch (error) {
-        console.log(`   ⚠️  Error with ${collection}.${action}: ${error.message}`);
+        // Directus SDK errors have different structures
+        const errorMessage = error?.errors?.[0]?.message
+          || error?.message
+          || JSON.stringify(error);
+        console.log(`   ⚠️  Error with ${collection}.${action}: ${errorMessage}`);
       }
     }
   }
