@@ -32,13 +32,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
  * {{date_submitted}}  - Formatted date/time of request
  */
 
-// TODO: Replace with your SendGrid Dynamic Template IDs
-const TEMPLATE_IDS = {
-	ADMIN_NOTIFICATION: 'd-REPLACE_WITH_ADMIN_TEMPLATE_ID',
-	USER_CONFIRMATION: 'd-REPLACE_WITH_USER_TEMPLATE_ID',
-};
-
 export default defineEventHandler(async (event) => {
+	const config = useRuntimeConfig();
+
 	try {
 		const requestData = await readBody(event);
 
@@ -80,7 +76,7 @@ export default defineEventHandler(async (event) => {
 					bcc: [{email: 'huestudios.com@gmail.com'}],
 				},
 			],
-			template_id: TEMPLATE_IDS.ADMIN_NOTIFICATION,
+			template_id: config.sendgridAccessRequestAdminTemplate,
 			dynamicTemplateData: {
 				...baseTemplateData,
 				admin_url: 'https://admin.1033lenox.com/admin/content/directus_users',
@@ -103,7 +99,7 @@ export default defineEventHandler(async (event) => {
 				email: 'lenoxplazaboard@gmail.com',
 				name: '1033 Lenox',
 			},
-			template_id: TEMPLATE_IDS.USER_CONFIRMATION,
+			template_id: config.sendgridAccessRequestUserTemplate,
 			dynamicTemplateData: baseTemplateData,
 			categories: ['1033 Lenox', 'access-requests'],
 		};
