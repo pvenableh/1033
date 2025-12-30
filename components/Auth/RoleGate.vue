@@ -19,6 +19,14 @@ const props = defineProps<{
    */
   requireBoardMember?: boolean;
   /**
+   * Require owner access (owners + property managers)
+   */
+  requireOwner?: boolean;
+  /**
+   * Require resident access (people who live in the building)
+   */
+  requireResident?: boolean;
+  /**
    * Show content only if user is approved (not pending)
    */
   requireApproved?: boolean;
@@ -32,6 +40,9 @@ const {
   isAdmin,
   isBoardMember,
   isApproved,
+  isOwner,
+  isResident,
+  hasOwnerAccess,
   hasRole,
   hasAnyRole,
   hasMinimumRole,
@@ -48,6 +59,14 @@ const hasAccess = computed(() => {
 
   if (props.requireBoardMember) {
     return isBoardMember.value;
+  }
+
+  if (props.requireOwner) {
+    return hasOwnerAccess.value;
+  }
+
+  if (props.requireResident) {
+    return isResident.value;
   }
 
   if (props.requireApproved && !isApproved.value) {

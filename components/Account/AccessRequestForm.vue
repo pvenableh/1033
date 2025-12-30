@@ -138,8 +138,9 @@ const submitError = ref<string | null>(null);
 const submitSuccess = ref(false);
 
 const residencyTypes = [
-  { label: 'Owner', value: 'owner' },
-  { label: 'Resident/Tenant', value: 'resident' },
+  { label: 'Owner (I own a unit)', value: 'Owner' },
+  { label: 'Tenant (I rent/lease a unit)', value: 'Tenant' },
+  { label: 'Property Manager', value: 'Property Manager' },
 ];
 
 const state = reactive({

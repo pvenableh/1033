@@ -1,61 +1,81 @@
 import type { Role, User } from '~/types';
 
 /**
- * Application Role Names
- * These should match the role names in your Directus instance
+ * Application Role Names (Directus Roles)
+ * These define ACCESS LEVELS, not ownership/residency status
  */
 export const APP_ROLES = {
   ADMIN: 'Administrator',
   BOARD_MEMBER: 'Board Member',
-  RESIDENT: 'Resident',
-  OWNER: 'Owner',
+  MEMBER: 'Member',
   PENDING: 'Pending',
 } as const;
 
 export type AppRoleName = (typeof APP_ROLES)[keyof typeof APP_ROLES];
 
 /**
+ * People Category Types (from people.category)
+ * These define RELATIONSHIP TO PROPERTY
+ */
+export const PEOPLE_CATEGORIES = {
+  OWNER: 'Owner',
+  TENANT: 'Tenant',
+  PROPERTY_MANAGER: 'Property Manager',
+  VENDOR: 'Vendor',
+} as const;
+
+export type PeopleCategory = (typeof PEOPLE_CATEGORIES)[keyof typeof PEOPLE_CATEGORIES];
+
+/**
  * Role hierarchy for permission inheritance
- * Higher index = higher permissions
+ * Higher index = higher access level
  */
 const ROLE_HIERARCHY: AppRoleName[] = [
   APP_ROLES.PENDING,
-  APP_ROLES.RESIDENT,
-  APP_ROLES.OWNER,
+  APP_ROLES.MEMBER,
   APP_ROLES.BOARD_MEMBER,
   APP_ROLES.ADMIN,
 ];
 
 /**
  * Page access configuration
- * Maps route paths to required roles
+ * Maps route paths to required conditions
  */
-export const PAGE_ACCESS: Record<string, AppRoleName[]> = {
+export interface AccessRule {
+  roles?: AppRoleName[];
+  requireOwner?: boolean;
+  requireResident?: boolean;
+  requireBoardMember?: boolean;
+  requireAdmin?: boolean;
+}
+
+export const PAGE_ACCESS: Record<string, AccessRule> = {
   // Admin only
-  '/admin': [APP_ROLES.ADMIN],
-  '/admin/users': [APP_ROLES.ADMIN],
+  '/admin': { requireAdmin: true },
+  '/admin/users': { requireAdmin: true },
+  '/admin/invite': { requireAdmin: true },
 
   // Board members and above
-  '/tasks': [APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/financials': [APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/financials/dashboard': [APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/financials/budget': [APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/financials/reconciliation': [APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
+  '/tasks': { requireBoardMember: true },
+  '/financials': { requireBoardMember: true },
+  '/financials/dashboard': { requireBoardMember: true },
+  '/financials/budget': { requireBoardMember: true },
+  '/financials/reconciliation': { requireBoardMember: true },
 
-  // Owners and above
-  '/documents': [APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/meetings': [APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
+  // Owners only (includes property managers acting on behalf of owners)
+  '/documents': { requireOwner: true },
+  '/meetings': { requireOwner: true },
 
-  // All approved users (Resident and above)
-  '/dashboard': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/account': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/announcements': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/requests': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/security': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
-  '/units': [APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
+  // All approved members (residents, owners, property managers)
+  '/dashboard': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/account': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/announcements': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/requests': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/security': { requireResident: true },
+  '/units': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
 
   // Pending users - limited access
-  '/pending': [APP_ROLES.PENDING, APP_ROLES.RESIDENT, APP_ROLES.OWNER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN],
+  '/pending': { roles: [APP_ROLES.PENDING, APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
 };
 
 /**
@@ -69,21 +89,44 @@ export interface RoleCheckResult {
 }
 
 /**
+ * Extended user interface with person relationship
+ */
+interface ExtendedUser extends User {
+  person?: {
+    id: number;
+    category: PeopleCategory;
+    is_resident?: boolean;
+  } | null;
+  units?: Array<{
+    units_id: {
+      id: number;
+      number: string;
+      people?: Array<{
+        people_id: {
+          id: number;
+          category: string;
+          board_member?: any[];
+        };
+      }>;
+    };
+  }>;
+}
+
+/**
  * useRoles composable
- * Provides role-based access control utilities
+ * Provides role-based access control with ownership/residency derived from people.category
  */
 export function useRoles() {
   const { user } = useDirectusAuth();
 
   /**
-   * Get the current user's role object
+   * Get the current user's role object (Directus role)
    */
   const userRole = computed<Role | null>(() => {
     if (!user.value) return null;
 
     const role = user.value.role;
     if (typeof role === 'string') {
-      // Role is just an ID, return minimal role object
       return { id: role, name: '', icon: '', description: null, ip_access: [], enforce_tfa: false, admin_access: false, app_access: false, users: [] };
     }
     return role as Role;
@@ -105,31 +148,81 @@ export function useRoles() {
   });
 
   /**
-   * Check if user has admin access (Directus admin_access flag)
+   * Get the linked person record (if person_id relationship exists)
+   * Falls back to checking people in units by email match
+   */
+  const linkedPerson = computed(() => {
+    const extUser = user.value as ExtendedUser | null;
+    if (!extUser) return null;
+
+    // First check for direct person_id relationship
+    if (extUser.person) {
+      return extUser.person;
+    }
+
+    // Fallback: Find person by matching email in units.people
+    if (extUser.units) {
+      for (const unit of extUser.units) {
+        if (unit.units_id?.people) {
+          for (const personLink of unit.units_id.people) {
+            const person = personLink.people_id as any;
+            if (person?.email === extUser.email) {
+              return person;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  });
+
+  /**
+   * Get the person's category (Owner, Tenant, Property Manager, etc.)
+   */
+  const personCategory = computed<string>(() => {
+    return linkedPerson.value?.category || '';
+  });
+
+  // ==================== ACCESS LEVEL CHECKS (from Directus Role) ====================
+
+  /**
+   * Check if user has admin access
    */
   const isAdmin = computed<boolean>(() => {
     return userRole.value?.admin_access === true || roleName.value === APP_ROLES.ADMIN;
   });
 
   /**
-   * Check if user is a board member
+   * Check if user is a board member (or higher)
    */
   const isBoardMember = computed<boolean>(() => {
-    return roleName.value === APP_ROLES.BOARD_MEMBER || isAdmin.value;
+    if (isAdmin.value) return true;
+    if (roleName.value === APP_ROLES.BOARD_MEMBER) return true;
+
+    // Also check if person has active board_member record
+    const person = linkedPerson.value as any;
+    if (person?.board_member?.length > 0) {
+      // Check for active board membership
+      const now = new Date();
+      return person.board_member.some((bm: any) => {
+        if (bm.status !== 'published') return false;
+        const start = bm.start ? new Date(bm.start) : null;
+        const finish = bm.finish ? new Date(bm.finish) : null;
+        if (start && start > now) return false;
+        if (finish && finish < now) return false;
+        return true;
+      });
+    }
+
+    return false;
   });
 
   /**
-   * Check if user is an owner
+   * Check if user is a member (approved, not pending)
    */
-  const isOwner = computed<boolean>(() => {
-    return roleName.value === APP_ROLES.OWNER || isBoardMember.value;
-  });
-
-  /**
-   * Check if user is a resident
-   */
-  const isResident = computed<boolean>(() => {
-    return roleName.value === APP_ROLES.RESIDENT || isOwner.value;
+  const isMember = computed<boolean>(() => {
+    return roleName.value === APP_ROLES.MEMBER || isBoardMember.value;
   });
 
   /**
@@ -138,6 +231,58 @@ export function useRoles() {
   const isPending = computed<boolean>(() => {
     return roleName.value === APP_ROLES.PENDING;
   });
+
+  // ==================== PROPERTY RELATIONSHIP CHECKS (from people.category) ====================
+
+  /**
+   * Check if user is an owner (from people.category)
+   */
+  const isOwner = computed<boolean>(() => {
+    if (isAdmin.value) return true; // Admin has all access
+    return personCategory.value === PEOPLE_CATEGORIES.OWNER;
+  });
+
+  /**
+   * Check if user is a tenant (from people.category)
+   */
+  const isTenant = computed<boolean>(() => {
+    return personCategory.value === PEOPLE_CATEGORIES.TENANT;
+  });
+
+  /**
+   * Check if user is a property manager (from people.category)
+   */
+  const isPropertyManager = computed<boolean>(() => {
+    return personCategory.value === PEOPLE_CATEGORIES.PROPERTY_MANAGER;
+  });
+
+  /**
+   * Check if user is a resident (lives in the building - owner-occupant or tenant)
+   * Property managers may or may not be residents
+   */
+  const isResident = computed<boolean>(() => {
+    if (isAdmin.value) return true; // Admin has all access
+
+    // Direct check from person.is_resident if available
+    const person = linkedPerson.value as any;
+    if (person?.is_resident !== undefined) {
+      return person.is_resident;
+    }
+
+    // Otherwise, tenants are always residents, owners might be
+    // For now, assume owners are residents unless specified otherwise
+    return isTenant.value || isOwner.value;
+  });
+
+  /**
+   * Check if user has owner-level access (owners OR property managers)
+   * Property managers can act on behalf of owners for most things
+   */
+  const hasOwnerAccess = computed<boolean>(() => {
+    return isOwner.value || isPropertyManager.value || isBoardMember.value;
+  });
+
+  // ==================== APPROVAL STATUS CHECKS ====================
 
   /**
    * Check if user is approved (not pending)
@@ -152,6 +297,8 @@ export function useRoles() {
   const isActive = computed<boolean>(() => {
     return user.value?.status === 'active';
   });
+
+  // ==================== HELPER FUNCTIONS ====================
 
   /**
    * Check if user has a specific role by name
@@ -198,22 +345,39 @@ export function useRoles() {
     }
 
     // Check if route has specific access rules
-    const allowedRoles = PAGE_ACCESS[path];
+    const rule = PAGE_ACCESS[path];
 
     // If no specific rules, allow authenticated users
-    if (!allowedRoles) {
+    if (!rule) {
       return { hasAccess: true };
     }
 
-    // Check if user's role is in allowed roles
-    if (hasAnyRole(allowedRoles)) {
-      return { hasAccess: true };
+    // Check specific requirements
+    if (rule.requireAdmin && !isAdmin.value) {
+      return { hasAccess: false, reason: 'Administrator access required' };
     }
 
-    return {
-      hasAccess: false,
-      reason: `Access restricted to: ${allowedRoles.join(', ')}`
-    };
+    if (rule.requireBoardMember && !isBoardMember.value) {
+      return { hasAccess: false, reason: 'Board member access required' };
+    }
+
+    if (rule.requireOwner && !hasOwnerAccess.value) {
+      return { hasAccess: false, reason: 'Owner access required' };
+    }
+
+    if (rule.requireResident && !isResident.value) {
+      return { hasAccess: false, reason: 'Resident access required' };
+    }
+
+    // Check role-based access
+    if (rule.roles && !hasAnyRole(rule.roles)) {
+      return {
+        hasAccess: false,
+        reason: `Access restricted to: ${rule.roles.join(', ')}`
+      };
+    }
+
+    return { hasAccess: true };
   }
 
   /**
@@ -238,7 +402,7 @@ export function useRoles() {
   }
 
   /**
-   * Get redirect path for unauthorized users based on their role
+   * Get redirect path for unauthorized users
    */
   function getUnauthorizedRedirect(): string {
     if (!user.value) {
@@ -257,8 +421,7 @@ export function useRoles() {
   }
 
   /**
-   * Get all roles the current user has access to manage
-   * (Admins can manage all, board members can view but not change, etc.)
+   * Get all roles the current user can manage
    */
   function getManageableRoles(): AppRoleName[] {
     if (isAdmin.value) {
@@ -273,15 +436,23 @@ export function useRoles() {
     userRole,
     roleName,
     roleId,
+    linkedPerson,
+    personCategory,
 
-    // Role checks
+    // Access Level Checks (from Directus Role)
     isAdmin,
     isBoardMember,
-    isOwner,
-    isResident,
+    isMember,
     isPending,
     isApproved,
     isActive,
+
+    // Property Relationship Checks (from people.category)
+    isOwner,
+    isTenant,
+    isPropertyManager,
+    isResident,
+    hasOwnerAccess,
 
     // Functions
     hasRole,
@@ -294,6 +465,7 @@ export function useRoles() {
 
     // Constants
     APP_ROLES,
+    PEOPLE_CATEGORIES,
     PAGE_ACCESS,
     ROLE_HIERARCHY,
   };
