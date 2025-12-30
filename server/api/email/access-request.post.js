@@ -2,12 +2,48 @@ import sgMail from '@sendgrid/mail';
 
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+/**
+ * SendGrid Dynamic Template Variables for Access Request Emails
+ *
+ * ADMIN NOTIFICATION TEMPLATE:
+ * Template ID: (create in SendGrid and add below)
+ *
+ * Available variables:
+ * {{first_name}}      - Requester's first name
+ * {{last_name}}       - Requester's last name
+ * {{full_name}}       - Requester's full name
+ * {{email}}           - Requester's email address
+ * {{phone}}           - Requester's phone number (or "Not provided")
+ * {{unit_number}}     - Unit number they're requesting access for
+ * {{residency_type}}  - "Owner", "Tenant", or "Property Manager"
+ * {{date_submitted}}  - Formatted date/time of request
+ * {{admin_url}}       - Direct link to Directus users admin
+ *
+ * USER CONFIRMATION TEMPLATE:
+ * Template ID: (create in SendGrid and add below)
+ *
+ * Available variables:
+ * {{first_name}}      - User's first name
+ * {{last_name}}       - User's last name
+ * {{full_name}}       - User's full name
+ * {{email}}           - User's email address
+ * {{unit_number}}     - Unit number requested
+ * {{residency_type}}  - "Owner", "Tenant", or "Property Manager"
+ * {{date_submitted}}  - Formatted date/time of request
+ */
+
+// TODO: Replace with your SendGrid Dynamic Template IDs
+const TEMPLATE_IDS = {
+	ADMIN_NOTIFICATION: 'd-REPLACE_WITH_ADMIN_TEMPLATE_ID',
+	USER_CONFIRMATION: 'd-REPLACE_WITH_USER_TEMPLATE_ID',
+};
+
 export default defineEventHandler(async (event) => {
 	try {
 		const requestData = await readBody(event);
 
 		// Format the date
-		const dateCreated = new Date()
+		const dateSubmitted = new Date()
 			.toLocaleString('en-US', {
 				month: 'long',
 				day: 'numeric',
@@ -20,6 +56,18 @@ export default defineEventHandler(async (event) => {
 			.replace(',', '')
 			.replace(',', ' @');
 
+		// Common template data
+		const baseTemplateData = {
+			first_name: requestData.first_name,
+			last_name: requestData.last_name,
+			full_name: `${requestData.first_name} ${requestData.last_name}`,
+			email: requestData.email,
+			phone: requestData.phone || 'Not provided',
+			unit_number: requestData.unit_number,
+			residency_type: requestData.residency_type,
+			date_submitted: dateSubmitted,
+		};
+
 		// Admin notification email
 		const adminMessage = {
 			from: {
@@ -29,56 +77,14 @@ export default defineEventHandler(async (event) => {
 			personalizations: [
 				{
 					to: [{name: '1033 Lenox Board', email: 'lenoxplazaboard@gmail.com'}],
-					bcc: [
-						{email: 'huestudios.com@gmail.com'},
-					],
+					bcc: [{email: 'huestudios.com@gmail.com'}],
 				},
 			],
-			subject: `New Access Request: ${requestData.first_name} ${requestData.last_name}`,
-			html: `
-				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-					<h2 style="color: #333;">New Access Request</h2>
-					<p>A new user has requested access to the 1033 Lenox portal.</p>
-
-					<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-						<tr style="background: #f5f5f5;">
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Name</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${requestData.first_name} ${requestData.last_name}</td>
-						</tr>
-						<tr>
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Email</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${requestData.email}</td>
-						</tr>
-						<tr style="background: #f5f5f5;">
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Phone</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${requestData.phone || 'Not provided'}</td>
-						</tr>
-						<tr>
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Unit Number</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${requestData.unit_number}</td>
-						</tr>
-						<tr style="background: #f5f5f5;">
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Residency Type</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${requestData.residency_type}</td>
-						</tr>
-						<tr>
-							<td style="padding: 12px; border: 1px solid #ddd; font-weight: bold;">Requested</td>
-							<td style="padding: 12px; border: 1px solid #ddd;">${dateCreated}</td>
-						</tr>
-					</table>
-
-					<p style="margin-top: 20px;">
-						<a href="https://admin.1033lenox.com/admin/content/directus_users"
-						   style="display: inline-block; padding: 12px 24px; background: #4F46E5; color: white; text-decoration: none; border-radius: 6px;">
-							Review in Directus
-						</a>
-					</p>
-
-					<p style="color: #666; font-size: 14px; margin-top: 30px;">
-						To approve this user, change their status from "Draft" to "Active" and assign the appropriate role (Member, Board Member, etc.) in Directus.
-					</p>
-				</div>
-			`,
+			template_id: TEMPLATE_IDS.ADMIN_NOTIFICATION,
+			dynamicTemplateData: {
+				...baseTemplateData,
+				admin_url: 'https://admin.1033lenox.com/admin/content/directus_users',
+			},
 			categories: ['1033 Lenox', 'access-requests'],
 		};
 
@@ -93,41 +99,19 @@ export default defineEventHandler(async (event) => {
 					to: [{name: `${requestData.first_name} ${requestData.last_name}`, email: requestData.email}],
 				},
 			],
-			subject: 'Access Request Received - 1033 Lenox',
-			html: `
-				<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-					<h2 style="color: #333;">Access Request Received</h2>
-
-					<p>Hi ${requestData.first_name},</p>
-
-					<p>Thank you for requesting access to the 1033 Lenox resident portal. We have received your request and it is pending review by our building management.</p>
-
-					<p>You will receive an email notification once your account has been approved.</p>
-
-					<div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-						<p style="margin: 0;"><strong>Request Details:</strong></p>
-						<ul style="margin: 10px 0 0 0; padding-left: 20px;">
-							<li>Unit: ${requestData.unit_number}</li>
-							<li>Residency Type: ${requestData.residency_type}</li>
-							<li>Submitted: ${dateCreated}</li>
-						</ul>
-					</div>
-
-					<p>If you have any questions, please contact the building management.</p>
-
-					<p style="color: #666; font-size: 14px; margin-top: 30px;">
-						Best regards,<br>
-						1033 Lenox HOA
-					</p>
-				</div>
-			`,
+			replyTo: {
+				email: 'lenoxplazaboard@gmail.com',
+				name: '1033 Lenox',
+			},
+			template_id: TEMPLATE_IDS.USER_CONFIRMATION,
+			dynamicTemplateData: baseTemplateData,
 			categories: ['1033 Lenox', 'access-requests'],
 		};
 
 		await sgMail.send([adminMessage, userMessage]);
 		return {success: true};
 	} catch (error) {
-		console.error('SendGrid error:', error);
+		console.error('SendGrid error:', error.response?.body || error.message);
 		return {
 			success: false,
 			error: error.message,
