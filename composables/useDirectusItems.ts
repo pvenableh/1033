@@ -26,12 +26,37 @@ export interface ItemsQuery {
   groupBy?: string[];
 }
 
-export const useDirectusItems = <T = any>(
+/**
+ * Read a singleton collection
+ * Standalone function that can be used without instantiating useDirectusItems with a collection
+ */
+export const readSingleton = async <T = any>(
   collection: string,
+  query: Pick<ItemsQuery, 'fields' | 'deep'> = {}
+): Promise<T> => {
+  return await $fetch('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection,
+      operation: 'singleton',
+      query,
+    },
+  });
+};
+
+export const useDirectusItems = <T = any>(
+  collection?: string,
   options: { requireAuth?: boolean } = {}
 ) => {
   const { requireAuth = true } = options;
   const { loggedIn } = useUserSession();
+
+  // If no collection provided, return utility functions like readSingleton
+  if (!collection) {
+    return {
+      readSingleton,
+    };
+  }
 
   /**
    * List items from collection
@@ -258,5 +283,6 @@ export const useDirectusItems = <T = any>(
     count,
     findFirst,
     exists,
+    readSingleton,
   };
 };
