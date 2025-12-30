@@ -89,28 +89,48 @@ export interface RoleCheckResult {
 }
 
 /**
+ * Person record interface
+ */
+interface PersonRecord {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string;
+  category: string;
+  is_owner?: boolean;
+  is_resident?: boolean;
+  image?: string | null;
+  mailing_address?: string | null;
+  board_member?: Array<{
+    id: number;
+    title?: string;
+    start?: string;
+    finish?: string;
+    status?: string;
+  }>;
+}
+
+/**
  * Extended user interface with person relationship
  */
 interface ExtendedUser extends User {
-  person?: {
-    id: number;
-    category: PeopleCategory;
-    is_owner?: boolean;
-    is_resident?: boolean;
-  } | null;
+  // Direct M2O relationship to people (via person_id field)
+  person_id?: PersonRecord | null;
+  // Legacy: for backwards compatibility
+  person?: PersonRecord | null;
+  // Units relationship
   units?: Array<{
     units_id: {
       id: number;
       number: string;
+      occupant?: string;
+      parking_spot?: string;
       people?: Array<{
-        people_id: {
-          id: number;
-          category: string;
-          is_owner?: boolean;
-          is_resident?: boolean;
-          board_member?: any[];
-        };
+        people_id: PersonRecord;
       }>;
+      pets?: any[];
+      vehicles?: any[];
     };
   }>;
 }
@@ -151,15 +171,21 @@ export function useRoles() {
   });
 
   /**
-   * Get the linked person record (if person_id relationship exists)
-   * Falls back to checking people in units by email match
+   * Get the linked person record
+   * Priority: 1. Direct person_id M2O relationship
+   *           2. Fallback to matching email in units.people
    */
-  const linkedPerson = computed(() => {
+  const linkedPerson = computed<PersonRecord | null>(() => {
     const extUser = user.value as ExtendedUser | null;
     if (!extUser) return null;
 
-    // First check for direct person_id relationship
-    if (extUser.person) {
+    // First check for direct person_id M2O relationship (preferred)
+    if (extUser.person_id && typeof extUser.person_id === 'object') {
+      return extUser.person_id;
+    }
+
+    // Legacy check for person field (backwards compatibility)
+    if (extUser.person && typeof extUser.person === 'object') {
       return extUser.person;
     }
 
@@ -168,8 +194,8 @@ export function useRoles() {
       for (const unit of extUser.units) {
         if (unit.units_id?.people) {
           for (const personLink of unit.units_id.people) {
-            const person = personLink.people_id as any;
-            if (person?.email === extUser.email) {
+            const person = personLink.people_id;
+            if (person?.email && person.email.toLowerCase() === extUser.email?.toLowerCase()) {
               return person;
             }
           }

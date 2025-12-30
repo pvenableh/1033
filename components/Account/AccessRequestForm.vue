@@ -266,8 +266,23 @@ async function submitRequest() {
 
     submitSuccess.value = true;
 
-    // Optionally notify admins via email
-    // await notifyAdmins();
+    // Notify admins via email
+    try {
+      await $fetch('/api/email/access-request', {
+        method: 'POST',
+        body: {
+          first_name: state.first_name,
+          last_name: state.last_name,
+          email: state.email,
+          phone: state.phone,
+          unit_number: state.unit_number,
+          residency_type: state.residency_type?.value,
+        },
+      });
+    } catch (emailError) {
+      // Don't fail registration if email fails
+      console.error('Failed to send notification email:', emailError);
+    }
   } catch (error: any) {
     console.error('Registration error:', error);
     if (error.data?.errors?.[0]?.message) {

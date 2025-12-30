@@ -1,0 +1,297 @@
+<script setup lang="ts">
+const config = useRuntimeConfig();
+const { user } = useDirectusAuth();
+const toast = useToast();
+
+// Get all vehicles from user's units
+const vehicles = computed(() => {
+  const allVehicles: any[] = [];
+  const units = (user.value as any)?.units || [];
+
+  for (const unit of units) {
+    if (unit.units_id?.vehicles) {
+      for (const vehicle of unit.units_id.vehicles) {
+        allVehicles.push({
+          ...vehicle,
+          unit_number: unit.units_id.number,
+          unit_id: unit.units_id.id,
+        });
+      }
+    }
+  }
+
+  return allVehicles;
+});
+
+// Get first unit ID for creating new vehicles
+const defaultUnitId = computed(() => {
+  const units = (user.value as any)?.units || [];
+  return units[0]?.units_id?.id || null;
+});
+
+// Modal state
+const showModal = ref(false);
+const isEditing = ref(false);
+const loading = ref(false);
+
+const emptyVehicle = {
+  id: null as number | null,
+  make: '',
+  model: '',
+  year: '',
+  color: '',
+  license_plate: '',
+  state: '',
+  unit_id: null as number | null,
+};
+
+const editingVehicle = ref({ ...emptyVehicle });
+
+const commonColors = ['Black', 'White', 'Silver', 'Gray', 'Red', 'Blue', 'Green', 'Brown', 'Beige', 'Other'];
+
+function openAddModal() {
+  editingVehicle.value = { ...emptyVehicle, unit_id: defaultUnitId.value };
+  isEditing.value = false;
+  showModal.value = true;
+}
+
+function openEditModal(vehicle: any) {
+  editingVehicle.value = {
+    id: vehicle.id,
+    make: vehicle.make || '',
+    model: vehicle.model || '',
+    year: vehicle.year || '',
+    color: vehicle.color || '',
+    license_plate: vehicle.license_plate || '',
+    state: vehicle.state || '',
+    unit_id: vehicle.unit_id,
+  };
+  isEditing.value = true;
+  showModal.value = true;
+}
+
+async function saveVehicle() {
+  loading.value = true;
+
+  try {
+    const vehicleData = {
+      make: editingVehicle.value.make,
+      model: editingVehicle.value.model,
+      year: editingVehicle.value.year,
+      color: editingVehicle.value.color,
+      license_plate: editingVehicle.value.license_plate,
+      state: editingVehicle.value.state,
+      unit_id: editingVehicle.value.unit_id,
+      status: 'published',
+    };
+
+    if (isEditing.value && editingVehicle.value.id) {
+      // Update existing vehicle
+      await $fetch(`${config.public.adminUrl}/items/vehicles/${editingVehicle.value.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.public.staticToken}`,
+        },
+        body: vehicleData,
+      });
+
+      toast.add({
+        title: 'Vehicle Updated',
+        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been updated.`,
+        color: 'green',
+      });
+    } else {
+      // Create new vehicle
+      await $fetch(`${config.public.adminUrl}/items/vehicles`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.public.staticToken}`,
+        },
+        body: vehicleData,
+      });
+
+      toast.add({
+        title: 'Vehicle Added',
+        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been added.`,
+        color: 'green',
+      });
+    }
+
+    showModal.value = false;
+    // Refresh user data
+    window.location.reload();
+  } catch (error: any) {
+    console.error('Error saving vehicle:', error);
+    toast.add({
+      title: 'Error',
+      description: error.data?.errors?.[0]?.message || 'Failed to save vehicle',
+      color: 'red',
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+
+async function deleteVehicle(vehicle: any) {
+  if (!confirm(`Are you sure you want to remove the ${vehicle.make} ${vehicle.model}?`)) {
+    return;
+  }
+
+  loading.value = true;
+
+  try {
+    await $fetch(`${config.public.adminUrl}/items/vehicles/${vehicle.id}`, {
+      method: 'DELETE',
+      headers: {
+        Authorization: `Bearer ${config.public.staticToken}`,
+      },
+    });
+
+    toast.add({
+      title: 'Vehicle Removed',
+      description: `${vehicle.make || ''} ${vehicle.model || 'Vehicle'} has been removed.`,
+      color: 'green',
+    });
+
+    window.location.reload();
+  } catch (error: any) {
+    console.error('Error deleting vehicle:', error);
+    toast.add({
+      title: 'Error',
+      description: error.data?.errors?.[0]?.message || 'Failed to remove vehicle',
+      color: 'red',
+    });
+  } finally {
+    loading.value = false;
+  }
+}
+</script>
+
+<template>
+  <div class="w-full">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="!mt-0 !mb-0">My Vehicles</h2>
+      <UButton
+        v-if="defaultUnitId"
+        icon="i-heroicons-plus"
+        size="sm"
+        @click="openAddModal">
+        Add Vehicle
+      </UButton>
+    </div>
+
+    <div v-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
+      <UIcon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+      <p>No vehicles registered yet.</p>
+      <UButton
+        v-if="defaultUnitId"
+        variant="soft"
+        class="mt-4"
+        @click="openAddModal">
+        Add Your First Vehicle
+      </UButton>
+    </div>
+
+    <div v-else class="grid gap-4 md:grid-cols-2">
+      <UCard v-for="vehicle in vehicles" :key="vehicle.id" class="relative">
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0">
+            <div class="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+              <UIcon name="i-heroicons-truck" class="w-8 h-8 text-gray-400" />
+            </div>
+          </div>
+
+          <div class="flex-1 min-w-0">
+            <h3 class="font-semibold">
+              {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+            </h3>
+            <p v-if="vehicle.color" class="text-sm text-gray-500">{{ vehicle.color }}</p>
+            <p v-if="vehicle.license_plate" class="text-sm font-mono text-gray-600 dark:text-gray-400">
+              {{ vehicle.license_plate }}
+              <span v-if="vehicle.state" class="text-gray-400">({{ vehicle.state }})</span>
+            </p>
+            <p class="text-xs text-gray-400 mt-1">Unit {{ vehicle.unit_number }}</p>
+          </div>
+
+          <UDropdown
+            :items="[
+              [
+                { label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditModal(vehicle) },
+                { label: 'Remove', icon: 'i-heroicons-trash', click: () => deleteVehicle(vehicle) },
+              ],
+            ]">
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-ellipsis-vertical"
+              size="xs" />
+          </UDropdown>
+        </div>
+      </UCard>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <UModal v-model="showModal">
+      <UCard>
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="font-semibold">{{ isEditing ? 'Edit Vehicle' : 'Add Vehicle' }}</h3>
+            <UButton
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              @click="showModal = false" />
+          </div>
+        </template>
+
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <UFormGroup label="Make">
+              <UInput v-model="editingVehicle.make" placeholder="e.g., Toyota" />
+            </UFormGroup>
+
+            <UFormGroup label="Model">
+              <UInput v-model="editingVehicle.model" placeholder="e.g., Camry" />
+            </UFormGroup>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <UFormGroup label="Year">
+              <UInput v-model="editingVehicle.year" placeholder="e.g., 2022" />
+            </UFormGroup>
+
+            <UFormGroup label="Color">
+              <USelectMenu
+                v-model="editingVehicle.color"
+                :options="commonColors"
+                placeholder="Select color" />
+            </UFormGroup>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <UFormGroup label="License Plate">
+              <UInput v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
+            </UFormGroup>
+
+            <UFormGroup label="State">
+              <UInput v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
+            </UFormGroup>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-3">
+            <UButton color="gray" variant="ghost" @click="showModal = false">
+              Cancel
+            </UButton>
+            <UButton :loading="loading" @click="saveVehicle">
+              {{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
+  </div>
+</template>
