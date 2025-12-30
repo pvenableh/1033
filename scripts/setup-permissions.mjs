@@ -435,7 +435,7 @@ async function main() {
     .with(rest());
 
   try {
-    await client.login(email, password);
+    await client.login({email, password});
     console.log('✅ Authentication successful\n');
   } catch (error) {
     const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);

@@ -64,7 +64,7 @@ async function main() {
     .with(rest());
 
   try {
-    await client.login(email, password);
+    await client.login({email, password});
     console.log('✅ Authentication successful\n');
   } catch (error) {
     console.error('❌ Authentication failed:', error.message);

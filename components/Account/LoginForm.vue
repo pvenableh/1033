@@ -115,7 +115,7 @@ async function attemptLogin() {
 	login_error.value = null;
 
 	try {
-		await login(state.email, state.password);
+		await login({email: state.email, password: state.password});
 
 		if (route.query.redirect) {
 			const path = decodeURIComponent(route.query.redirect);
@@ -124,10 +124,10 @@ async function attemptLogin() {
 			await navigateTo('/');
 		}
 	} catch (err) {
-		if (err.data.errors.length) {
+		if (err?.data?.errors?.length) {
 			login_error.value = err.data.errors[0].message;
 		} else {
-			login_error.value = err.message;
+			login_error.value = err?.message || 'Login failed. Please try again.';
 		}
 	}
 
