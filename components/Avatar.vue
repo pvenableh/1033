@@ -1,6 +1,7 @@
 <script setup>
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
+const avatarSource = ref('');
 
 const props = defineProps({
 	chip: {
