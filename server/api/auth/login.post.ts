@@ -2,7 +2,7 @@
  * POST /api/auth/login
  *
  * Authenticates user with Directus and creates a session using nuxt-auth-utils.
- * Stores Directus tokens securely in the session.
+ * Stores Directus tokens securely in the session's secure section (encrypted).
  */
 import { directusLogin, directusReadMeWithFields } from '~/server/utils/directus';
 
@@ -42,7 +42,10 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Set session with user data and tokens
+    // Calculate expiration time
+    const expiresAt = Date.now() + tokens.expires * 1000;
+
+    // Set session with user data and tokens in secure section
     await setUserSession(event, {
       user: {
         id: userData.id,
@@ -56,13 +59,13 @@ export default defineEventHandler(async (event) => {
         avatar: userData.avatar,
         phone: userData.phone,
       },
-      // Store tokens securely in session (not exposed to client)
-      directusTokens: {
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_at: Date.now() + tokens.expires,
-      },
+      expiresAt,
       loggedInAt: Date.now(),
+      // Store tokens securely in encrypted section (not exposed to client)
+      secure: {
+        directusAccessToken: tokens.access_token,
+        directusRefreshToken: tokens.refresh_token,
+      },
     });
 
     return {

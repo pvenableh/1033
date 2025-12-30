@@ -2,11 +2,15 @@
  * PATCH /api/directus/users/me
  *
  * Update current authenticated user's profile.
+ * Uses secure session tokens with automatic refresh support.
  */
+import { getUserDirectus, updateUser } from '~/server/utils/directus';
+
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
+  const accessToken = getSessionAccessToken(session);
 
-  if (!session?.directusTokens?.access_token) {
+  if (!accessToken) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized',
@@ -25,27 +29,40 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const config = useRuntimeConfig();
-    const url = config.public.directusUrl || config.public.adminUrl;
+    // Use getUserDirectus for automatic token refresh
+    const client = await getUserDirectus(event);
+    const userId = session.user?.id;
 
-    const response = await $fetch(`${url}/users/me`, {
-      method: 'PATCH',
-      headers: {
-        Authorization: `Bearer ${session.directusTokens.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: body,
-    });
+    if (!userId) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'User ID not found in session',
+      });
+    }
 
-    return (response as any).data;
+    const result = await client.request(updateUser(userId, body));
+    return result;
   } catch (error: any) {
     console.error('Update me error:', error);
+
+    if (error.statusCode) {
+      throw error;
+    }
 
     if (error?.data?.errors?.[0]) {
       throw createError({
         statusCode: 400,
         statusMessage: 'Bad Request',
         message: error.data.errors[0].message,
+      });
+    }
+
+    if (error?.errors?.[0]) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'Bad Request',
+        message: error.errors[0].message,
       });
     }
 

@@ -2,13 +2,15 @@
  * GET /api/directus/users/me
  *
  * Get current authenticated user's data from Directus.
+ * Uses getUserDirectus() for automatic token refresh.
  */
 import { directusReadMeWithFields } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
+  const accessToken = getSessionAccessToken(session);
 
-  if (!session?.directusTokens?.access_token) {
+  if (!accessToken) {
     throw createError({
       statusCode: 401,
       statusMessage: 'Unauthorized',
@@ -29,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
       const response = await $fetch(`${url}/users/me`, {
         headers: {
-          Authorization: `Bearer ${session.directusTokens.access_token}`,
+          Authorization: `Bearer ${accessToken}`,
         },
         query: {
           fields: fields.join(','),
@@ -40,7 +42,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Otherwise use default fields
-    const userData = await directusReadMeWithFields(session.directusTokens.access_token);
+    const userData = await directusReadMeWithFields(accessToken);
     return userData;
   } catch (error: any) {
     console.error('Get me error:', error);

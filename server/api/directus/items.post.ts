@@ -2,7 +2,7 @@
  * POST /api/directus/items
  *
  * Generic CRUD operations for Directus collections.
- * Requires authentication for most operations.
+ * Uses getUserDirectus() for authenticated operations with automatic token refresh.
  *
  * Request body:
  * {
@@ -15,6 +15,7 @@
  */
 import {
   useDirectusAdmin,
+  getUserDirectus,
   readItems,
   readItem,
   createItem,
@@ -48,12 +49,26 @@ export default defineEventHandler(async (event) => {
 
   // Get session for authenticated requests
   const session = await getUserSession(event);
-  const accessToken = session?.directusTokens?.access_token;
 
-  // Determine which client to use
-  // For now, use admin client with static token
-  // In production, you might want to use user's token for permission-aware operations
-  const client = useDirectusAdmin();
+  // Determine which client to use based on operation and authentication
+  // Read operations can use admin client for public data
+  // Write operations require user authentication for permission-aware operations
+  const isWriteOperation = ['create', 'update', 'delete'].includes(body.operation);
+
+  let client;
+  if (isWriteOperation && session?.user) {
+    // Use user's authenticated client for write operations (with auto token refresh)
+    try {
+      client = await getUserDirectus(event);
+    } catch (error: any) {
+      // Fall back to admin client if user auth fails
+      console.warn('User auth failed, falling back to admin client:', error.message);
+      client = useDirectusAdmin();
+    }
+  } else {
+    // Use admin client for read operations
+    client = useDirectusAdmin();
+  }
 
   try {
     switch (body.operation) {

@@ -9,6 +9,7 @@ import {
   rest,
   staticToken,
   authentication,
+  refresh,
   readMe,
   readItems,
   readItem,
@@ -43,9 +44,6 @@ import {
   createNotification,
   updateNotification,
   deleteNotification,
-  type DirectusClient,
-  type RestClient,
-  type AuthenticationClient,
 } from '@directus/sdk';
 import type { H3Event } from 'h3';
 
@@ -78,7 +76,8 @@ function getDirectusConfig() {
 }
 
 /**
- * Create a Directus client with static token (for server-side operations)
+ * Create a Directus client with static token (for admin/server-side operations)
+ * Uses static token for server-side operations that require admin access
  */
 export function useDirectusAdmin() {
   const { url, staticToken: token } = getDirectusConfig();
@@ -93,25 +92,109 @@ export function useDirectusAdmin() {
 }
 
 /**
- * Create a Directus client with user authentication
+ * Get a Directus client with user authentication
+ * Uses the session token from nuxt-auth-utils
+ * Automatically refreshes expired tokens
  */
-export function useDirectusClient(accessToken?: string) {
+export async function getUserDirectus(
+  event: H3Event,
+  forceRefresh: boolean = false
+) {
   const { url } = getDirectusConfig();
 
   if (!url) {
     throw new Error('DIRECTUS_URL is not configured');
   }
 
-  const client = createDirectus(url)
-    .with(rest())
-    .with(authentication('json'));
+  const session = await getUserSession(event);
 
-  // If access token provided, set it on the client
-  if (accessToken) {
-    (client as any).setToken(accessToken);
+  // Check if session exists
+  if (!session?.user) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'No active session',
+    });
   }
 
-  return client;
+  // Access token from secure section
+  let accessToken = getSessionAccessToken(session);
+  const refreshToken = getSessionRefreshToken(session);
+
+  if (!accessToken) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'No authentication token available',
+    });
+  }
+
+  // Check if token is expired or about to expire (within 60 seconds)
+  const now = Date.now();
+  const expiresAt = (session as any).expiresAt;
+  // If expiresAt is missing (old session), don't force refresh unless explicitly requested
+  // The token will still work and the client-side refresh will eventually set expiresAt
+  const needsRefresh = forceRefresh || (expiresAt !== undefined && expiresAt - now < 60000);
+
+  // If token needs refresh but no refresh token is available, clear session
+  if (needsRefresh && !refreshToken) {
+    await clearUserSession(event);
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Session expired - please log in again',
+    });
+  }
+
+  // Refresh token if needed
+  if (needsRefresh && refreshToken) {
+    try {
+      const directus = createDirectus(url)
+        .with(rest())
+        .with(authentication('json'));
+
+      const authResult = await directus.request(
+        refresh({ mode: 'json', refresh_token: refreshToken })
+      );
+
+      if (!authResult.access_token) {
+        throw new Error('Token refresh failed - no access token returned');
+      }
+
+      // Update session with new tokens
+      await setUserSession(event, {
+        ...session,
+        expiresAt: Date.now() + (authResult.expires || 900) * 1000,
+        secure: {
+          directusAccessToken: authResult.access_token,
+          directusRefreshToken: authResult.refresh_token || refreshToken,
+        },
+      });
+
+      accessToken = authResult.access_token;
+    } catch (error) {
+      await clearUserSession(event);
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Session expired - please log in again',
+      });
+    }
+  }
+
+  return createDirectus(url)
+    .with(staticToken(accessToken))
+    .with(rest());
+}
+
+/**
+ * Get a public Directus client (no authentication)
+ * Use for accessing publicly available data
+ */
+export function getPublicDirectus() {
+  const { url } = getDirectusConfig();
+
+  if (!url) {
+    throw new Error('DIRECTUS_URL is not configured');
+  }
+
+  return createDirectus(url).with(rest());
 }
 
 /**

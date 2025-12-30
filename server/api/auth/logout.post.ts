@@ -12,9 +12,10 @@ export default defineEventHandler(async (event) => {
     const session = await getUserSession(event);
 
     // If we have Directus tokens, invalidate them
-    if (session?.directusTokens?.refresh_token) {
+    const refreshToken = getSessionRefreshToken(session);
+    if (refreshToken) {
       try {
-        await directusLogout(session.directusTokens.refresh_token);
+        await directusLogout(refreshToken);
       } catch (error) {
         // Ignore Directus logout errors - still clear local session
         console.warn('Directus logout error:', error);

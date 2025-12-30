@@ -1,17 +1,19 @@
 /**
  * POST /api/auth/refresh-session
  *
- * Refreshes the current session with fresh data from Directus.
+ * Refreshes the current session with fresh user data from Directus.
  * Also refreshes Directus tokens if they are close to expiring.
  */
-import { directusRefresh, directusReadMeWithFields } from '~/server/utils/directus';
+import { createDirectus, rest, authentication, refresh } from '@directus/sdk';
+import { directusReadMeWithFields } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   try {
     // Get current session
     const session = await getUserSession(event);
+    const refreshToken = getSessionRefreshToken(session);
 
-    if (!session?.directusTokens) {
+    if (!session?.user || !refreshToken) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
@@ -19,18 +21,42 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    let accessToken = session.directusTokens.access_token;
-    let refreshToken = session.directusTokens.refresh_token;
-    let expiresAt = session.directusTokens.expires_at;
+    let accessToken = getSessionAccessToken(session);
+    let expiresAt = (session as any).expiresAt;
 
     // Check if token needs refresh (within 5 minutes of expiring)
     const fiveMinutes = 5 * 60 * 1000;
-    if (expiresAt && Date.now() > expiresAt - fiveMinutes) {
+    const now = Date.now();
+
+    if (expiresAt && now > expiresAt - fiveMinutes) {
+      const config = useRuntimeConfig();
+      const directusUrl = config.public.directusUrl || config.public.adminUrl;
+
       try {
-        const newTokens = await directusRefresh(refreshToken);
-        accessToken = newTokens.access_token;
-        refreshToken = newTokens.refresh_token;
-        expiresAt = Date.now() + newTokens.expires;
+        const directus = createDirectus(directusUrl)
+          .with(rest())
+          .with(authentication('json'));
+
+        const authResult = await directus.request(
+          refresh({ mode: 'json', refresh_token: refreshToken })
+        );
+
+        if (!authResult.access_token) {
+          throw new Error('Token refresh failed');
+        }
+
+        accessToken = authResult.access_token;
+        expiresAt = Date.now() + (authResult.expires || 900) * 1000;
+
+        // Update tokens in session immediately
+        await setUserSession(event, {
+          ...session,
+          expiresAt,
+          secure: {
+            directusAccessToken: accessToken,
+            directusRefreshToken: authResult.refresh_token || refreshToken,
+          },
+        });
       } catch (error) {
         console.error('Token refresh failed:', error);
         throw createError({
@@ -42,9 +68,9 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get fresh user data from Directus
-    const userData = await directusReadMeWithFields(accessToken);
+    const userData = await directusReadMeWithFields(accessToken!);
 
-    // Update session with fresh data
+    // Update session with fresh user data
     await setUserSession(event, {
       user: {
         id: userData.id,
@@ -58,12 +84,12 @@ export default defineEventHandler(async (event) => {
         avatar: userData.avatar,
         phone: userData.phone,
       },
-      directusTokens: {
-        access_token: accessToken,
-        refresh_token: refreshToken,
-        expires_at: expiresAt,
+      expiresAt,
+      loggedInAt: (session as any).loggedInAt || Date.now(),
+      secure: {
+        directusAccessToken: accessToken,
+        directusRefreshToken: refreshToken,
       },
-      loggedInAt: session.loggedInAt || Date.now(),
     });
 
     return {
