@@ -95,6 +95,7 @@ interface ExtendedUser extends User {
   person?: {
     id: number;
     category: PeopleCategory;
+    is_owner?: boolean;
     is_resident?: boolean;
   } | null;
   units?: Array<{
@@ -105,6 +106,8 @@ interface ExtendedUser extends User {
         people_id: {
           id: number;
           category: string;
+          is_owner?: boolean;
+          is_resident?: boolean;
           board_member?: any[];
         };
       }>;
@@ -235,10 +238,16 @@ export function useRoles() {
   // ==================== PROPERTY RELATIONSHIP CHECKS (from people.category) ====================
 
   /**
-   * Check if user is an owner (from people.category)
+   * Check if user is an owner (from people.is_owner or people.category)
    */
   const isOwner = computed<boolean>(() => {
     if (isAdmin.value) return true; // Admin has all access
+
+    const person = linkedPerson.value as any;
+    // Use is_owner boolean if available, otherwise fall back to category
+    if (person?.is_owner !== undefined) {
+      return person.is_owner;
+    }
     return personCategory.value === PEOPLE_CATEGORIES.OWNER;
   });
 
@@ -257,21 +266,24 @@ export function useRoles() {
   });
 
   /**
-   * Check if user is a resident (lives in the building - owner-occupant or tenant)
-   * Property managers may or may not be residents
+   * Check if user is a resident (from people.is_resident or derived from category)
    */
   const isResident = computed<boolean>(() => {
     if (isAdmin.value) return true; // Admin has all access
 
-    // Direct check from person.is_resident if available
     const person = linkedPerson.value as any;
+    // Use is_resident boolean if available
     if (person?.is_resident !== undefined) {
       return person.is_resident;
     }
 
-    // Otherwise, tenants are always residents, owners might be
-    // For now, assume owners are residents unless specified otherwise
-    return isTenant.value || isOwner.value;
+    // Tenants are always residents
+    if (isTenant.value) return true;
+
+    // For owners, default to true unless explicitly set to false
+    if (personCategory.value === PEOPLE_CATEGORIES.OWNER) return true;
+
+    return false;
   });
 
   /**
