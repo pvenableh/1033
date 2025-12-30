@@ -1,6 +1,8 @@
 // composables/useHOAReconciliation.ts
 export const useHOAReconciliation = () => {
-	const {readItems} = useDirectusItems();
+	const accountsCollection = useDirectusItems('accounts');
+	const transactionsCollection = useDirectusItems('transactions');
+	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 	// State
 	const selectedYear = ref(2025);
@@ -28,11 +30,11 @@ export const useHOAReconciliation = () => {
 
 		try {
 			const [accountsData, transactionsData, statementsData] = await Promise.all([
-				readItems('accounts', {
+				accountsCollection.list({
 					sort: ['account_number'],
 					fields: ['*'],
 				}),
-				readItems('transactions', {
+				transactionsCollection.list({
 					filter: {
 						fiscal_year: {_eq: unref(selectedYear)},
 					},
@@ -40,7 +42,7 @@ export const useHOAReconciliation = () => {
 					fields: ['*', 'linked_transfer_id.*'],
 					limit: -1,
 				}),
-				readItems('monthly_statements', {
+				monthlyStatementsCollection.list({
 					filter: {
 						fiscal_year: {_eq: unref(selectedYear)},
 					},

@@ -28,7 +28,7 @@ export interface ItemsQuery {
 
 /**
  * Read a singleton collection
- * Standalone function that can be used without instantiating useDirectusItems with a collection
+ * Standalone function for reading Directus singleton collections
  */
 export const readSingleton = async <T = any>(
   collection: string,
@@ -45,18 +45,11 @@ export const readSingleton = async <T = any>(
 };
 
 export const useDirectusItems = <T = any>(
-  collection?: string,
+  collection: string,
   options: { requireAuth?: boolean } = {}
 ) => {
   const { requireAuth = true } = options;
   const { loggedIn } = useUserSession();
-
-  // If no collection provided, return utility functions like readSingleton
-  if (!collection) {
-    return {
-      readSingleton,
-    };
-  }
 
   /**
    * List items from collection
@@ -283,6 +276,5 @@ export const useDirectusItems = <T = any>(
     count,
     findFirst,
     exists,
-    readSingleton,
   };
 };

@@ -1,6 +1,9 @@
 // composables/useHOAFinancialsEnhanced.ts - Account-Specific Views with Category/Vendor Filtering
 export const useHOAFinancialsEnhanced = () => {
-	const {readItems} = useDirectusItems();
+	const accountsCollection = useDirectusItems('accounts');
+	const budgetCategoriesCollection = useDirectusItems('budget_categories');
+	const transactionsCollection = useDirectusItems('transactions');
+	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 	// Reactive state
 	const selectedYear = ref(2025);
@@ -406,7 +409,7 @@ export const useHOAFinancialsEnhanced = () => {
 	// Fetch functions
 	const fetchAccounts = async () => {
 		try {
-			const data = await readItems('accounts', {
+			const data = await accountsCollection.list({
 				sort: ['account_number'],
 				fields: ['*'],
 			});
@@ -419,7 +422,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 	const fetchBudgetCategories = async () => {
 		try {
-			const data = await readItems('budget_categories', {
+			const data = await budgetCategoriesCollection.list({
 				filter: {
 					fiscal_year: {_eq: unref(selectedYear)},
 				},
@@ -435,7 +438,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 	const fetchTransactions = async () => {
 		try {
-			const data = await readItems('transactions', {
+			const data = await transactionsCollection.list({
 				filter: {
 					fiscal_year: {_eq: unref(selectedYear)},
 				},
@@ -452,7 +455,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 	const fetchMonthlyStatements = async () => {
 		try {
-			const data = await readItems('monthly_statements', {
+			const data = await monthlyStatementsCollection.list({
 				filter: {
 					fiscal_year: {_eq: unref(selectedYear)},
 				},

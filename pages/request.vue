@@ -1,7 +1,8 @@
 <script setup>
 import {useField, useForm} from 'vee-validate';
 import * as yup from 'yup';
-const {createItem, readItems} = useDirectusItems();
+const unitsCollection = useDirectusItems('units');
+const requestsCollection = useDirectusItems('requests');
 const isSubmitting = ref(false);
 import confetti from 'canvas-confetti';
 
@@ -43,7 +44,7 @@ const {value: unit, errorMessage: unitError} = useField('unit');
 const {value: subject, errorMessage: subjectError} = useField('subject');
 const {value: description, errorMessage: descriptionError} = useField('description');
 
-const units = await readItems('units', {
+const units = await unitsCollection.list({
 	fields: ['id,number,status,people.people_id.first_name,people.people_id.last_name,people.people_id.email'],
 	filter: {
 		status: {
@@ -101,7 +102,7 @@ const onSubmit = handleSubmit(async (values) => {
 		isSubmitting.value = true;
 
 		// Submit to Directus
-		await createItem('requests', {
+		await requestsCollection.create({
 			...values,
 			status: 'published',
 			category: 'question',

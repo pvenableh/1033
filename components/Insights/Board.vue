@@ -1,7 +1,7 @@
 <script setup>
-const {readItems} = useDirectusItems();
+const boardCollection = useDirectusItems('board_member', {requireAuth: false});
 
-const board = await readItems('board_member', {
+const board = await boardCollection.list({
 	fields: ['*,person.*'],
 	filter: {
 		status: {

@@ -3,8 +3,6 @@ const {user} = useDirectusAuth();
 
 const {x, y} = useMouse({touch: false});
 
-const {readSingleton} = useDirectusItems();
-
 const features = await readSingleton('features', {
 	fields: [
 		'featured_images.directus_files_id.id',

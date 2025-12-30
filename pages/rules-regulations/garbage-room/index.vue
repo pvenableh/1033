@@ -11,9 +11,9 @@
 </template>
 
 <script setup>
-const {readItems} = useDirectusItems();
+const rulesCollection = useDirectusItems('rules', {requireAuth: false});
 
-const page = await readItems('rules', {
+const page = await rulesCollection.list({
 	fields: ['*'],
 	limit: 1,
 	filter: {

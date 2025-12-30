@@ -18,9 +18,9 @@
 	</div>
 </template>
 <script setup>
-const {readItems} = useDirectusItems();
+const reservesCollection = useDirectusItems('reserves', {requireAuth: false});
 
-const data = await readItems('reserves', {
+const data = await reservesCollection.list({
 	fields: ['*'],
 	sort: 'date',
 });
