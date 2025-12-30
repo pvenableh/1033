@@ -4,7 +4,7 @@ import {useForm, useField} from 'vee-validate';
 import * as yup from 'yup';
 import {openScreen, closeScreen} from '~/composables/useScreen';
 
-const {passwordReset} = useCustomAuth();
+const {resetPassword} = useDirectusAuth();
 const route = useRoute();
 
 const reset_token = ref(route.query.token ? route.query.token : '');
@@ -47,7 +47,7 @@ onMounted(() => {
 const onSubmit = handleSubmit(async (values) => {
 	try {
 		openScreen();
-		await passwordReset(reset_token.value, values.password);
+		await resetPassword(reset_token.value, values.password);
 		toast.add({
 			title: 'Success',
 			description: 'Password reset successfully. Routing to login page.',

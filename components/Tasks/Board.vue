@@ -5,7 +5,7 @@ const config = useRuntimeConfig();
 
 const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
-const {user} = useCustomAuth();
+const {user} = useDirectusAuth();
 
 // const tasks = ref({
 // 	history: [],

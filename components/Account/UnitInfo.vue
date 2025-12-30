@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { user } = useCustomAuth();
+const { user } = useDirectusAuth();
 
 const units = computed(() => {
   return (user.value as any)?.units?.map((u: any) => u.units_id) || [];

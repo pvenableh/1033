@@ -2,7 +2,7 @@
 	<a class="cursor-pointer" @click.prevent="handleLogout">Logout</a>
 </template>
 <script setup>
-const {logout} = useCustomAuth();
+const {logout} = useDirectusAuth();
 
 const handleLogout = async () => {
 	try {

@@ -68,7 +68,7 @@
 <script setup lang="ts">
 import type {FormError} from '#ui/types';
 
-const {login} = useCustomAuth();
+const {login} = useDirectusAuth();
 const route = useRoute();
 const loading = ref(false);
 const login_error = ref<string | null>(null);

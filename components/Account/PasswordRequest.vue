@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import type {FormError} from '#ui/types';
 
-const {passwordRequest} = useCustomAuth();
+const {requestPasswordReset} = useDirectusAuth();
 const toast = useToast();
 const loading = ref(false);
 const emailTouched = ref(false);
@@ -77,7 +77,7 @@ const validate = async (state: any): Promise<FormError[]> => {
 
 function submit() {
 	openScreen();
-	passwordRequest(state.email, 'https://1033lenox.com/auth/password-reset');
+	requestPasswordReset(state.email, 'https://1033lenox.com/auth/password-reset');
 	closeScreen();
 	toast.add({title: 'An email was sent to ' + state.email + '.'});
 }

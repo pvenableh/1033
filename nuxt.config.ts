@@ -33,7 +33,7 @@ export default defineNuxtConfig({
 		'@nuxtjs/color-mode',
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
-		'nuxt-directus-next',
+		'nuxt-auth-utils', // https://github.com/atinux/nuxt-auth-utils
 		[
 			'nuxt-gtag',
 			{
@@ -53,6 +53,10 @@ export default defineNuxtConfig({
 
 	runtimeConfig: {
 		// Server-only (not exposed to client)
+		// nuxt-auth-utils session secret - set NUXT_SESSION_PASSWORD env var in production
+		session: {
+			password: process.env.NUXT_SESSION_PASSWORD || 'at-least-32-characters-long-secret-key-for-development',
+		},
 		sendgridAccessRequestAdminTemplate: process.env.SENDGRID_ACCESS_REQUEST_ADMIN_TEMPLATE || '',
 		sendgridAccessRequestUserTemplate: process.env.SENDGRID_ACCESS_REQUEST_USER_TEMPLATE || '',
 		public: {
@@ -62,43 +66,6 @@ export default defineNuxtConfig({
 			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 			directusUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
-		},
-	},
-
-	directus: {
-		url: process.env.DIRECTUS_URL,
-		staticToken: process.env.DIRECTUS_SERVER_TOKEN,
-		authConfig: {
-			cookieSameSite: 'lax',
-			cookieSecure: process.env.NODE_ENV === 'production',
-		},
-		moduleConfig: {
-			devtools: true,
-			autoImport: false, // Disabled - using custom composables to avoid conflicts
-			autoRefresh: {
-				enableMiddleware: false, // Disabled - using custom auth middleware
-				global: false,
-				middlewareName: 'auth',
-				redirectTo: '/auth/signin',
-				to: ['/*'],
-			},
-			readMeQuery: {
-				fields: [
-					// User basics
-					'id,status,first_name,last_name,email,phone,token,avatar',
-					// Role info
-					'role.id,role.name,role.admin_access,role.app_access',
-					// Direct person link (requires person_id field on directus_users)
-					'person_id.id,person_id.first_name,person_id.last_name,person_id.email,person_id.phone,person_id.category,person_id.is_owner,person_id.is_resident,person_id.image,person_id.mailing_address,person_id.board_member.id,person_id.board_member.title,person_id.board_member.start,person_id.board_member.finish,person_id.board_member.status',
-					// Units with nested data
-					'units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.parking_spot',
-					'units.units_id.pets.*',
-					'units.units_id.vehicles.*',
-					// People in units (fallback for person matching by email)
-					'units.units_id.people.people_id.id,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.is_owner,units.units_id.people.people_id.is_resident,units.units_id.people.people_id.image,units.units_id.people.people_id.board_member.id,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.status,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish',
-				],
-				updateState: true,
-			},
 		},
 	},
 

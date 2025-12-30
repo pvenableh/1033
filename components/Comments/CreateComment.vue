@@ -14,7 +14,7 @@ const props = defineProps({
 	},
 });
 
-const {user} = useCustomAuth();
+const {user} = useDirectusAuth();
 const comment = ref(null);
 const max = ref(255);
 

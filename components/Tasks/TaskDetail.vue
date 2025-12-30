@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import {isOpen, closeModal} from '~/composables/useTaskModal';
 
-const {user} = useCustomAuth();
+const {user} = useDirectusAuth();
 
 const props = defineProps({
 	task: {

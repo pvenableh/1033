@@ -140,7 +140,7 @@ interface ExtendedUser extends User {
  * Provides role-based access control with ownership/residency derived from people.category
  */
 export function useRoles() {
-  const { user } = useCustomAuth();
+  const { user } = useDirectusAuth();
 
   /**
    * Get the current user's role object (Directus role)

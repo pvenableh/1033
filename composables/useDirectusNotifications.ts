@@ -1,23 +1,9 @@
 /**
  * useDirectusNotifications composable
  *
- * Notification management using @directus/sdk directly.
+ * Notification management via server API endpoints.
  * Supports creating, reading, and managing user notifications.
  */
-import {
-  createDirectus,
-  rest,
-  staticToken,
-  createNotification,
-  createNotifications,
-  readNotification,
-  readNotifications,
-  updateNotification,
-  updateNotifications,
-  deleteNotification,
-  deleteNotifications,
-  type Query,
-} from '@directus/sdk';
 
 export interface DirectusNotification {
   id: string;
@@ -40,292 +26,242 @@ export interface CreateNotificationData {
 }
 
 export function useDirectusNotifications() {
-  const config = useRuntimeConfig();
-  const { getClient: getAuthClient, user } = useCustomAuth();
-
-  /**
-   * Get the static token client
-   */
-  function getStaticClient() {
-    const url = config.public.directusUrl || config.public.adminUrl;
-    const token = config.public.staticToken;
-    return createDirectus(url).with(rest()).with(staticToken(token));
-  }
-
-  /**
-   * Get the authenticated client
-   */
-  function getUserClient() {
-    return getAuthClient();
-  }
+  const notifications = useDirectusItems<DirectusNotification>('directus_notifications');
+  const { user } = useDirectusAuth();
 
   // ==================== CREATE OPERATIONS ====================
 
   /**
    * Create a notification for a user
    */
-  async function create(
-    data: CreateNotificationData,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(createNotification(data as any));
-  }
+  const create = async (data: CreateNotificationData): Promise<DirectusNotification> => {
+    return await notifications.create(data as Partial<DirectusNotification>);
+  };
 
   /**
    * Create notifications for multiple users
    */
-  async function createMany(
-    notifications: CreateNotificationData[],
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification[]> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(createNotifications(notifications as any[]));
-  }
+  const createMany = async (
+    notificationList: CreateNotificationData[]
+  ): Promise<DirectusNotification[]> => {
+    return await notifications.createMany(notificationList as Partial<DirectusNotification>[]);
+  };
 
   /**
    * Send notification to a specific user
    */
-  async function sendTo(
+  const sendTo = async (
     userId: string,
     subject: string,
     message?: string,
-    options?: { collection?: string; item?: string; useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    return await create(
-      {
-        recipient: userId,
-        subject,
-        message,
-        collection: options?.collection,
-        item: options?.item,
-      },
-      options
-    );
-  }
+    options?: { collection?: string; item?: string }
+  ): Promise<DirectusNotification> => {
+    return await create({
+      recipient: userId,
+      subject,
+      message,
+      collection: options?.collection,
+      item: options?.item,
+    });
+  };
 
   /**
    * Broadcast notification to multiple users
    */
-  async function broadcast(
+  const broadcast = async (
     userIds: string[],
     subject: string,
-    message?: string,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification[]> {
-    const notifications = userIds.map((userId) => ({
+    message?: string
+  ): Promise<DirectusNotification[]> => {
+    const notificationList = userIds.map((userId) => ({
       recipient: userId,
       subject,
       message,
     }));
-    return await createMany(notifications, options);
-  }
+    return await createMany(notificationList);
+  };
 
   // ==================== READ OPERATIONS ====================
 
   /**
    * Get a single notification by ID
    */
-  async function findOne(
+  const findOne = async (
     id: string,
-    query?: Query<any, DirectusNotification>,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(readNotification(id, query as any));
-  }
+    query?: { fields?: string[]; deep?: Record<string, any> }
+  ): Promise<DirectusNotification> => {
+    return await notifications.get(id, query);
+  };
 
   /**
    * Get notifications (all or filtered)
    */
-  async function findMany(
-    query?: Query<any, DirectusNotification>,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification[]> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(readNotifications(query as any));
-  }
+  const findMany = async (query?: {
+    fields?: string[];
+    filter?: Record<string, any>;
+    sort?: string[];
+    limit?: number;
+  }): Promise<DirectusNotification[]> => {
+    return await notifications.list(query);
+  };
 
   /**
    * Get current user's notifications
    */
-  async function getMyNotifications(
-    query?: Query<any, DirectusNotification>
-  ): Promise<DirectusNotification[]> {
+  const getMyNotifications = async (query?: {
+    fields?: string[];
+    filter?: Record<string, any>;
+    sort?: string[];
+    limit?: number;
+  }): Promise<DirectusNotification[]> => {
     if (!user.value?.id) {
       throw new Error('User not authenticated');
     }
 
-    const client = getUserClient();
-    return await client.request(
-      readNotifications({
-        ...query,
-        filter: {
-          ...((query as any)?.filter || {}),
-          recipient: { _eq: user.value.id },
-        },
-        sort: ['-timestamp'],
-      } as any)
-    );
-  }
+    return await notifications.list({
+      ...query,
+      filter: {
+        ...(query?.filter || {}),
+        recipient: { _eq: user.value.id },
+      },
+      sort: query?.sort || ['-timestamp'],
+    });
+  };
 
   /**
    * Get current user's unread notifications (inbox)
    */
-  async function getUnread(
-    query?: Query<any, DirectusNotification>
-  ): Promise<DirectusNotification[]> {
+  const getUnread = async (query?: {
+    fields?: string[];
+    filter?: Record<string, any>;
+    limit?: number;
+  }): Promise<DirectusNotification[]> => {
     if (!user.value?.id) {
       throw new Error('User not authenticated');
     }
 
-    const client = getUserClient();
-    return await client.request(
-      readNotifications({
-        ...query,
-        filter: {
-          ...((query as any)?.filter || {}),
-          recipient: { _eq: user.value.id },
-          status: { _eq: 'inbox' },
-        },
-        sort: ['-timestamp'],
-      } as any)
-    );
-  }
+    return await notifications.list({
+      ...query,
+      filter: {
+        ...(query?.filter || {}),
+        recipient: { _eq: user.value.id },
+        status: { _eq: 'inbox' },
+      },
+      sort: ['-timestamp'],
+    });
+  };
 
   /**
    * Get current user's archived notifications
    */
-  async function getArchived(
-    query?: Query<any, DirectusNotification>
-  ): Promise<DirectusNotification[]> {
+  const getArchived = async (query?: {
+    fields?: string[];
+    filter?: Record<string, any>;
+    limit?: number;
+  }): Promise<DirectusNotification[]> => {
     if (!user.value?.id) {
       throw new Error('User not authenticated');
     }
 
-    const client = getUserClient();
-    return await client.request(
-      readNotifications({
-        ...query,
-        filter: {
-          ...((query as any)?.filter || {}),
-          recipient: { _eq: user.value.id },
-          status: { _eq: 'archived' },
-        },
-        sort: ['-timestamp'],
-      } as any)
-    );
-  }
+    return await notifications.list({
+      ...query,
+      filter: {
+        ...(query?.filter || {}),
+        recipient: { _eq: user.value.id },
+        status: { _eq: 'archived' },
+      },
+      sort: ['-timestamp'],
+    });
+  };
 
   /**
    * Count unread notifications for current user
    */
-  async function countUnread(): Promise<number> {
+  const countUnread = async (): Promise<number> => {
     const unread = await getUnread({ limit: -1 });
     return unread.length;
-  }
+  };
 
   // ==================== UPDATE OPERATIONS ====================
 
   /**
    * Update a notification
    */
-  async function update(
+  const update = async (
     id: string,
-    data: Partial<DirectusNotification>,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(updateNotification(id, data as any));
-  }
+    data: Partial<DirectusNotification>
+  ): Promise<DirectusNotification> => {
+    return await notifications.update(id, data);
+  };
 
   /**
    * Update multiple notifications
    */
-  async function updateMany(
+  const updateMany = async (
     ids: string[],
-    data: Partial<DirectusNotification>,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification[]> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    return await client.request(updateNotifications(ids, data as any));
-  }
+    data: Partial<DirectusNotification>
+  ): Promise<DirectusNotification[]> => {
+    return await notifications.updateMany(ids, data);
+  };
 
   /**
    * Archive a notification
    */
-  async function archive(
-    id: string,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    return await update(id, { status: 'archived' }, options);
-  }
+  const archive = async (id: string): Promise<DirectusNotification> => {
+    return await update(id, { status: 'archived' });
+  };
 
   /**
    * Archive multiple notifications
    */
-  async function archiveMany(
-    ids: string[],
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification[]> {
-    return await updateMany(ids, { status: 'archived' }, options);
-  }
+  const archiveMany = async (ids: string[]): Promise<DirectusNotification[]> => {
+    return await updateMany(ids, { status: 'archived' });
+  };
 
   /**
    * Archive all unread notifications for current user
    */
-  async function archiveAll(): Promise<DirectusNotification[]> {
+  const archiveAll = async (): Promise<DirectusNotification[]> => {
     const unread = await getUnread({ limit: -1 });
     if (unread.length === 0) return [];
 
     const ids = unread.map((n) => n.id);
     return await archiveMany(ids);
-  }
+  };
 
   /**
    * Mark notification as unread (move back to inbox)
    */
-  async function markAsUnread(
-    id: string,
-    options?: { useStaticToken?: boolean }
-  ): Promise<DirectusNotification> {
-    return await update(id, { status: 'inbox' }, options);
-  }
+  const markAsUnread = async (id: string): Promise<DirectusNotification> => {
+    return await update(id, { status: 'inbox' });
+  };
 
   // ==================== DELETE OPERATIONS ====================
 
   /**
    * Delete a notification
    */
-  async function remove(
-    id: string,
-    options?: { useStaticToken?: boolean }
-  ): Promise<void> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    await client.request(deleteNotification(id));
-  }
+  const remove = async (id: string): Promise<boolean> => {
+    return await notifications.remove(id);
+  };
 
   /**
    * Delete multiple notifications
    */
-  async function removeMany(
-    ids: string[],
-    options?: { useStaticToken?: boolean }
-  ): Promise<void> {
-    const client = options?.useStaticToken ? getStaticClient() : getUserClient();
-    await client.request(deleteNotifications(ids));
-  }
+  const removeMany = async (ids: string[]): Promise<boolean> => {
+    return await notifications.remove(ids);
+  };
 
   /**
    * Delete all archived notifications for current user
    */
-  async function clearArchived(): Promise<void> {
+  const clearArchived = async (): Promise<void> => {
     const archived = await getArchived({ limit: -1 });
     if (archived.length === 0) return;
 
     const ids = archived.map((n) => n.id);
     await removeMany(ids);
-  }
+  };
 
   // ==================== REACTIVE HELPERS ====================
 
@@ -336,7 +272,7 @@ export function useDirectusNotifications() {
     status?: 'inbox' | 'archived';
     refreshInterval?: number;
   }) {
-    const notifications = ref<DirectusNotification[]>([]);
+    const notificationsList = ref<DirectusNotification[]>([]);
     const loading = ref(true);
     const error = ref<string | null>(null);
     let intervalId: NodeJS.Timeout | null = null;
@@ -344,9 +280,9 @@ export function useDirectusNotifications() {
     const fetch = async () => {
       try {
         if (options?.status === 'archived') {
-          notifications.value = await getArchived();
+          notificationsList.value = await getArchived();
         } else {
-          notifications.value = await getUnread();
+          notificationsList.value = await getUnread();
         }
         error.value = null;
       } catch (e: any) {
@@ -370,7 +306,7 @@ export function useDirectusNotifications() {
     });
 
     return {
-      notifications,
+      notifications: notificationsList,
       loading,
       error,
       refresh: fetch,

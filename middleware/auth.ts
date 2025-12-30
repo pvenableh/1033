@@ -1,29 +1,20 @@
 export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number | boolean}) => {
-	const {user, checkAuth, fetchUser, refresh} = useCustomAuth();
+	const { user, loggedIn, refreshUser } = useDirectusAuth();
 
-	// If we already have a user, try to refresh the token
-	if (user.value) {
+	// If already logged in, user is authenticated
+	if (loggedIn.value && user.value) {
+		// Optionally refresh user data on each protected route navigation
+		// This ensures user data stays fresh
 		try {
-			await refresh();
-			await fetchUser();
+			await refreshUser();
 		} catch (error) {
-			// Token refresh failed, redirect to sign-in
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
+			// If refresh fails, user might have an invalid session
+			console.warn('Failed to refresh user data:', error);
+			// Continue anyway - the session might still be valid
 		}
-	} else {
-		// No user in state, try to restore session from cookies
-		try {
-			const isAuthed = await checkAuth();
-			if (!isAuthed) {
-				return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
-			}
-		} catch (error) {
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
-		}
+		return;
 	}
 
-	// Final check - redirect if still no user
-	if (!user.value) {
-		return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
-	}
+	// Not logged in, redirect to sign-in
+	return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 });
