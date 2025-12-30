@@ -69,12 +69,12 @@ export default defineAppConfig({
 			icon: {
 				leading: {
 					padding: {
-						'2xs': 'ps-2',
-						xs: 'ps-2.5',
-						sm: 'ps-2.5',
-						md: 'ps-3',
-						lg: 'ps-3.5',
-						xl: 'ps-3.5',
+						'2xs': 'px-2',
+						xs: 'px-2.5',
+						sm: 'px-2.5',
+						md: 'px-3',
+						lg: 'px-3.5',
+						xl: 'px-3.5',
 					},
 				},
 			},
