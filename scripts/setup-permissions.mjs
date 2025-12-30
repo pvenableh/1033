@@ -14,7 +14,7 @@
  *   DIRECTUS_PASSWORD - Admin password
  */
 
-import { createDirectus, rest, authentication, readRoles, createPermission, readPermissions, updatePermission, deletePermission } from '@directus/sdk';
+import { createDirectus, rest, authentication, readRoles, createPermission, readPermissions, updatePermission, deletePermission, readPolicies, createPolicy, updatePolicy } from '@directus/sdk';
 import * as readline from 'readline';
 
 // Role UUIDs from your Directus instance
@@ -404,8 +404,9 @@ function prompt(question) {
 
 // Main function
 async function main() {
-  console.log('🔐 Directus Permissions Setup Script');
-  console.log('=====================================\n');
+  console.log('🔐 Directus 11 Permissions Setup Script');
+  console.log('========================================\n');
+  console.log('ℹ️  Directus 11 uses Policies for permissions.\n');
 
   // Get credentials
   const directusUrl = process.env.DIRECTUS_URL || await prompt('Directus URL (e.g., https://admin.1033lenox.com): ');
@@ -428,15 +429,48 @@ async function main() {
     process.exit(1);
   }
 
-  // Get existing permissions to avoid duplicates
+  // Get existing policies
+  console.log('📋 Fetching existing policies...');
+  let existingPolicies = [];
+  try {
+    existingPolicies = await client.request(readPolicies({ limit: -1, fields: ['*', 'roles.*'] }));
+    console.log(`   Found ${existingPolicies.length} existing policies\n`);
+  } catch (error) {
+    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
+    console.log(`   Unable to read policies: ${errorMessage}\n`);
+  }
+
+  // Get existing permissions
   console.log('📋 Fetching existing permissions...');
   let existingPermissions = [];
   try {
     existingPermissions = await client.request(readPermissions({ limit: -1 }));
     console.log(`   Found ${existingPermissions.length} existing permissions\n`);
   } catch (error) {
-    console.log('   No existing permissions found or unable to read\n');
+    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
+    console.log(`   Unable to read permissions: ${errorMessage}\n`);
   }
+
+  // Map role IDs to their policies
+  const roleToPolicyMap = {};
+  for (const policy of existingPolicies) {
+    if (policy.roles) {
+      for (const roleLink of policy.roles) {
+        const roleId = typeof roleLink === 'object' ? roleLink.role : roleLink;
+        if (!roleToPolicyMap[roleId]) {
+          roleToPolicyMap[roleId] = [];
+        }
+        roleToPolicyMap[roleId].push(policy.id);
+      }
+    }
+  }
+
+  console.log('📊 Role to Policy mapping:');
+  for (const [roleId, policyIds] of Object.entries(roleToPolicyMap)) {
+    const roleName = Object.keys(ROLES).find(key => ROLES[key] === roleId) || 'Unknown';
+    console.log(`   ${roleName}: ${policyIds.length} policies`);
+  }
+  console.log('');
 
   // Process each role
   for (const [roleId, permissions] of Object.entries(PERMISSIONS)) {
@@ -449,16 +483,28 @@ async function main() {
       continue;
     }
 
+    // Find or note the policy for this role
+    const policyIds = roleToPolicyMap[roleId] || [];
+    const policyId = policyIds[0]; // Use the first policy if multiple exist
+
+    if (!policyId) {
+      console.log(`   ⚠️  No policy found for this role. Create a policy in Directus Admin first.`);
+      console.log(`      Go to Settings > Access Control > Policies, create a policy, and attach it to this role.`);
+      continue;
+    }
+
+    console.log(`   📜 Using policy ID: ${policyId}`);
+
     for (const perm of permissions) {
       const { collection, action, fields, permissions: permFilter, validation } = perm;
 
-      // Check if permission already exists
+      // Check if permission already exists for this policy
       const existing = existingPermissions.find(
-        (p) => p.role === roleId && p.collection === collection && p.action === action
+        (p) => p.policy === policyId && p.collection === collection && p.action === action
       );
 
       const permissionData = {
-        role: roleId,
+        policy: policyId,
         collection,
         action,
         fields: fields || ['*'],
@@ -499,6 +545,8 @@ async function main() {
   console.log('   - Manage pets and vehicles for their unit');
   console.log('   - View announcements and meetings');
   console.log('   - Submit requests/inquiries');
+  console.log('\n⚠️  Note: If you see "No policy found", create policies in Directus Admin:');
+  console.log('   Settings > Access Control > Policies > Create Policy > Attach to Role');
 }
 
 main().catch(console.error);
