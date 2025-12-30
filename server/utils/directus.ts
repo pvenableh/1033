@@ -207,7 +207,7 @@ export async function directusLogin(email: string, password: string): Promise<Di
     .with(rest())
     .with(authentication('json'));
 
-  const result = await client.login(email, password);
+  const result = await client.login({ email, password });
 
   return {
     access_token: result.access_token!,
