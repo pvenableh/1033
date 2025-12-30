@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
+const { user } = useCustomAuth();
 const toast = useToast();
 
 // Get all pets from user's units

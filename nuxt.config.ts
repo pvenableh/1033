@@ -74,10 +74,10 @@ export default defineNuxtConfig({
 		},
 		moduleConfig: {
 			devtools: true,
-			autoImport: true,
+			autoImport: false, // Disabled - using custom composables to avoid conflicts
 			autoRefresh: {
-				enableMiddleware: true,
-				global: true,
+				enableMiddleware: false, // Disabled - using custom auth middleware
+				global: false,
 				middlewareName: 'auth',
 				redirectTo: '/auth/signin',
 				to: ['/*'],

@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 const avatarSource = ref('');
 
 const props = defineProps({

@@ -4,8 +4,8 @@ definePageMeta({
   middleware: ['auth'],
 });
 
-const { user } = useDirectusAuth();
-const { logout } = useDirectusAuth();
+const { user } = useCustomAuth();
+const { logout } = useCustomAuth();
 
 async function handleLogout() {
   await logout();

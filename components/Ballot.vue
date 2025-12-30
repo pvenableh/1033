@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import {isOpen, closeModal} from '~/composables/useTaskModal';
 
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 
 const units = ref(['201', '202', '203', '204']);
 

@@ -1,5 +1,5 @@
 <script setup>
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 
 const {x, y} = useMouse({touch: false});
 

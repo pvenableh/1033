@@ -1,5 +1,5 @@
 <script setup>
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 const {readItems} = useDirectusItems();
 
 const meetings = await readItems('meetings', {

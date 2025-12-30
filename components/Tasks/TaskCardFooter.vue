@@ -1,7 +1,7 @@
 <!-- eslint-disable no-console -->
 <script setup>
 const config = useRuntimeConfig();
-// const { user } = useDirectusAuth();
+// const { user } = useCustomAuth();
 
 const props = defineProps({
 	item: {

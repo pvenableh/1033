@@ -179,7 +179,7 @@ const linkUrl = ref('');
 const uploadProgress = ref(0);
 const {uploadFiles} = useDirectusFiles();
 // const { notify } = useNotifications();
-// const { user: currentUser } = useDirectusAuth();
+// const { user: currentUser } = useCustomAuth();
 const toast = useToast();
 
 // const mentionsPortal = ref(null);
@@ -262,7 +262,7 @@ const toolbarButtons = [
 // 		char: '@',
 // 		items: async ({ query }) => {
 // 			const { selectedOrg, organizations } = useOrganization();
-// 			const { user: currentUser } = useDirectusAuth();
+// 			const { user: currentUser } = useCustomAuth();
 // 			const { readUsers } = useDirectusUsers();
 
 // 			if (!currentUser.value) return [];

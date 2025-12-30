@@ -52,7 +52,7 @@
 	</div>
 </template>
 <script setup>
-const {user, logout} = useDirectusAuth();
+const {user, logout} = useCustomAuth();
 </script>
 <style scoped>
 .footer {

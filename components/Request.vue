@@ -50,7 +50,7 @@
 </template>
 
 <script setup>
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 const emit = defineEmits(['submitted']);
 const {$directus} = useNuxtApp();
 const isSubmitting = ref(false);

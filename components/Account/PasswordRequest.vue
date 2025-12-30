@@ -34,7 +34,7 @@
 <script setup lang="ts">
 import type {FormError} from '#ui/types';
 
-const {passwordRequest} = useDirectusAuth();
+const {passwordRequest} = useCustomAuth();
 const toast = useToast();
 const loading = ref(false);
 const emailTouched = ref(false);

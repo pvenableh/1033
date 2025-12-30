@@ -1,36 +1,29 @@
 export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number | boolean}) => {
-	const {readMe, setUser, user, refresh} = useDirectusAuth();
+	const {user, checkAuth, fetchUser, refresh} = useCustomAuth();
 
+	// If we already have a user, try to refresh the token
 	if (user.value) {
 		try {
-			await refresh(); // Attempt to refresh the token
-			const refreshedUser = await readMe(); // Re-fetch user data after refreshing the token
-
-			setUser(refreshedUser);
+			await refresh();
+			await fetchUser();
 		} catch (error) {
-			// Redirect to sign-in with a `redirect` query parameter pointing to the intended destination
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
+			// Token refresh failed, redirect to sign-in
+			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 		}
-	}
-
-	if (!user.value) {
+	} else {
+		// No user in state, try to restore session from cookies
 		try {
-			const fetchedUser = await readMe();
-
-			if (fetchedUser) {
-				setUser(fetchedUser);
-			} else {
-				// If no user data is fetched, redirect to sign-in with a `redirect` query parameter
-				return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
+			const isAuthed = await checkAuth();
+			if (!isAuthed) {
+				return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 			}
 		} catch (error) {
-			// Redirect to sign-in with a `redirect` query parameter in case of any error
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
+			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 		}
 	}
 
-	// Finally, if still no user data after all attempts, redirect to sign-in
+	// Final check - redirect if still no user
 	if (!user.value) {
-		return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
+		return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 	}
 });

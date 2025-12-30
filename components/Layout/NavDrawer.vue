@@ -32,7 +32,7 @@
 	</div>
 </template>
 <script setup>
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 const {isAdmin} = useRoles();
 
 import {onClickOutside} from '@vueuse/core';

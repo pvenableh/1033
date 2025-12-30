@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 const adminUrl = config.public.adminUrl;
 
 const props = defineProps({

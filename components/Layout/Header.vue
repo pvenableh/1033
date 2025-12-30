@@ -19,7 +19,7 @@ onMounted(() => {
 	window.addEventListener('scroll', manageNavBarAnimations);
 });
 
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 
 const avatar = computed(() => {
 	if (user.value.avatar) {

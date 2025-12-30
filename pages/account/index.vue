@@ -30,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-const {user} = useDirectusAuth();
+const {user} = useCustomAuth();
 
 definePageMeta({
 	layout: 'auth',

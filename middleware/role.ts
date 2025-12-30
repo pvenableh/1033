@@ -10,7 +10,7 @@
  * });
  */
 export default defineNuxtRouteMiddleware(async (to) => {
-  const { user } = useDirectusAuth();
+  const { user } = useCustomAuth();
   const { canAccessNestedRoute, isPending, isActive, getUnauthorizedRedirect } = useRoles();
 
   // If no user, let auth middleware handle it
