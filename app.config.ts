@@ -48,15 +48,33 @@ export default defineAppConfig({
 		},
 		input: {
 			base: 'relative block w-full box-border disabled:cursor-not-allowed disabled:opacity-75 focus:outline-none border-0 border-solid border-b border-gray-300 focus:border-b-2 focus:border-cyan-200 !ring-0 focus:ring-0 outline-none !ring-offset-0 appearance-none !bg-transparent',
+			padding: {
+				'2xs': 'px-2 py-1',
+				xs: 'px-2.5 py-1.5',
+				sm: 'px-2.5 py-1.5',
+				md: 'px-3 py-2',
+				lg: 'px-3.5 py-2.5',
+				xl: 'px-3.5 py-2.5',
+			},
+			leading: {
+				padding: {
+					'2xs': 'ps-7',
+					xs: 'ps-8',
+					sm: 'ps-9',
+					md: 'ps-10',
+					lg: 'ps-11',
+					xl: 'ps-12',
+				},
+			},
 			icon: {
 				leading: {
 					padding: {
-						'2xs': 'ps-7',
-						xs: 'ps-8',
-						sm: 'ps-9',
-						md: 'ps-10',
-						lg: 'ps-12',
-						xl: 'ps-14',
+						'2xs': 'ps-2',
+						xs: 'ps-2.5',
+						sm: 'ps-2.5',
+						md: 'ps-3',
+						lg: 'ps-3.5',
+						xl: 'ps-3.5',
 					},
 				},
 			},
