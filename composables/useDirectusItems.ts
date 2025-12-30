@@ -44,6 +44,85 @@ export const readSingleton = async <T = any>(
   });
 };
 
+/**
+ * Read items from a collection
+ * Standalone function that can be used without instantiating useDirectusItems with a collection
+ */
+export const readItems = async <T = any>(
+  collection: string,
+  query: ItemsQuery = {}
+): Promise<T[]> => {
+  return await $fetch('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection,
+      operation: 'list',
+      query,
+    },
+  });
+};
+
+/**
+ * Create an item in a collection
+ * Standalone function that can be used without instantiating useDirectusItems with a collection
+ */
+export const createItem = async <T = any>(
+  collection: string,
+  data: Partial<T>,
+  query: Pick<ItemsQuery, 'fields'> = {}
+): Promise<T> => {
+  return await $fetch('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection,
+      operation: 'create',
+      data,
+      query,
+    },
+  });
+};
+
+/**
+ * Update an item in a collection
+ * Standalone function that can be used without instantiating useDirectusItems with a collection
+ */
+export const updateItem = async <T = any>(
+  collection: string,
+  id: string | number,
+  data: Partial<T>,
+  query: Pick<ItemsQuery, 'fields'> = {}
+): Promise<T> => {
+  return await $fetch('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection,
+      operation: 'update',
+      id,
+      data,
+      query,
+    },
+  });
+};
+
+/**
+ * Delete an item from a collection
+ * Standalone function that can be used without instantiating useDirectusItems with a collection
+ */
+export const deleteItem = async (
+  collection: string,
+  id: string | number | (string | number)[]
+): Promise<boolean> => {
+  await $fetch('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection,
+      operation: 'delete',
+      id,
+    },
+  });
+  return true;
+};
+
 export const useDirectusItems = <T = any>(
   collection?: string,
   options: { requireAuth?: boolean } = {}
@@ -51,10 +130,14 @@ export const useDirectusItems = <T = any>(
   const { requireAuth = true } = options;
   const { loggedIn } = useUserSession();
 
-  // If no collection provided, return utility functions like readSingleton
+  // If no collection provided, return utility functions
   if (!collection) {
     return {
       readSingleton,
+      readItems,
+      createItem,
+      updateItem,
+      deleteItem,
     };
   }
 
@@ -283,6 +366,11 @@ export const useDirectusItems = <T = any>(
     count,
     findFirst,
     exists,
+    // Standalone functions (for backward compatibility)
     readSingleton,
+    readItems,
+    createItem,
+    updateItem,
+    deleteItem,
   };
 };
