@@ -1,36 +1,20 @@
 export default defineNuxtRouteMiddleware(async (to: {fullPath: string | number | boolean}) => {
-	const {readMe, setUser, user, refresh} = useDirectusAuth();
+	const { user, loggedIn, refreshUser } = useDirectusAuth();
 
-	if (user.value) {
+	// If already logged in, user is authenticated
+	if (loggedIn.value && user.value) {
+		// Optionally refresh user data on each protected route navigation
+		// This ensures user data stays fresh
 		try {
-			await refresh(); // Attempt to refresh the token
-			const refreshedUser = await readMe(); // Re-fetch user data after refreshing the token
-
-			setUser(refreshedUser);
+			await refreshUser();
 		} catch (error) {
-			// Redirect to sign-in with a `redirect` query parameter pointing to the intended destination
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
+			// If refresh fails, user might have an invalid session
+			console.warn('Failed to refresh user data:', error);
+			// Continue anyway - the session might still be valid
 		}
+		return;
 	}
 
-	if (!user.value) {
-		try {
-			const fetchedUser = await readMe();
-
-			if (fetchedUser) {
-				setUser(fetchedUser);
-			} else {
-				// If no user data is fetched, redirect to sign-in with a `redirect` query parameter
-				return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
-			}
-		} catch (error) {
-			// Redirect to sign-in with a `redirect` query parameter in case of any error
-			return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
-		}
-	}
-
-	// Finally, if still no user data after all attempts, redirect to sign-in
-	if (!user.value) {
-		return navigateTo(`/auth/signin?redirect=${encodeURIComponent(to.fullPath)}`);
-	}
+	// Not logged in, redirect to sign-in
+	return navigateTo(`/auth/signin?redirect=${encodeURIComponent(String(to.fullPath))}`);
 });

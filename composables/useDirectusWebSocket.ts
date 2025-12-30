@@ -1,5 +1,5 @@
 /**
- * useDirectusRealtime composable
+ * useDirectusWebSocket composable
  *
  * A robust WebSocket-based realtime subscription composable for Directus.
  * Features:
@@ -8,7 +8,7 @@
  * - Multiple subscriptions support
  * - Proper cleanup on unmount
  * - Error handling and events
- * - Support for user authentication tokens
+ * - Uses static token for server-to-server communication
  */
 
 export interface SubscriptionQuery {
@@ -44,9 +44,8 @@ let globalConnectionPromise: Promise<WebSocket> | null = null;
 const globalSubscriptions = new Map<string, Subscription>();
 const globalListeners = new Set<(event: SubscriptionEvent) => void>();
 
-export function useDirectusRealtime() {
+export function useDirectusWebSocket() {
   const config = useRuntimeConfig();
-  const { user } = useDirectusAuth();
 
   // Reactive state
   const isConnected = ref(false);
@@ -373,7 +372,7 @@ export function useDirectusRealtime() {
  * Helper composable for subscribing to tasks
  */
 export function useTasksSubscription() {
-  const { useSubscription } = useDirectusRealtime();
+  const { useSubscription } = useDirectusWebSocket();
 
   return useSubscription({
     collection: 'tasks',
@@ -401,7 +400,7 @@ export function useTasksSubscription() {
  * Helper composable for subscribing to comments
  */
 export function useCommentsSubscription(taskId: string | Ref<string>) {
-  const { useSubscription } = useDirectusRealtime();
+  const { useSubscription } = useDirectusWebSocket();
   const id = isRef(taskId) ? taskId.value : taskId;
 
   return useSubscription({

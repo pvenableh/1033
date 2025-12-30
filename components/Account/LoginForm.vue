@@ -71,7 +71,7 @@ import type {FormError} from '#ui/types';
 const {login} = useDirectusAuth();
 const route = useRoute();
 const loading = ref(false);
-const login_error = ref(null);
+const login_error = ref<string | null>(null);
 const emailTouched = ref(false);
 
 const state = reactive({
@@ -115,16 +115,19 @@ async function attemptLogin() {
 	login_error.value = null;
 
 	try {
-		await login({email: state.email, password: state.password});
+		// Pass email and password as separate string arguments
+		await login(state.email, state.password);
 
 		if (route.query.redirect) {
-			const path = decodeURIComponent(route.query.redirect);
+			const path = decodeURIComponent(route.query.redirect as string);
 			await navigateTo(path);
 		} else {
 			await navigateTo('/');
 		}
-	} catch (err) {
-		if (err?.data?.errors?.length) {
+	} catch (err: any) {
+		if (err?.errors?.length) {
+			login_error.value = err.errors[0].message;
+		} else if (err?.data?.errors?.length) {
 			login_error.value = err.data.errors[0].message;
 		} else {
 			login_error.value = err?.message || 'Login failed. Please try again.';
