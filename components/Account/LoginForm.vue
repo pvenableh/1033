@@ -33,6 +33,7 @@
 					:loading="loading"
 					icon="i-heroicons-envelope"
 					placeholder="name@domain.com"
+					:ui="{ icon: { leading: { padding: { lg: 'ps-12' } } } }"
 					@input="emailTouched = true" />
 				<template #error="{error}">
 					<span
@@ -51,7 +52,8 @@
 					icon="i-heroicons-lock-closed"
 					name="password"
 					label="Password"
-					placeholder="********" />
+					placeholder="********"
+					:ui="{ icon: { leading: { padding: { lg: 'ps-12' } } } }" />
 			</UFormGroup>
 			<UButton
 				type="submit"
