@@ -26,6 +26,7 @@ import {
   deleteItems,
   aggregate,
 } from '~/server/utils/directus';
+import { readSingleton } from '@directus/sdk';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -223,6 +224,17 @@ export default defineEventHandler(async (event) => {
             query: {
               filter: query.filter,
             },
+          } as any)
+        );
+        return result;
+      }
+
+      case 'singleton': {
+        const query = body.query || {};
+        const result = await client.request(
+          readSingleton(body.collection, {
+            fields: query.fields,
+            deep: query.deep,
           } as any)
         );
         return result;
