@@ -115,8 +115,8 @@ async function attemptLogin() {
 	login_error.value = null;
 
 	try {
-		// Pass email and password as separate string arguments
-		await login(state.email, state.password);
+		// Pass email and password as an object
+		await login({ email: state.email, password: state.password });
 
 		if (route.query.redirect) {
 			const path = decodeURIComponent(route.query.redirect as string);
