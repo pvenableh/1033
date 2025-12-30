@@ -4,9 +4,9 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {readItems} = useDirectusItems();
+const announcementsCollection = useDirectusItems('announcements');
 
-const announcements = await readItems('announcements', {
+const announcements = await announcementsCollection.list({
 	fields: ['*'],
 	filter: {
 		status: {

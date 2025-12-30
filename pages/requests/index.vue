@@ -35,9 +35,9 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {readItems} = useDirectusItems();
+const requestsCollection = useDirectusItems('requests');
 
-const requests = await readItems('requests', {
+const requests = await requestsCollection.list({
 	fields: ['*'],
 });
 </script>

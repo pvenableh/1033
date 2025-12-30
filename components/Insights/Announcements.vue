@@ -1,7 +1,7 @@
 <script setup>
-const {readItems} = useDirectusItems();
+const announcementsCollection = useDirectusItems('announcements', {requireAuth: false});
 
-const announcements = await readItems('announcements', {
+const announcements = await announcementsCollection.list({
 	fields: ['*'],
 	filter: {
 		status: {

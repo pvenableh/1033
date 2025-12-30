@@ -4,9 +4,9 @@
 // });
 const {gtag} = useGtag();
 
-const {readItems} = useDirectusItems();
+const renderingsCollection = useDirectusItems('renderings', {requireAuth: false});
 
-const renderings = await readItems('renderings', {
+const renderings = await renderingsCollection.list({
 	fields: ['*'],
 	limit: 1,
 });

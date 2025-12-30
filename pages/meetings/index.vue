@@ -17,9 +17,9 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {readItems} = useDirectusItems();
+const meetingsCollection = useDirectusItems('meetings');
 
-const meetings = await readItems('meetings', {
+const meetings = await meetingsCollection.list({
 	fields: [
 		'id,status,title,category,description,date,time,files.directus_files_id.id,files.directus_files_id.tags,files.directus_files_id.description,files.directus_files_id.title,url,presentations.*,people.people_id.unit.units_id.number,people.people_id.board_member.status,people.people_id.first_name,people.people_id.last_name,people.people_id.email,people.people_id.board_member.title,people.people_id.board_member.start,people.people_id.board_member.finish,people.people_id.board_member.person',
 	],

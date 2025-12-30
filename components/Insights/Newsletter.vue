@@ -1,7 +1,7 @@
 <script setup>
-const {readItems} = useDirectusItems();
+const newslettersCollection = useDirectusItems('newsletters', {requireAuth: false});
 
-const newsletters = await readItems('newsletters', {
+const newsletters = await newslettersCollection.list({
 	fields: ['*'],
 });
 </script>

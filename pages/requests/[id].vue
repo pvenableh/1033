@@ -30,9 +30,9 @@
 <script setup>
 const {params} = useRoute();
 
-const {readItem} = useDirectusItems();
+const requestsCollection = useDirectusItems('requests');
 
-const request = await readItem('requests', params.id, {
+const request = await requestsCollection.get(params.id, {
 	fields: ['*'],
 });
 </script>

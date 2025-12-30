@@ -22,9 +22,9 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {readItems} = useDirectusItems();
+const rulesCollection = useDirectusItems('rules');
 
-const page = await readItems('rules', {
+const page = await rulesCollection.list({
 	fields: ['*'],
 });
 </script>

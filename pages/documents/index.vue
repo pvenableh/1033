@@ -28,9 +28,9 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
-const {readItems} = useDirectusItems();
+const byLawsCollection = useDirectusItems('by_laws');
 
-const page = await readItems('by_laws', {
+const page = await byLawsCollection.list({
 	fields: ['*'],
 });
 

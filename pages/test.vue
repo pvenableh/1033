@@ -139,7 +139,7 @@
 
 <script setup>
 import gsap from 'gsap';
-const {readItems} = useDirectusItems();
+const unitsCollection = useDirectusItems('units', {requireAuth: false});
 import {onClickOutside} from '@vueuse/core';
 const selectedSpot = ref(null);
 const isSpotDetailsVisible = ref(false);
@@ -158,7 +158,7 @@ watch(isSwipingDown, (swiping) => {
 	}
 });
 
-const units = await readItems('units', {
+const units = await unitsCollection.list({
 	fields: [
 		'*,vehicles.make,vehicles.model,vehicles.license_plate,vehicles.color,people.people_id.status,people.people_id.first_name,people.people_id.last_name,people.people_id.category,people.people_id.phone,people.people_id.email',
 	],

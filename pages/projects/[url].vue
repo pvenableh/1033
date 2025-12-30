@@ -89,9 +89,9 @@ definePageMeta({
 });
 
 const {params} = useRoute();
-const {readItems} = useDirectusItems();
+const projectsCollection = useDirectusItems('projects');
 
-const projects = await readItems('projects', {
+const projects = await projectsCollection.list({
 	filter: {
 		url: {
 			_eq: params.url,
