@@ -12,7 +12,10 @@
 		"lint:fix": "eslint --cache . --fix",
 		"format": "prettier --write \"**/*.{ts,js,md,y?(a)ml,json,vue}\"",
 		"clean": "rm -rf .nuxt dist .output node_modules",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"setup:schema": "node scripts/setup-schema.mjs",
+		"setup:permissions": "node scripts/setup-permissions.mjs",
+		"setup:all": "node scripts/setup-schema.mjs && node scripts/setup-permissions.mjs"
 	},
 	"pnpm": {
 		"overrides": {

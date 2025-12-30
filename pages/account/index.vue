@@ -4,6 +4,9 @@
 			<UAvatar size="md" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
 			<h1 class="hidden md:inline-block mt-6">{{ user?.first_name }} {{ user?.last_name }}</h1>
 			<a :class="{active: panel === 1}" @click.prevent="changePanel(1)">Profile</a>
+			<a :class="{active: panel === 2}" @click.prevent="changePanel(2)">My Unit</a>
+			<a :class="{active: panel === 3}" @click.prevent="changePanel(3)">Pets</a>
+			<a :class="{active: panel === 4}" @click.prevent="changePanel(4)">Vehicles</a>
 			<AccountLogout v-if="user" class="logout-icon" />
 		</div>
 		<transition-group
@@ -13,9 +16,15 @@
 			<div v-if="panel === 1" key="1" class="account__panel profile">
 				<AccountProfile />
 			</div>
-			<div v-if="panel === 2" key="2" class="account__panel"></div>
-			<div v-if="panel === 3" key="3" class="account__panel"></div>
-			<div v-if="panel === 4" key="4" class="account__panel"></div>
+			<div v-if="panel === 2" key="2" class="account__panel">
+				<AccountUnitInfo />
+			</div>
+			<div v-if="panel === 3" key="3" class="account__panel">
+				<AccountPets />
+			</div>
+			<div v-if="panel === 4" key="4" class="account__panel">
+				<AccountVehicles />
+			</div>
 		</transition-group>
 	</div>
 </template>

@@ -52,6 +52,9 @@ export default defineNuxtConfig({
 	// },
 
 	runtimeConfig: {
+		// Server-only (not exposed to client)
+		sendgridAccessRequestAdminTemplate: process.env.SENDGRID_ACCESS_REQUEST_ADMIN_TEMPLATE || '',
+		sendgridAccessRequestUserTemplate: process.env.SENDGRID_ACCESS_REQUEST_USER_TEMPLATE || '',
 		public: {
 			assetsUrl: process.env.DIRECTUS_ASSETS_URL || 'https://admin.1033lenox.com/assets/',
 			websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || 'wss://admin.1033lenox.com/websocket',
@@ -81,7 +84,18 @@ export default defineNuxtConfig({
 			},
 			readMeQuery: {
 				fields: [
-					'id,role,first_name,last_name,email,token,avatar,units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.pets.name,units.units_id.pets.category,units.units_id.pets.image,units.units_id.pets.breed,units.units_id.people.*,units.units_id.vehicles.make,units.units_id.vehicles.model,units.units_id.vehicles.image,units.units_id.vehicles.license_plate,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.image,units.units_id.people.people_id.mailing_address,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.bio,units.units_id.people.people_id.board_member.experience,units.units_id.people.people_id.board_member.year,units.units_id.people.people_id.board_member.icon,units.units_id.people.people_id.board_member.image,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish,units.units_id.people.people_id.leases.file',
+					// User basics
+					'id,status,first_name,last_name,email,phone,token,avatar',
+					// Role info
+					'role.id,role.name,role.admin_access,role.app_access',
+					// Direct person link (requires person_id field on directus_users)
+					'person_id.id,person_id.first_name,person_id.last_name,person_id.email,person_id.phone,person_id.category,person_id.is_owner,person_id.is_resident,person_id.image,person_id.mailing_address,person_id.board_member.id,person_id.board_member.title,person_id.board_member.start,person_id.board_member.finish,person_id.board_member.status',
+					// Units with nested data
+					'units.units_id.id,units.units_id.number,units.units_id.occupant,units.units_id.parking_spot',
+					'units.units_id.pets.*',
+					'units.units_id.vehicles.*',
+					// People in units (fallback for person matching by email)
+					'units.units_id.people.people_id.id,units.units_id.people.people_id.first_name,units.units_id.people.people_id.last_name,units.units_id.people.people_id.email,units.units_id.people.people_id.phone,units.units_id.people.people_id.category,units.units_id.people.people_id.is_owner,units.units_id.people.people_id.is_resident,units.units_id.people.people_id.image,units.units_id.people.people_id.board_member.id,units.units_id.people.people_id.board_member.title,units.units_id.people.people_id.board_member.start,units.units_id.people.people_id.board_member.finish,units.units_id.people.people_id.board_member.status,units.units_id.people.people_id.leases.start,units.units_id.people.people_id.leases.finish',
 				],
 				updateState: true,
 			},

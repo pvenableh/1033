@@ -15,6 +15,12 @@
 				<li v-if="user">
 					<nuxt-link to="/account">Account</nuxt-link>
 				</li>
+				<li v-if="isAdmin">
+					<nuxt-link to="/admin" class="flex items-center gap-2">
+						<UIcon name="i-heroicons-shield-check" class="w-4 h-4" />
+						Admin
+					</nuxt-link>
+				</li>
 				<li v-if="user">
 					<AccountLogout />
 				</li>
@@ -27,6 +33,7 @@
 </template>
 <script setup>
 const {user} = useDirectusAuth();
+const {isAdmin} = useRoles();
 
 import {onClickOutside} from '@vueuse/core';
 import {closeScreen} from '~~/composables/useScreen';
