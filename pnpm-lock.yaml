@@ -11,6 +11,9 @@ importers:
 
   .:
     dependencies:
+      '@directus/sdk':
+        specifier: ^20.3.0
+        version: 20.3.0
       '@ffmpeg-installer/ffmpeg':
         specifier: ^1.1.0
         version: 1.1.0
@@ -387,6 +390,10 @@ packages:
   '@directus/sdk@15.1.0':
     resolution: {integrity: sha512-M2+Z1WmU8Q5KlR22K5ugmBHq10a6tcGl3QuvGKnN+jNwDnRyN5brJxt7FvgtWrY3Q1ToGLxmL37GHAH9s12dlQ==}
     engines: {node: '>=18.0.0'}
+
+  '@directus/sdk@20.3.0':
+    resolution: {integrity: sha512-auy59B0A7Ri+4JDy0JcdFHnsHvOkl3ixWMWYciXAbm4oYIE9S4be8xEpIwA5qhlPTOprJ6JHPWo9rEvcrLwNtA==}
+    engines: {node: '>=22'}
 
   '@directus/system-data@1.0.2':
     resolution: {integrity: sha512-PweDAwTz4zImEGJnhoaX8apOCvcAfE0aGQrCSk+3cf1sLso0ShNlcDvUymtVfrqOXy0qT9sLa833bpJVaXF5ng==}
@@ -5836,6 +5843,8 @@ snapshots:
   '@directus/sdk@15.1.0':
     dependencies:
       '@directus/system-data': 1.0.2
+
+  '@directus/sdk@20.3.0': {}
 
   '@directus/system-data@1.0.2': {}
 
