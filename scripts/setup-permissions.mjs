@@ -423,7 +423,8 @@ async function main() {
     await client.login(email, password);
     console.log('✅ Authentication successful\n');
   } catch (error) {
-    console.error('❌ Authentication failed:', error.message);
+    const errorMessage = error?.errors?.[0]?.message || error?.message || JSON.stringify(error);
+    console.error('❌ Authentication failed:', errorMessage);
     process.exit(1);
   }
 
@@ -476,7 +477,11 @@ async function main() {
           console.log(`   ✅ Created: ${collection}.${action}`);
         }
       } catch (error) {
-        console.log(`   ⚠️  Error with ${collection}.${action}: ${error.message}`);
+        // Directus SDK errors have different structures
+        const errorMessage = error?.errors?.[0]?.message
+          || error?.message
+          || JSON.stringify(error);
+        console.log(`   ⚠️  Error with ${collection}.${action}: ${errorMessage}`);
       }
     }
   }
