@@ -48,11 +48,24 @@ module.exports = {
 					800: '#009184',
 					900: '#00726a',
 				},
+				// Sell-sheet color palette
+				gold: {
+					DEFAULT: '#C9A96E',
+					light: '#D4BA8A',
+					dark: '#8B7355',
+				},
+				cream: {
+					DEFAULT: '#FDFCFA',
+					alt: '#F5F3EF',
+				},
+				divider: '#E5E0D8',
 			},
 			fontFamily: {
 				body: ['Proxima Nova W01 Light', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Arial', 'sans-serif'],
 				bold: ['Proxima Nova W01 Regular', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Arial', 'sans-serif'],
 				sans: ['Proxima Nova W01 Light', 'Helvetica Neue', 'Helvetica', 'Roboto', 'Arial', 'sans-serif'],
+				// Added serif font for Bauer Bodoni
+				serif: ['Bauer Bodoni Pro_1 W05 Roman', 'Times New Roman', 'Times', 'serif'],
 				display: ['var(--font-display)', ...defaultTheme.fontFamily.serif],
 				mono: ['var(--font-mono)', ...defaultTheme.fontFamily.mono],
 				signature: ['var(--font-signature)', 'cursive', 'sans-serif'],
