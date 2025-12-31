@@ -72,7 +72,8 @@ function getDirectusConfig() {
   const config = useRuntimeConfig();
   return {
     url: config.public.directusUrl || config.public.adminUrl || process.env.DIRECTUS_URL,
-    staticToken: config.public.staticToken || process.env.DIRECTUS_SERVER_TOKEN,
+    // staticToken is now in server-only config (not public) for security
+    staticToken: config.staticToken || process.env.DIRECTUS_SERVER_TOKEN,
   };
 }
 
@@ -292,16 +293,30 @@ export async function directusGetMe(
 
 /**
  * Read current user with configured fields for this app
+ * Uses admin client to fetch user data to avoid field permission issues
  */
 export async function directusReadMeWithFields(accessToken: string): Promise<DirectusUserData> {
-  const { url } = getDirectusConfig();
+  const { url, staticToken: adminToken } = getDirectusConfig();
 
   console.log('directusReadMeWithFields: Fetching user data from', url);
 
-  // Call Directus API directly with the token
-  const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/me`, {
+  // First, get the user ID from the access token (this endpoint always returns id)
+  const meResponse = await $fetch<{ data: { id: string } }>(`${url}/users/me`, {
     headers: {
       Authorization: `Bearer ${accessToken}`,
+    },
+    query: {
+      fields: 'id',
+    },
+  });
+
+  const userId = meResponse.data.id;
+  console.log('directusReadMeWithFields: Got user ID:', userId);
+
+  // Now fetch full user data using admin token to avoid field permission issues
+  const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/${userId}`, {
+    headers: {
+      Authorization: `Bearer ${adminToken}`,
     },
     query: {
       fields: [
@@ -354,7 +369,7 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
     },
   });
 
-  console.log('directusReadMeWithFields: Got user - ID:', response.data.id, 'Status:', response.data.status);
+  console.log('directusReadMeWithFields: Got user - ID:', response.data.id, 'Status:', response.data.status, 'Email:', response.data.email);
 
   return response.data;
 }
