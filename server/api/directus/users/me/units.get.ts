@@ -18,6 +18,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const userId = session.user.id;
+  console.log('units.get: userId =', userId);
 
   if (!userId) {
     throw createError({
@@ -31,22 +32,27 @@ export default defineEventHandler(async (event) => {
     const client = useDirectusAdmin();
 
     // First, get the user with their person_id
+    console.log('units.get: Fetching user with person_id...');
     const user = await client.request(
       readUser(userId, {
         fields: ['id', 'person_id'],
       } as any)
     );
+    console.log('units.get: user =', JSON.stringify(user));
 
     if (!user.person_id) {
       // User has no associated person record
+      console.log('units.get: No person_id, returning empty units');
       return { units: [] };
     }
 
     // Get the person ID (handle both object and primitive)
     const personId = typeof user.person_id === 'object' ? user.person_id.id : user.person_id;
+    console.log('units.get: personId =', personId);
 
     // Fetch units where this person is a resident
     // Units have a many-to-many relationship with people through units_people junction
+    console.log('units.get: Fetching units for personId =', personId);
     const units = await client.request(
       readItems('units', {
         fields: [
@@ -80,13 +86,16 @@ export default defineEventHandler(async (event) => {
         ],
         filter: {
           people: {
-            people_id: {
-              _eq: personId,
+            _some: {
+              people_id: {
+                _eq: personId,
+              },
             },
           },
         },
       } as any)
     );
+    console.log('units.get: Found', (units as any[]).length, 'units');
 
     // Format the response to match what the frontend expects
     const formattedUnits = (units as any[]).map(unit => ({
@@ -96,6 +105,12 @@ export default defineEventHandler(async (event) => {
     return { units: formattedUnits };
   } catch (error: any) {
     console.error('Fetch user units error:', error);
+    console.error('Error details:', JSON.stringify({
+      message: error?.message,
+      errors: error?.errors,
+      data: error?.data,
+      response: error?.response,
+    }, null, 2));
 
     if (error.statusCode) {
       throw error;

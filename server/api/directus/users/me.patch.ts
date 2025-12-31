@@ -59,8 +59,14 @@ export default defineEventHandler(async (event) => {
 
   try {
     // Use admin client to update user (bypasses permission restrictions)
+    console.log('me.patch: Updating user', userId, 'with:', safeUpdates);
     const client = useDirectusAdmin();
     const result = await client.request(updateUser(userId, safeUpdates));
+    console.log('me.patch: Update result:', {
+      id: result.id,
+      first_name: result.first_name,
+      last_name: result.last_name,
+    });
     return result;
   } catch (error: any) {
     console.error('Update me error:', error);
