@@ -31,57 +31,37 @@ const props = defineProps({
 const isVertical = computed(() => props.direction === 'up' || props.direction === 'down');
 const isReverse = computed(() => props.direction === 'right' || props.direction === 'down');
 
-const animationStyle = computed(() => {
-	const animationName = isVertical.value ? 'marquee-vertical' : 'marquee-horizontal';
-	const direction = isReverse.value ? 'reverse' : 'normal';
+const cssVars = computed(() => ({
+	'--marquee-duration': `${props.speed}s`,
+	'--marquee-gap': `${props.gap}px`,
+	'--image-size': `${props.imageHeight}px`,
+}));
 
-	return {
-		'--marquee-duration': `${props.speed}s`,
-		'--marquee-gap': `${props.gap}px`,
-		animationName,
-		animationDuration: `${props.speed}s`,
-		animationTimingFunction: 'linear',
-		animationIterationCount: 'infinite',
-		animationDirection: direction,
-	};
-});
+const containerClass = computed(() => [
+	'marquee-container',
+	isVertical.value ? 'marquee-vertical-container' : 'marquee-horizontal-container',
+	props.pauseOnHover ? 'pause-on-hover' : '',
+]);
 
-const containerClass = computed(() => {
-	return [
-		'marquee-container',
-		isVertical.value ? 'marquee-vertical-container' : 'marquee-horizontal-container',
-		props.pauseOnHover ? 'pause-on-hover' : '',
-	];
-});
-
-const trackClass = computed(() => {
-	return [
-		'marquee-track',
-		isVertical.value ? 'marquee-track-vertical' : 'marquee-track-horizontal',
-	];
-});
+const trackClass = computed(() => [
+	'marquee-track',
+	isVertical.value ? 'marquee-track-vertical' : 'marquee-track-horizontal',
+	isReverse.value ? 'marquee-reverse' : '',
+]);
 </script>
 
 <template>
-	<div :class="containerClass" :style="{ '--image-size': `${imageHeight}px` }">
-		<div :class="trackClass" :style="animationStyle">
+	<div :class="containerClass" :style="cssVars">
+		<div :class="trackClass">
 			<!-- First set of images -->
-			<div
-				v-for="(image, index) in images"
-				:key="`first-${index}`"
-				class="marquee-item"
-				:style="{ gap: `${gap}px` }">
+			<div v-for="(image, index) in images" :key="`first-${index}`" class="marquee-item">
 				<img
 					:src="typeof image === 'string' ? image : image.src"
 					:alt="typeof image === 'string' ? `Image ${index + 1}` : image.alt || `Image ${index + 1}`"
 					class="marquee-image" />
 			</div>
 			<!-- Duplicate set for seamless loop -->
-			<div
-				v-for="(image, index) in images"
-				:key="`second-${index}`"
-				class="marquee-item"
-				:style="{ gap: `${gap}px` }">
+			<div v-for="(image, index) in images" :key="`second-${index}`" class="marquee-item">
 				<img
 					:src="typeof image === 'string' ? image : image.src"
 					:alt="typeof image === 'string' ? `Image ${index + 1}` : image.alt || `Image ${index + 1}`"
@@ -108,18 +88,23 @@ const trackClass = computed(() => {
 
 .marquee-track {
 	display: flex;
+	gap: var(--marquee-gap, 16px);
 }
 
 .marquee-track-horizontal {
 	flex-direction: row;
 	width: max-content;
-	gap: var(--marquee-gap, 16px);
+	animation: marquee-horizontal var(--marquee-duration, 30s) linear infinite;
 }
 
 .marquee-track-vertical {
 	flex-direction: column;
 	height: max-content;
-	gap: var(--marquee-gap, 16px);
+	animation: marquee-vertical var(--marquee-duration, 30s) linear infinite;
+}
+
+.marquee-track.marquee-reverse {
+	animation-direction: reverse;
 }
 
 .marquee-item {
