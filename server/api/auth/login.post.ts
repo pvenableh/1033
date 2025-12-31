@@ -52,6 +52,7 @@ export default defineEventHandler(async (event) => {
     const expiresAt = Date.now() + tokens.expires * 1000;
 
     // Set session with user data and tokens in secure section
+    // Phone comes from person_id profile, not directus_users
     await setUserSession(event, {
       user: {
         id: userData.id,
@@ -63,7 +64,7 @@ export default defineEventHandler(async (event) => {
         person_id: userData.person_id,
         units: userData.units,
         avatar: userData.avatar,
-        phone: userData.phone,
+        phone: userData.person_id?.phone,
       },
       expiresAt,
       loggedInAt: Date.now(),
