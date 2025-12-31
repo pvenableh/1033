@@ -294,6 +294,11 @@ export async function directusGetMe(
 /**
  * Read current user with configured fields for this app
  * Uses admin client to fetch user data to avoid field permission issues
+ *
+ * Architecture:
+ * - directus_users: Core auth fields only (id, status, email, name, avatar, role)
+ * - person_id: Extended profile data (phone, category, etc.)
+ * - units: Source of truth for household data (people, vehicles, pets)
  */
 export async function directusReadMeWithFields(accessToken: string): Promise<DirectusUserData> {
   const { url, staticToken: adminToken } = getDirectusConfig();
@@ -313,25 +318,27 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
   const userId = meResponse.data.id;
   console.log('directusReadMeWithFields: Got user ID:', userId);
 
-  // Now fetch full user data using admin token to avoid field permission issues
+  // Fetch user data using admin token
+  // Only request standard directus_users fields + relations
   const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/${userId}`, {
     headers: {
       Authorization: `Bearer ${adminToken}`,
     },
     query: {
       fields: [
+        // Core directus_users fields
         'id',
         'status',
         'first_name',
         'last_name',
         'email',
-        'phone',
-        'token',
         'avatar',
+        // Role info
         'role.id',
         'role.name',
         'role.admin_access',
         'role.app_access',
+        // Person profile (extended user data)
         'person_id.id',
         'person_id.first_name',
         'person_id.last_name',
@@ -347,6 +354,7 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
         'person_id.board_member.start',
         'person_id.board_member.finish',
         'person_id.board_member.status',
+        // Units with nested household data
         'units.units_id.id',
         'units.units_id.number',
         'units.units_id.occupant',
