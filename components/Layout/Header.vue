@@ -37,25 +37,29 @@ const avatar = computed(() => {
 </script>
 <template>
 	<header
-		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 dark:bg-gray-900 transition-all header"
+		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 dark:bg-gray-900 transition-all header bg-cream-alt"
 		:class="{retracted: isRetracted}">
-		<div class="absolute left-[10px] sm:pl-1 md:px-6 -mt-[4px] inline-block sm:hidden mt-0">
-			<DarkModeToggle class="" />
+		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row">
+			<DarkModeToggle class="hidden" />
+			<client-only>
+				<InsightsWeather class="sm:pl-1 md:px-6" />
+			</client-only>
+			<nuxt-link to="/dashboard" class="inline-flex ml-8">
+				<AccountAvatar v-if="user" text="12" class="mr-2" />
+				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
+			</nuxt-link>
 		</div>
-		<client-only>
+		<!-- <client-only>
 			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
-		</client-only>
+		</client-only> -->
 		<nuxt-link to="/">
 			<NewLogo class="new-logo" />
 		</nuxt-link>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
-			<nuxt-link to="/tasks" class="scale-75 sm:scale-100 inline-block">
-				<AccountAvatar v-if="user" text="12" class="mr-2" />
-				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
-			</nuxt-link>
 			<!-- <div class="hidden sm:inline-block mt-0">
 				<DarkModeToggle class="" />
 			</div> -->
+			<LayoutNavButton />
 		</div>
 	</header>
 </template>

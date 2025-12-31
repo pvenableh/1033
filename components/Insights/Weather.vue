@@ -108,7 +108,7 @@ function generateIcon(weatherData) {
 </template>
 <style>
 .weather {
-	@apply scale-75 sm:scale-75 md:scale-100;
+	/* @apply scale-75 sm:scale-75 md:scale-100; */
 
 	&__intro {
 		font-size: 10px;
@@ -121,13 +121,11 @@ function generateIcon(weatherData) {
 		.weather-icon {
 			color: var(--pink);
 			font-size: 20px;
-			line-height: 30px;
-			width: 30px;
-			height: 30px;
+
 			right: -38px;
 			top: -7px;
 			text-shadow: 0 2px 5px rgba(0, 0, 0, 1);
-			@apply absolute rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
+			@apply absolute h-8 w-8 text-sm rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
 		}
 	}
 }

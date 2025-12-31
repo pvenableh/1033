@@ -35,6 +35,12 @@ function sideMenuToggle() {
 		/* right: 35px; */
 	}
 
+	@media (min-width: theme('screens.lg')) {
+		top: 0px;
+		max-width: 100px;
+		right: calc(10px + 3rem);
+	}
+
 	/* @media (min-width: 1280px) {
     margin-right: 0px;
   } */
