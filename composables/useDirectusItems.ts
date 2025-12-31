@@ -100,7 +100,8 @@ export const useDirectusItems = <T = any>(
     data: Partial<T>,
     query: Pick<ItemsQuery, 'fields'> = {}
   ): Promise<T> => {
-    if (!loggedIn.value) {
+    // Only require auth if requireAuth option is true (default)
+    if (requireAuth && !loggedIn.value) {
       throw new Error('Authentication required');
     }
 
@@ -111,6 +112,8 @@ export const useDirectusItems = <T = any>(
         operation: 'create',
         data,
         query,
+        // Pass public flag when auth is not required
+        public: !requireAuth,
       },
     });
   };
@@ -122,7 +125,8 @@ export const useDirectusItems = <T = any>(
     data: Partial<T>[],
     query: Pick<ItemsQuery, 'fields'> = {}
   ): Promise<T[]> => {
-    if (!loggedIn.value) {
+    // Only require auth if requireAuth option is true (default)
+    if (requireAuth && !loggedIn.value) {
       throw new Error('Authentication required');
     }
 
@@ -133,6 +137,8 @@ export const useDirectusItems = <T = any>(
         operation: 'create',
         data,
         query,
+        // Pass public flag when auth is not required
+        public: !requireAuth,
       },
     });
   };
