@@ -9,8 +9,6 @@ const toast = useToast();
 const { isAdmin } = useRoles();
 
 const loading = ref(false);
-const roles = ref<any[]>([]);
-const units = ref<any[]>([]);
 const emailError = ref<string | null>(null);
 const checkingEmail = ref(false);
 
@@ -25,49 +23,50 @@ const state = reactive({
 const inviteSuccess = ref(false);
 const invitedEmail = ref('');
 
+// Fetch roles using useLazyFetch with client-side only execution
+const { data: rolesData, pending: rolesPending } = useLazyFetch<{ data: any[] }>(
+  () => `${config.public.adminUrl}/roles`,
+  {
+    params: {
+      fields: 'id,name,description',
+      sort: 'name',
+    },
+    headers: {
+      Authorization: `Bearer ${config.public.staticToken}`,
+    },
+    server: false,
+    default: () => ({ data: [] }),
+  }
+);
+
+// Fetch units using useLazyFetch with client-side only execution
+const { data: unitsData, pending: unitsPending } = useLazyFetch<{ data: any[] }>(
+  () => `${config.public.adminUrl}/items/units`,
+  {
+    params: {
+      fields: 'id,number',
+      filter: JSON.stringify({ status: { _eq: 'published' } }),
+      sort: 'number',
+    },
+    headers: {
+      Authorization: `Bearer ${config.public.staticToken}`,
+    },
+    server: false,
+    default: () => ({ data: [] }),
+  }
+);
+
+const roles = computed(() => rolesData.value?.data || []);
+const units = computed(() => unitsData.value?.data || []);
+
 const unitOptions = computed(() => {
   return units.value
-    .map((unit) => ({
+    .map((unit: any) => ({
       id: unit.id,
       label: unit.number,
     }))
-    .sort((a, b) => parseInt(a.label) - parseInt(b.label));
+    .sort((a: any, b: any) => parseInt(a.label) - parseInt(b.label));
 });
-
-async function fetchRoles() {
-  try {
-    const response: any = await $fetch(`${config.public.adminUrl}/roles`, {
-      params: {
-        fields: 'id,name,description',
-        sort: 'name',
-      },
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
-    });
-    roles.value = response.data || [];
-  } catch (error) {
-    console.error('Failed to fetch roles:', error);
-  }
-}
-
-async function fetchUnits() {
-  try {
-    const response: any = await $fetch(`${config.public.adminUrl}/items/units`, {
-      params: {
-        fields: 'id,number',
-        filter: JSON.stringify({ status: { _eq: 'published' } }),
-        sort: 'number',
-      },
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
-    });
-    units.value = response.data || [];
-  } catch (error) {
-    console.error('Failed to fetch units:', error);
-  }
-}
 
 async function checkEmailExists(email: string): Promise<boolean> {
   if (!email) return false;
@@ -188,11 +187,6 @@ function resetForm() {
   invitedEmail.value = '';
   emailError.value = null;
 }
-
-onMounted(() => {
-  fetchRoles();
-  fetchUnits();
-});
 </script>
 
 <template>
@@ -270,7 +264,7 @@ onMounted(() => {
               value-attribute="id"
               option-attribute="label"
               placeholder="Select a unit"
-              :loading="units.length === 0"
+              :loading="unitsPending"
               searchable
               searchable-placeholder="Search units...">
               <template #leading>
@@ -285,7 +279,8 @@ onMounted(() => {
               :options="roles"
               value-attribute="id"
               option-attribute="name"
-              placeholder="Select a role">
+              placeholder="Select a role"
+              :loading="rolesPending">
               <template #option="{ option }">
                 <div>
                   <p class="font-medium">{{ option.name }}</p>
