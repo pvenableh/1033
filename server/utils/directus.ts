@@ -10,6 +10,7 @@ import {
   staticToken,
   authentication,
   refresh,
+  login,
   readMe,
   readItems,
   readItem,
@@ -203,11 +204,12 @@ export function getPublicDirectus() {
 export async function directusLogin(email: string, password: string): Promise<DirectusTokens> {
   const { url } = getDirectusConfig();
 
-  const client = createDirectus(url)
-    .with(rest())
-    .with(authentication('json'));
+  const client = createDirectus(url).with(rest());
 
-  const result = await client.login({ email, password });
+  // Use the login request function for server-side authentication
+  const result = await client.request(
+    login({ email, password }, { mode: 'json' })
+  );
 
   return {
     access_token: result.access_token!,
