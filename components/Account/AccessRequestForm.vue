@@ -71,14 +71,21 @@
           placeholder="(555) 555-5555" />
       </UFormGroup>
 
-      <UFormGroup label="Unit Number" name="unit_number" required hint="Your unit number at 1033 Lenox">
-        <UInput
-          v-model="state.unit_number"
-          name="unit_number"
+      <UFormGroup label="Unit" name="unit_id" required hint="Your unit at 1033 Lenox">
+        <USelectMenu
+          v-model="state.unit_id"
+          :options="unitOptions"
+          value-attribute="id"
+          option-attribute="label"
           size="lg"
-          :loading="loading"
-          icon="i-heroicons-home"
-          placeholder="101" />
+          placeholder="Select your unit"
+          :loading="loadingUnits"
+          searchable
+          searchable-placeholder="Search units...">
+          <template #leading>
+            <UIcon name="i-heroicons-home" class="w-5 h-5 text-gray-400" />
+          </template>
+        </USelectMenu>
       </UFormGroup>
 
       <UFormGroup label="Residency Type" name="residency_type" required>
@@ -136,6 +143,8 @@ const config = useRuntimeConfig();
 const loading = ref(false);
 const submitError = ref<string | null>(null);
 const submitSuccess = ref(false);
+const units = ref<any[]>([]);
+const loadingUnits = ref(true);
 
 const residencyTypes = [
   { label: 'Owner (I own a unit)', value: 'Owner' },
@@ -143,12 +152,46 @@ const residencyTypes = [
   { label: 'Property Manager', value: 'Property Manager' },
 ];
 
+const unitOptions = computed(() => {
+  return units.value
+    .map((unit) => ({
+      id: unit.id,
+      label: unit.number,
+    }))
+    .sort((a, b) => parseInt(a.label) - parseInt(b.label));
+});
+
+async function fetchUnits() {
+  loadingUnits.value = true;
+  try {
+    const response: any = await $fetch(`${config.public.adminUrl}/items/units`, {
+      params: {
+        fields: 'id,number',
+        filter: JSON.stringify({ status: { _eq: 'published' } }),
+        sort: 'number',
+      },
+      headers: {
+        Authorization: `Bearer ${config.public.staticToken}`,
+      },
+    });
+    units.value = response.data || [];
+  } catch (error) {
+    console.error('Failed to fetch units:', error);
+  } finally {
+    loadingUnits.value = false;
+  }
+}
+
+onMounted(() => {
+  fetchUnits();
+});
+
 const state = reactive({
   first_name: '',
   last_name: '',
   email: '',
   phone: '',
-  unit_number: '',
+  unit_id: null as number | null,
   residency_type: null as { label: string; value: string } | null,
   password: '',
   confirm_password: '',
@@ -160,7 +203,7 @@ const isFormValid = computed(() => {
     state.first_name &&
     state.last_name &&
     state.email &&
-    state.unit_number &&
+    state.unit_id &&
     state.residency_type &&
     state.password &&
     state.confirm_password &&
@@ -187,8 +230,8 @@ const validate = async (formState: typeof state): Promise<FormError[]> => {
     errors.push({ path: 'email', message: 'Please enter a valid email address' });
   }
 
-  if (!formState.unit_number) {
-    errors.push({ path: 'unit_number', message: 'Unit number is required' });
+  if (!formState.unit_id) {
+    errors.push({ path: 'unit_id', message: 'Please select a unit' });
   }
 
   if (!formState.residency_type) {
@@ -238,6 +281,10 @@ async function submitRequest() {
   submitError.value = null;
 
   try {
+    // Get the unit number from the selected unit
+    const selectedUnit = units.value.find(u => u.id === state.unit_id);
+    const unitNumber = selectedUnit?.number;
+
     // Create user via Directus API with 'Pending' role
     const response = await $fetch(`${config.public.adminUrl}/users`, {
       method: 'POST',
@@ -252,12 +299,10 @@ async function submitRequest() {
         phone: state.phone,
         password: state.password,
         status: 'draft', // Draft status until admin approves
-        // The role should be set to 'Pending' role ID in Directus
-        // You'll need to create this role in Directus and use its ID here
-        // role: 'PENDING_ROLE_ID',
         // Store unit and residency type in user metadata or a related collection
         description: JSON.stringify({
-          unit_number: state.unit_number,
+          unit_id: state.unit_id,
+          unit_number: unitNumber,
           residency_type: state.residency_type?.value,
           requested_at: new Date().toISOString(),
         }),
@@ -275,7 +320,7 @@ async function submitRequest() {
           last_name: state.last_name,
           email: state.email,
           phone: state.phone,
-          unit_number: state.unit_number,
+          unit_number: unitNumber,
           residency_type: state.residency_type?.value,
         },
       });
