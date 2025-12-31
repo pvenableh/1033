@@ -3,7 +3,7 @@
 		<div class="max-w-6xl mx-auto">
 			<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 				<div class="content-label flex flex-col gap-2 opacity-0">
-					<span class="font-serif text-sm text-gold">08</span>
+					<span class="font-serif text-sm text-gold">09</span>
 					<span class="text-xs tracking-wider uppercase text-gray-500">Availability</span>
 				</div>
 				<div class="content-main max-w-4xl">

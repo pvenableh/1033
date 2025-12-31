@@ -114,7 +114,7 @@ const trackClass = computed(() => [
 .marquee-image {
 	display: block;
 	object-fit: cover;
-	border-radius: 0.5rem;
+	border-radius: 0rem;
 }
 
 .marquee-horizontal-container .marquee-image {

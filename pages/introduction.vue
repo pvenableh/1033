@@ -11,7 +11,7 @@
 						background-size: cover;
 						background-position: center;
 					">
-					<div class="text-center p-8 max-w-lg hidden">
+					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
 							<UIcon name="i-heroicons-photo" class="w-8 h-8 text-gray-400" />
 						</div>
@@ -21,22 +21,22 @@
 							palm trees. Warm interior lights glowing from units. Alternatively: Wide shot of the tree-lined street
 							with the building as focal point.
 						</p>
-					</div>
+					</div> -->
 				</div>
 				<div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
 			</div>
 
 			<div class="hero-content text-center relative z-10">
-				<p class="hero-address text-xs tracking-[0.3em] uppercase mb-8 opacity-0 text-cream-alt">
+				<p class="hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
 				</p>
-				<h1
+				<NewLogo class="hero-title mx-auto mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]" fill="#ffffff" stroke="#ffffff" />
+				<!-- <h1
 					class="hero-title font-serif text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
 					1033 Lenox
-				</h1>
+				</h1> -->
 				<div class="hero-divider w-16 h-px bg-gold mx-auto mb-8 opacity-0 scale-x-0"></div>
-				<p
-					class="hero-tagline font-serif text-[clamp(1.125rem,2.5vw,1.5rem)] italic font-light text-cream-alt opacity-0">
+				<p class="hero-tagline font-serif text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
 					The Smarter Side of South Beach
 				</p>
 			</div>
@@ -49,7 +49,7 @@
 
 		<!-- Intro Section -->
 		<section ref="introRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
-			<div class="max-w-5xl mx-auto">
+			<div class="max-w-6xl mx-auto">
 				<p
 					class="intro-text font-serif text-[clamp(1.25rem,3vw,1.75rem)] leading-relaxed font-light text-gray-800 text-center max-w-3xl mx-auto mb-16 opacity-0">
 					1033 Lenox is a 28-unit boutique residence in the heart of Miami Beach's Flamingo Park neighborhood.
@@ -130,7 +130,7 @@
 										class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
 										<UIcon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
 									</div> -->
-									<!-- <p class="text-sm text-cream font-medium mb-2">BREEZEWAY DETAIL</p> -->
+									<p class="text-sm text-cream font-medium mb-2 uppercase">Immediate Access to air</p>
 									<p class="text-xs text-cream-alt leading-relaxed">
 										Open-air breezeway with bright white against clear blue sky. Light, air, and simplicity.
 									</p>
@@ -190,7 +190,7 @@
 						</div>
 
 						<!-- Location Detail Images -->
-						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
+						<!-- <div class="grid grid-cols-2 md:grid-cols-4 gap-4 my-8">
 							<div
 								v-for="(loc, index) in locationImages"
 								:key="index"
@@ -199,6 +199,40 @@
 									<UIcon :name="loc.icon" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
 									<p class="text-xs text-gray-500 font-medium">{{ loc.title }}</p>
 									<p class="text-[10px] text-gray-400 mt-1">{{ loc.desc }}</p>
+								</div>
+							</div>
+						</div> -->
+						<!-- Lifestyle Gallery Section -->
+
+						<div ref="galleryRef" class="max-w-6xl mx-auto">
+							<div class="text-left mb-12">
+								<p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-4 opacity-0 gallery-label">
+									The Flamingo Park Lifestyle
+								</p>
+								<h2
+									class="font-serif text-[clamp(1.75rem,4vw,2.5rem)] font-normal text-gray-800 opacity-0 gallery-title">
+									Active Living, Steps Away
+								</h2>
+							</div>
+
+							<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+								<div
+									v-for="(item, index) in lifestyleImages"
+									:key="index"
+									:class="[
+										'bg-black/30 bg-blend-darken flex items-center justify-center opacity-0 gallery-image',
+										item.span,
+									]"
+									:style="
+										item.image
+											? `background-image: url('${item.image}'); background-size: cover; background-position: center;`
+											: ''
+									">
+									<div class="text-center p-4">
+										<UIcon :name="item.icon" class="w-8 h-8 text-cream mx-auto mb-2" />
+										<p class="text-xs text-cream font-medium mb-1">{{ item.title }}</p>
+										<p class="text-[10px] text-cream-alt">{{ item.desc }}</p>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -381,15 +415,15 @@
 								</p>
 							</div>
 							<div
-								class="aspect-video bg-black/30 bg-blend-darken bg-cover bg-no-repeat flex items-center justify-center opacity-0 section-image"
+								class="aspect-video bg-black/30 bg-blend-darken bg-cover bg-no-repeat flex items-end justify-start opacity-0 section-image"
 								style="
 									background-image: url('https://admin.1033lenox.com/assets/6f5f0c1f-1b7f-45ea-9f79-f4c763a7bbbd?key=large');
 								">
-								<div class="text-center p-6">
-									<div
+								<div class="text-left p-6">
+									<!-- <div
 										class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
 										<UIcon name="i-heroicons-finger-print" class="w-6 h-6 text-cream" />
-									</div>
+									</div> -->
 									<p class="text-sm text-cream font-medium mb-2">ENTRY SYSTEM</p>
 									<p class="text-xs text-cream-alt leading-relaxed">
 										Sleek Swiftlane facial recognition entry panel at the main gate. Modern, unobtrusive, and secure.
@@ -401,9 +435,38 @@
 				</div>
 			</div>
 		</section>
+		<section ref="investmentRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+			<div class="max-w-6xl mx-auto">
+				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
+					<div class="content-label flex flex-col gap-2 opacity-0">
+						<span class="font-serif text-sm text-gold">08</span>
+						<span class="text-xs tracking-wider uppercase text-gray-500">Value</span>
+					</div>
+					<div class="content-main max-w-2xl">
+						<h2
+							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							Smart Investment
+						</h2>
 
+						<div class="investment-points flex flex-col gap-4 my-8">
+							<p
+								v-for="(point, index) in investmentPoints"
+								:key="index"
+								class="text-base text-gray-600 pl-8 relative opacity-0 investment-point">
+								<span class="absolute left-0 top-2 w-1.5 h-1.5 bg-gold rounded-full"></span>
+								{{ point }}
+							</p>
+						</div>
+
+						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+							The numbers make sense. So does the lifestyle.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
 		<!-- Amenities Section -->
-		<section ref="amenitiesRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+		<section ref="amenitiesRef" class="section py-24 lg:py-32 px-6 lg:px-16">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
@@ -451,95 +514,52 @@
 				</div>
 			</div>
 		</section>
-
-		<!-- Investment Section -->
-
-		<section ref="investmentRef" class="section py-24 lg:py-32 px-6 lg:px-16">
+		<!-- Pet Section -->
+		<!-- <section ref="petsRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
 						<span class="font-serif text-sm text-gold">07</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Value</span>
+						<span class="text-xs tracking-wider uppercase text-gray-500">Fun Friends</span>
 					</div>
-					<div class="content-main max-w-2xl">
-						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
-							Smart Investment
-						</h2>
-
-						<div class="investment-points flex flex-col gap-4 my-8">
-							<p
-								v-for="(point, index) in investmentPoints"
-								:key="index"
-								class="text-base text-gray-600 pl-8 relative opacity-0 investment-point">
-								<span class="absolute left-0 top-2 w-1.5 h-1.5 bg-gold rounded-full"></span>
-								{{ point }}
-							</p>
-						</div>
-
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
-							The numbers make sense. So does the lifestyle.
-						</p>
-					</div>
-				</div>
-			</div>
-		</section>
-		<AvailableListings />
-		<!-- Pet Section -->
-		<section ref="petsRef" class="section py-16 lg:py-24 px-6 lg:px-16 bg-cream">
-			<div class="max-w-2xl mx-auto">
-				<div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
-					<div class="text-center md:text-left">
-						<h3 class="pet-title font-serif text-2xl font-normal mb-4 opacity-0">Pet Friendly</h3>
-						<p class="pet-policy text-base text-gray-600 mb-4 opacity-0">One approved pet per residence</p>
-						<p class="pet-tagline font-serif italic text-gold-dark opacity-0">Because the best roommates wear fur.</p>
-					</div>
-					<div
-						class="w-32 h-32 bg-black/30 bg-blend-darken bg-cover bg-center bg-no-repeat rounded-full flex items-center justify-center opacity-0 section-image mx-auto md:mx-0"
-						style="
-							background-image: url('https://admin.1033lenox.com/assets/e01de531-5ace-45e6-921b-c5edf494a810?key=medium');
-						">
-						<div class="text-center p-2">
-							<UIcon name="i-heroicons-heart" class="w-8 h-8 text-cream mx-auto mb-1" />
-							<p class="text-[9px] text-cream">Happy dog. Happy life.</p>
+					<div class="content-main max-w-4xl">
+						<div class="max-w-2xl mx-auto">
+							<div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
+								<div class="text-center md:text-left">
+									<h3 class="pet-title font-serif text-2xl font-normal mb-4 opacity-0">Pet Friendly</h3>
+									<p class="pet-policy text-base text-gray-600 mb-4 opacity-0">One approved pet per residence</p>
+									<p class="pet-tagline font-serif italic text-gold-dark opacity-0">
+										Because the best roommates wear fur.
+									</p>
+								</div>
+								<div
+									class="w-32 h-32 bg-black/30 bg-blend-darken bg-cover bg-center bg-no-repeat rounded-full flex items-center justify-center opacity-0 section-image mx-auto md:mx-0"
+									style="
+										background-image: url('https://admin.1033lenox.com/assets/e01de531-5ace-45e6-921b-c5edf494a810?key=medium');
+									">
+									<div class="text-center p-2">
+										<UIcon name="i-heroicons-heart" class="w-8 h-8 text-cream mx-auto mb-1" />
+										<p class="text-[9px] text-cream">Happy dog. Happy life.</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
-		</section>
+		</section> -->
 
-		<!-- Lifestyle Gallery Section -->
-		<section ref="galleryRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
-			<div class="max-w-6xl mx-auto">
-				<div class="text-center mb-12">
-					<p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-4 opacity-0 gallery-label">
-						The Flamingo Park Lifestyle
-					</p>
-					<h2 class="font-serif text-[clamp(1.75rem,4vw,2.5rem)] font-normal text-gray-800 opacity-0 gallery-title">
-						Active Living, Steps Away
-					</h2>
-				</div>
+		<!-- Investment Section -->
 
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-					<div
-						v-for="(item, index) in lifestyleImages"
-						:key="index"
-						:class="['bg-black/30 bg-blend-darken flex items-center justify-center opacity-0 gallery-image', item.span]"
-						:style="
-							item.image
-								? `background-image: url('${item.image}'); background-size: cover; background-position: center;`
-								: ''
-						">
-						<div class="text-center p-4">
-							<UIcon :name="item.icon" class="w-8 h-8 text-cream mx-auto mb-2" />
-							<p class="text-xs text-cream font-medium mb-1">{{ item.title }}</p>
-							<p class="text-[10px] text-cream-alt">{{ item.desc }}</p>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
-
+		<AvailableListings class="bg-cream-alt" />
+		<Marquee
+			v-if="marqueeImages.length"
+			:images="marqueeImages"
+			:pause-on-hover="false"
+			direction="left"
+			:speed="100"
+			:image-height="250"
+			:gap="2" />
 		<!-- CTA Section -->
 		<section ref="ctaRef" class="section relative py-32 lg:py-40 px-6 lg:px-16 bg-gray-900 text-cream overflow-hidden">
 			<!-- CTA Background Image -->
@@ -600,6 +620,34 @@
 import {ref, onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
+
+import {readSingleton} from '~/composables/useDirectusItems';
+
+const {getImageUrl} = useDirectusFiles();
+
+// Fetch the features singleton with the featured_images relation
+const {data: features} = await useAsyncData('features', () =>
+	readSingleton('features', {
+		fields: ['featured_images.directus_files_id', 'featured_images.sort_new'],
+	})
+);
+
+// Transform to array of image URLs sorted by sort_new
+const marqueeImages = computed(() => {
+	if (!features.value?.featured_images) return [];
+
+	return features.value.featured_images
+		.slice() // create a copy to avoid mutating original
+		.sort((a, b) => (a.sort_new ?? 999) - (b.sort_new ?? 999))
+		.map((item) => ({
+			src: getImageUrl(item.directus_files_id, {
+				height: 300,
+				format: 'webp',
+				quality: 80,
+			}),
+			alt: `Featured image ${item.sort_new}`,
+		}));
+});
 
 // Register GSAP plugins
 gsap.registerPlugin(ScrollTrigger);
@@ -673,6 +721,7 @@ const securityFeatures = [
 
 const amenities = [
 	'Sunlit central courtyard with palm trees',
+	'Upgraded elevator',
 	'Clubhouse',
 	'On-site laundry',
 	'Storage room',
