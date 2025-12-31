@@ -14,7 +14,6 @@ const props = defineProps({
 	},
 });
 
-const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
 
 const files = ref({
@@ -23,12 +22,22 @@ const files = ref({
 });
 
 onMounted(async () => {
+	// Fetch WebSocket token from server
+	let access_token;
+	try {
+		const tokenResponse = await $fetch('/api/websocket/token');
+		access_token = tokenResponse.token;
+	} catch (error) {
+		console.error('Failed to get WebSocket token:', error);
+		return;
+	}
+
 	const connection = new WebSocket(url.value);
-	await connection.addEventListener('open', () => authenticate(access_token.value));
-	await connection.addEventListener('message', (message) => receiveMessage(message));
+	connection.addEventListener('open', () => authenticate(access_token));
+	connection.addEventListener('message', (message) => receiveMessage(message));
 
 	function authenticate() {
-		connection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
+		connection.send(JSON.stringify({type: 'auth', access_token: access_token}));
 	}
 
 	function updateFiles(data) {

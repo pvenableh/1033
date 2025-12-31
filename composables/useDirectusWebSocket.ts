@@ -8,7 +8,7 @@
  * - Multiple subscriptions support
  * - Proper cleanup on unmount
  * - Error handling and events
- * - Uses static token for server-to-server communication
+ * - Fetches token from server endpoint for secure authentication
  */
 
 export interface SubscriptionQuery {
@@ -41,11 +41,30 @@ interface Subscription {
 // Singleton connection manager
 let globalConnection: WebSocket | null = null;
 let globalConnectionPromise: Promise<WebSocket> | null = null;
+let globalToken: string | null = null;
 const globalSubscriptions = new Map<string, Subscription>();
 const globalListeners = new Set<(event: SubscriptionEvent) => void>();
 
 export function useDirectusWebSocket() {
   const config = useRuntimeConfig();
+
+  /**
+   * Fetch WebSocket token from server
+   */
+  async function fetchToken(): Promise<string> {
+    if (globalToken) {
+      return globalToken;
+    }
+
+    try {
+      const response = await $fetch<{ token: string }>('/api/websocket/token');
+      globalToken = response.token;
+      return response.token;
+    } catch (error) {
+      console.error('Failed to fetch WebSocket token:', error);
+      throw new Error('Failed to authenticate for WebSocket connection');
+    }
+  }
 
   // Reactive state
   const isConnected = ref(false);
@@ -78,9 +97,20 @@ export function useDirectusWebSocket() {
    * Create a new WebSocket connection
    */
   function createConnection(): Promise<WebSocket> {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       isConnecting.value = true;
       connectionError.value = null;
+
+      // Fetch token first
+      let token: string;
+      try {
+        token = await fetchToken();
+      } catch (error) {
+        isConnecting.value = false;
+        connectionError.value = 'Failed to get authentication token';
+        reject(error);
+        return;
+      }
 
       const wsUrl = config.public.websocketUrl;
       const connection = new WebSocket(wsUrl);
@@ -90,8 +120,7 @@ export function useDirectusWebSocket() {
         isConnected.value = true;
         reconnectAttempts.value = 0;
 
-        // Authenticate
-        const token = config.public.staticToken;
+        // Authenticate with fetched token
         connection.send(JSON.stringify({
           type: 'auth',
           access_token: token,

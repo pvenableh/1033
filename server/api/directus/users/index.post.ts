@@ -2,9 +2,9 @@
  * POST /api/directus/users
  *
  * User operations (admin only).
- * Supports: list, check-email, create
+ * Supports: list, check-email, create, update
  */
-import { useDirectusAdmin, readUsers, createUser } from '~/server/utils/directus';
+import { useDirectusAdmin, readUsers, createUser, updateUser } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -93,6 +93,27 @@ export default defineEventHandler(async (event) => {
 
         const user = await client.request(createUser(body.data));
         return user;
+      }
+
+      case 'update': {
+        if (!body.id) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+            message: 'User ID is required',
+          });
+        }
+
+        if (!body.data) {
+          throw createError({
+            statusCode: 400,
+            statusMessage: 'Bad Request',
+            message: 'Update data is required',
+          });
+        }
+
+        const updatedUser = await client.request(updateUser(body.id, body.data));
+        return updatedUser;
       }
 
       default:

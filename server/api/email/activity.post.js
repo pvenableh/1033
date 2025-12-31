@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
 		const client = createDirectus(config.public.directusUrl).with(
 			rest({
 				headers: {
-					Authorization: `Bearer ${config.public.staticToken}`,
+					Authorization: `Bearer ${config.staticToken}`,
 				},
 			})
 		);

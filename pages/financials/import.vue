@@ -446,13 +446,31 @@ definePageMeta({
 
 // Directus configuration
 const config = useRuntimeConfig();
-const directusUrl = config.public.directusUrl || 'https://admin.1033lenox.com';
-const directusToken = config.public.staticToken;
+const directusUrl = ref(config.public.directusUrl || 'https://admin.1033lenox.com');
+const directusToken = ref('');
+const tokenLoading = ref(true);
+const tokenError = ref('');
+
+// Fetch admin token on mount
+onMounted(async () => {
+	try {
+		const response = await $fetch('/api/admin/token');
+		directusToken.value = response.token;
+		if (response.directusUrl) {
+			directusUrl.value = response.directusUrl;
+		}
+	} catch (error) {
+		console.error('Failed to get admin token:', error);
+		tokenError.value = 'Failed to authenticate. Admin access required.';
+	} finally {
+		tokenLoading.value = false;
+	}
+});
 
 // Authentication headers
 const getAuthHeaders = () => ({
 	'Content-Type': 'application/json',
-	...(directusToken && {Authorization: `Bearer ${directusToken}`}),
+	...(directusToken.value && {Authorization: `Bearer ${directusToken.value}`}),
 });
 
 // Native CSV parser - no external dependencies
@@ -774,7 +792,7 @@ const importAllData = async () => {
 						status: 'published',
 					};
 
-					const response = await fetch(`${directusUrl}/items/transactions`, {
+					const response = await fetch(`${directusUrl.value}/items/transactions`, {
 						method: 'POST',
 						headers: getAuthHeaders(),
 						body: JSON.stringify(transactionData),
@@ -807,12 +825,12 @@ const importAllData = async () => {
 
 				if (outId && inId) {
 					await Promise.all([
-						fetch(`${directusUrl}/items/transactions/${outId}`, {
+						fetch(`${directusUrl.value}/items/transactions/${outId}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
 							body: JSON.stringify({linked_transfer_id: inId}),
 						}),
-						fetch(`${directusUrl}/items/transactions/${inId}`, {
+						fetch(`${directusUrl.value}/items/transactions/${inId}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
 							body: JSON.stringify({linked_transfer_id: outId}),
