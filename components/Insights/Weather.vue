@@ -119,13 +119,13 @@ function generateIcon(weatherData) {
 
 		img,
 		.weather-icon {
-			color: var(--pink);
+			color: hwb(39 26% 38%);
 			font-size: 20px;
 
 			right: -38px;
 			top: -7px;
 			text-shadow: 0 2px 5px rgba(0, 0, 0, 1);
-			@apply absolute h-8 w-8 text-sm rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
+			@apply absolute h-8 w-8  rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
 		}
 	}
 }
