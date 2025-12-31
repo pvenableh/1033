@@ -292,13 +292,11 @@ export async function directusGetMe(
 }
 
 /**
- * Read current user with configured fields for this app
+ * Read current user with minimal fields for login/session
  * Uses admin client to fetch user data to avoid field permission issues
  *
- * Architecture:
- * - directus_users: Core auth fields only (id, status, email, name, avatar, role)
- * - person_id: Extended profile data (phone, category, etc.)
- * - units: Source of truth for household data (people, vehicles, pets)
+ * Only fetches essential auth data to keep session cookie under 4KB limit.
+ * Full user data (units, people, etc.) should be fetched via separate API calls.
  */
 export async function directusReadMeWithFields(accessToken: string): Promise<DirectusUserData> {
   const { url, staticToken: adminToken } = getDirectusConfig();
@@ -318,8 +316,7 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
   const userId = meResponse.data.id;
   console.log('directusReadMeWithFields: Got user ID:', userId);
 
-  // Fetch user data using admin token
-  // Only request standard directus_users fields + relations
+  // Fetch only essential user data for session (keep under 4KB cookie limit)
   const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/${userId}`, {
     headers: {
       Authorization: `Bearer ${adminToken}`,
@@ -333,44 +330,12 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
         'last_name',
         'email',
         'avatar',
-        // Role info (only id and name - admin_access/app_access are restricted)
+        // Role info
         'role.id',
         'role.name',
-        // Person profile (extended user data)
+        // Person profile - only id and phone for session
         'person_id.id',
-        'person_id.first_name',
-        'person_id.last_name',
-        'person_id.email',
         'person_id.phone',
-        'person_id.category',
-        'person_id.is_owner',
-        'person_id.is_resident',
-        'person_id.image',
-        'person_id.mailing_address',
-        'person_id.board_member.id',
-        'person_id.board_member.title',
-        'person_id.board_member.start',
-        'person_id.board_member.finish',
-        'person_id.board_member.status',
-        // Units with nested household data
-        'units.units_id.id',
-        'units.units_id.number',
-        'units.units_id.occupant',
-        'units.units_id.parking_spot',
-        'units.units_id.pets.*',
-        'units.units_id.vehicles.*',
-        'units.units_id.people.people_id.id',
-        'units.units_id.people.people_id.first_name',
-        'units.units_id.people.people_id.last_name',
-        'units.units_id.people.people_id.email',
-        'units.units_id.people.people_id.phone',
-        'units.units_id.people.people_id.category',
-        'units.units_id.people.people_id.is_owner',
-        'units.units_id.people.people_id.is_resident',
-        'units.units_id.people.people_id.image',
-        'units.units_id.people.people_id.board_member.*',
-        'units.units_id.people.people_id.leases.start',
-        'units.units_id.people.people_id.leases.finish',
       ].join(','),
     },
   });
