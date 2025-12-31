@@ -36,8 +36,8 @@ export default defineEventHandler(async (event) => {
     // Debug: log user status for troubleshooting
     console.log('Login - User status:', userData.status, 'User ID:', userData.id, 'Email:', userData.email);
 
-    // Check if user is active (handle various status formats)
-    const allowedStatuses = ['active', 'draft'];
+    // Check if user is active (handle various status formats and invited users)
+    const allowedStatuses = ['active', 'draft', 'invited'];
     const userStatus = userData.status?.toLowerCase?.() || userData.status;
     if (!allowedStatuses.includes(userStatus)) {
       console.error('Login rejected - invalid status:', userData.status);
@@ -86,27 +86,36 @@ export default defineEventHandler(async (event) => {
       },
     };
   } catch (error: any) {
-    console.error('Login error:', error);
+    console.error('Login error:', error?.message || error);
+    console.error('Login error details:', JSON.stringify({
+      message: error?.message,
+      errors: error?.errors,
+      dataErrors: error?.data?.errors,
+      statusCode: error?.statusCode,
+      cause: error?.cause,
+    }, null, 2));
 
-    // Handle Directus errors
+    // Handle Directus SDK errors (array format)
     if (error?.errors?.[0]) {
+      const directusMessage = error.errors[0].message || 'Invalid credentials';
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
-        message: error.errors[0].message || 'Invalid credentials',
+        message: directusMessage,
       });
     }
 
-    // Handle fetch errors from Directus
+    // Handle fetch errors from Directus ($fetch format)
     if (error?.data?.errors?.[0]) {
+      const directusMessage = error.data.errors[0].message || 'Invalid credentials';
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
-        message: error.data.errors[0].message || 'Invalid credentials',
+        message: directusMessage,
       });
     }
 
-    // Re-throw if already a proper error
+    // Re-throw if already a proper error (e.g., from our status check)
     if (error.statusCode) {
       throw error;
     }
@@ -114,7 +123,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
-      message: 'Login failed. Please try again.',
+      message: error?.message || 'Login failed. Please try again.',
     });
   }
 });
