@@ -4,7 +4,6 @@
  * Fetch current user's units with related pets and vehicles.
  * Uses admin client to fetch all related data.
  */
-import { useDirectusAdmin, readItems, readUser } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -28,16 +27,32 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  try {
-    const client = useDirectusAdmin();
+  const config = useRuntimeConfig();
+  const directusUrl = config.public.directusUrl || config.public.adminUrl;
+  const staticToken = config.staticToken;
 
+  if (!directusUrl || !staticToken) {
+    console.error('units.get: Missing Directus configuration');
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Internal Server Error',
+      message: 'Server configuration error',
+    });
+  }
+
+  try {
     // First, get the user with their person_id
     console.log('units.get: Fetching user with person_id...');
-    const user = await client.request(
-      readUser(userId, {
-        fields: ['id', 'person_id'],
-      } as any)
-    );
+    const userResponse = await $fetch<{ data: any }>(`${directusUrl}/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${staticToken}`,
+      },
+      query: {
+        fields: 'id,person_id',
+      },
+    });
+
+    const user = userResponse.data;
     console.log('units.get: user =', JSON.stringify(user));
 
     if (!user.person_id) {
@@ -50,11 +65,15 @@ export default defineEventHandler(async (event) => {
     const personId = typeof user.person_id === 'object' ? user.person_id.id : user.person_id;
     console.log('units.get: personId =', personId);
 
-    // Fetch units where this person is a resident
-    // Units have a many-to-many relationship with people through units_people junction
+    // Fetch units where this person is a resident using direct API call
+    // The filter syntax for M2M: filter[people][people_id][_eq]=personId
     console.log('units.get: Fetching units for personId =', personId);
-    const units = await client.request(
-      readItems('units', {
+
+    const unitsResponse = await $fetch<{ data: any[] }>(`${directusUrl}/items/units`, {
+      headers: {
+        Authorization: `Bearer ${staticToken}`,
+      },
+      query: {
         fields: [
           'id',
           'number',
@@ -83,22 +102,16 @@ export default defineEventHandler(async (event) => {
           'vehicles.category',
           'vehicles.parking_spot',
           'vehicles.status',
-        ],
-        filter: {
-          people: {
-            _some: {
-              people_id: {
-                _eq: personId,
-              },
-            },
-          },
-        },
-      } as any)
-    );
-    console.log('units.get: Found', (units as any[]).length, 'units');
+        ].join(','),
+        'filter[people][people_id][_eq]': personId,
+      },
+    });
+
+    const units = unitsResponse.data || [];
+    console.log('units.get: Found', units.length, 'units');
 
     // Format the response to match what the frontend expects
-    const formattedUnits = (units as any[]).map(unit => ({
+    const formattedUnits = units.map(unit => ({
       units_id: unit,
     }));
 
@@ -109,7 +122,8 @@ export default defineEventHandler(async (event) => {
       message: error?.message,
       errors: error?.errors,
       data: error?.data,
-      response: error?.response,
+      statusCode: error?.statusCode,
+      statusMessage: error?.statusMessage,
     }, null, 2));
 
     if (error.statusCode) {
@@ -119,7 +133,7 @@ export default defineEventHandler(async (event) => {
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
-      message: 'Failed to fetch user units',
+      message: error?.message || 'Failed to fetch user units',
     });
   }
 });
