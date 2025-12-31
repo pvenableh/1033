@@ -24,11 +24,16 @@ export default defineEventHandler(async (event) => {
     let accessToken = getSessionAccessToken(session);
     let expiresAt = (session as any).expiresAt;
 
-    // Check if token needs refresh (within 5 minutes of expiring)
+    // Check if token needs refresh:
+    // - If expiresAt is not set (old session without expiry tracking)
+    // - Or if token is within 5 minutes of expiring
+    // - Or if token is already expired
     const fiveMinutes = 5 * 60 * 1000;
     const now = Date.now();
+    const needsRefresh = !expiresAt || now > expiresAt - fiveMinutes;
 
-    if (expiresAt && now > expiresAt - fiveMinutes) {
+    if (needsRefresh) {
+      console.log('refresh-session: Token needs refresh, expiresAt:', expiresAt, 'now:', now);
       const config = useRuntimeConfig();
       const directusUrl = config.public.directusUrl || config.public.adminUrl;
 
