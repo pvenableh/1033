@@ -204,18 +204,33 @@ export function getPublicDirectus() {
 export async function directusLogin(email: string, password: string): Promise<DirectusTokens> {
   const { url } = getDirectusConfig();
 
+  console.log('directusLogin: Attempting login for', email, 'to', url);
+
   const client = createDirectus(url).with(rest());
 
-  // Use the login request function for server-side authentication
-  const result = await client.request(
-    login({ email, password }, { mode: 'json' })
-  );
+  try {
+    // Use the login request function for server-side authentication
+    const result = await client.request(
+      login({ email, password }, { mode: 'json' })
+    );
 
-  return {
-    access_token: result.access_token!,
-    refresh_token: result.refresh_token!,
-    expires: result.expires!,
-  };
+    console.log('directusLogin: Success - got tokens');
+
+    return {
+      access_token: result.access_token!,
+      refresh_token: result.refresh_token!,
+      expires: result.expires!,
+    };
+  } catch (error: any) {
+    console.error('directusLogin: Failed -', error?.message || error);
+    console.error('directusLogin: Error details:', JSON.stringify({
+      errors: error?.errors,
+      data: error?.data,
+      statusCode: error?.statusCode,
+      response: error?.response,
+    }, null, 2));
+    throw error;
+  }
 }
 
 /**
@@ -281,6 +296,8 @@ export async function directusGetMe(
 export async function directusReadMeWithFields(accessToken: string): Promise<DirectusUserData> {
   const { url } = getDirectusConfig();
 
+  console.log('directusReadMeWithFields: Fetching user data from', url);
+
   // Call Directus API directly with the token
   const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/me`, {
     headers: {
@@ -336,6 +353,8 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
       ].join(','),
     },
   });
+
+  console.log('directusReadMeWithFields: Got user - ID:', response.data.id, 'Status:', response.data.status);
 
   return response.data;
 }

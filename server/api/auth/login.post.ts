@@ -33,12 +33,18 @@ export default defineEventHandler(async (event) => {
     // Get user data from Directus
     const userData = await directusReadMeWithFields(tokens.access_token);
 
-    // Check if user is active
-    if (userData.status !== 'active' && userData.status !== 'draft') {
+    // Debug: log user status for troubleshooting
+    console.log('Login - User status:', userData.status, 'User ID:', userData.id, 'Email:', userData.email);
+
+    // Check if user is active (handle various status formats)
+    const allowedStatuses = ['active', 'draft'];
+    const userStatus = userData.status?.toLowerCase?.() || userData.status;
+    if (!allowedStatuses.includes(userStatus)) {
+      console.error('Login rejected - invalid status:', userData.status);
       throw createError({
         statusCode: 403,
         statusMessage: 'Forbidden',
-        message: 'Account is not active',
+        message: `Account status "${userData.status}" is not allowed. Contact an administrator.`,
       });
     }
 
