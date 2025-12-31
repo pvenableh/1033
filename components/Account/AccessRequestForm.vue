@@ -79,7 +79,7 @@
           option-attribute="label"
           size="lg"
           placeholder="Select your unit"
-          :loading="loadingUnits"
+          :loading="unitsPending"
           searchable
           searchable-placeholder="Search units...">
           <template #leading>
@@ -137,14 +137,11 @@
 
 <script setup lang="ts">
 import type { FormError } from '#ui/types';
-import { createDirectus, rest, createUser } from '@directus/sdk';
 
 const config = useRuntimeConfig();
 const loading = ref(false);
 const submitError = ref<string | null>(null);
 const submitSuccess = ref(false);
-const units = ref<any[]>([]);
-const loadingUnits = ref(true);
 
 const residencyTypes = [
   { label: 'Owner (I own a unit)', value: 'Owner' },
@@ -152,38 +149,32 @@ const residencyTypes = [
   { label: 'Property Manager', value: 'Property Manager' },
 ];
 
+// Fetch units using useLazyFetch with client-side only execution
+const { data: unitsData, pending: unitsPending } = useLazyFetch<{ data: any[] }>(
+  () => `${config.public.adminUrl}/items/units`,
+  {
+    params: {
+      fields: 'id,number',
+      filter: JSON.stringify({ status: { _eq: 'published' } }),
+      sort: 'number',
+    },
+    headers: {
+      Authorization: `Bearer ${config.public.staticToken}`,
+    },
+    server: false,
+    default: () => ({ data: [] }),
+  }
+);
+
+const units = computed(() => unitsData.value?.data || []);
+
 const unitOptions = computed(() => {
   return units.value
-    .map((unit) => ({
+    .map((unit: any) => ({
       id: unit.id,
       label: unit.number,
     }))
-    .sort((a, b) => parseInt(a.label) - parseInt(b.label));
-});
-
-async function fetchUnits() {
-  loadingUnits.value = true;
-  try {
-    const response: any = await $fetch(`${config.public.adminUrl}/items/units`, {
-      params: {
-        fields: 'id,number',
-        filter: JSON.stringify({ status: { _eq: 'published' } }),
-        sort: 'number',
-      },
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
-    });
-    units.value = response.data || [];
-  } catch (error) {
-    console.error('Failed to fetch units:', error);
-  } finally {
-    loadingUnits.value = false;
-  }
-}
-
-onMounted(() => {
-  fetchUnits();
+    .sort((a: any, b: any) => parseInt(a.label) - parseInt(b.label));
 });
 
 const state = reactive({
