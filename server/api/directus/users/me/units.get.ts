@@ -65,10 +65,37 @@ export default defineEventHandler(async (event) => {
     const personId = typeof user.person_id === 'object' ? user.person_id.id : user.person_id;
     console.log('units.get: personId =', personId);
 
-    // Fetch units where this person is a resident using direct API call
-    // The filter syntax for M2M: filter[people][people_id][_eq]=personId
-    console.log('units.get: Fetching units for personId =', personId);
+    // First, query the junction table to get unit IDs for this person
+    // This avoids complex M2M filter syntax issues
+    console.log('units.get: Fetching junction table for personId =', personId);
 
+    const junctionResponse = await $fetch<{ data: any[] }>(`${directusUrl}/items/units_people`, {
+      headers: {
+        Authorization: `Bearer ${staticToken}`,
+      },
+      query: {
+        fields: 'units_id',
+        'filter[people_id][_eq]': personId,
+      },
+    });
+
+    const junctionData = junctionResponse.data || [];
+    console.log('units.get: Junction data =', JSON.stringify(junctionData));
+
+    if (junctionData.length === 0) {
+      console.log('units.get: No units found for this person');
+      return { units: [] };
+    }
+
+    // Get the unit IDs
+    const unitIds = junctionData.map(j => j.units_id).filter(Boolean);
+    console.log('units.get: Unit IDs =', unitIds);
+
+    if (unitIds.length === 0) {
+      return { units: [] };
+    }
+
+    // Fetch the full unit data with pets and vehicles
     const unitsResponse = await $fetch<{ data: any[] }>(`${directusUrl}/items/units`, {
       headers: {
         Authorization: `Bearer ${staticToken}`,
@@ -103,7 +130,7 @@ export default defineEventHandler(async (event) => {
           'vehicles.parking_spot',
           'vehicles.status',
         ].join(','),
-        'filter[people][people_id][_eq]': personId,
+        'filter[id][_in]': unitIds.join(','),
       },
     });
 
