@@ -1,41 +1,101 @@
 <template>
-	<div class="md:px-6 mx-auto flex items-start justify-center flex-col md:flex-row relative px-4 pt-20 account">
-		<div class="md:top-4 flex md:items-end md:justify-end flex-col w-full md:mr-6 lg:mr account__navigation">
-			<UAvatar size="md" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
-			<h1 class="hidden md:inline-block mt-6">{{ user?.first_name }} {{ user?.last_name }}</h1>
-			<a :class="{active: panel === 1}" @click.prevent="changePanel(1)">Profile</a>
-			<a :class="{active: panel === 2}" @click.prevent="changePanel(2)">My Unit</a>
-			<a :class="{active: panel === 3}" @click.prevent="changePanel(3)">Pets</a>
-			<a :class="{active: panel === 4}" @click.prevent="changePanel(4)">Vehicles</a>
-			<AccountLogout v-if="user" class="logout-icon" />
-		</div>
-		<transition-group
-			name="list"
-			tag="div"
-			class="w-full flex flex-col items-center justify-start relative account__panels">
-			<div v-if="panel === 1" key="1" class="account__panel profile">
-				<AccountProfile />
+	<div class="account-page bg-cream min-h-screen">
+		<!-- Hero Section -->
+		<section class="py-12 lg:py-16 px-6 lg:px-16 bg-cream-alt">
+			<div class="max-w-5xl mx-auto">
+				<div class="page-header text-center opacity-0">
+					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resident Portal</p>
+					<h1 class="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+						My Account
+					</h1>
+					<div class="w-16 h-px bg-gold mx-auto"></div>
+				</div>
 			</div>
-			<div v-if="panel === 2" key="2" class="account__panel">
-				<AccountUnitInfo />
+		</section>
+
+		<!-- Account Content -->
+		<section class="py-12 lg:py-16 px-6 lg:px-16">
+			<div class="max-w-5xl mx-auto">
+				<div class="flex flex-col md:flex-row gap-8 lg:gap-12">
+					<!-- Navigation Sidebar -->
+					<div class="account-nav md:w-56 flex-shrink-0 opacity-0">
+						<div class="flex flex-col items-center md:items-end text-center md:text-right">
+							<div class="mb-6">
+								<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gold mx-auto md:ml-auto md:mr-0">
+									<img :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" class="w-full h-full object-cover" />
+								</div>
+								<p class="font-serif text-lg text-gray-800 mt-3">{{ user?.first_name }} {{ user?.last_name }}</p>
+							</div>
+							<nav class="w-full border-t border-divider pt-4 md:border-t-0 md:pt-0">
+								<a
+									v-for="(item, index) in navItems"
+									:key="index"
+									:class="[
+										'nav-item flex items-center justify-center md:justify-end gap-2 py-3 cursor-pointer transition-all duration-300',
+										panel === item.id ? 'text-gold-dark' : 'text-gray-500 hover:text-gray-800'
+									]"
+									@click.prevent="changePanel(item.id)">
+									<span class="text-xs tracking-[0.15em] uppercase">{{ item.label }}</span>
+									<span class="w-1.5 h-1.5 rounded-full transition-all duration-300" :class="panel === item.id ? 'bg-gold' : 'bg-transparent'"></span>
+								</a>
+								<div class="mt-4 pt-4 border-t border-divider">
+									<AccountLogout v-if="user" class="w-full flex justify-center md:justify-end" />
+								</div>
+							</nav>
+						</div>
+					</div>
+
+					<!-- Content Panels -->
+					<div class="flex-1 account-content opacity-0">
+						<div class="bg-white border border-divider p-6 lg:p-8">
+							<transition-group name="fade" mode="out-in">
+								<div v-if="panel === 1" key="1">
+									<AccountProfile />
+								</div>
+								<div v-if="panel === 2" key="2">
+									<AccountUnitInfo />
+								</div>
+								<div v-if="panel === 3" key="3">
+									<AccountPets />
+								</div>
+								<div v-if="panel === 4" key="4">
+									<AccountVehicles />
+								</div>
+							</transition-group>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div v-if="panel === 3" key="3" class="account__panel">
-				<AccountPets />
+		</section>
+
+		<!-- Footer Section -->
+		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
+			<div class="max-w-5xl mx-auto text-center">
+				<p class="font-serif text-sm italic text-gray-500">
+					1033 Lenox Avenue · Miami Beach, FL 33139
+				</p>
 			</div>
-			<div v-if="panel === 4" key="4" class="account__panel">
-				<AccountVehicles />
-			</div>
-		</transition-group>
+		</section>
 	</div>
 </template>
 
 <script setup lang="ts">
+import {ref, onMounted, onUnmounted} from 'vue';
+import {gsap} from 'gsap';
+
 const {user} = useDirectusAuth();
 
 definePageMeta({
 	layout: 'auth',
 	middleware: ['auth'],
 });
+
+const navItems = [
+	{id: 1, label: 'Profile'},
+	{id: 2, label: 'My Unit'},
+	{id: 3, label: 'Pets'},
+	{id: 4, label: 'Vehicles'},
+];
 
 const avatar = computed(() => {
 	if (user.value?.avatar) {
@@ -46,66 +106,57 @@ const avatar = computed(() => {
 			user.value?.first_name +
 			' ' +
 			user.value?.last_name +
-			'&background=eeeeee&color=00bfff'
+			'&background=C9A96E&color=ffffff'
 		);
 	}
 });
+
 const panel = ref(1);
 
 function changePanel(val: string | number) {
 	panel.value = Number(val);
 }
+
+let ctx: gsap.Context;
+
+onMounted(() => {
+	ctx = gsap.context(() => {
+		gsap.fromTo(
+			'.page-header',
+			{opacity: 0, y: 30},
+			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
+		);
+		gsap.fromTo(
+			'.account-nav',
+			{opacity: 0, x: -20},
+			{opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4}
+		);
+		gsap.fromTo(
+			'.account-content',
+			{opacity: 0, y: 20},
+			{opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.5}
+		);
+	});
+});
+
+onUnmounted(() => {
+	if (ctx) ctx.revert();
+});
 </script>
-<style>
-.account {
-	max-width: 1600px;
 
-	&__navigation {
-		border-bottom: thin solid var(--lightGrey);
+<style scoped>
+.account-page {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
 
-		@media (min-width: theme('screens.md')) {
-			width: 220px;
-			border-bottom: none;
-		}
-		h1 {
-			font-size: 10px;
-			@apply w-full text-center md:text-right uppercase tracking-wider pb-2 mb-0 md:mb-2;
-		}
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.3s ease;
+}
 
-		a,
-		.logout-btn {
-			font-size: 10px;
-			@apply w-full text-center md:text-right uppercase tracking-wider pb-2 mb-0 md:mb-2 cursor-pointer;
-		}
-
-		a.active {
-			color: var(--purple);
-			opacity: 0.25;
-		}
-	}
-
-	&__panels {
-		width: 100%;
-
-		@media (min-width: theme('screens.md')) {
-			width: 800px;
-		}
-	}
-
-	&__panel {
-		@apply w-full;
-
-		h2 {
-			@apply uppercase tracking-wider font-bold text-sm text-center w-full mt-6;
-		}
-
-		.addresses {
-			&__nav {
-				a {
-					max-width: 200px;
-				}
-			}
-		}
-	}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
 }
 </style>
