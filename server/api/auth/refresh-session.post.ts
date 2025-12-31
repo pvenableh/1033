@@ -68,7 +68,13 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get fresh user data from Directus
+    console.log('refresh-session: Fetching fresh user data...');
     const userData = await directusReadMeWithFields(accessToken!);
+    console.log('refresh-session: Got user data:', {
+      id: userData.id,
+      first_name: userData.first_name,
+      last_name: userData.last_name,
+    });
 
     // Update session with fresh user data
     await setUserSession(event, {
