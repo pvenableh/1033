@@ -110,7 +110,11 @@ export default defineEventHandler(async (event) => {
       }
 
       case 'create': {
-        if (!session?.user) {
+        // Collections that allow public (unauthenticated) submissions
+        const publicCollections = ['requests'];
+        const isPublicSubmission = body.public === true && publicCollections.includes(body.collection);
+
+        if (!session?.user && !isPublicSubmission) {
           throw createError({
             statusCode: 401,
             statusMessage: 'Unauthorized',
@@ -126,14 +130,17 @@ export default defineEventHandler(async (event) => {
           });
         }
 
+        // Use admin client for public submissions
+        const createClient = isPublicSubmission ? useDirectusAdmin() : client;
+
         // Support single or multiple items
         if (Array.isArray(body.data)) {
-          const result = await client.request(
+          const result = await createClient.request(
             createItems(body.collection, body.data)
           );
           return result;
         } else {
-          const result = await client.request(
+          const result = await createClient.request(
             createItem(body.collection, body.data)
           );
           return result;
