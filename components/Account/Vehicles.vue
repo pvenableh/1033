@@ -1,12 +1,19 @@
 <script setup lang="ts">
-const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
 const toast = useToast();
+
+// Fetch units with vehicles from server endpoint
+const { data: unitsData, pending: unitsPending, refresh: refreshUnits } = useLazyFetch<{ units: any[] }>(
+  '/api/directus/users/me/units',
+  {
+    server: false,
+    default: () => ({ units: [] }),
+  }
+);
 
 // Get all vehicles from user's units
 const vehicles = computed(() => {
   const allVehicles: any[] = [];
-  const units = (user.value as any)?.units || [];
+  const units = unitsData.value?.units || [];
 
   for (const unit of units) {
     if (unit.units_id?.vehicles) {
@@ -25,7 +32,7 @@ const vehicles = computed(() => {
 
 // Get first unit ID for creating new vehicles
 const defaultUnitId = computed(() => {
-  const units = (user.value as any)?.units || [];
+  const units = unitsData.value?.units || [];
   return units[0]?.units_id?.id || null;
 });
 
@@ -82,51 +89,42 @@ async function saveVehicle() {
       license_plate: editingVehicle.value.license_plate,
       state: editingVehicle.value.state,
       unit_id: editingVehicle.value.unit_id,
-      status: 'published',
     };
 
     if (isEditing.value && editingVehicle.value.id) {
-      // Update existing vehicle
-      await $fetch(`${config.public.adminUrl}/items/vehicles/${editingVehicle.value.id}`, {
+      // Update existing vehicle via server endpoint
+      await $fetch(`/api/directus/vehicles/${editingVehicle.value.id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.staticToken}`,
-        },
         body: vehicleData,
       });
 
       toast.add({
         title: 'Vehicle Updated',
-        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been updated.`,
+        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been updated and is pending approval.`,
         color: 'green',
       });
     } else {
-      // Create new vehicle
-      await $fetch(`${config.public.adminUrl}/items/vehicles`, {
+      // Create new vehicle via server endpoint
+      await $fetch('/api/directus/vehicles', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.staticToken}`,
-        },
         body: vehicleData,
       });
 
       toast.add({
         title: 'Vehicle Added',
-        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been added.`,
+        description: `${editingVehicle.value.make} ${editingVehicle.value.model} has been added and is pending approval.`,
         color: 'green',
       });
     }
 
     showModal.value = false;
-    // Refresh user data
-    window.location.reload();
+    // Refresh data
+    await refreshUnits();
   } catch (error: any) {
     console.error('Error saving vehicle:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to save vehicle',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to save vehicle',
       color: 'red',
     });
   } finally {
@@ -142,11 +140,8 @@ async function deleteVehicle(vehicle: any) {
   loading.value = true;
 
   try {
-    await $fetch(`${config.public.adminUrl}/items/vehicles/${vehicle.id}`, {
+    await $fetch(`/api/directus/vehicles/${vehicle.id}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
     });
 
     toast.add({
@@ -155,16 +150,27 @@ async function deleteVehicle(vehicle: any) {
       color: 'green',
     });
 
-    window.location.reload();
+    await refreshUnits();
   } catch (error: any) {
     console.error('Error deleting vehicle:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to remove vehicle',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to remove vehicle',
       color: 'red',
     });
   } finally {
     loading.value = false;
+  }
+}
+
+function getStatusBadge(status: string) {
+  switch (status) {
+    case 'published':
+      return { color: 'green' as const, label: 'Approved' };
+    case 'draft':
+      return { color: 'yellow' as const, label: 'Pending Approval' };
+    default:
+      return { color: 'gray' as const, label: status };
   }
 }
 </script>
@@ -182,7 +188,12 @@ async function deleteVehicle(vehicle: any) {
       </UButton>
     </div>
 
-    <div v-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
+    <div v-if="unitsPending" class="text-center py-8 text-gray-500">
+      <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+      <p>Loading vehicles...</p>
+    </div>
+
+    <div v-else-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
       <UIcon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No vehicles registered yet.</p>
       <UButton
@@ -204,9 +215,17 @@ async function deleteVehicle(vehicle: any) {
           </div>
 
           <div class="flex-1 min-w-0">
-            <h3 class="font-semibold">
-              {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
-            </h3>
+            <div class="flex items-center gap-2 mb-1">
+              <h3 class="font-semibold">
+                {{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}
+              </h3>
+              <UBadge
+                :color="getStatusBadge(vehicle.status).color"
+                variant="soft"
+                size="xs">
+                {{ getStatusBadge(vehicle.status).label }}
+              </UBadge>
+            </div>
             <p v-if="vehicle.color" class="text-sm text-gray-500">{{ vehicle.color }}</p>
             <p v-if="vehicle.license_plate" class="text-sm font-mono text-gray-600 dark:text-gray-400">
               {{ vehicle.license_plate }}
@@ -282,13 +301,18 @@ async function deleteVehicle(vehicle: any) {
         </div>
 
         <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton color="gray" variant="ghost" @click="showModal = false">
-              Cancel
-            </UButton>
-            <UButton :loading="loading" @click="saveVehicle">
-              {{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
-            </UButton>
+          <div class="flex flex-col gap-3">
+            <p class="text-xs text-gray-500">
+              New vehicles and updates require admin approval before they appear as approved.
+            </p>
+            <div class="flex justify-end gap-3">
+              <UButton color="gray" variant="ghost" @click="showModal = false">
+                Cancel
+              </UButton>
+              <UButton :loading="loading" @click="saveVehicle">
+                {{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
+              </UButton>
+            </div>
           </div>
         </template>
       </UCard>

@@ -23,41 +23,36 @@ const state = reactive({
 const inviteSuccess = ref(false);
 const invitedEmail = ref('');
 
-// Fetch roles using useLazyFetch with client-side only execution
-const { data: rolesData, pending: rolesPending } = useLazyFetch<{ data: any[] }>(
-  () => `${config.public.adminUrl}/roles`,
+// Fetch roles using server API endpoint
+const { data: rolesData, pending: rolesPending } = useLazyFetch<any[]>(
+  '/api/directus/roles',
   {
-    params: {
-      fields: 'id,name,description',
-      sort: 'name',
-    },
-    headers: {
-      Authorization: `Bearer ${config.public.staticToken}`,
-    },
     server: false,
-    default: () => ({ data: [] }),
+    default: () => [],
   }
 );
 
-// Fetch units using useLazyFetch with client-side only execution
-const { data: unitsData, pending: unitsPending } = useLazyFetch<{ data: any[] }>(
-  () => `${config.public.adminUrl}/items/units`,
+// Fetch units using server API endpoint
+const { data: unitsData, pending: unitsPending } = useLazyFetch<any[]>(
+  '/api/directus/items',
   {
-    params: {
-      fields: 'id,number',
-      filter: JSON.stringify({ status: { _eq: 'published' } }),
-      sort: 'number',
-    },
-    headers: {
-      Authorization: `Bearer ${config.public.staticToken}`,
+    method: 'POST',
+    body: {
+      collection: 'units',
+      operation: 'list',
+      query: {
+        fields: ['id', 'number'],
+        filter: { status: { _eq: 'published' } },
+        sort: ['number'],
+      },
     },
     server: false,
-    default: () => ({ data: [] }),
+    default: () => [],
   }
 );
 
-const roles = computed(() => rolesData.value?.data || []);
-const units = computed(() => unitsData.value?.data || []);
+const roles = computed(() => rolesData.value || []);
+const units = computed(() => unitsData.value || []);
 
 const unitOptions = computed(() => {
   return units.value
@@ -78,22 +73,16 @@ async function checkEmailExists(email: string): Promise<boolean> {
   emailError.value = null;
 
   try {
-    const response: any = await $fetch(
-      `${config.public.adminUrl}/users`,
-      {
-        params: {
-          filter: JSON.stringify({ email: { _eq: email } }),
-          fields: 'id,email,status',
-        },
-        headers: {
-          Authorization: `Bearer ${config.public.staticToken}`,
-        },
-      }
-    );
+    const response: any = await $fetch('/api/directus/users', {
+      method: 'POST',
+      body: {
+        operation: 'check-email',
+        email,
+      },
+    });
 
-    if (response.data && response.data.length > 0) {
-      const existingUser = response.data[0];
-      emailError.value = `This email is already registered (status: ${existingUser.status})`;
+    if (response.exists) {
+      emailError.value = `This email is already registered (status: ${response.user.status})`;
       return true;
     }
     return false;
@@ -123,30 +112,25 @@ async function sendInvite() {
     const selectedUnit = units.value.find(u => u.id === state.unit_id);
     const unitNumber = selectedUnit?.number;
 
-    // Create user with 'invited' status
-    await $fetch(`${config.public.adminUrl}/users`, {
+    // Create user with 'invited' status using server API endpoint
+    await $fetch('/api/directus/users', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
       body: {
-        email: state.email,
-        first_name: state.first_name,
-        last_name: state.last_name,
-        role: state.role,
-        status: 'invited',
-        description: state.unit_id ? JSON.stringify({ unit_id: state.unit_id, unit_number: unitNumber }) : null,
+        operation: 'create',
+        data: {
+          email: state.email,
+          first_name: state.first_name,
+          last_name: state.last_name,
+          role: state.role,
+          status: 'invited',
+          description: state.unit_id ? JSON.stringify({ unit_id: state.unit_id, unit_number: unitNumber }) : null,
+        },
       },
     });
 
-    // Send invite email via Directus
-    await $fetch(`${config.public.adminUrl}/users/invite`, {
+    // Send invite email via server API endpoint
+    await $fetch('/api/directus/users/invite', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
       body: {
         email: state.email,
         role: state.role,
@@ -174,7 +158,7 @@ async function sendInvite() {
     console.error('Failed to send invite:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to send invite',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to send invite',
       color: 'red',
     });
   } finally {

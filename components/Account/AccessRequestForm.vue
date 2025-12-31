@@ -138,7 +138,6 @@
 <script setup lang="ts">
 import type { FormError } from '#ui/types';
 
-const config = useRuntimeConfig();
 const loading = ref(false);
 const submitError = ref<string | null>(null);
 const submitSuccess = ref(false);
@@ -149,24 +148,16 @@ const residencyTypes = [
   { label: 'Property Manager', value: 'Property Manager' },
 ];
 
-// Fetch units using useLazyFetch with client-side only execution
-const { data: unitsData, pending: unitsPending } = useLazyFetch<{ data: any[] }>(
-  () => `${config.public.adminUrl}/items/units`,
+// Fetch units using server endpoint
+const { data: unitsData, pending: unitsPending } = useLazyFetch<any[]>(
+  '/api/public/units',
   {
-    params: {
-      fields: 'id,number',
-      filter: JSON.stringify({ status: { _eq: 'published' } }),
-      sort: 'number',
-    },
-    headers: {
-      Authorization: `Bearer ${config.public.staticToken}`,
-    },
     server: false,
-    default: () => ({ data: [] }),
+    default: () => [],
   }
 );
 
-const units = computed(() => unitsData.value?.data || []);
+const units = computed(() => unitsData.value || []);
 
 const unitOptions = computed(() => {
   return units.value
@@ -246,16 +237,12 @@ const validate = async (formState: typeof state): Promise<FormError[]> => {
   // Check if email already exists
   if (formState.email && emailRegex.test(formState.email) && errors.filter(e => e.path === 'email').length === 0) {
     try {
-      const response: any = await $fetch(
-        `${config.public.adminUrl}/users?filter[email][_eq]=${formState.email}`,
-        {
-          headers: {
-            Authorization: `Bearer ${config.public.staticToken}`,
-          },
-        }
-      );
+      const response: any = await $fetch('/api/public/check-email', {
+        method: 'POST',
+        body: { email: formState.email },
+      });
 
-      if (response.data && response.data.length > 0) {
+      if (response.exists) {
         errors.push({ path: 'email', message: 'This email is already registered' });
       }
     } catch (error) {
@@ -276,27 +263,18 @@ async function submitRequest() {
     const selectedUnit = units.value.find(u => u.id === state.unit_id);
     const unitNumber = selectedUnit?.number;
 
-    // Create user via Directus API with 'Pending' role
-    const response = await $fetch(`${config.public.adminUrl}/users`, {
+    // Create user via server endpoint
+    await $fetch('/api/public/access-request', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
       body: {
         first_name: state.first_name,
         last_name: state.last_name,
         email: state.email,
         phone: state.phone,
         password: state.password,
-        status: 'draft', // Draft status until admin approves
-        // Store unit and residency type in user metadata or a related collection
-        description: JSON.stringify({
-          unit_id: state.unit_id,
-          unit_number: unitNumber,
-          residency_type: state.residency_type?.value,
-          requested_at: new Date().toISOString(),
-        }),
+        unit_id: state.unit_id,
+        unit_number: unitNumber,
+        residency_type: state.residency_type?.value,
       },
     });
 
@@ -321,7 +299,9 @@ async function submitRequest() {
     }
   } catch (error: any) {
     console.error('Registration error:', error);
-    if (error.data?.errors?.[0]?.message) {
+    if (error.data?.message) {
+      submitError.value = error.data.message;
+    } else if (error.data?.errors?.[0]?.message) {
       submitError.value = error.data.errors[0].message;
     } else {
       submitError.value = 'Failed to submit access request. Please try again.';

@@ -363,8 +363,10 @@ definePageMeta({
 
 // Use the Directus integration from your existing project
 const config = useRuntimeConfig();
-const directusUrl = config.public.directusUrl || 'https://admin.1033lenox.com';
-const directusToken = config.public.staticToken || process.env.DIRECTUS_TOKEN;
+const directusUrl = ref(config.public.directusUrl || 'https://admin.1033lenox.com');
+const directusToken = ref('');
+const tokenLoading = ref(true);
+const tokenError = ref('');
 
 // Create headers with authentication
 const getAuthHeaders = () => {
@@ -372,8 +374,8 @@ const getAuthHeaders = () => {
 		'Content-Type': 'application/json',
 	};
 
-	if (directusToken) {
-		headers['Authorization'] = `Bearer ${directusToken}`;
+	if (directusToken.value) {
+		headers['Authorization'] = `Bearer ${directusToken.value}`;
 	}
 
 	return headers;
@@ -791,7 +793,7 @@ const importData = async () => {
 					};
 
 					// Use direct API call with authentication
-					const response = await fetch(`${directusUrl}/items/transactions`, {
+					const response = await fetch(`${directusUrl.value}/items/transactions`, {
 						method: 'POST',
 						headers: getAuthHeaders(),
 						body: JSON.stringify(transactionData),
@@ -829,7 +831,7 @@ const importData = async () => {
 				};
 
 				// Try to find existing statement
-				const checkUrl = `${directusUrl}/items/monthly_statements?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[account_id][_eq]=${selectedAccount.value.id}&filter[statement_month][_eq]=${selectedMonth.value}`;
+				const checkUrl = `${directusUrl.value}/items/monthly_statements?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[account_id][_eq]=${selectedAccount.value.id}&filter[statement_month][_eq]=${selectedMonth.value}`;
 				const checkResponse = await fetch(checkUrl, {headers: getAuthHeaders()});
 
 				if (checkResponse.ok) {
@@ -838,7 +840,7 @@ const importData = async () => {
 
 					if (existingStatements.length > 0) {
 						// Update existing
-						const updateResponse = await fetch(`${directusUrl}/items/monthly_statements/${existingStatements[0].id}`, {
+						const updateResponse = await fetch(`${directusUrl.value}/items/monthly_statements/${existingStatements[0].id}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
 							body: JSON.stringify(statementData),
@@ -848,7 +850,7 @@ const importData = async () => {
 						}
 					} else {
 						// Create new
-						const createResponse = await fetch(`${directusUrl}/items/monthly_statements`, {
+						const createResponse = await fetch(`${directusUrl.value}/items/monthly_statements`, {
 							method: 'POST',
 							headers: getAuthHeaders(),
 							body: JSON.stringify(statementData),
@@ -884,7 +886,7 @@ const importData = async () => {
 				};
 
 				// Try to find existing report
-				const checkUrl = `${directusUrl}/items/violation_reports?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[report_month][_eq]=${selectedMonth.value}`;
+				const checkUrl = `${directusUrl.value}/items/violation_reports?filter[fiscal_year][_eq]=${selectedFiscalYear.value}&filter[report_month][_eq]=${selectedMonth.value}`;
 				const checkResponse = await fetch(checkUrl, {headers: getAuthHeaders()});
 
 				if (checkResponse.ok) {
@@ -893,7 +895,7 @@ const importData = async () => {
 
 					if (existingReports.length > 0) {
 						// Update existing
-						const updateResponse = await fetch(`${directusUrl}/items/violation_reports/${existingReports[0].id}`, {
+						const updateResponse = await fetch(`${directusUrl.value}/items/violation_reports/${existingReports[0].id}`, {
 							method: 'PATCH',
 							headers: getAuthHeaders(),
 							body: JSON.stringify(reportData),
@@ -903,7 +905,7 @@ const importData = async () => {
 						}
 					} else {
 						// Create new
-						const createResponse = await fetch(`${directusUrl}/items/violation_reports`, {
+						const createResponse = await fetch(`${directusUrl.value}/items/violation_reports`, {
 							method: 'POST',
 							headers: getAuthHeaders(),
 							body: JSON.stringify(reportData),
@@ -932,6 +934,18 @@ const importData = async () => {
 
 // Load reference data on mount
 onMounted(async () => {
+	// Fetch admin token from server
+	try {
+		const response = await $fetch('/api/admin/token');
+		directusToken.value = response.token;
+		tokenLoading.value = false;
+	} catch (error) {
+		console.error('Failed to get admin token:', error);
+		tokenError.value = 'Failed to authenticate. Please ensure you have admin access.';
+		tokenLoading.value = false;
+		return;
+	}
+
 	try {
 		// Load accounts using fetch API with authentication
 		console.log('Loading accounts and budget categories...');
@@ -939,8 +953,8 @@ onMounted(async () => {
 		const authHeaders = getAuthHeaders();
 
 		// Try direct API calls to your Directus instance with auth
-		const accountsUrl = `${directusUrl}/items/accounts?filter[status][_eq]=published&sort=account_number`;
-		const categoriesUrl = `${directusUrl}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=2025&sort=category_name`;
+		const accountsUrl = `${directusUrl.value}/items/accounts?filter[status][_eq]=published&sort=account_number`;
+		const categoriesUrl = `${directusUrl.value}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=2025&sort=category_name`;
 
 		const [accountsResponse, categoriesResponse] = await Promise.all([
 			fetch(accountsUrl, {headers: authHeaders}),

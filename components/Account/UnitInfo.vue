@@ -1,16 +1,31 @@
 <script setup lang="ts">
-const { user } = useDirectusAuth();
+// Fetch units from server endpoint
+const { data: unitsData, pending, refresh } = useLazyFetch<{ units: any[] }>(
+  '/api/directus/users/me/units',
+  {
+    server: false,
+    default: () => ({ units: [] }),
+  }
+);
 
 const units = computed(() => {
-  return (user.value as any)?.units?.map((u: any) => u.units_id) || [];
+  return unitsData.value?.units?.map((u: any) => u.units_id) || [];
 });
+
+// Expose refresh for parent components to use
+defineExpose({ refresh });
 </script>
 
 <template>
   <div class="w-full">
     <h2 class="mb-6">My Unit</h2>
 
-    <div v-if="units.length === 0" class="text-center py-8 text-gray-500">
+    <div v-if="pending" class="text-center py-8 text-gray-500">
+      <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+      <p>Loading unit information...</p>
+    </div>
+
+    <div v-else-if="units.length === 0" class="text-center py-8 text-gray-500">
       <UIcon name="i-heroicons-home" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No units assigned to your account.</p>
       <p class="text-sm">Contact an administrator if this is incorrect.</p>

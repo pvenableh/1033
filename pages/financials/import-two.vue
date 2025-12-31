@@ -458,8 +458,10 @@ definePageMeta({
 
 // Use the Directus integration from your existing project
 const config = useRuntimeConfig();
-const directusUrl = config.public.directusUrl || 'https://admin.1033lenox.com';
-const directusToken = config.public.staticToken || process.env.DIRECTUS_TOKEN;
+const directusUrl = ref(config.public.directusUrl || 'https://admin.1033lenox.com');
+const directusToken = ref('');
+const tokenLoading = ref(true);
+const tokenError = ref('');
 
 // Create headers with authentication
 const getAuthHeaders = () => {
@@ -467,8 +469,8 @@ const getAuthHeaders = () => {
 		'Content-Type': 'application/json',
 	};
 
-	if (directusToken) {
-		headers['Authorization'] = `Bearer ${directusToken}`;
+	if (directusToken.value) {
+		headers['Authorization'] = `Bearer ${directusToken.value}`;
 	}
 
 	return headers;
@@ -709,7 +711,7 @@ const testSingleTransactionImport = async () => {
 		console.log('\nAttempting to create transaction in Directus...');
 
 		try {
-			const response = await fetch(`${directusUrl}/items/transactions`, {
+			const response = await fetch(`${directusUrl.value}/items/transactions`, {
 				method: 'POST',
 				headers: getAuthHeaders(),
 				body: JSON.stringify(txData),
@@ -782,7 +784,7 @@ const createVendorFromCSV = async (csvVendorName) => {
 			category: 'General',
 		};
 
-		const response = await fetch(`${directusUrl}/items/vendors`, {
+		const response = await fetch(`${directusUrl.value}/items/vendors`, {
 			method: 'POST',
 			headers: getAuthHeaders(),
 			body: JSON.stringify(newVendorData),
@@ -911,7 +913,7 @@ const loadExistingTransactions = async () => {
 		const startDate = `${selectedFiscalYear.value}-${selectedMonth.value}-01`;
 		const endDate = `${selectedFiscalYear.value}-${selectedMonth.value}-31`;
 
-		const transactionsUrl = `${directusUrl}/items/transactions?filter[account_id][_eq]=${selectedAccount.value.id}&filter[transaction_date][_between]=[${startDate},${endDate}]&fields=*&limit=-1`;
+		const transactionsUrl = `${directusUrl.value}/items/transactions?filter[account_id][_eq]=${selectedAccount.value.id}&filter[transaction_date][_between]=[${startDate},${endDate}]&fields=*&limit=-1`;
 
 		const response = await fetch(transactionsUrl, {headers: getAuthHeaders()});
 		if (response.ok) {
@@ -1389,7 +1391,7 @@ const importData = async () => {
 					console.log(`  Sending transaction data with category_id: ${transactionDataObj.category_id}`);
 
 					// Create the transaction
-					const response = await fetch(`${directusUrl}/items/transactions`, {
+					const response = await fetch(`${directusUrl.value}/items/transactions`, {
 						method: 'POST',
 						headers: getAuthHeaders(),
 						body: JSON.stringify(transactionDataObj),
@@ -1431,23 +1433,35 @@ const importData = async () => {
 
 // Enhanced onMounted function for loading all collections
 onMounted(async () => {
+	// Fetch admin token from server
+	try {
+		const response = await $fetch('/api/admin/token');
+		directusToken.value = response.token;
+		tokenLoading.value = false;
+	} catch (error) {
+		console.error('Failed to get admin token:', error);
+		tokenError.value = 'Failed to authenticate. Please ensure you have admin access.';
+		tokenLoading.value = false;
+		return;
+	}
+
 	try {
 		console.log('Loading reference data for enhanced CSV import...');
 		const authHeaders = getAuthHeaders();
 
 		// Load all reference data in parallel
 		const [accountsResponse, categoriesResponse, vendorsResponse, budgetItemsResponse] = await Promise.all([
-			fetch(`${directusUrl}/items/accounts?filter[status][_eq]=published&sort=account_number`, {headers: authHeaders}),
+			fetch(`${directusUrl.value}/items/accounts?filter[status][_eq]=published&sort=account_number`, {headers: authHeaders}),
 			fetch(
-				`${directusUrl}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=${selectedFiscalYear.value}&sort=category_name`,
+				`${directusUrl.value}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=${selectedFiscalYear.value}&sort=category_name`,
 				{headers: authHeaders}
 			),
 			fetch(
-				`${directusUrl}/items/vendors?filter[status][_eq]=published&sort=title&fields=id,title,matching_keywords,category,auto_created,created_from_import`,
+				`${directusUrl.value}/items/vendors?filter[status][_eq]=published&sort=title&fields=id,title,matching_keywords,category,auto_created,created_from_import`,
 				{headers: authHeaders}
 			),
 			fetch(
-				`${directusUrl}/items/budget_items?filter[status][_eq]=published&filter[fiscal_year][_eq]=${selectedFiscalYear.value}&sort=description&fields=id,description,item_code,keywords,vendor_patterns,monthly_budget,yearly_budget,category_id,vendor_id`,
+				`${directusUrl.value}/items/budget_items?filter[status][_eq]=published&filter[fiscal_year][_eq]=${selectedFiscalYear.value}&sort=description&fields=id,description,item_code,keywords,vendor_patterns,monthly_budget,yearly_budget,category_id,vendor_id`,
 				{headers: authHeaders}
 			),
 		]);

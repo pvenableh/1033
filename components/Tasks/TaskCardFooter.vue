@@ -1,7 +1,6 @@
 <!-- eslint-disable no-console -->
 <script setup>
 const config = useRuntimeConfig();
-// const { user } = useDirectusAuth();
 
 const props = defineProps({
 	item: {
@@ -26,7 +25,6 @@ const {data: allUsers} = await useAsyncData('users', () => {
 	);
 });
 
-const access_token = ref(config.public.staticToken);
 const url = ref(config.public.websocketUrl);
 
 const users = ref({
@@ -35,12 +33,22 @@ const users = ref({
 });
 
 onMounted(async () => {
+	// Fetch WebSocket token from server
+	let access_token;
+	try {
+		const tokenResponse = await $fetch('/api/websocket/token');
+		access_token = tokenResponse.token;
+	} catch (error) {
+		console.error('Failed to get WebSocket token:', error);
+		return;
+	}
+
 	const usersConnection = new WebSocket(url.value);
-	await usersConnection.addEventListener('open', () => authenticate(access_token.value));
-	await usersConnection.addEventListener('message', (message) => receiveUsersMessage(message));
+	usersConnection.addEventListener('open', () => authenticate(access_token));
+	usersConnection.addEventListener('message', (message) => receiveUsersMessage(message));
 
 	function authenticate() {
-		usersConnection.send(JSON.stringify({type: 'auth', access_token: access_token.value}));
+		usersConnection.send(JSON.stringify({type: 'auth', access_token: access_token}));
 	}
 
 	function updateUsers(data) {

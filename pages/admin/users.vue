@@ -6,9 +6,7 @@ definePageMeta({
   middleware: ['auth', 'role'],
 });
 
-const config = useRuntimeConfig();
 const route = useRoute();
-const router = useRouter();
 const toast = useToast();
 const { isAdmin, APP_ROLES } = useRoles();
 
@@ -71,17 +69,18 @@ const columns = [
 async function fetchUsers() {
   loading.value = true;
   try {
-    const response: any = await $fetch(`${config.public.adminUrl}/users`, {
-      params: {
-        fields: 'id,first_name,last_name,email,status,role.id,role.name,description,date_created',
-        sort: '-date_created',
-        limit: -1,
-      },
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
+    const response: any = await $fetch('/api/directus/users', {
+      method: 'POST',
+      body: {
+        operation: 'list',
+        query: {
+          fields: ['id', 'first_name', 'last_name', 'email', 'status', 'role.id', 'role.name', 'description', 'date_created'],
+          sort: ['-date_created'],
+          limit: -1,
+        },
       },
     });
-    users.value = response.data || [];
+    users.value = response || [];
   } catch (error) {
     console.error('Failed to fetch users:', error);
     toast.add({
@@ -96,16 +95,8 @@ async function fetchUsers() {
 
 async function fetchRoles() {
   try {
-    const response: any = await $fetch(`${config.public.adminUrl}/roles`, {
-      params: {
-        fields: 'id,name,description,admin_access,app_access',
-        sort: 'name',
-      },
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
-    });
-    roles.value = response.data || [];
+    const response: any = await $fetch('/api/directus/roles');
+    roles.value = response || [];
   } catch (error) {
     console.error('Failed to fetch roles:', error);
   }
@@ -119,15 +110,15 @@ function openUserModal(user: User) {
 async function approveUser(user: User, roleId: string) {
   actionLoading.value = true;
   try {
-    await $fetch(`${config.public.adminUrl}/users/${user.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
+    await $fetch('/api/directus/users', {
+      method: 'POST',
       body: {
-        status: 'active',
-        role: roleId,
+        operation: 'update',
+        id: user.id,
+        data: {
+          status: 'active',
+          role: roleId,
+        },
       },
     });
 
@@ -143,7 +134,7 @@ async function approveUser(user: User, roleId: string) {
     console.error('Failed to approve user:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to approve user',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to approve user',
       color: 'red',
     });
   } finally {
@@ -154,14 +145,14 @@ async function approveUser(user: User, roleId: string) {
 async function updateUserRole(user: User, roleId: string) {
   actionLoading.value = true;
   try {
-    await $fetch(`${config.public.adminUrl}/users/${user.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
+    await $fetch('/api/directus/users', {
+      method: 'POST',
       body: {
-        role: roleId,
+        operation: 'update',
+        id: user.id,
+        data: {
+          role: roleId,
+        },
       },
     });
 
@@ -177,7 +168,7 @@ async function updateUserRole(user: User, roleId: string) {
     console.error('Failed to update role:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to update role',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to update role',
       color: 'red',
     });
   } finally {
@@ -188,13 +179,13 @@ async function updateUserRole(user: User, roleId: string) {
 async function updateUserStatus(user: User, status: string) {
   actionLoading.value = true;
   try {
-    await $fetch(`${config.public.adminUrl}/users/${user.id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${config.public.staticToken}`,
+    await $fetch('/api/directus/users', {
+      method: 'POST',
+      body: {
+        operation: 'update',
+        id: user.id,
+        data: { status },
       },
-      body: { status },
     });
 
     toast.add({
@@ -209,7 +200,7 @@ async function updateUserStatus(user: User, status: string) {
     console.error('Failed to update status:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to update status',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to update status',
       color: 'red',
     });
   } finally {
