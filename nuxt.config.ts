@@ -59,10 +59,10 @@ export default defineNuxtConfig({
 		},
 		sendgridAccessRequestAdminTemplate: process.env.SENDGRID_ACCESS_REQUEST_ADMIN_TEMPLATE || '',
 		sendgridAccessRequestUserTemplate: process.env.SENDGRID_ACCESS_REQUEST_USER_TEMPLATE || '',
+		staticToken: process.env.DIRECTUS_SERVER_TOKEN || 'cb66quXi2vneyEhG8OtAFJ1jOIO31Pff',
 		public: {
 			assetsUrl: process.env.DIRECTUS_ASSETS_URL || 'https://admin.1033lenox.com/assets/',
 			websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || 'wss://admin.1033lenox.com/websocket',
-			staticToken: process.env.DIRECTUS_SERVER_TOKEN || 'cb66quXi2vneyEhG8OtAFJ1jOIO31Pff',
 			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
 			adminUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
 			directusUrl: process.env.DIRECTUS_URL || 'https://admin.1033lenox.com',
