@@ -1,12 +1,19 @@
 <script setup lang="ts">
-const config = useRuntimeConfig();
-const { user } = useDirectusAuth();
 const toast = useToast();
+
+// Fetch units with pets from server endpoint
+const { data: unitsData, pending: unitsPending, refresh: refreshUnits } = useLazyFetch<{ units: any[] }>(
+  '/api/directus/users/me/units',
+  {
+    server: false,
+    default: () => ({ units: [] }),
+  }
+);
 
 // Get all pets from user's units
 const pets = computed(() => {
   const allPets: any[] = [];
-  const units = (user.value as any)?.units || [];
+  const units = unitsData.value?.units || [];
 
   for (const unit of units) {
     if (unit.units_id?.pets) {
@@ -25,7 +32,7 @@ const pets = computed(() => {
 
 // Get first unit ID for creating new pets
 const defaultUnitId = computed(() => {
-  const units = (user.value as any)?.units || [];
+  const units = unitsData.value?.units || [];
   return units[0]?.units_id?.id || null;
 });
 
@@ -78,51 +85,42 @@ async function savePet() {
       breed: editingPet.value.breed,
       weight: editingPet.value.weight,
       unit_id: editingPet.value.unit_id,
-      status: 'published',
     };
 
     if (isEditing.value && editingPet.value.id) {
-      // Update existing pet
-      await $fetch(`${config.public.adminUrl}/items/pets/${editingPet.value.id}`, {
+      // Update existing pet via server endpoint
+      await $fetch(`/api/directus/pets/${editingPet.value.id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.staticToken}`,
-        },
         body: petData,
       });
 
       toast.add({
         title: 'Pet Updated',
-        description: `${editingPet.value.name} has been updated.`,
+        description: `${editingPet.value.name || 'Pet'} has been updated and is pending approval.`,
         color: 'green',
       });
     } else {
-      // Create new pet
-      await $fetch(`${config.public.adminUrl}/items/pets`, {
+      // Create new pet via server endpoint
+      await $fetch('/api/directus/pets', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${config.public.staticToken}`,
-        },
         body: petData,
       });
 
       toast.add({
         title: 'Pet Added',
-        description: `${editingPet.value.name} has been added.`,
+        description: `${editingPet.value.name || 'Pet'} has been added and is pending approval.`,
         color: 'green',
       });
     }
 
     showModal.value = false;
-    // Refresh user data
-    window.location.reload();
+    // Refresh data
+    await refreshUnits();
   } catch (error: any) {
     console.error('Error saving pet:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to save pet',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to save pet',
       color: 'red',
     });
   } finally {
@@ -138,11 +136,8 @@ async function deletePet(pet: any) {
   loading.value = true;
 
   try {
-    await $fetch(`${config.public.adminUrl}/items/pets/${pet.id}`, {
+    await $fetch(`/api/directus/pets/${pet.id}`, {
       method: 'DELETE',
-      headers: {
-        Authorization: `Bearer ${config.public.staticToken}`,
-      },
     });
 
     toast.add({
@@ -151,12 +146,12 @@ async function deletePet(pet: any) {
       color: 'green',
     });
 
-    window.location.reload();
+    await refreshUnits();
   } catch (error: any) {
     console.error('Error deleting pet:', error);
     toast.add({
       title: 'Error',
-      description: error.data?.errors?.[0]?.message || 'Failed to remove pet',
+      description: error.data?.message || error.data?.errors?.[0]?.message || 'Failed to remove pet',
       color: 'red',
     });
   } finally {
@@ -178,6 +173,17 @@ function getPetIcon(category: string) {
       return 'i-heroicons-heart';
   }
 }
+
+function getStatusBadge(status: string) {
+  switch (status) {
+    case 'published':
+      return { color: 'green' as const, label: 'Approved' };
+    case 'draft':
+      return { color: 'yellow' as const, label: 'Pending Approval' };
+    default:
+      return { color: 'gray' as const, label: status };
+  }
+}
 </script>
 
 <template>
@@ -193,7 +199,12 @@ function getPetIcon(category: string) {
       </UButton>
     </div>
 
-    <div v-if="pets.length === 0" class="text-center py-8 text-gray-500">
+    <div v-if="unitsPending" class="text-center py-8 text-gray-500">
+      <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+      <p>Loading pets...</p>
+    </div>
+
+    <div v-else-if="pets.length === 0" class="text-center py-8 text-gray-500">
       <UIcon name="i-heroicons-heart" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No pets registered yet.</p>
       <UButton
@@ -222,7 +233,15 @@ function getPetIcon(category: string) {
           </div>
 
           <div class="flex-1 min-w-0">
-            <h3 class="font-semibold">{{ pet.name || 'Unnamed Pet' }}</h3>
+            <div class="flex items-center gap-2 mb-1">
+              <h3 class="font-semibold">{{ pet.name || 'Unnamed Pet' }}</h3>
+              <UBadge
+                :color="getStatusBadge(pet.status).color"
+                variant="soft"
+                size="xs">
+                {{ getStatusBadge(pet.status).label }}
+              </UBadge>
+            </div>
             <p class="text-sm text-gray-500">{{ pet.category }} {{ pet.breed ? `- ${pet.breed}` : '' }}</p>
             <p v-if="pet.weight" class="text-xs text-gray-400">{{ pet.weight }}</p>
             <p class="text-xs text-gray-400 mt-1">Unit {{ pet.unit_number }}</p>
@@ -278,13 +297,18 @@ function getPetIcon(category: string) {
         </div>
 
         <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton color="gray" variant="ghost" @click="showModal = false">
-              Cancel
-            </UButton>
-            <UButton :loading="loading" @click="savePet">
-              {{ isEditing ? 'Save Changes' : 'Add Pet' }}
-            </UButton>
+          <div class="flex flex-col gap-3">
+            <p class="text-xs text-gray-500">
+              New pets and updates require admin approval before they appear as approved.
+            </p>
+            <div class="flex justify-end gap-3">
+              <UButton color="gray" variant="ghost" @click="showModal = false">
+                Cancel
+              </UButton>
+              <UButton :loading="loading" @click="savePet">
+                {{ isEditing ? 'Save Changes' : 'Add Pet' }}
+              </UButton>
+            </div>
           </div>
         </template>
       </UCard>
