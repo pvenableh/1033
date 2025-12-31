@@ -72,7 +72,8 @@ function getDirectusConfig() {
   const config = useRuntimeConfig();
   return {
     url: config.public.directusUrl || config.public.adminUrl || process.env.DIRECTUS_URL,
-    staticToken: config.public.staticToken || process.env.DIRECTUS_SERVER_TOKEN,
+    // staticToken is now in server-only config (not public) for security
+    staticToken: config.staticToken || process.env.DIRECTUS_SERVER_TOKEN,
   };
 }
 
