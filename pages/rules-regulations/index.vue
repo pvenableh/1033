@@ -81,7 +81,7 @@ import {ScrollTrigger} from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

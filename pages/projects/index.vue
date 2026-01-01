@@ -9,7 +9,7 @@
 
 <script setup>
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

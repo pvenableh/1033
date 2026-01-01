@@ -69,7 +69,7 @@ import {onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
 
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

@@ -85,7 +85,7 @@
 
 <script setup>
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 });
 
 const {params} = useRoute();

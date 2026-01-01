@@ -2,7 +2,7 @@
 import type { User, Role } from '~/types';
 
 definePageMeta({
-  layout: 'auth',
+  layout: 'default',
   middleware: ['auth', 'role'],
 });
 

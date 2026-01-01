@@ -2,7 +2,7 @@
 import {isOpen, taskModalData, taskModalAction} from '~/composables/useTaskModal';
 
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 
