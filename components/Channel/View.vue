@@ -314,8 +314,19 @@ const handleSendMessage = async (payload: {content: string; mentionedUserIds: st
 			mentioned_user_ids: payload.mentionedUserIds,
 		});
 
-		// Add message to list
-		messages.value.push(message as any);
+		// Create optimistic message with current user data for immediate display
+		// The real-time subscription will update this with complete data
+		const optimisticMessage = {
+			...message,
+			user_created: user.value,
+		};
+
+		// Check if message already exists (from real-time subscription race)
+		const existingIndex = messages.value.findIndex(m => m.id === message.id);
+		if (existingIndex === -1) {
+			messages.value.push(optimisticMessage as any);
+		}
+
 		newMessageContent.value = '';
 		scrollToBottom();
 	} catch (e: any) {
@@ -429,7 +440,24 @@ const {data: realtimeMessages} = useChannelMessagesSubscription(props.channelId)
 
 watch(realtimeMessages, (newMessages) => {
 	if (newMessages && newMessages.length > 0) {
-		messages.value = newMessages as ChannelMessageWithRelations[];
+		// Merge real-time messages with existing ones, preserving user data
+		// WebSocket events may not include expanded user relations
+		const existingMessagesMap = new Map(
+			messages.value.map(m => [m.id, m])
+		);
+
+		const mergedMessages = newMessages.map((newMsg: any) => {
+			const existing = existingMessagesMap.get(newMsg.id);
+			// If existing message has user data and new one doesn't, preserve existing user data
+			if (existing && existing.user_created && typeof existing.user_created === 'object') {
+				if (!newMsg.user_created || typeof newMsg.user_created === 'string') {
+					return {...newMsg, user_created: existing.user_created};
+				}
+			}
+			return newMsg;
+		});
+
+		messages.value = mergedMessages as ChannelMessageWithRelations[];
 		scrollToBottom();
 	}
 });
