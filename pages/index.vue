@@ -3,9 +3,9 @@
 		<!-- Hero Section -->
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Weather Widget - positioned in top right -->
-			<div class="absolute top-20 right-4 sm:right-8 z-20 opacity-0 hero-weather">
+			<div class="absolute top-10 right-4 sm:right-8 z-20 opacity-0 hero-weather">
 				<client-only>
-					<InsightsWeather variant="standard" :animated="true" :show-location="true" class="weather-hero-widget" />
+					<InsightsWeather variant="standard" :animated="false" :show-location="true" class="weather-hero-widget" />
 				</client-only>
 			</div>
 
@@ -813,7 +813,7 @@ onMounted(() => {
 
 		// Hero content parallax effect - content scrolls down slowly as user scrolls
 		gsap.to('.hero-content', {
-			y: 150,
+			y: 350,
 			ease: 'none',
 			scrollTrigger: {
 				trigger: heroRef.value,
@@ -1071,16 +1071,6 @@ useHead({
 /* Weather widget in hero - styled for dark background */
 .hero-weather {
 	transform: translateY(-10px);
-}
-
-.weather-hero-widget {
-	background: rgba(0, 0, 0, 0.3);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
-	border-radius: 12px;
-	padding: 12px 16px;
-	color: #fff;
-	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Hero section clips the fixed background */

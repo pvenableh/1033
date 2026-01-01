@@ -469,13 +469,7 @@ function getUtilityIcon(type: string): string {
 </script>
 
 <template>
-	<div v-if="hasData" class="weather text-cream uppercase" :class="`weather--${variant}`">
-		<!-- Location (optional) -->
-		<div v-if="showLocation" class="weather__location">
-			{{ weather!.name }}
-			<template v-if="weather!.sys.country">, {{ weather!.sys.country }}</template>
-		</div>
-
+	<div v-if="hasData" class="weather text-cream uppercase !glass-container" :class="`weather--${variant}`">
 		<!-- Primary Stats Row -->
 		<div class="weather__primary text-cream uppercase">
 			<span class="weather__temp">{{ formatTemp(weather!.main.temp) }}</span>
@@ -566,6 +560,11 @@ function getUtilityIcon(type: string): string {
 				<span class="weather__detail-value">{{ weather!.snow['1h'] }} mm</span>
 			</div>
 		</div>
+		<!-- Location (optional) -->
+		<div v-if="showLocation" class="weather__location">
+			{{ weather!.name }}
+			<template v-if="weather!.sys.country">• {{ weather!.sys.country }}</template>
+		</div>
 	</div>
 
 	<!-- Error State -->
@@ -579,6 +578,15 @@ function getUtilityIcon(type: string): string {
 .weather {
 	--weather-accent: hwb(39 26% 38%);
 	--weather-icon-size: 1.25rem;
+	background: rgba(255, 255, 255, 0.1);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 8px;
+	padding: 1rem 2rem;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	box-shadow:
+		0 8px 32px rgba(0, 0, 0, 0.1),
+		inset 0 1px 0 rgba(255, 255, 255, 0.3);
 
 	@apply hidden sm:flex flex-col;
 }
@@ -595,11 +603,11 @@ function getUtilityIcon(type: string): string {
 
 /* Detailed variant */
 .weather--detailed {
-	@apply gap-2 p-3 rounded-lg bg-gray-50 dark:bg-gray-800/50;
+	@apply gap-2 p-3;
 }
 
 .weather__location {
-	@apply text-[10px] tracking-wider text-cream uppercase;
+	@apply text-[7px] tracking-wider text-cream uppercase;
 }
 
 .weather__primary {
