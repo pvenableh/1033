@@ -10,6 +10,7 @@
 						background-image: url('https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge');
 						background-size: cover;
 						background-position: center;
+						background-attachment: fixed;
 					">
 					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
@@ -799,6 +800,18 @@ onMounted(() => {
 			ease: 'power2.inOut',
 		});
 
+		// Hero parallax effect - slow background movement on scroll
+		gsap.to('.hero-image', {
+			backgroundPositionY: '30%',
+			ease: 'none',
+			scrollTrigger: {
+				trigger: heroRef.value,
+				start: 'top top',
+				end: 'bottom top',
+				scrub: true,
+			},
+		});
+
 		// Section animations helper
 		const animateSection = (sectionRef, selectors) => {
 			if (!sectionRef.value) return;
@@ -1034,5 +1047,22 @@ useHead({
 /* Smooth scroll behavior */
 :deep(html) {
 	scroll-behavior: smooth;
+}
+
+/* Sticky content labels on large screens */
+@media (min-width: 1024px) {
+	.content-label {
+		position: sticky;
+		top: 6rem;
+		align-self: start;
+		height: fit-content;
+	}
+}
+
+/* Disable fixed background on mobile for better performance */
+@media (max-width: 1023px) {
+	.hero-image {
+		background-attachment: scroll !important;
+	}
 }
 </style>
