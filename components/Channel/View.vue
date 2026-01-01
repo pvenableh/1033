@@ -359,10 +359,8 @@ const openInviteModal = async () => {
 	loadingUsers.value = true;
 
 	try {
-		const allUsers = await listUsers({
-			fields: ['id', 'first_name', 'last_name', 'email', 'avatar'],
-			filter: {status: {_eq: 'active'}},
-		});
+		// Use the dedicated channel users endpoint
+		const allUsers = await $fetch<any[]>('/api/directus/users/list-for-channels');
 
 		// Filter out existing members
 		const memberIds = members.value.map(m =>
@@ -378,7 +376,7 @@ const openInviteModal = async () => {
 				avatar: u.avatar,
 			}));
 	} catch (e: any) {
-		toast.add({title: 'Error', description: 'Failed to load users', color: 'red'});
+		toast.add({title: 'Error', description: e.message || 'Failed to load users', color: 'red'});
 	} finally {
 		loadingUsers.value = false;
 	}

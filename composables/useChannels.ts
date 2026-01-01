@@ -96,14 +96,43 @@ export function useChannels() {
 
   /**
    * Create a new channel
+   * Automatically adds all board members to the channel
    */
   const createChannel = async (data: CreateChannelPayload): Promise<Channel> => {
-    return await channels.create({
+    const channel = await channels.create({
       ...data,
       status: 'published',
       icon: data.icon || 'chat',
       is_private: data.is_private || false,
     });
+
+    // Auto-add board members to the channel
+    try {
+      const boardMembers = await $fetch<any[]>('/api/directus/users/board-members');
+      if (boardMembers && boardMembers.length > 0) {
+        for (const boardMember of boardMembers) {
+          // Don't add if it's the creator (they're already associated)
+          if (boardMember.id !== user.value?.id) {
+            try {
+              await channelMembers.create({
+                channel_id: channel.id,
+                user_id: boardMember.id,
+                role: 'member',
+                notifications_enabled: true,
+              } as Partial<ChannelMember>);
+            } catch (e) {
+              // Ignore individual member add errors (e.g., already exists)
+              console.warn(`Failed to add board member ${boardMember.id} to channel:`, e);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Log but don't fail channel creation if board member addition fails
+      console.error('Failed to auto-add board members:', e);
+    }
+
+    return channel;
   };
 
   /**
@@ -567,42 +596,41 @@ export function useChannels() {
 
   /**
    * Get mentionable users for a channel
-   * Returns all board members + invited channel members
+   * Returns all active users (for public channels) or channel members (for private channels)
    */
   const getMentionableUsers = async (channelId?: string): Promise<any[]> => {
-    const { listUsers } = useDirectusUser();
-
-    // Get board members (always mentionable)
-    const boardMembers = await listUsers({
-      fields: ['id', 'first_name', 'last_name', 'email', 'avatar'],
-      filter: {
-        role: { _eq: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2' }, // Board member role
-        status: { _eq: 'active' },
-      },
-    });
-
-    // If channel specified, also get invited members
+    // If channel specified, check if it's private
     if (channelId) {
-      const members = await getChannelMembers(channelId);
-      const memberUserIds = members.map((m) =>
-        typeof m.user_id === 'string' ? m.user_id : m.user_id.id
-      );
+      try {
+        const channel = await getChannel(channelId);
 
-      // Get user details for non-board members
-      if (memberUserIds.length > 0) {
-        const invitedUsers = await listUsers({
-          fields: ['id', 'first_name', 'last_name', 'email', 'avatar'],
-          filter: {
-            id: { _in: memberUserIds },
-            role: { _neq: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2' }, // Not board members
-          },
-        });
-
-        return [...(boardMembers || []), ...(invitedUsers || [])];
+        if (channel.is_private) {
+          // For private channels, only return channel members
+          const members = await getChannelMembers(channelId);
+          // Return users directly from member relations if available
+          return members
+            .filter((m) => m.user_id && typeof m.user_id !== 'string')
+            .map((m: any) => ({
+              id: m.user_id.id,
+              first_name: m.user_id.first_name,
+              last_name: m.user_id.last_name,
+              email: m.user_id.email,
+              avatar: m.user_id.avatar,
+            }));
+        }
+      } catch (e) {
+        // If channel fetch fails, fall through to return all active users
       }
     }
 
-    return boardMembers || [];
+    // For public channels or no channel specified, use the dedicated endpoint
+    try {
+      const allUsers = await $fetch<any[]>('/api/directus/users/list-for-channels');
+      return allUsers || [];
+    } catch (e) {
+      console.error('Failed to fetch mentionable users:', e);
+      return [];
+    }
   };
 
   return {

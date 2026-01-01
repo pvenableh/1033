@@ -45,6 +45,7 @@ import {
   createNotification,
   updateNotification,
   deleteNotification,
+  readRoles,
 } from '@directus/sdk';
 import type { H3Event } from 'h3';
 
@@ -381,4 +382,5 @@ export {
   createNotification,
   updateNotification,
   deleteNotification,
+  readRoles,
 };

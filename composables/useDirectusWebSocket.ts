@@ -319,7 +319,12 @@ export function useDirectusWebSocket() {
           break;
 
         case 'create':
-          data.value = [...data.value, ...event.data];
+          // Deduplicate: only add items that don't already exist
+          const existingIds = new Set(data.value.map((item: any) => item.id));
+          const newItems = event.data.filter((item: any) => !existingIds.has(item.id));
+          if (newItems.length > 0) {
+            data.value = [...data.value, ...newItems];
+          }
           break;
 
         case 'update':
