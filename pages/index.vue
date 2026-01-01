@@ -3,7 +3,7 @@
 		<!-- Hero Section -->
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Hero Background Image -->
-			<div class="absolute inset-0 z-0">
+			<div class="fixed inset-0 z-0 hero-bg-container">
 				<div
 					class="hero-image w-full h-full flex items-center justify-center opacity-0"
 					style="
@@ -803,21 +803,30 @@ onMounted(() => {
 			ease: 'power2.inOut',
 		});
 
-		// Hero parallax effect - slow background movement opposite to scroll (feels almost fixed)
-		gsap.fromTo(
-			'.hero-image',
-			{backgroundPositionY: '20%'},
-			{
-				backgroundPositionY: '-30%',
-				ease: 'none',
-				scrollTrigger: {
-					trigger: heroRef.value,
-					start: 'top top',
-					end: 'bottom top',
-					scrub: true,
-				},
-			}
-		);
+		// Hero content parallax effect - content scrolls down slowly as user scrolls
+		gsap.to('.hero-content', {
+			y: 150,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: heroRef.value,
+				start: 'top top',
+				end: 'bottom top',
+				scrub: true,
+			},
+		});
+
+		// Fade out scroll indicator on scroll
+		gsap.to('.scroll-indicator', {
+			opacity: 0,
+			y: 30,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: heroRef.value,
+				start: 'top top',
+				end: '20% top',
+				scrub: true,
+			},
+		});
 
 		// Section animations helper
 		const animateSection = (sectionRef, selectors) => {
@@ -1049,6 +1058,17 @@ useHead({
 .sell-sheet {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Hero section clips the fixed background */
+.hero {
+	clip-path: inset(0);
+}
+
+/* Fixed background contained within hero via clip-path */
+.hero-bg-container {
+	position: fixed;
+	inset: 0;
 }
 
 /* Smooth scroll behavior */
