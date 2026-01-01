@@ -16,7 +16,8 @@
 		"setup:schema": "node scripts/setup-schema.mjs",
 		"setup:permissions": "node scripts/setup-permissions.mjs",
 		"setup:channels": "node scripts/setup-channels.mjs",
-		"setup:all": "node scripts/setup-schema.mjs && node scripts/setup-permissions.mjs && node scripts/setup-channels.mjs"
+		"setup:comments": "node scripts/setup-comments.mjs",
+		"setup:all": "node scripts/setup-schema.mjs && node scripts/setup-permissions.mjs && node scripts/setup-channels.mjs && node scripts/setup-comments.mjs"
 	},
 	"pnpm": {
 		"overrides": {
