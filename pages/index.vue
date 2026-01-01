@@ -9,8 +9,7 @@
 					style="
 						background-image: url('https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge');
 						background-size: cover;
-						background-position: center;
-						background-attachment: fixed;
+						background-position: center top;
 					">
 					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
@@ -805,16 +804,20 @@ onMounted(() => {
 		});
 
 		// Hero parallax effect - slow background movement on scroll
-		gsap.to('.hero-image', {
-			backgroundPositionY: '30%',
-			ease: 'none',
-			scrollTrigger: {
-				trigger: heroRef.value,
-				start: 'top top',
-				end: 'bottom top',
-				scrub: true,
-			},
-		});
+		gsap.fromTo(
+			'.hero-image',
+			{backgroundPositionY: '0%'},
+			{
+				backgroundPositionY: '30%',
+				ease: 'none',
+				scrollTrigger: {
+					trigger: heroRef.value,
+					start: 'top top',
+					end: 'bottom top',
+					scrub: true,
+				},
+			}
+		);
 
 		// Section animations helper
 		const animateSection = (sectionRef, selectors) => {
@@ -1063,10 +1066,4 @@ useHead({
 	}
 }
 
-/* Disable fixed background on mobile for better performance */
-@media (max-width: 1023px) {
-	.hero-image {
-		background-attachment: scroll !important;
-	}
-}
 </style>
