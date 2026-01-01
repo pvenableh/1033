@@ -1131,6 +1131,10 @@ async function main() {
   // ========================================
   console.log('\n📋 Step 4: Creating fields...');
 
+  // For M2O fields, create them as plain UUID columns first (without special metadata)
+  // The relation creation will then properly configure them as M2O
+  const M2O_SPECIALS = ['m2o', 'file'];
+
   for (const [collectionName, fields] of Object.entries(FIELDS)) {
     console.log(`\n   📝 Fields for ${collectionName}:`);
 
@@ -1149,9 +1153,26 @@ async function main() {
         continue;
       }
 
+      // For M2O/file fields, create as plain UUID column first
+      const fieldSpecials = field.meta?.special || [];
+      const isRelationField = fieldSpecials.some(s => M2O_SPECIALS.includes(s));
+
       try {
-        await client.request(createField(collectionName, field));
-        console.log(`      ✅ ${field.field}`);
+        if (isRelationField) {
+          // Create as basic UUID field - relation will configure it properly
+          await client.request(createField(collectionName, {
+            field: field.field,
+            type: 'uuid',
+            schema: field.schema || {},
+            meta: {
+              hidden: true,
+            },
+          }));
+          console.log(`      ✅ ${field.field} (as uuid for relation)`);
+        } else {
+          await client.request(createField(collectionName, field));
+          console.log(`      ✅ ${field.field}`);
+        }
         await delay(200); // Small delay between fields
       } catch (error) {
         console.log(`      ❌ ${field.field}:`, error?.errors?.[0]?.message || error?.message);
