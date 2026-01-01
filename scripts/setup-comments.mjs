@@ -42,6 +42,9 @@ import {
 } from '@directus/sdk';
 import * as readline from 'readline';
 
+// Helper to add delay between operations
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 // Role UUIDs from your Directus instance
 const ROLES = {
   ADMINISTRATOR: '7913bfde-8ec9-4c51-8ecf-7efdb160a36d',
@@ -715,6 +718,7 @@ async function main() {
     try {
       await client.request(createCollection(config));
       console.log(`   ✅ Created collection: ${name}`);
+      await delay(500); // Wait for collection to be fully created
     } catch (error) {
       console.log(`   ❌ Error creating ${name}:`, error?.errors?.[0]?.message || error?.message);
     }
@@ -746,11 +750,16 @@ async function main() {
       try {
         await client.request(createField(collectionName, field));
         console.log(`      ✅ ${field.field}`);
+        await delay(200); // Small delay between fields
       } catch (error) {
         console.log(`      ❌ ${field.field}:`, error?.errors?.[0]?.message || error?.message);
       }
     }
   }
+
+  // Wait before creating relationships
+  console.log('\n   ⏳ Waiting for schema to sync...');
+  await delay(2000);
 
   // ========================================
   // Step 5: Create relationships
