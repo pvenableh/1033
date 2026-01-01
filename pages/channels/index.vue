@@ -40,7 +40,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 
-const selectedChannelId = ref<string | null>(null);
+const selectedChannelId = ref<string | undefined>(undefined);
 
 const selectChannel = (channel: Channel) => {
 	selectedChannelId.value = channel.id;
