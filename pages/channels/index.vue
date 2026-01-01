@@ -1,5 +1,5 @@
 <template>
-	<div class="channels-page h-[calc(100vh-64px)] flex">
+	<div class="channels-page flex border-b-2 border-gray-200 dark:border-gray-700">
 		<!-- Channel Sidebar -->
 		<div class="w-64 border-r border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 flex-shrink-0">
 			<ChannelList :selected-channel-id="selectedChannelId" @select="selectChannel" @created="selectChannel" />
@@ -71,6 +71,8 @@ watch(
 
 <style scoped>
 .channels-page {
-	max-height: calc(100vh - 64px);
+	/* Account for: header (52px) + secondary nav (~40px) + footer space */
+	height: calc(100vh - 52px - 40px - 60px);
+	min-height: 400px;
 }
 </style>

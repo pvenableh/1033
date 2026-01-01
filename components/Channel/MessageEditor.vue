@@ -40,6 +40,21 @@
 			</div>
 
 			<div class="flex items-center gap-2">
+				<!-- Enter-to-send toggle -->
+				<UTooltip :text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
+					<UButton
+						size="xs"
+						:variant="enterToSend ? 'solid' : 'ghost'"
+						:color="enterToSend ? 'primary' : 'gray'"
+						class="text-xs font-mono px-1.5"
+						@click="toggleEnterToSend">
+						<span class="flex items-center gap-0.5">
+							<UIcon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
+							<span class="hidden sm:inline text-[10px]">Enter</span>
+						</span>
+					</UButton>
+				</UTooltip>
+
 				<!-- Character count -->
 				<span
 					v-if="showCharCount && characterLimit > 0"
@@ -122,6 +137,9 @@ const props = defineProps({
 
 const emit = defineEmits(['update:modelValue', 'send', 'mention', 'files-uploaded']);
 
+// Enter-to-send toggle state (persisted in localStorage)
+const enterToSend = ref(false);
+
 const editor = ref<Editor | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
 const isUploading = ref(false);
@@ -156,6 +174,12 @@ const canSend = computed(() => {
 // Insert @ to trigger mentions
 const insertMentionTrigger = () => {
 	editor.value?.chain().focus().insertContent('@').run();
+};
+
+// Toggle enter-to-send and persist preference
+const toggleEnterToSend = () => {
+	enterToSend.value = !enterToSend.value;
+	localStorage.setItem('channel-enter-to-send', String(enterToSend.value));
 };
 
 // Handle sending the message
@@ -267,6 +291,34 @@ const FileUpload = Extension.create({
 				},
 			}),
 		];
+	},
+});
+
+// Enter-to-send extension
+const EnterToSend = Extension.create({
+	name: 'enterToSend',
+	addKeyboardShortcuts() {
+		return {
+			Enter: () => {
+				// Only handle if enterToSend is enabled and no modifier keys
+				if (!enterToSend.value) return false;
+
+				// Check if mentions popup is open (don't send if selecting a mention)
+				const mentionsPopup = document.querySelector('.mentions-menu');
+				if (mentionsPopup && mentionsPopup.children.length > 0) return false;
+
+				// Check if can send
+				if (canSend.value) {
+					handleSend();
+					return true;
+				}
+				return false;
+			},
+			'Shift-Enter': () => {
+				// Always allow new line with Shift+Enter
+				return false;
+			},
+		};
 	},
 });
 
@@ -491,6 +543,12 @@ watch(
 );
 
 onMounted(() => {
+	// Load enter-to-send preference from localStorage
+	const savedPreference = localStorage.getItem('channel-enter-to-send');
+	if (savedPreference !== null) {
+		enterToSend.value = savedPreference === 'true';
+	}
+
 	editor.value = new Editor({
 		extensions: [
 			StarterKit,
@@ -503,6 +561,7 @@ onMounted(() => {
 			}),
 			Image,
 			FileUpload,
+			EnterToSend,
 			CharacterCount.configure({
 				limit: props.characterLimit > 0 ? props.characterLimit : undefined,
 			}),

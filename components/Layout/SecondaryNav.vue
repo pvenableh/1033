@@ -11,78 +11,141 @@
 			<ul class="secondary-nav__list flex items-center gap-1 sm:gap-2 overflow-x-auto py-2 scrollbar-hide">
 				<!-- Dashboard - visible to all approved users -->
 				<li>
+					<UTooltip text="Dashboard" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/dashboard"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/dashboard') }">
+							<UIcon name="i-heroicons-home" class="w-4 h-4" />
+							<span class="hidden xl:inline">Dashboard</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/dashboard"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/dashboard') }">
 						<UIcon name="i-heroicons-home" class="w-4 h-4" />
-						<span class="hidden sm:inline">Dashboard</span>
+						<span>Dashboard</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Announcements - visible to all approved users -->
 				<li>
+					<UTooltip text="Announcements" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/announcements"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/announcements') }">
+							<UIcon name="i-heroicons-megaphone" class="w-4 h-4" />
+							<span class="hidden xl:inline">Announcements</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/announcements"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/announcements') }">
 						<UIcon name="i-heroicons-megaphone" class="w-4 h-4" />
-						<span class="hidden sm:inline">Announcements</span>
+						<span>Announcements</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Meetings - visible to all approved users -->
 				<li>
+					<UTooltip text="Meetings" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/meetings"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/meetings') }">
+							<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
+							<span class="hidden xl:inline">Meetings</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/meetings"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/meetings') }">
 						<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
-						<span class="hidden sm:inline">Meetings</span>
+						<span>Meetings</span>
 					</nuxt-link>
 				</li>
 
 				<!-- By-Laws - visible to all approved users -->
 				<li>
+					<UTooltip text="By-Laws" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/documents"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/documents') }">
+							<UIcon name="i-heroicons-document-text" class="w-4 h-4" />
+							<span class="hidden xl:inline">By-Laws</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/documents"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/documents') }">
 						<UIcon name="i-heroicons-document-text" class="w-4 h-4" />
-						<span class="hidden sm:inline">By-Laws</span>
+						<span>By-Laws</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Rules - visible to all approved users -->
 				<li>
+					<UTooltip text="Rules" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/rules-regulations"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/rules-regulations') }">
+							<UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
+							<span class="hidden xl:inline">Rules</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/rules-regulations"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/rules-regulations') }">
 						<UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
-						<span class="hidden sm:inline">Rules</span>
+						<span>Rules</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Parking - visible to all approved users -->
 				<li>
+					<UTooltip text="Parking" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/parking-garage"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/parking-garage') }">
+							<UIcon name="i-heroicons-truck" class="w-4 h-4" />
+							<span class="hidden xl:inline">Parking</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/parking-garage"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/parking-garage') }">
 						<UIcon name="i-heroicons-truck" class="w-4 h-4" />
-						<span class="hidden sm:inline">Parking</span>
+						<span>Parking</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Channels - visible to board_members OR users with channel membership -->
 				<li v-if="showChannels">
+					<UTooltip text="Channels" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/channels"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/channels') }">
+							<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
+							<span class="hidden xl:inline">Channels</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/channels"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/channels') }">
 						<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
-						<span class="hidden sm:inline">Channels</span>
+						<span>Channels</span>
 					</nuxt-link>
 				</li>
 
@@ -93,34 +156,61 @@
 
 				<!-- Financials - visible to board_members and owners -->
 				<li v-if="showFinancials">
+					<UTooltip text="Financials" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/financials"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/financials') }">
+							<UIcon name="i-heroicons-currency-dollar" class="w-4 h-4" />
+							<span class="hidden xl:inline">Financials</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/financials"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/financials') }">
 						<UIcon name="i-heroicons-currency-dollar" class="w-4 h-4" />
-						<span class="hidden sm:inline">Financials</span>
+						<span>Financials</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Tasks - visible to board_members only -->
 				<li v-if="isBoardMember">
+					<UTooltip text="Tasks" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/tasks"
+							class="secondary-nav__link"
+							:class="{ active: isActiveRoute('/tasks') }">
+							<UIcon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
+							<span class="hidden xl:inline">Tasks</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/tasks"
-						class="secondary-nav__link"
+						class="secondary-nav__link hidden xl:flex"
 						:class="{ active: isActiveRoute('/tasks') }">
 						<UIcon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
-						<span class="hidden sm:inline">Tasks</span>
+						<span>Tasks</span>
 					</nuxt-link>
 				</li>
 
 				<!-- Admin - visible to board_members and admins -->
 				<li v-if="isBoardMember">
+					<UTooltip text="Admin" :popper="{ placement: 'bottom' }" class="xl:hidden">
+						<nuxt-link
+							to="/admin"
+							class="secondary-nav__link admin-link"
+							:class="{ active: isActiveRoute('/admin') }">
+							<UIcon name="i-heroicons-shield-check" class="w-4 h-4" />
+							<span class="hidden xl:inline">Admin</span>
+						</nuxt-link>
+					</UTooltip>
 					<nuxt-link
 						to="/admin"
-						class="secondary-nav__link admin-link"
+						class="secondary-nav__link admin-link hidden xl:flex"
 						:class="{ active: isActiveRoute('/admin') }">
 						<UIcon name="i-heroicons-shield-check" class="w-4 h-4" />
-						<span class="hidden sm:inline">Admin</span>
+						<span>Admin</span>
 					</nuxt-link>
 				</li>
 			</ul>
@@ -268,10 +358,17 @@ const isActiveRoute = (path: string): boolean => {
 	padding: 0 0.25rem;
 }
 
-/* Mobile adjustments */
-@media (max-width: 640px) {
+/* Mobile and tablet adjustments - icon only mode */
+@media (max-width: 1279px) {
 	.secondary-nav__link {
 		padding: 0.5rem;
+	}
+}
+
+/* Desktop xlarge - show text labels */
+@media (min-width: 1280px) {
+	.secondary-nav__link {
+		padding: 0.5rem 0.75rem;
 	}
 }
 </style>

@@ -62,9 +62,15 @@ export default defineEventHandler(async (event) => {
     try {
       client = await getUserDirectus(event);
     } catch (error: any) {
-      // Fall back to admin client if user auth fails
-      console.warn('User auth failed, falling back to admin client:', error.message);
-      client = useDirectusAdmin();
+      // Don't fall back to admin - propagate auth errors properly
+      if (error.statusCode === 401) {
+        throw createError({
+          statusCode: 401,
+          statusMessage: 'Unauthorized',
+          message: 'Session expired. Please log in again.',
+        });
+      }
+      throw error;
     }
   } else {
     // Use admin client for read operations
@@ -260,6 +266,17 @@ export default defineEventHandler(async (event) => {
     // Re-throw if already a proper error
     if (error.statusCode) {
       throw error;
+    }
+
+    // Handle token expiration errors
+    if (error?.errors?.[0]?.message?.includes('Token expired') ||
+        error?.message?.includes('Token expired') ||
+        error?.response?.status === 401) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'Token expired.',
+      });
     }
 
     // Handle Directus errors
