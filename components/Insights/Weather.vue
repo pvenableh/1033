@@ -583,7 +583,7 @@ function getUtilityIcon(type: string): string {
 	-webkit-backdrop-filter: blur(10px);
 	border-radius: 8px;
 	padding: 1rem 2rem;
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.05);
 	box-shadow:
 		0 8px 32px rgba(0, 0, 0, 0.1),
 		inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -631,9 +631,9 @@ function getUtilityIcon(type: string): string {
 	font-size: var(--weather-icon-size);
 	text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 	box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.16);
-	@apply h-8 w-8 rounded-full
+	@apply h-8 w-8 rounded-full border border-cream/20
          inline-flex items-center justify-center
-         bg-cream dark:bg-gray-700;
+         bg-cream/10 dark:bg-gray-700;
 }
 
 .weather__secondary {
