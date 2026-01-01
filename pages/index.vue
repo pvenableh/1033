@@ -210,8 +210,7 @@
 								<p class="text-xs tracking-[0.3em] uppercase t-text-tertiary mb-4 opacity-0 gallery-label">
 									The Flamingo Park Lifestyle
 								</p>
-								<h2
-									class="t-heading text-[clamp(1.75rem,4vw,2.5rem)] font-normal t-text opacity-0 gallery-title">
+								<h2 class="t-heading text-[clamp(1.75rem,4vw,2.5rem)] font-normal t-text opacity-0 gallery-title">
 									Active Living, Steps Away
 								</h2>
 							</div>
@@ -238,7 +237,8 @@
 							</div>
 						</div>
 
-						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Leave the car. Live the neighborhood.
 						</p>
 					</div>
@@ -303,7 +303,8 @@
 							</div>
 						</div>
 
-						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Boutique scale. Architectural edge.
 						</p>
 					</div>
@@ -363,7 +364,7 @@
 							</div>
 						</div>
 
-						<div class="improvements bg-white/80 p-6 my-8 opacity-0">
+						<div class="improvements bg-white/80 dark:bg-[var(--theme-bg-tertiary)] p-6 my-8 opacity-0">
 							<p class="text-xs tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Recent Capital Improvements</p>
 							<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
 								<span
@@ -375,7 +376,8 @@
 							</div>
 						</div>
 
-						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							This is rare: a boutique SoBe building with the hard work behind it.
 						</p>
 					</div>
@@ -459,7 +461,8 @@
 							</p>
 						</div>
 
-						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							The numbers make sense. So does the lifestyle.
 						</p>
 					</div>
@@ -508,7 +511,8 @@
 							</div>
 						</div>
 
-						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Everything you need. Nothing you don't.
 						</p>
 					</div>

@@ -9,10 +9,10 @@ const themes = [
 
 <template>
 	<div class="theme-selector">
-		<div class="theme-selector__label">Theme</div>
+		<div class="theme-selector__label hidden">Theme</div>
 
 		<!-- Theme Style Buttons -->
-		<div class="theme-selector__options">
+		<!-- <div class="theme-selector__options">
 			<button
 				v-for="theme in themes"
 				:key="theme.id"
@@ -28,22 +28,17 @@ const themes = [
 					<span class="theme-option__desc">{{ theme.description }}</span>
 				</span>
 			</button>
-		</div>
+		</div> -->
 
 		<!-- Mode Toggle -->
 		<div class="theme-selector__mode">
-			<button
-				class="mode-toggle"
-				:class="{dark: isDark}"
-				@click="setThemeMode(isDark ? 'light' : 'dark')">
+			<button class="mode-toggle" :class="{dark: isDark}" @click="setThemeMode(isDark ? 'light' : 'dark')">
 				<span class="mode-toggle__track">
 					<span class="mode-toggle__thumb">
-						<UIcon
-							:name="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'"
-							class="w-3 h-3" />
+						<UIcon :name="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'" class="w-3 h-3" />
 					</span>
 				</span>
-				<span class="mode-toggle__label">{{ isDark ? 'Dark' : 'Light' }} Mode</span>
+				<span class="uppercase tracking-wider mode-toggle__label">{{ isDark ? 'Dark' : 'Light' }} Mode</span>
 			</button>
 		</div>
 	</div>
@@ -52,7 +47,7 @@ const themes = [
 <style scoped>
 .theme-selector {
 	padding: 1rem 0;
-	border-top: 1px solid var(--theme-border-light, #E5E0D8);
+	border-top: 1px solid var(--theme-border-light, #e5e0d8);
 	margin-top: 1rem;
 }
 
@@ -77,20 +72,20 @@ const themes = [
 	gap: 0.75rem;
 	padding: 0.625rem 0.75rem;
 	border-radius: 8px;
-	border: 1px solid var(--theme-border-primary, #E5E0D8);
-	background: var(--theme-bg-elevated, #FFFFFF);
+	border: 1px solid var(--theme-border-primary, #e5e0d8);
+	background: var(--theme-bg-elevated, #ffffff);
 	cursor: pointer;
 	transition: all 0.2s ease;
 	text-align: left;
 }
 
 .theme-option:hover {
-	border-color: var(--theme-accent-primary, #C9A96E);
+	border-color: var(--theme-accent-primary, #c9a96e);
 }
 
 .theme-option.active {
-	border-color: var(--theme-accent-primary, #C9A96E);
-	background: var(--theme-bg-secondary, #F5F3EF);
+	border-color: var(--theme-accent-primary, #c9a96e);
+	background: var(--theme-bg-secondary, #f5f3ef);
 }
 
 .theme-option__icon {
@@ -100,7 +95,7 @@ const themes = [
 	align-items: center;
 	justify-content: center;
 	border-radius: 6px;
-	background: var(--theme-bg-tertiary, #EDE9E3);
+	background: var(--theme-bg-tertiary, #ede9e3);
 	color: var(--theme-text-secondary, #6c6c6c);
 }
 
@@ -144,13 +139,13 @@ const themes = [
 	width: 40px;
 	height: 22px;
 	border-radius: 11px;
-	background: var(--theme-border-secondary, #D4CFC7);
+	background: var(--theme-border-secondary, #d4cfc7);
 	position: relative;
 	transition: background 0.2s ease;
 }
 
 .mode-toggle.dark .mode-toggle__track {
-	background: var(--theme-accent-primary, #C9A96E);
+	background: var(--theme-accent-primary, #c9a96e);
 }
 
 .mode-toggle__thumb {
@@ -160,7 +155,7 @@ const themes = [
 	width: 18px;
 	height: 18px;
 	border-radius: 50%;
-	background: var(--theme-bg-elevated, #FFFFFF);
+	background: var(--theme-bg-elevated, #ffffff);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -177,7 +172,7 @@ const themes = [
 }
 
 .mode-toggle.dark .mode-toggle__thumb :deep(svg) {
-	color: var(--theme-accent-tertiary, #8B7355);
+	color: var(--theme-accent-tertiary, #8b7355);
 }
 
 .mode-toggle__label {
