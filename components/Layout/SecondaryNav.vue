@@ -1,12 +1,13 @@
 <template>
-	<nav
-		v-if="user && isApproved"
-		class="secondary-nav w-full transition-all"
-		:class="{retracted: isScrollingDown}"
-		:style="{
-			backgroundColor: 'var(--theme-secondary-nav-bg, var(--theme-bg-secondary))',
-			borderColor: 'var(--theme-border-light)',
-		}">
+	<Transition name="slide-down">
+		<nav
+			v-if="user && isApproved && isSecondaryNavVisible"
+			class="secondary-nav w-full transition-all"
+			:class="{retracted: isScrollingDown}"
+			:style="{
+				backgroundColor: 'var(--theme-secondary-nav-bg, var(--theme-bg-secondary))',
+				borderColor: 'var(--theme-border-light)',
+			}">
 		<div class="secondary-nav__container max-w-7xl mx-auto px-4 sm:px-6">
 			<ul
 				class="secondary-nav__list w-full flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto pt-3 pb-1 scrollbar-hide">
@@ -215,6 +216,7 @@
 			</ul>
 		</div>
 	</nav>
+	</Transition>
 </template>
 
 <script setup lang="ts">
@@ -222,6 +224,7 @@ const route = useRoute();
 const {user} = useDirectusAuth();
 const {isScrollingDown} = useScrollDirection();
 const {isBoardMember, isOwner, isApproved, hasOwnerAccess} = useRoles();
+const {isSecondaryNavVisible} = useSecondaryNavToggle();
 
 // Check if user has channel membership
 const hasChannelMembership = ref(false);
@@ -291,6 +294,18 @@ const isActiveRoute = (path: string): boolean => {
 </script>
 
 <style scoped>
+/* Slide down transition for toggle */
+.slide-down-enter-active,
+.slide-down-leave-active {
+	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+	opacity: 0;
+	transform: translateY(-100%);
+}
+
 .secondary-nav {
 	position: fixed;
 	top: 52px; /* Below main header */
