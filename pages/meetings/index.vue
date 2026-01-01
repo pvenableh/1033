@@ -1,15 +1,15 @@
 <template>
-	<div class="meetings-page bg-cream min-h-screen">
+	<div class="meetings-page t-bg min-h-screen">
 		<!-- Hero Section -->
-		<section class="py-16 lg:py-24 px-6 lg:px-16 bg-cream-alt">
+		<section class="py-16 lg:py-24 px-6 lg:px-16 t-section-alt">
 			<div class="max-w-4xl mx-auto">
 				<div class="page-header text-center opacity-0">
-					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Association Records</p>
-					<h1 class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<p class="text-xs tracking-[0.3em] uppercase mb-4 t-text-accent-tertiary">Association Records</p>
+					<h1 class="t-heading text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 t-text">
 						Board Meetings
 					</h1>
-					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
-					<p class="font-serif text-lg italic text-gray-500 max-w-xl mx-auto">
+					<div class="w-16 h-px t-bg-accent mx-auto mb-6"></div>
+					<p class="t-heading text-lg italic t-text-tertiary max-w-xl mx-auto">
 						Meeting minutes, agendas, and official board proceedings
 					</p>
 				</div>
@@ -21,17 +21,17 @@
 			<div class="max-w-4xl mx-auto">
 				<!-- Loading State -->
 				<div v-if="pending" class="text-center py-16">
-					<div class="w-12 h-12 mx-auto mb-4 border-2 border-gold border-t-transparent rounded-full animate-spin"></div>
-					<p class="font-serif text-lg text-gray-500">Loading meetings...</p>
+					<div class="w-12 h-12 mx-auto mb-4 border-2 t-border-accent border-t-transparent rounded-full animate-spin"></div>
+					<p class="t-heading text-lg t-text-tertiary">Loading meetings...</p>
 				</div>
 
 				<!-- Error State -->
 				<div v-else-if="error" class="text-center py-16">
-					<div class="w-16 h-16 mx-auto mb-6 border-2 border-divider rounded-full flex items-center justify-center">
-						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-gray-400" />
+					<div class="w-16 h-16 mx-auto mb-6 border-2 t-border-divider rounded-full flex items-center justify-center">
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 t-text-muted" />
 					</div>
-					<p class="font-serif text-xl text-gray-600 mb-2">Unable to Load Meetings</p>
-					<p class="text-sm text-gray-500">Please try again later</p>
+					<p class="t-heading text-xl t-text-secondary mb-2">Unable to Load Meetings</p>
+					<p class="text-sm t-text-tertiary">Please try again later</p>
 				</div>
 
 				<!-- Meetings List -->
@@ -46,19 +46,19 @@
 
 				<!-- Empty State -->
 				<div v-else class="text-center py-16">
-					<div class="w-16 h-16 mx-auto mb-6 border-2 border-divider rounded-full flex items-center justify-center">
-						<UIcon name="i-heroicons-calendar" class="w-8 h-8 text-gray-400" />
+					<div class="w-16 h-16 mx-auto mb-6 border-2 t-border-divider rounded-full flex items-center justify-center">
+						<UIcon name="i-heroicons-calendar" class="w-8 h-8 t-text-muted" />
 					</div>
-					<p class="font-serif text-xl text-gray-600 mb-2">No Meetings Found</p>
-					<p class="text-sm text-gray-500">Check back later for updates</p>
+					<p class="t-heading text-xl t-text-secondary mb-2">No Meetings Found</p>
+					<p class="text-sm t-text-tertiary">Check back later for updates</p>
 				</div>
 			</div>
 		</section>
 
 		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
+		<section class="py-12 px-6 lg:px-16 t-section-alt border-t t-border-divider">
 			<div class="max-w-4xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
+				<p class="t-heading text-sm italic t-text-tertiary">
 					1033 Lenox Avenue · Miami Beach, FL 33139
 				</p>
 			</div>

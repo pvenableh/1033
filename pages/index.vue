@@ -1,5 +1,5 @@
 <template>
-	<div class="sell-sheet bg-cream min-h-screen">
+	<div class="sell-sheet t-bg min-h-screen">
 		<!-- Hero Section -->
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Hero Background Image -->
@@ -13,10 +13,10 @@
 					">
 					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
-							<UIcon name="i-heroicons-photo" class="w-8 h-8 text-gray-400" />
+							<UIcon name="i-heroicons-photo" class="w-8 h-8 t-text-muted" />
 						</div>
-						<p class="text-sm text-gray-500 font-medium mb-2">HERO IMAGE</p>
-						<p class="text-xs text-gray-400 leading-relaxed">
+						<p class="text-sm t-text-tertiary font-medium mb-2">HERO IMAGE</p>
+						<p class="text-xs t-text-muted leading-relaxed">
 							Suggested: Twilight exterior shot of 1033 Lenox showing the white stucco facade, black steel railings, and
 							palm trees. Warm interior lights glowing from units. Alternatively: Wide shot of the tree-lined street
 							with the building as focal point.
@@ -32,26 +32,26 @@
 				</p>
 				<NewLogo class="hero-title mx-auto mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]" fill="#ffffff" stroke="#ffffff" />
 				<!-- <h1
-					class="hero-title font-serif text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
+					class="hero-title t-heading text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
 					1033 Lenox
 				</h1> -->
-				<div class="hero-divider w-16 h-px bg-gold mx-auto mb-8 opacity-0 scale-x-0"></div>
-				<p class="hero-tagline font-serif text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
+				<div class="hero-divider w-16 h-px t-bg-accent mx-auto mb-8 opacity-0 scale-x-0"></div>
+				<p class="hero-tagline t-heading text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
 					The Smarter Side of South Beach
 				</p>
 			</div>
 			<div
 				class="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 scroll-indicator z-10">
-				<span class="text-[0.625rem] tracking-[0.2em] uppercase text-gray-500">Scroll to discover</span>
+				<span class="text-[0.625rem] tracking-[0.2em] uppercase t-text-tertiary">Scroll to discover</span>
 				<div class="w-px h-10 bg-gradient-to-b from-gold to-transparent scroll-line"></div>
 			</div>
 		</section>
 
 		<!-- Intro Section -->
-		<section ref="introRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+		<section ref="introRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-section-alt">
 			<div class="max-w-6xl mx-auto">
 				<p
-					class="intro-text font-serif text-[clamp(1.25rem,3vw,1.75rem)] leading-relaxed font-light text-gray-800 text-center max-w-3xl mx-auto mb-16 opacity-0">
+					class="intro-text t-heading text-[clamp(1.25rem,3vw,1.75rem)] leading-relaxed font-light t-text text-center max-w-3xl mx-auto mb-16 opacity-0">
 					1033 Lenox is a 28-unit boutique residence in the heart of Miami Beach's Flamingo Park neighborhood.
 					One-bedrooms only. Oversized balconies. No crowded hallways, no lobby lines—just smart, private living for
 					those who know the difference.
@@ -100,23 +100,23 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">01</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Philosophy</span>
+						<span class="t-heading text-sm t-text-accent">01</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Philosophy</span>
 					</div>
 					<div class="content-main">
 						<div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
 							<div class="max-w-xl">
 								<h2
-									class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+									class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 									The Anti-High-Rise
 								</h2>
-								<p class="section-body text-[1.0625rem] leading-relaxed text-gray-600 mb-8 opacity-0">
+								<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
 									Skip the elevator lines, the endless hallways, and the anonymous lobby. 1033 Lenox offers what the
 									towers can't—an intimate, design-forward residence in the heart of South Beach where you actually know
 									your neighbors.
 								</p>
 								<p
-									class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+									class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 									Boutique scale. Big beach lifestyle.
 								</p>
 							</div>
@@ -143,19 +143,19 @@
 		</section>
 
 		<!-- Location Section -->
-		<section ref="locationRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+		<section ref="locationRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">02</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Location</span>
+						<span class="t-heading text-sm t-text-accent">02</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Location</span>
 					</div>
 					<div class="content-main max-w-4xl">
 						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Coveted Location
 						</h2>
-						<p class="section-body text-[1.0625rem] leading-relaxed text-gray-600 mb-8 opacity-0">
+						<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
 							Nestled on a tree-lined street in one of SoBe's most desirable residential pockets—walkable to everything,
 							removed from nothing.
 						</p>
@@ -170,7 +170,7 @@
 							<div class="text-left p-6">
 								<!-- <div
 									class="w-12 h-12 mx-auto mb-3 border-2 border-gray-400 rounded-full flex items-center justify-center">
-									<UIcon name="i-heroicons-map" class="w-6 h-6 text-gray-400" />
+									<UIcon name="i-heroicons-map" class="w-6 h-6 t-text-muted" />
 								</div> -->
 								<p class="text-sm text-cream font-medium mb-2">NEIGHBORHOOD MEET BEACH</p>
 								<p class="text-xs text-cream-alt leading-relaxed max-w-md mx-auto">
@@ -181,11 +181,11 @@
 						</div>
 
 						<div
-							class="walk-times grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 py-12 my-8 border-y border-divider">
+							class="walk-times grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 py-12 my-8 border-y t-border-divider">
 							<div v-for="(item, index) in walkTimes" :key="index" class="walk-item text-center opacity-0">
-								<span class="font-serif text-5xl font-light leading-none block text-gray-800">{{ item.minutes }}</span>
-								<span class="text-xs tracking-wide uppercase text-gold-dark block mb-1">min</span>
-								<span class="text-sm text-gray-500 block">{{ item.destination }}</span>
+								<span class="t-heading text-5xl font-light leading-none block t-text">{{ item.minutes }}</span>
+								<span class="text-xs tracking-wide uppercase t-text-accent-tertiary block mb-1">min</span>
+								<span class="text-sm t-text-tertiary block">{{ item.destination }}</span>
 							</div>
 						</div>
 
@@ -194,11 +194,11 @@
 							<div
 								v-for="(loc, index) in locationImages"
 								:key="index"
-								class="aspect-square bg-gray-200 flex items-center justify-center opacity-0 location-image">
+								class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 location-image">
 								<div class="text-center p-3">
-									<UIcon :name="loc.icon" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-									<p class="text-xs text-gray-500 font-medium">{{ loc.title }}</p>
-									<p class="text-[10px] text-gray-400 mt-1">{{ loc.desc }}</p>
+									<UIcon :name="loc.icon" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<p class="text-xs t-text-tertiary font-medium">{{ loc.title }}</p>
+									<p class="text-[10px] t-text-muted mt-1">{{ loc.desc }}</p>
 								</div>
 							</div>
 						</div> -->
@@ -206,11 +206,11 @@
 
 						<div ref="galleryRef" class="max-w-6xl mx-auto">
 							<div class="text-left mb-12">
-								<p class="text-xs tracking-[0.3em] uppercase text-gray-500 mb-4 opacity-0 gallery-label">
+								<p class="text-xs tracking-[0.3em] uppercase t-text-tertiary mb-4 opacity-0 gallery-label">
 									The Flamingo Park Lifestyle
 								</p>
 								<h2
-									class="font-serif text-[clamp(1.75rem,4vw,2.5rem)] font-normal text-gray-800 opacity-0 gallery-title">
+									class="t-heading text-[clamp(1.75rem,4vw,2.5rem)] font-normal t-text opacity-0 gallery-title">
 									Active Living, Steps Away
 								</h2>
 							</div>
@@ -237,7 +237,7 @@
 							</div>
 						</div>
 
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Leave the car. Live the neighborhood.
 						</p>
 					</div>
@@ -250,12 +250,12 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">03</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Design</span>
+						<span class="t-heading text-sm t-text-accent">03</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Design</span>
 					</div>
 					<div class="content-main max-w-4xl">
 						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Thoughtfully Designed
 						</h2>
 
@@ -267,9 +267,9 @@
 									background-image: url('https://admin.1033lenox.com/assets/09f44cd5-f438-4d71-a546-7541c5fdad99?key=large');
 								">
 								<div class="text-center p-4">
-									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 text-gray-400 mx-auto mb-2" /> -->
-									<!-- <p class="text-xs text-gray-500 font-medium mb-1">EXTERIOR DETAIL</p>
-									<p class="text-[10px] text-gray-400">
+									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
+									<!-- <p class="text-xs t-text-tertiary font-medium mb-1">EXTERIOR DETAIL</p>
+									<p class="text-[10px] t-text-muted">
 										Black steel railing detail against white stucco. Clean modernist lines.
 									</p> -->
 								</div>
@@ -280,9 +280,9 @@
 									background-image: url('https://admin.1033lenox.com/assets/f0a17ab1-5d73-4363-9585-149f6206e777?key=large');
 								">
 								<div class="text-center p-4">
-									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 text-gray-400 mx-auto mb-2" /> -->
-									<!-- <p class="text-xs text-gray-500 font-medium mb-1">INTERIOR LIVING SPACE</p>
-									<p class="text-[10px] text-gray-400">
+									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
+									<!-- <p class="text-xs t-text-tertiary font-medium mb-1">INTERIOR LIVING SPACE</p>
+									<p class="text-[10px] t-text-muted">
 										Bright, modern 1BR interior showing open layout, natural light flooding in from balcony doors.
 										Staged with sophisticated, minimal furnishings.
 									</p> -->
@@ -295,14 +295,14 @@
 								v-for="(feature, index) in designFeatures"
 								:key="index"
 								:class="['feature-item flex gap-4 items-start opacity-0', feature.wide ? 'sm:col-span-2' : '']">
-								<div class="feature-icon w-6 h-6 flex-shrink-0 text-gold-dark">
+								<div class="feature-icon w-6 h-6 flex-shrink-0 t-text-accent-tertiary">
 									<UIcon :name="feature.icon" class="w-6 h-6" />
 								</div>
-								<p class="text-[0.9375rem] leading-relaxed text-gray-600">{{ feature.text }}</p>
+								<p class="text-[0.9375rem] leading-relaxed t-text-secondary">{{ feature.text }}</p>
 							</div>
 						</div>
 
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Boutique scale. Architectural edge.
 						</p>
 					</div>
@@ -311,70 +311,70 @@
 		</section>
 
 		<!-- Turnkey Section -->
-		<section ref="turnkeyRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+		<section ref="turnkeyRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">04</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Investment</span>
+						<span class="t-heading text-sm t-text-accent">04</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Investment</span>
 					</div>
 					<div class="content-main max-w-4xl">
 						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-4 opacity-0">
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-4 opacity-0">
 							All New
 						</h2>
-						<p class="section-subtitle text-sm tracking-[0.15em] uppercase text-gold-dark mb-8 opacity-0">
+						<p class="section-subtitle text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-8 opacity-0">
 							Fully Renovated — Turnkey
 						</p>
-						<p class="section-body text-[1.0625rem] leading-relaxed text-gray-600 mb-8 opacity-0">
+						<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
 							40-year recertification complete. No looming assessments. No deferred maintenance. Just move in.
 						</p>
 
 						<!-- Renovation Before/After or Detail Images -->
 						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-							<div class="aspect-square bg-gray-200 flex items-center justify-center opacity-0 section-image">
+							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-window" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-									<p class="text-[10px] text-gray-500 font-medium">IMPACT WINDOWS</p>
-									<p class="text-[9px] text-gray-400">Hurricane-rated</p>
+									<UIcon name="i-heroicons-window" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<p class="text-[10px] t-text-tertiary font-medium">IMPACT WINDOWS</p>
+									<p class="text-[9px] t-text-muted">Hurricane-rated</p>
 								</div>
 							</div>
-							<div class="aspect-square bg-gray-200 flex items-center justify-center opacity-0 section-image">
+							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-bolt" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-									<p class="text-[10px] text-gray-500 font-medium">ELECTRICAL</p>
-									<p class="text-[9px] text-gray-400">Complete upgrade</p>
+									<UIcon name="i-heroicons-bolt" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<p class="text-[10px] t-text-tertiary font-medium">ELECTRICAL</p>
+									<p class="text-[9px] t-text-muted">Complete upgrade</p>
 								</div>
 							</div>
-							<div class="aspect-square bg-gray-200 flex items-center justify-center opacity-0 section-image">
+							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-home-modern" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-									<p class="text-[10px] text-gray-500 font-medium">NEW ROOF</p>
-									<p class="text-[9px] text-gray-400">2024 installation</p>
+									<UIcon name="i-heroicons-home-modern" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<p class="text-[10px] t-text-tertiary font-medium">NEW ROOF</p>
+									<p class="text-[9px] t-text-muted">2024 installation</p>
 								</div>
 							</div>
-							<div class="aspect-square bg-gray-200 flex items-center justify-center opacity-0 section-image">
+							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-arrows-up-down" class="w-6 h-6 text-gray-400 mx-auto mb-2" />
-									<p class="text-[10px] text-gray-500 font-medium">ELEVATOR</p>
-									<p class="text-[9px] text-gray-400">New cab interior</p>
+									<UIcon name="i-heroicons-arrows-up-down" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<p class="text-[10px] t-text-tertiary font-medium">ELEVATOR</p>
+									<p class="text-[9px] t-text-muted">New cab interior</p>
 								</div>
 							</div>
 						</div>
 
 						<div class="improvements bg-white/80 p-6 my-8 opacity-0">
-							<p class="text-xs tracking-[0.15em] uppercase text-gold-dark mb-4">Recent Capital Improvements</p>
+							<p class="text-xs tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Recent Capital Improvements</p>
 							<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
 								<span
 									v-for="(item, index) in improvements"
 									:key="index"
-									class="text-[0.9375rem] text-gray-600 py-2 border-b border-divider">
+									class="text-[0.9375rem] t-text-secondary py-2 border-b t-border-divider">
 									{{ item }}
 								</span>
 							</div>
 						</div>
 
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							This is rare: a boutique SoBe building with the hard work behind it.
 						</p>
 					</div>
@@ -387,14 +387,14 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">05</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Security</span>
+						<span class="t-heading text-sm t-text-accent">05</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Security</span>
 					</div>
 					<div class="content-main">
 						<div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
 							<div class="max-w-xl">
 								<h2
-									class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+									class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 									Secure & Connected
 								</h2>
 
@@ -402,15 +402,15 @@
 									<div
 										v-for="(feature, index) in securityFeatures"
 										:key="index"
-										class="security-item flex items-center gap-4 py-4 border-b border-divider opacity-0">
-										<div class="security-icon w-5 h-5 flex-shrink-0 text-gold-dark">
+										class="security-item flex items-center gap-4 py-4 border-b t-border-divider opacity-0">
+										<div class="security-icon w-5 h-5 flex-shrink-0 t-text-accent-tertiary">
 											<UIcon :name="feature.icon" class="w-5 h-5" />
 										</div>
-										<span class="text-[0.9375rem] text-gray-600">{{ feature.text }}</span>
+										<span class="text-[0.9375rem] t-text-secondary">{{ feature.text }}</span>
 									</div>
 								</div>
 
-								<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 opacity-0">
+								<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 opacity-0">
 									Peace of mind, built in.
 								</p>
 							</div>
@@ -435,16 +435,16 @@
 				</div>
 			</div>
 		</section>
-		<section ref="investmentRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+		<section ref="investmentRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">08</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Value</span>
+						<span class="t-heading text-sm t-text-accent">08</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Value</span>
 					</div>
 					<div class="content-main max-w-2xl">
 						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Smart Investment
 						</h2>
 
@@ -452,13 +452,13 @@
 							<p
 								v-for="(point, index) in investmentPoints"
 								:key="index"
-								class="text-base text-gray-600 pl-8 relative opacity-0 investment-point">
-								<span class="absolute left-0 top-2 w-1.5 h-1.5 bg-gold rounded-full"></span>
+								class="text-base t-text-secondary pl-8 relative opacity-0 investment-point">
+								<span class="absolute left-0 top-2 w-1.5 h-1.5 t-bg-accent rounded-full"></span>
 								{{ point }}
 							</p>
 						</div>
 
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							The numbers make sense. So does the lifestyle.
 						</p>
 					</div>
@@ -470,12 +470,12 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">06</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Amenities</span>
+						<span class="t-heading text-sm t-text-accent">06</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Amenities</span>
 					</div>
 					<div class="content-main max-w-4xl">
 						<h2
-							class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Amenities With Intention
 						</h2>
 
@@ -488,7 +488,7 @@
 							<div class="text-left p-6">
 								<!-- <div
 									class="w-12 h-12 mx-auto mb-3 border-2 border-gray-400 rounded-full flex items-center justify-center">
-									<UIcon name="i-heroicons-sun" class="w-6 h-6 text-gray-400" />
+									<UIcon name="i-heroicons-sun" class="w-6 h-6 t-text-muted" />
 								</div> -->
 								<p class="text-sm text-cream font-medium mb-2">COURTYARD & GROUNDS</p>
 								<p class="text-xs text-cream-alt leading-relaxed max-w-md mx-auto">
@@ -502,12 +502,12 @@
 								v-for="(amenity, index) in amenities"
 								:key="index"
 								class="amenity-item flex items-center gap-4 py-3 opacity-0">
-								<span class="w-1.5 h-1.5 bg-gold rounded-full flex-shrink-0"></span>
-								<span class="text-[0.9375rem] text-gray-600">{{ amenity }}</span>
+								<span class="w-1.5 h-1.5 t-bg-accent rounded-full flex-shrink-0"></span>
+								<span class="text-[0.9375rem] t-text-secondary">{{ amenity }}</span>
 							</div>
 						</div>
 
-						<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+						<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 							Everything you need. Nothing you don't.
 						</p>
 					</div>
@@ -519,16 +519,16 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="font-serif text-sm text-gold">07</span>
-						<span class="text-xs tracking-wider uppercase text-gray-500">Fun Friends</span>
+						<span class="t-heading text-sm t-text-accent">07</span>
+						<span class="text-xs tracking-wider uppercase t-text-tertiary">Fun Friends</span>
 					</div>
 					<div class="content-main max-w-4xl">
 						<div class="max-w-2xl mx-auto">
 							<div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
 								<div class="text-center md:text-left">
-									<h3 class="pet-title font-serif text-2xl font-normal mb-4 opacity-0">Pet Friendly</h3>
-									<p class="pet-policy text-base text-gray-600 mb-4 opacity-0">One approved pet per residence</p>
-									<p class="pet-tagline font-serif italic text-gold-dark opacity-0">
+									<h3 class="pet-title t-heading text-2xl font-normal mb-4 opacity-0">Pet Friendly</h3>
+									<p class="pet-policy text-base t-text-secondary mb-4 opacity-0">One approved pet per residence</p>
+									<p class="pet-tagline t-heading italic t-text-accent-tertiary opacity-0">
 										Because the best roommates wear fur.
 									</p>
 								</div>
@@ -551,7 +551,7 @@
 
 		<!-- Investment Section -->
 
-		<AvailableListings class="bg-cream-alt" />
+		<AvailableListings class="t-bg-alt" />
 		<Marquee
 			v-if="marqueeImages.length"
 			:images="marqueeImages"
@@ -570,8 +570,8 @@
 				">
 				<!-- <div class="w-full h-full bg-gray-700 flex items-center justify-center">
 					<div class="text-center p-8">
-						<UIcon name="i-heroicons-photo" class="w-12 h-12 text-gray-500 mx-auto mb-3" />
-						<p class="text-xs text-gray-400">
+						<UIcon name="i-heroicons-photo" class="w-12 h-12 t-text-tertiary mx-auto mb-3" />
+						<p class="text-xs t-text-muted">
 							Evening/twilight exterior with warm window glow. Or: Beach sunset with building silhouette.
 						</p>
 					</div>
@@ -579,7 +579,7 @@
 			</div>
 
 			<div class="max-w-3xl mx-auto text-center relative z-10">
-				<h2 class="cta-headline font-serif text-[clamp(2rem,5vw,3.5rem)] font-light leading-tight mb-8 opacity-0">
+				<h2 class="cta-headline t-heading text-[clamp(2rem,5vw,3.5rem)] font-light leading-tight mb-8 opacity-0">
 					This Isn't Condo Living.
 					<br />
 					It's a Lifestyle Upgrade.
@@ -588,7 +588,7 @@
 					For the discerning buyer who values character over square footage, community over anonymity, and smart design
 					over status symbols—welcome home.
 				</p>
-				<div class="cta-divider w-16 h-px bg-gold mx-auto mb-12 opacity-0 scale-x-0"></div>
+				<div class="cta-divider w-16 h-px t-bg-accent mx-auto mb-12 opacity-0 scale-x-0"></div>
 				<p class="cta-address text-sm tracking-wide text-cream-alt opacity-0 mb-12 uppercase">
 					1033 Lenox Avenue · Miami Beach, FL 33139
 				</p>
