@@ -1,24 +1,5 @@
 <script setup>
-const previousScrollTop = ref(0);
-const isRetracted = ref(false);
-
-const manageNavBarAnimations = () => {
-	const header = document.querySelector('header');
-	const scrollTop = document.documentElement.scrollTop;
-
-	if (scrollTop > previousScrollTop.value && scrollTop >= 10) {
-		isRetracted.value = true;
-	} else {
-		isRetracted.value = false;
-	}
-
-	previousScrollTop.value = scrollTop;
-};
-
-onMounted(() => {
-	window.addEventListener('scroll', manageNavBarAnimations);
-});
-
+const {isScrollingDown} = useScrollDirection();
 const {user} = useDirectusAuth();
 
 const avatar = computed(() => {
@@ -37,8 +18,8 @@ const avatar = computed(() => {
 </script>
 <template>
 	<header
-		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 transition-all header"
-		:class="{retracted: isRetracted}"
+		class="w-full flex items-center justify-center fixed top-0 left-0 z-20 transition-all header pt-safe"
+		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row">
 			<DarkModeToggle class="hidden" />
@@ -70,11 +51,13 @@ header {
 	background: var(--theme-header-bg, #eeeeee);
 	border-bottom: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
 	box-shadow: var(--theme-shadow-sm, -1px 2px 10px rgba(0, 0, 0, 0.05));
-	transition: transform 0.25s var(--curve), background-color 0.3s ease;
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+	will-change: transform;
 }
 
 header.retracted {
-	transform: translateY(-100px);
+	/* Translate by full height plus safe-area */
+	transform: translateY(calc(-100% - env(safe-area-inset-top, 0px)));
 	@media (min-width: theme('screens.lg')) {
 		transform: translateY(0px);
 	}
