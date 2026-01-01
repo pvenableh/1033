@@ -3,6 +3,33 @@
    Two design themes with light/dark variants:
    - Classic: Cream background, gold accents, serif headings
    - Modern: White/grey with cyan highlights, sans-serif headings
+
+   MIGRATION GUIDE - Replace these Tailwind classes with theme-aware versions:
+   ────────────────────────────────────────────────────────────────────────────
+   BACKGROUNDS:
+   bg-cream          → t-bg           (primary background)
+   bg-cream-alt      → t-bg-alt       (secondary/alternate background)
+   bg-white          → t-bg-elevated  (elevated surfaces like cards)
+   bg-gray-200       → t-bg-subtle    (subtle backgrounds)
+
+   TEXT COLORS:
+   text-gray-800     → t-text         (primary text)
+   text-gray-600     → t-text-secondary (body text)
+   text-gray-500     → t-text-tertiary (labels, captions)
+   text-gray-400     → t-text-muted   (muted/placeholder text)
+   text-gold         → t-text-accent  (accent color)
+   text-gold-dark    → t-text-accent-tertiary (darker accent)
+
+   BORDERS:
+   border-divider    → t-border-divider (divider lines)
+   border-gray-*     → t-border        (general borders)
+
+   COMPONENTS:
+   font-serif        → t-heading       (heading typography)
+
+   SECTIONS (combined bg + text):
+   bg-cream          → t-section       (primary sections)
+   bg-cream-alt      → t-section-alt   (alternate sections)
 ============================================================================= */
 
 /* =============================================================================
@@ -352,4 +379,303 @@ a.theme-link:hover {
 
 .theme-shadow-lg {
 	box-shadow: var(--theme-shadow-lg);
+}
+
+/* =============================================================================
+   COMPREHENSIVE UTILITY CLASSES
+   Drop-in replacements for common Tailwind classes
+============================================================================= */
+
+/* Background utilities - replaces bg-cream, bg-cream-alt, bg-white, bg-gray-* */
+.t-bg {
+	background-color: var(--theme-bg-primary);
+}
+
+.t-bg-alt {
+	background-color: var(--theme-bg-secondary);
+}
+
+.t-bg-subtle {
+	background-color: var(--theme-bg-tertiary);
+}
+
+.t-bg-elevated {
+	background-color: var(--theme-bg-elevated);
+}
+
+.t-bg-card {
+	background-color: var(--theme-card-bg);
+}
+
+/* Text color utilities - replaces text-gray-*, text-gold-*, etc. */
+.t-text {
+	color: var(--theme-text-primary);
+}
+
+.t-text-secondary {
+	color: var(--theme-text-secondary);
+}
+
+.t-text-tertiary {
+	color: var(--theme-text-tertiary);
+}
+
+.t-text-muted {
+	color: var(--theme-text-muted);
+}
+
+.t-text-accent {
+	color: var(--theme-accent-primary);
+}
+
+.t-text-accent-secondary {
+	color: var(--theme-accent-secondary);
+}
+
+.t-text-accent-tertiary {
+	color: var(--theme-accent-tertiary);
+}
+
+.t-text-inverse {
+	color: var(--theme-text-inverse);
+}
+
+/* Accent background utilities */
+.t-bg-accent {
+	background-color: var(--theme-accent-primary);
+}
+
+.t-bg-accent-secondary {
+	background-color: var(--theme-accent-secondary);
+}
+
+/* Border utilities - replaces border-divider, border-gray-*, etc. */
+.t-border {
+	border-color: var(--theme-border-primary);
+}
+
+.t-border-secondary {
+	border-color: var(--theme-border-secondary);
+}
+
+.t-border-light {
+	border-color: var(--theme-border-light);
+}
+
+.t-border-divider {
+	border-color: var(--theme-divider);
+}
+
+/* Divider/separator utilities */
+.t-divider {
+	border-color: var(--theme-divider);
+}
+
+.t-divider-bg {
+	background-color: var(--theme-divider);
+}
+
+.t-divider-light {
+	border-color: var(--theme-divider-light);
+}
+
+/* Typography utilities */
+.t-heading {
+	font-family: var(--theme-heading-font);
+}
+
+.t-body {
+	font-family: var(--theme-body-font);
+}
+
+/* Section backgrounds - for alternating sections */
+.t-section {
+	background-color: var(--theme-bg-primary);
+	color: var(--theme-text-primary);
+}
+
+.t-section-alt {
+	background-color: var(--theme-bg-secondary);
+	color: var(--theme-text-primary);
+}
+
+.t-section-subtle {
+	background-color: var(--theme-bg-tertiary);
+	color: var(--theme-text-primary);
+}
+
+/* Card component */
+.t-card {
+	background-color: var(--theme-card-bg);
+	border: 1px solid var(--theme-border-primary);
+	box-shadow: var(--theme-shadow-md);
+}
+
+.t-card-flat {
+	background-color: var(--theme-card-bg);
+	border: 1px solid var(--theme-border-primary);
+}
+
+/* Link styling */
+.t-link {
+	color: var(--theme-link-color);
+	transition: color 0.2s ease;
+}
+
+.t-link:hover {
+	color: var(--theme-link-hover);
+}
+
+/* Button variants */
+.t-btn {
+	background-color: var(--theme-button-bg);
+	color: var(--theme-button-text);
+	transition: background-color 0.2s ease;
+}
+
+.t-btn:hover {
+	background-color: var(--theme-button-hover-bg);
+}
+
+.t-btn-outline {
+	background-color: transparent;
+	border: 1px solid var(--theme-accent-primary);
+	color: var(--theme-accent-primary);
+}
+
+.t-btn-outline:hover {
+	background-color: var(--theme-accent-primary);
+	color: var(--theme-text-inverse);
+}
+
+/* Input styling */
+.t-input {
+	background-color: var(--theme-bg-elevated);
+	border: 1px solid var(--theme-border-primary);
+	color: var(--theme-text-primary);
+}
+
+.t-input:focus {
+	border-color: var(--theme-accent-primary);
+	outline: none;
+}
+
+.t-input::placeholder {
+	color: var(--theme-text-muted);
+}
+
+/* Overlay/modal backgrounds */
+.t-overlay {
+	background-color: var(--theme-bg-overlay);
+}
+
+/* Gradient overlays for images */
+.t-gradient-dark {
+	background: linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.4));
+}
+
+/* Interactive states */
+.t-hover-bg:hover {
+	background-color: var(--theme-bg-secondary);
+}
+
+.t-hover-accent:hover {
+	color: var(--theme-accent-primary);
+}
+
+/* Active/selected states */
+.t-active {
+	color: var(--theme-accent-active);
+}
+
+/* Icon colors that adapt to theme */
+.t-icon {
+	color: var(--theme-text-secondary);
+}
+
+.t-icon-accent {
+	color: var(--theme-accent-primary);
+}
+
+/* Panel/box styling */
+.t-panel {
+	background-color: var(--theme-bg-elevated);
+	border: 1px solid var(--theme-border-light);
+	border-radius: 8px;
+}
+
+/* List item styling */
+.t-list-item {
+	border-bottom: 1px solid var(--theme-divider);
+}
+
+.t-list-item:last-child {
+	border-bottom: none;
+}
+
+/* Feature/stat highlight */
+.t-highlight {
+	color: var(--theme-text-primary);
+}
+
+.t-highlight-accent {
+	color: var(--theme-accent-primary);
+}
+
+/* Label/caption text */
+.t-label {
+	color: var(--theme-text-muted);
+	font-size: 0.75rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+.t-label-accent {
+	color: var(--theme-accent-tertiary);
+	font-size: 0.75rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+}
+
+/* Quote/italic text styling */
+.t-quote {
+	font-family: var(--theme-heading-font);
+	font-style: italic;
+	color: var(--theme-accent-tertiary);
+}
+
+/* Tag/badge styling */
+.t-tag {
+	background-color: var(--theme-bg-tertiary);
+	color: var(--theme-text-secondary);
+	padding: 0.25rem 0.75rem;
+	border-radius: 9999px;
+	font-size: 0.75rem;
+}
+
+.t-tag-accent {
+	background-color: var(--theme-accent-primary);
+	color: var(--theme-text-inverse);
+}
+
+/* Dot/bullet indicator */
+.t-dot {
+	background-color: var(--theme-accent-primary);
+}
+
+/* Number/stat display */
+.t-stat {
+	font-family: var(--theme-heading-font);
+	color: var(--theme-text-primary);
+}
+
+.t-stat-label {
+	color: var(--theme-accent-tertiary);
+	text-transform: uppercase;
+	letter-spacing: 0.1em;
+}
+
+/* Transition helpers */
+.t-transition {
+	transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
