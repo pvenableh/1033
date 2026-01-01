@@ -808,7 +808,7 @@ onMounted(() => {
 			'.hero-image',
 			{backgroundPositionY: '20%'},
 			{
-				backgroundPositionY: '0%',
+				backgroundPositionY: '-30%',
 				ease: 'none',
 				scrollTrigger: {
 					trigger: heroRef.value,
@@ -1065,5 +1065,4 @@ useHead({
 		height: fit-content;
 	}
 }
-
 </style>

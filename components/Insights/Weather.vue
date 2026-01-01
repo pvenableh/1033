@@ -1,132 +1,252 @@
-<script setup>
-const weather = await $fetch(
-	'https://api.openweathermap.org/data/2.5/weather?lat=25.7803705&lon=-80.1388466&appid=11a6889ce0bda17eda9f935cd43fba39&units=imperial'
-).catch((error) => error.data);
+<script setup lang="ts">
+interface WeatherCondition {
+	id: number;
+	main: string;
+	description: string;
+	icon: string;
+}
 
-const isIcon = ref(true);
+interface WeatherData {
+	coord: {lon: number; lat: number};
+	weather: WeatherCondition[];
+	main: {
+		temp: number;
+		feels_like: number;
+		temp_min: number;
+		temp_max: number;
+		pressure: number;
+		humidity: number;
+	};
+	visibility: number;
+	wind: {speed: number; deg: number; gust?: number};
+	clouds: {all: number};
+	sys: {sunrise: number; sunset: number; country: string};
+	name: string;
+	dt: number;
+	timezone: number;
+}
 
-function generateIcon(weatherData) {
-	// Check if we have weather data
-	if (!weatherData || !weatherData.id) {
-		isIcon.value = false;
-		return null;
-	}
+interface Props {
+	lat?: number;
+	lon?: number;
+	showDetails?: boolean;
+	showLocation?: boolean;
+}
 
-	const id = weatherData.id;
-	const isDay = weatherData.icon?.includes('d');
+const props = withDefaults(defineProps<Props>(), {
+	lat: 25.7803705,
+	lon: -80.1388466,
+	showDetails: false,
+	showLocation: false,
+});
 
-	// Thunderstorm
-	if (id >= 200 && id < 300) {
-		return isDay ? 'i-wi-day-thunderstorm' : 'i-wi-night-alt-thunderstorm';
-	}
+const weather = await $fetch<WeatherData>(
+	`https://api.openweathermap.org/data/2.5/weather?lat=${props.lat}&lon=${props.lon}&appid=11a6889ce0bda17eda9f935cd43fba39&units=imperial`
+).catch(() => null);
 
-	// Drizzle
-	if (id >= 300 && id < 400) {
-		return isDay ? 'i-wi-day-sprinkle' : 'i-wi-night-alt-sprinkle';
-	}
+const hasData = computed(() => weather !== null && weather.weather?.length > 0);
 
-	// Rain
-	if (id >= 500 && id < 600) {
-		if (id === 511) return 'i-wi-sleet'; // Freezing rain
-		return isDay ? 'i-wi-day-rain' : 'i-wi-night-alt-rain';
-	}
+/**
+ * Determines if it's currently daytime based on sunrise/sunset times
+ * More accurate than relying on the icon suffix from API
+ */
+function isDaytime(data: WeatherData): boolean {
+	const now = data.dt;
+	return now >= data.sys.sunrise && now < data.sys.sunset;
+}
 
-	// Snow
-	if (id >= 600 && id < 700) {
-		return isDay ? 'i-wi-day-snow' : 'i-wi-night-alt-snow';
-	}
+/**
+ * Generates the Weather Icons class name using the built-in OpenWeatherMap mapping
+ * Format: wi-owm-{day|night}-{condition_id}
+ * @see https://erikflowers.github.io/weather-icons/api-list.html
+ */
+function generateIconClass(data: WeatherData): string {
+	if (!data.weather?.[0]?.id) return 'i-wi-na';
 
-	// Atmosphere (fog, mist, etc)
-	if (id >= 700 && id < 800) {
-		switch (id) {
-			case 701:
-				return 'i-wi-fog';
-			case 721:
-				return 'i-wi-day-haze';
-			case 731:
-				return 'i-wi-dust';
-			case 741:
-				return 'i-wi-fog';
-			case 751:
-				return 'i-wi-sandstorm';
-			case 761:
-				return 'i-wi-dust';
-			case 762:
-				return 'i-wi-volcano';
-			case 771:
-				return 'i-wi-strong-wind';
-			case 781:
-				return 'i-wi-tornado';
-			default:
-				return 'i-wi-fog';
-		}
-	}
+	const id = data.weather[0].id;
+	const timePrefix = isDaytime(data) ? 'day' : 'night';
 
-	// Clear
-	if (id === 800) {
-		return isDay ? 'i-wi-day-sunny' : 'i-wi-night-clear';
-	}
+	// Use the built-in OWM mapping classes
+	return `i-wi-owm-${timePrefix}-${id}`;
+}
 
-	// Clouds
-	if (id > 800) {
-		if (id === 801) {
-			// Few clouds
-			return isDay ? 'i-wi-day-sunny-overcast' : 'i-wi-night-alt-partly-cloudy';
-		}
-		if (id === 802) {
-			// Scattered clouds
-			return isDay ? 'i-wi-day-cloudy' : 'i-wi-night-alt-cloudy';
-		}
-		if (id === 803 || id === 804) {
-			// Broken or overcast clouds
-			return 'i-wi-cloudy';
-		}
-	}
+/**
+ * Converts wind degrees to cardinal direction
+ */
+function getWindDirection(deg: number): string {
+	const directions = [
+		'N',
+		'NNE',
+		'NE',
+		'ENE',
+		'E',
+		'ESE',
+		'SE',
+		'SSE',
+		'S',
+		'SSW',
+		'SW',
+		'WSW',
+		'W',
+		'WNW',
+		'NW',
+		'NNW',
+	];
+	const index = Math.round(deg / 22.5) % 16;
+	return directions[index];
+}
 
-	// Fallback
-	isIcon.value = false;
-	return null;
+/**
+ * Gets the wind direction icon class
+ */
+function getWindDirectionIcon(deg: number): string {
+	return `i-wi-wind i-wi-from-${deg}-deg`;
+}
+
+/**
+ * Rounds a number to specified decimal places
+ */
+function roundToDecimal(value: number, decimals: number = 0): number {
+	const factor = Math.pow(10, decimals);
+	return Math.round(value * factor) / factor;
+}
+
+/**
+ * Formats temperature with degree symbol
+ */
+function formatTemp(temp: number): string {
+	return `${roundToDecimal(temp, 0)}°`;
+}
+
+/**
+ * Gets a human-readable time from unix timestamp
+ */
+function formatTime(timestamp: number, timezone: number): string {
+	const date = new Date((timestamp + timezone) * 1000);
+	return date.toLocaleTimeString('en-US', {
+		hour: 'numeric',
+		minute: '2-digit',
+		hour12: true,
+		timeZone: 'UTC',
+	});
+}
+
+/**
+ * Gets UV index description (would need separate API call for actual UV data)
+ */
+function getVisibilityDescription(visibility: number): string {
+	const miles = visibility / 1609.34;
+	if (miles >= 6) return 'Clear';
+	if (miles >= 3) return 'Moderate';
+	if (miles >= 1) return 'Low';
+	return 'Very Poor';
 }
 </script>
+
 <template>
-	<div class="hidden sm:inline-block weather">
-		<h5 class="uppercase tracking-wide weather__intro"></h5>
-		<h5 class="uppercase tracking-wide relative weather__stats">
-			<span class="">{{ roundToDecimal(weather.main.temp, 0) }}°</span>
-			/
-			{{ weather.weather[0].main }}
-			<span v-if="isIcon" class="weather-icon">
-				<UIcon v-if="weather.weather.length" :name="generateIcon(weather.weather[0])" class="drop-shadow" />
-			</span>
-			<img
-				v-else
-				:src="`https://openweathermap.org/img/wn/${weather.weather[0].icon}.png`"
-				:alt="weather.weather[0].description"
-				class="hidden sm:inline-block" />
-		</h5>
+	<div v-if="hasData" class="weather-widget">
+		<!-- Compact View -->
+		<div class="weather-widget__compact">
+			<span v-if="showLocation" class="weather-widget__location">{{ weather!.name }}, {{ weather!.sys.country }}</span>
+
+			<div class="weather-widget__main">
+				<span class="weather-widget__temp">{{ formatTemp(weather!.main.temp) }}</span>
+				<span class="weather-widget__separator">/</span>
+				<span class="weather-widget__condition">{{ weather!.weather[0].main }}</span>
+				<span class="weather-widget__icon">
+					<UIcon :name="generateIconClass(weather!)" />
+				</span>
+			</div>
+
+			<div v-if="showDetails" class="weather-widget__secondary">
+				<span class="weather-widget__feels-like">Feels {{ formatTemp(weather!.main.feels_like) }}</span>
+				<span class="weather-widget__humidity">
+					<UIcon name="i-wi-humidity" class="weather-widget__mini-icon" />
+					{{ weather!.main.humidity }}%
+				</span>
+				<span class="weather-widget__wind">
+					<UIcon name="i-wi-strong-wind" class="weather-widget__mini-icon" />
+					{{ roundToDecimal(weather!.wind.speed, 0) }} mph {{ getWindDirection(weather!.wind.deg) }}
+				</span>
+			</div>
+		</div>
+
+		<!-- Extended Details (optional slot for expanded view) -->
+		<slot
+			name="details"
+			:weather="weather"
+			:format-temp="formatTemp"
+			:format-time="formatTime"
+			:is-daytime="isDaytime"></slot>
+	</div>
+
+	<!-- Error/Loading State -->
+	<div v-else class="weather-widget weather-widget--error">
+		<UIcon name="i-wi-na" class="weather-widget__icon weather-widget__icon--error" />
+		<span class="weather-widget__error-text">Weather unavailable</span>
 	</div>
 </template>
-<style>
-.weather {
-	/* @apply scale-75 sm:scale-75 md:scale-100; */
 
-	&__intro {
-		font-size: 10px;
-	}
+<style scoped>
+.weather-widget {
+	--weather-icon-color: hwb(39 26% 38%);
+	--weather-icon-size: 1.25rem;
+	--weather-icon-bg: theme('colors.gray.200');
+	--weather-icon-bg-dark: theme('colors.gray.600');
 
-	&__stats {
-		font-size: 12px;
+	@apply hidden sm:inline-flex flex-col gap-0.5;
+}
 
-		img,
-		.weather-icon {
-			color: hwb(39 26% 38%);
-			font-size: 20px;
+.weather-widget__location {
+	@apply text-[10px] uppercase tracking-wide text-gray-500 dark:text-gray-400;
+}
 
-			right: -38px;
-			top: -7px;
-			text-shadow: 0 2px 5px rgba(0, 0, 0, 1);
-			@apply absolute h-8 w-8  rounded-full inline-flex items-center justify-center bg-gray-200 dark:bg-gray-600 shadow-inner;
-		}
-	}
+.weather-widget__main {
+	@apply relative text-xs uppercase tracking-wide flex items-center gap-1;
+}
+
+.weather-widget__temp {
+	@apply font-medium;
+}
+
+.weather-widget__separator {
+	@apply text-gray-400 dark:text-gray-500;
+}
+
+.weather-widget__condition {
+	@apply text-gray-600 dark:text-gray-300;
+}
+
+.weather-widget__icon {
+	@apply absolute -right-10 -top-1.5
+         h-8 w-8 rounded-full
+         inline-flex items-center justify-center
+         bg-gray-200 dark:bg-gray-600
+         shadow-inner;
+
+	color: var(--weather-icon-color);
+	font-size: var(--weather-icon-size);
+	text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.weather-widget__secondary {
+	@apply flex items-center gap-3 text-[10px] text-gray-500 dark:text-gray-400 mt-0.5;
+}
+
+.weather-widget__mini-icon {
+	@apply inline-block text-sm align-middle mr-0.5;
+	color: var(--weather-icon-color);
+}
+
+.weather-widget--error {
+	@apply flex items-center gap-2 text-gray-400 dark:text-gray-500;
+}
+
+.weather-widget__icon--error {
+	@apply text-lg;
+}
+
+.weather-widget__error-text {
+	@apply text-xs;
 }
 </style>
