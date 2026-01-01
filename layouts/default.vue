@@ -15,7 +15,7 @@
 		<LayoutFooter :links="footerLinks" />
 		<LayoutMobileToolbar :links="toolbarLinks" />
 		<!-- <LayoutNavButton /> -->
-		<LayoutNavDrawer :links="drawerLinks" />
+		<LayoutNavDrawer />
 		<transition name="screen">
 			<LayoutScreen v-if="screen" />
 		</transition>
@@ -66,8 +66,4 @@ const toolbarLinks = computed(() => {
 	return filtered;
 });
 
-const drawerLinks = computed(() => {
-	const filtered = props.links.filter((link) => link.type.includes('drawer'));
-	return filtered;
-});
 </script>
