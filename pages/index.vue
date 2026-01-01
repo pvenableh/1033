@@ -824,17 +824,21 @@ onMounted(() => {
 		});
 
 		// Fade out scroll indicator on scroll
-		gsap.to('.scroll-indicator', {
-			opacity: 0,
-			y: 30,
-			ease: 'none',
-			scrollTrigger: {
-				trigger: heroRef.value,
-				start: 'top top',
-				end: '20% top',
-				scrub: true,
-			},
-		});
+		gsap.fromTo(
+			'.scroll-indicator',
+			{opacity: 1, y: 0},
+			{
+				opacity: 0,
+				y: 30,
+				ease: 'none',
+				scrollTrigger: {
+					trigger: heroRef.value,
+					start: 'top top',
+					end: '20% top',
+					scrub: true,
+				},
+			}
+		);
 
 		// Section animations helper
 		const animateSection = (sectionRef, selectors) => {
