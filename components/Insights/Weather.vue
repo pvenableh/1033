@@ -469,7 +469,7 @@ function getUtilityIcon(type: string): string {
 </script>
 
 <template>
-	<div v-if="hasData" class="weather" :class="`weather--${variant}`">
+	<div v-if="hasData" class="weather text-cream uppercase" :class="`weather--${variant}`">
 		<!-- Location (optional) -->
 		<div v-if="showLocation" class="weather__location">
 			{{ weather!.name }}
@@ -477,7 +477,7 @@ function getUtilityIcon(type: string): string {
 		</div>
 
 		<!-- Primary Stats Row -->
-		<div class="weather__primary">
+		<div class="weather__primary text-cream uppercase">
 			<span class="weather__temp">{{ formatTemp(weather!.main.temp) }}</span>
 			<span class="weather__divider">/</span>
 			<span class="weather__condition">{{ weather!.weather[0].main }}</span>
@@ -487,13 +487,13 @@ function getUtilityIcon(type: string): string {
 		</div>
 
 		<!-- Standard variant: adds feels like -->
-		<div v-if="variant !== 'compact'" class="weather__secondary">
+		<div v-if="variant !== 'compact'" class="weather__secondary text-cream uppercase">
 			<span class="weather__feels">Feels like {{ formatTemp(weather!.main.feels_like) }}</span>
 			<span class="weather__description">{{ getConditionDescription(weather!) }}</span>
 		</div>
 
 		<!-- Detailed variant: adds all weather data -->
-		<div v-if="variant === 'detailed'" class="weather__details">
+		<div v-if="variant === 'detailed'" class="weather__details text-cream uppercase">
 			<div class="weather__detail">
 				<UIcon :name="getUtilityIcon('humidity')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Humidity</span>
@@ -599,7 +599,7 @@ function getUtilityIcon(type: string): string {
 }
 
 .weather__location {
-	@apply text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400;
+	@apply text-[10px] tracking-wider text-cream uppercase;
 }
 
 .weather__primary {
@@ -611,11 +611,11 @@ function getUtilityIcon(type: string): string {
 }
 
 .weather__divider {
-	@apply text-gray-400 dark:text-gray-500;
+	@apply text-cream uppercase;
 }
 
 .weather__condition {
-	@apply text-gray-600 dark:text-gray-300;
+	@apply text-cream uppercase;
 }
 
 .weather__icon {
@@ -629,7 +629,7 @@ function getUtilityIcon(type: string): string {
 }
 
 .weather__secondary {
-	@apply flex flex-col gap-0.5 text-[10px] text-gray-500 dark:text-gray-400;
+	@apply flex flex-col gap-0.5 text-[10px] text-cream uppercase;
 }
 
 .weather__feels {
@@ -637,7 +637,7 @@ function getUtilityIcon(type: string): string {
 }
 
 .weather__description {
-	@apply capitalize;
+	@apply text-cream uppercase;
 }
 
 .weather__details {
@@ -654,16 +654,16 @@ function getUtilityIcon(type: string): string {
 }
 
 .weather__detail-label {
-	@apply text-gray-500 dark:text-gray-400;
+	@apply text-cream uppercase;
 }
 
 .weather__detail-value {
-	@apply ml-auto font-medium text-gray-700 dark:text-gray-200;
+	@apply ml-auto font-medium text-cream uppercase;
 }
 
 /* Error state */
 .weather--error {
-	@apply flex-row items-center gap-2 text-gray-400 dark:text-gray-500;
+	@apply flex-row items-center gap-2 text-cream uppercase;
 }
 
 .weather__error-icon {

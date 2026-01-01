@@ -19,7 +19,7 @@
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/dashboard')}">
 								<UIcon name="i-lucide-layout-dashboard" class="w-5 h-5" />
-								<span class="hidden xl:inline">Dashboard</span>
+								<span class="hidden">Dashboard</span>
 							</nuxt-link>
 						</UTooltip>
 					</li>
@@ -32,16 +32,9 @@
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/announcements')}">
 								<UIcon name="i-heroicons-megaphone" class="w-5 h-5" />
-								<span class="hidden xl:inline">Announcements</span>
+								<span class="hidden">Announcements</span>
 							</nuxt-link>
 						</UTooltip>
-						<nuxt-link
-							to="/announcements"
-							class="secondary-nav__link hidden xl:flex"
-							:class="{active: isActiveRoute('/announcements')}">
-							<UIcon name="i-heroicons-megaphone" class="w-4 h-4" />
-							<span>Announcements</span>
-						</nuxt-link>
 					</li>
 
 					<!-- Meetings - visible to all approved users -->
@@ -49,16 +42,9 @@
 						<UTooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/meetings" class="secondary-nav__link flex" :class="{active: isActiveRoute('/meetings')}">
 								<UIcon name="i-heroicons-calendar-days" class="w-5 h-5" />
-								<span class="hidden xl:inline">Meetings</span>
+								<span class="hidden">Meetings</span>
 							</nuxt-link>
 						</UTooltip>
-						<nuxt-link
-							to="/meetings"
-							class="secondary-nav__link hidden xl:flex"
-							:class="{active: isActiveRoute('/meetings')}">
-							<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
-							<span>Meetings</span>
-						</nuxt-link>
 					</li>
 
 					<!-- By-Laws - visible to all approved users -->
@@ -114,7 +100,7 @@
 						<UTooltip text="Security" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/security" class="secondary-nav__link flex" :class="{active: isActiveRoute('/security')}">
 								<UIcon name="i-lucide-cctv" class="w-5 h-5" />
-								<span class="hidden xl:inline">Security</span>
+								<span class="hidden">Security</span>
 							</nuxt-link>
 						</UTooltip>
 					</li>

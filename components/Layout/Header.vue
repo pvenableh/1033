@@ -29,21 +29,13 @@ const avatar = computed(() => {
 		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row">
-			<DarkModeToggle class="hidden" />
+			<!-- <DarkModeToggle class="hidden" />
 			<client-only>
 				<InsightsWeather class="sm:pl-1 md:px-6" />
-			</client-only>
+			</client-only> -->
 			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
-			</nuxt-link>
-		</div>
-		<!-- <client-only>
-			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
-		</client-only> -->
-		<div class="flex items-center gap-1">
-			<nuxt-link to="/">
-				<NewLogo class="new-logo" />
 			</nuxt-link>
 			<button
 				v-if="showNavToggle"
@@ -56,6 +48,14 @@ const avatar = computed(() => {
 					class="w-4 h-4 transition-transform duration-300"
 					:class="{'rotate-180': !isSecondaryNavVisible}" />
 			</button>
+		</div>
+		<!-- <client-only>
+			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
+		</client-only> -->
+		<div class="flex items-center gap-1">
+			<nuxt-link to="/">
+				<NewLogo class="new-logo" />
+			</nuxt-link>
 		</div>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
 			<nuxt-link to="/dashboard" class="inline-flex lg:hidden">
