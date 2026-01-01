@@ -1,9 +1,11 @@
 @import './tailwind.css';
 @import './fonts.css';
 @import './variables.css';
+@import './themes.css';
 @import './page.css';
 html, body {
-  color: var(--darkGrey);
+  color: var(--theme-text-primary, var(--darkGrey));
+  background-color: var(--theme-bg-primary, #FDFCFA);
   scroll-behavior: smooth;
   @apply font-body;
   -webkit-font-smoothing: antialiased;

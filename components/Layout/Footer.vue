@@ -1,6 +1,10 @@
 <template>
 	<div
-		class="w-full flex flex-col md:flex-row flex-wrap items-center justify-start sm:justify-center px-4 md:px-6 pb-10 mt-16 md:mt-20 text-gray-700 dark:text-gray-400 footer bg-cream">
+		class="w-full flex flex-col md:flex-row flex-wrap items-center justify-start sm:justify-center px-4 md:px-6 pb-10 mt-16 md:mt-20 footer"
+		:style="{
+			backgroundColor: 'var(--theme-footer-bg)',
+			color: 'var(--theme-text-secondary)'
+		}">
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link to="/">Home</nuxt-link>
 			<nuxt-link to="/meetings/">Meetings</nuxt-link>
@@ -75,7 +79,7 @@ const {user, logout} = useDirectusAuth();
 		a:hover,
 		a.active,
 		a.router-link-exact-active {
-			color: var(--blue);
+			color: var(--theme-accent-active, var(--blue));
 		}
 	}
 
@@ -101,7 +105,7 @@ h5.web-designer {
 			stroke: none;
 			margin-top: -11px;
 			margin-left: 3px;
-			@apply fill-gray-700 dark:fill-gray-400;
+			fill: var(--theme-text-secondary, #6c757d);
 			path {
 				transition: all 0.3s linear;
 			}

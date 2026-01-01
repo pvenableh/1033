@@ -62,7 +62,8 @@ const props = defineProps({
 		@apply block absolute rounded-sm z-10 px-6 py-2 w-full h-full;
 	}
 	.foreground {
-		@apply block rounded-sm z-10 relative px-6 py-2 w-full h-full bg-gray-500 dark:bg-gray-700;
+		@apply block rounded-sm z-10 relative px-6 py-2 w-full h-full;
+		background-color: var(--theme-button-bg, #6b7280);
 	}
 }
 
@@ -74,7 +75,8 @@ const props = defineProps({
 
 .btn-outline {
 	.foreground {
-		@apply bg-gray-100 text-gray-900 dark:bg-gray-900 dark:text-gray-50;
+		background-color: var(--theme-bg-secondary, #f3f4f6);
+		color: var(--theme-text-primary, #111827);
 	}
 }
 

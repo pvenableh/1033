@@ -1,17 +1,17 @@
 <template>
-	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream-alt">
+	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-section-alt">
 		<div class="max-w-6xl mx-auto">
 			<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 				<div class="content-label flex flex-col gap-2 opacity-0">
-					<span class="font-serif text-sm text-gold">09</span>
-					<span class="text-xs tracking-wider uppercase text-gray-500">Availability</span>
+					<span class="t-heading text-sm t-text-accent">09</span>
+					<span class="text-xs tracking-wider uppercase t-text-tertiary">Availability</span>
 				</div>
 				<div class="content-main max-w-4xl">
 					<h2
-						class="section-title font-serif text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+						class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 						Available Units
 					</h2>
-					<p class="section-body text-[1.0625rem] leading-relaxed text-gray-600 mb-12 opacity-0">
+					<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-12 opacity-0">
 						View current listings at 1033 Lenox. Updated in real-time from major listing platforms.
 					</p>
 
@@ -24,24 +24,24 @@
 							rel="noopener noreferrer"
 							class="listing-card group opacity-0">
 							<div
-								class="aspect-[4/3] bg-white/80 border border-divider flex flex-col items-center justify-center p-6 transition-all duration-300 group-hover:bg-white group-hover:border-gold/30 group-hover:shadow-lg">
+								class="aspect-[4/3] t-bg-elevated border t-border-divider flex flex-col items-center justify-center p-6 transition-all duration-300 group-hover:t-bg-elevated group-hover:border-gold/30 group-hover:shadow-lg">
 								<div
-									class="w-12 h-12 mb-4 border border-gray-300 rounded-full flex items-center justify-center transition-all duration-300 group-hover:border-gold group-hover:scale-110">
+									class="w-12 h-12 mb-4 border t-border-divider rounded-full flex items-center justify-center transition-all duration-300 group-hover:t-border-accent group-hover:scale-110">
 									<UIcon
 										:name="listing.icon"
-										class="w-5 h-5 text-gray-400 group-hover:text-gold-dark transition-colors duration-300" />
+										class="w-5 h-5 t-text-muted group-hover:t-text-accent-tertiary transition-colors duration-300" />
 								</div>
-								<p class="text-sm font-medium text-gray-700 mb-1">{{ listing.name }}</p>
-								<p class="text-xs text-gray-400 mb-4">{{ listing.tagline }}</p>
+								<p class="text-sm font-medium t-text mb-1">{{ listing.name }}</p>
+								<p class="text-xs t-text-muted mb-4">{{ listing.tagline }}</p>
 								<span
-									class="text-[0.6875rem] tracking-[0.15em] uppercase text-gold-dark opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+									class="text-[0.6875rem] tracking-[0.15em] uppercase t-text-accent-tertiary opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
 									View Listings →
 								</span>
 							</div>
 						</a>
 					</div>
 
-					<p class="section-tagline font-serif text-lg italic text-gold-dark pt-8 border-t border-divider opacity-0">
+					<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 						Your next chapter starts here.
 					</p>
 				</div>
