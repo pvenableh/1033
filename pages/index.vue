@@ -9,7 +9,7 @@
 					style="
 						background-image: url('https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge');
 						background-size: cover;
-						background-position: center top;
+						background-position: center 20%;
 					">
 					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
@@ -803,12 +803,12 @@ onMounted(() => {
 			ease: 'power2.inOut',
 		});
 
-		// Hero parallax effect - slow background movement on scroll
+		// Hero parallax effect - slow background movement opposite to scroll (feels almost fixed)
 		gsap.fromTo(
 			'.hero-image',
-			{backgroundPositionY: '0%'},
+			{backgroundPositionY: '20%'},
 			{
-				backgroundPositionY: '30%',
+				backgroundPositionY: '0%',
 				ease: 'none',
 				scrollTrigger: {
 					trigger: heroRef.value,
