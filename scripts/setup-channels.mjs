@@ -666,6 +666,8 @@ const FIELDS = {
 };
 
 // Relationships between collections
+// Note: We define FK fields separately and create relations without CASCADE
+// to avoid FK constraint issues. We'll handle deletion logic in the app.
 const RELATIONS = [
   // channel_members -> channels
   {
@@ -676,9 +678,6 @@ const RELATIONS = [
       one_field: 'members',
       sort_field: null,
       one_deselect_action: 'nullify',
-    },
-    schema: {
-      on_delete: 'CASCADE',
     },
   },
   // channel_members -> directus_users
@@ -691,9 +690,6 @@ const RELATIONS = [
       sort_field: null,
       one_deselect_action: 'nullify',
     },
-    schema: {
-      on_delete: 'CASCADE',
-    },
   },
   // channel_members -> directus_users (invited_by)
   {
@@ -704,9 +700,6 @@ const RELATIONS = [
       one_field: null,
       sort_field: null,
       one_deselect_action: 'nullify',
-    },
-    schema: {
-      on_delete: 'SET NULL',
     },
   },
   // channel_messages -> channels
@@ -719,9 +712,6 @@ const RELATIONS = [
       sort_field: null,
       one_deselect_action: 'nullify',
     },
-    schema: {
-      on_delete: 'CASCADE',
-    },
   },
   // channel_messages -> channel_messages (parent for threads)
   {
@@ -732,9 +722,6 @@ const RELATIONS = [
       one_field: null,
       sort_field: null,
       one_deselect_action: 'nullify',
-    },
-    schema: {
-      on_delete: 'CASCADE',
     },
   },
   // channel_message_mentions -> channel_messages
@@ -747,9 +734,6 @@ const RELATIONS = [
       sort_field: null,
       one_deselect_action: 'nullify',
     },
-    schema: {
-      on_delete: 'CASCADE',
-    },
   },
   // channel_message_mentions -> directus_users
   {
@@ -760,9 +744,6 @@ const RELATIONS = [
       one_field: null,
       sort_field: null,
       one_deselect_action: 'nullify',
-    },
-    schema: {
-      on_delete: 'CASCADE',
     },
   },
   // channel_message_files -> channel_messages
@@ -775,9 +756,6 @@ const RELATIONS = [
       sort_field: 'sort',
       one_deselect_action: 'nullify',
     },
-    schema: {
-      on_delete: 'CASCADE',
-    },
   },
   // channel_message_files -> directus_files
   {
@@ -788,9 +766,6 @@ const RELATIONS = [
       one_field: null,
       sort_field: null,
       one_deselect_action: 'nullify',
-    },
-    schema: {
-      on_delete: 'CASCADE',
     },
   },
 ];
@@ -1131,9 +1106,8 @@ async function main() {
   // ========================================
   console.log('\n📋 Step 4: Creating fields...');
 
-  // For M2O fields, create them as plain UUID columns first (without special metadata)
-  // The relation creation will then properly configure them as M2O
-  const M2O_SPECIALS = ['m2o', 'file'];
+  // Skip M2O and file fields - they'll be created by relation step
+  const SKIP_SPECIALS = ['m2o', 'file'];
 
   for (const [collectionName, fields] of Object.entries(FIELDS)) {
     console.log(`\n   📝 Fields for ${collectionName}:`);
@@ -1153,26 +1127,18 @@ async function main() {
         continue;
       }
 
-      // For M2O/file fields, create as plain UUID column first
+      // Skip M2O/file fields - they'll be created when we create relations
       const fieldSpecials = field.meta?.special || [];
-      const isRelationField = fieldSpecials.some(s => M2O_SPECIALS.includes(s));
+      const isRelationField = fieldSpecials.some(s => SKIP_SPECIALS.includes(s));
+
+      if (isRelationField) {
+        console.log(`      ⏭️  ${field.field} (deferred to relation step)`);
+        continue;
+      }
 
       try {
-        if (isRelationField) {
-          // Create as basic UUID field - relation will configure it properly
-          await client.request(createField(collectionName, {
-            field: field.field,
-            type: 'uuid',
-            schema: field.schema || {},
-            meta: {
-              hidden: true,
-            },
-          }));
-          console.log(`      ✅ ${field.field} (as uuid for relation)`);
-        } else {
-          await client.request(createField(collectionName, field));
-          console.log(`      ✅ ${field.field}`);
-        }
+        await client.request(createField(collectionName, field));
+        console.log(`      ✅ ${field.field}`);
         await delay(200); // Small delay between fields
       } catch (error) {
         console.log(`      ❌ ${field.field}:`, error?.errors?.[0]?.message || error?.message);
@@ -1185,20 +1151,66 @@ async function main() {
   await delay(2000);
 
   // ========================================
-  // Step 5: Create relationships
+  // Step 5: Create relationships (and their FK fields)
   // ========================================
   console.log('\n📋 Step 5: Creating relationships...');
 
+  // Helper to get field definition from FIELDS
+  const getFieldDef = (collection, fieldName) => {
+    const collectionFields = FIELDS[collection] || [];
+    return collectionFields.find(f => f.field === fieldName);
+  };
+
   for (const relation of RELATIONS) {
+    const { collection, field: fieldName, related_collection } = relation;
+
+    // First, ensure the FK field exists
+    let existingFields = [];
+    try {
+      existingFields = await client.request(readFields(collection));
+    } catch (error) {
+      // Collection might not exist
+    }
+
+    const fieldExists = existingFields.some(f => f.field === fieldName);
+
+    if (!fieldExists) {
+      // Get field definition or create a default UUID field
+      const fieldDef = getFieldDef(collection, fieldName);
+      const fieldToCreate = {
+        field: fieldName,
+        type: 'uuid',
+        schema: {
+          is_nullable: fieldDef?.schema?.is_nullable ?? true,
+        },
+        meta: {
+          interface: 'select-dropdown-m2o',
+          special: ['m2o'],
+          display: related_collection === 'directus_users' ? 'user' : 'related-values',
+        },
+      };
+
+      try {
+        await client.request(createField(collection, fieldToCreate));
+        console.log(`   ✅ Created field: ${collection}.${fieldName}`);
+        await delay(300);
+      } catch (error) {
+        const msg = error?.errors?.[0]?.message || error?.message || '';
+        console.log(`   ⚠️  Field ${collection}.${fieldName}: ${msg}`);
+      }
+    }
+
+    // Now create the relation
     try {
       await client.request(createRelation(relation));
-      console.log(`   ✅ ${relation.collection}.${relation.field} -> ${relation.related_collection}`);
+      console.log(`   ✅ ${collection}.${fieldName} -> ${related_collection}`);
+      await delay(200);
     } catch (error) {
       const msg = error?.errors?.[0]?.message || error?.message || '';
       if (msg.includes('already exists') || msg.includes('duplicate')) {
-        console.log(`   ⏭️  ${relation.collection}.${relation.field} (exists)`);
+        console.log(`   ⏭️  ${collection}.${fieldName} (relation exists)`);
       } else {
-        console.log(`   ⚠️  ${relation.collection}.${relation.field}: ${msg}`);
+        console.log(`   ⚠️  ${collection}.${fieldName}: ${msg}`);
       }
     }
   }
