@@ -1,6 +1,7 @@
 import type {Config} from 'tailwindcss';
 import plugin from 'tailwindcss/plugin';
 import tailwindcssForms from '@tailwindcss/forms';
+import tailwindcssSafeArea from 'tailwindcss-safe-area';
 import defaultTheme from 'tailwindcss/defaultTheme';
 
 module.exports = {
@@ -86,6 +87,7 @@ module.exports = {
 	},
 	plugins: [
 		tailwindcssForms,
+		tailwindcssSafeArea,
 		// Formkit Plugin for Tailwind
 		// https://formkit.com/guides/create-a-tailwind-theme
 		// require('@formkit/themes/tailwindcss'),

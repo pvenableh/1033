@@ -1,4 +1,6 @@
 <script setup>
+const {isScrollingDown} = useScrollDirection();
+
 const props = defineProps({
 	links: {
 		type: Array,
@@ -9,7 +11,8 @@ const props = defineProps({
 <template>
 	<div
 		id="mobile-toolbar"
-		class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden">
+		class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden pb-safe"
+		:class="{retracted: isScrollingDown}">
 		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
 			<UIcon :name="link.icon" />
 			<h5>{{ link.name }}</h5>
@@ -28,17 +31,20 @@ const props = defineProps({
 	bottom: 0px;
 	left: 0px;
 	width: 100%;
-	height: 65px;
+	/* Fixed height for content area, padding handled by pb-safe class */
+	min-height: 65px;
+	/* Extend background behind the home indicator safe area */
+	padding-bottom: env(safe-area-inset-bottom, 0px);
 
 	border-top: solid 1px rgba(55, 55, 55, 0.05);
 	padding-right: 33.333333%;
 	overflow: hidden;
-	box-shadow: -1px 2px 10px rgba(0, 0, 0, 0.15);
+	box-shadow: -1px -2px 10px rgba(0, 0, 0, 0.1);
 	z-index: 10;
 
-	/* @media (min-width: theme('screens.lg')) {
-		display: none;
-	} */
+	/* Smooth animation for hide/show */
+	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	will-change: transform;
 
 	a {
 		width: 50%;
@@ -97,6 +103,11 @@ const props = defineProps({
 			}
 		}
 	}
+}
+
+/* Retracted state - slide down off screen */
+.mobile-toolbar.retracted {
+	transform: translateY(calc(100% + env(safe-area-inset-bottom, 0px)));
 }
 
 .mobile-toolbar a:nth-of-type(1).router-link-exact-active ~ .indicator {

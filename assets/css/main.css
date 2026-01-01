@@ -67,6 +67,23 @@ a {
 .list-leave-active {
   position: absolute;
 }
+/* Content spacing for fixed header and mobile toolbar */
+.page-content {
+  /* Add top padding to account for fixed header + safe area */
+  padding-top: calc(56px + env(safe-area-inset-top, 0px));
+  /* Add bottom padding for mobile toolbar + safe area on mobile */
+  padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* On desktop, no need for bottom toolbar padding */
+@media (min-width: 1024px) {
+  .page-content {
+    padding-bottom: 0;
+  }
+}
+
 .heroicon-sw-2 path {
   stroke-width: 2 !important;
 }

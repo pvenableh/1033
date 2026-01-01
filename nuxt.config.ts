@@ -10,6 +10,50 @@ export default defineNuxtConfig({
 
 	app: {
 		pageTransition: {name: 'page', mode: 'out-in'},
+		head: {
+			charset: 'utf-8',
+			htmlAttrs: {
+				lang: 'en',
+			},
+			meta: [
+				{
+					name: 'viewport',
+					content: 'width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover',
+				},
+				{
+					name: 'apple-mobile-web-app-capable',
+					content: 'yes',
+				},
+				{
+					name: 'apple-mobile-web-app-status-bar-style',
+					content: 'black-translucent',
+				},
+			],
+			link: [
+				{
+					rel: 'icon',
+					type: 'image/x-icon',
+					href: '/favicon.ico',
+				},
+				{
+					rel: 'icon',
+					type: 'image/png',
+					sizes: '32x32',
+					href: '/favicon-32x32.png',
+				},
+				{
+					rel: 'icon',
+					type: 'image/png',
+					sizes: '16x16',
+					href: '/favicon-16x16.png',
+				},
+				{
+					rel: 'apple-touch-icon',
+					sizes: '180x180',
+					href: '/apple-icon-180x180.png',
+				},
+			],
+		},
 	},
 
 	// components: {
@@ -31,6 +75,8 @@ export default defineNuxtConfig({
 			},
 		],
 		'@nuxtjs/color-mode',
+		'@nuxtjs/seo', // https://nuxtseo.com/
+		'@vite-pwa/nuxt', // https://vite-pwa-org.netlify.app/frameworks/nuxt
 		'@vueuse/motion/nuxt', // https://motion.vueuse.org/nuxt.html
 		'@vueuse/nuxt', // https://vueuse.org/
 		'nuxt-auth-utils', // https://github.com/atinux/nuxt-auth-utils
@@ -83,33 +129,97 @@ export default defineNuxtConfig({
 		},
 	},
 
-	// site: {
-	// 	url: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
-	// 	name: '1033 Lenox',
-	// },
+	// Site configuration for SEO - https://nuxtseo.com/
+	site: {
+		url: process.env.NUXT_PUBLIC_SITE_URL || 'https://1033lenox.com',
+		name: '1033 Lenox',
+		description: 'Luxury living in the heart of Atlanta - 1033 Lenox Park Boulevard NE',
+		defaultLocale: 'en',
+	},
 
-	// Sitemap Configuration - https://nuxtseo.com/sitemap/getting-started/how-it-works
-	// sitemap: {
-	// 	sitemaps: {
-	// 		pages: {
-	// 			exclude: ['/posts/**', '/help/**'],
-	// 		},
-	// 		posts: {
-	// 			include: ['/posts/**'],
-	// 		},
-	// 		help: {
-	// 			include: ['/help/**'],
-	// 		},
-	// 	},
-	// },
-	// icon: {
-	// 	customCollections: [
-	// 		{
-	// 			prefix: 'building',
-	// 			dir: './assets/icons',
-	// 		},
-	// 	],
-	// },
+	// SEO module configuration
+	seo: {
+		fallbackTitle: false,
+	},
+
+	// PWA configuration - https://vite-pwa-org.netlify.app/frameworks/nuxt
+	pwa: {
+		registerType: 'autoUpdate',
+		manifest: {
+			name: '1033 Lenox',
+			short_name: '1033 Lenox',
+			description: 'Luxury living in the heart of Atlanta',
+			theme_color: '#00efd1',
+			background_color: '#FDFCFA',
+			display: 'standalone',
+			orientation: 'portrait',
+			icons: [
+				{
+					src: '/android-icon-36x36.png',
+					sizes: '36x36',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-48x48.png',
+					sizes: '48x48',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-72x72.png',
+					sizes: '72x72',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-96x96.png',
+					sizes: '96x96',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-144x144.png',
+					sizes: '144x144',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-192x192.png',
+					sizes: '192x192',
+					type: 'image/png',
+				},
+				{
+					src: '/android-icon-192x192.png',
+					sizes: '192x192',
+					type: 'image/png',
+					purpose: 'maskable',
+				},
+			],
+		},
+		workbox: {
+			navigateFallback: '/',
+			globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
+			runtimeCaching: [
+				{
+					urlPattern: /^https:\/\/admin\.1033lenox\.com\/assets\/.*/i,
+					handler: 'CacheFirst',
+					options: {
+						cacheName: 'directus-assets',
+						expiration: {
+							maxEntries: 100,
+							maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+						},
+						cacheableResponse: {
+							statuses: [0, 200],
+						},
+					},
+				},
+			],
+		},
+		client: {
+			installPrompt: true,
+		},
+		devOptions: {
+			enabled: false,
+			type: 'module',
+		},
+	},
 
 	postcss: {
 		plugins: {
