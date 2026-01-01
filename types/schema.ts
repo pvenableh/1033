@@ -25,6 +25,13 @@ import type {
 	Event,
 	Metric,
 } from './meta';
+import type {
+	Channel,
+	ChannelMember,
+	ChannelMessage,
+	ChannelMessageMention,
+	ChannelMessageFile,
+} from './channels';
 import type {Page, PageBlock, Category, Form, Post, Team, Testimonial, PagesProjects, PagesBlog} from './content';
 import type {Inbox, HelpArticle, HelpCollection, HelpFeedback} from './help';
 import type {File, User} from './system';
@@ -148,4 +155,11 @@ export interface Schema {
 	// System
 	directus_files: File[];
 	directus_users: User[];
+
+	// Channels
+	channels: Channel[];
+	channel_members: ChannelMember[];
+	channel_messages: ChannelMessage[];
+	channel_message_mentions: ChannelMessageMention[];
+	channel_message_files: ChannelMessageFile[];
 }
