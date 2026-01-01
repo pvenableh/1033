@@ -128,15 +128,19 @@ onUnmounted(() => {
 										{{ getFriendlyDate(item.date_sent) }}
 									</span>
 								</div>
-								<h3 class="t-heading text-xl lg:text-2xl font-normal t-text leading-snug mb-2 group-hover:t-text-accent-tertiary transition-colors duration-300">
+								<h3
+									class="t-heading text-xl lg:text-2xl font-normal t-text leading-snug mb-2 group-hover:t-text-accent-tertiary transition-colors duration-300">
 									{{ item.title }}
 								</h3>
 								<p v-if="item.subtitle" class="text-[0.9375rem] t-text-tertiary leading-relaxed">
 									{{ item.subtitle }}
 								</p>
 							</div>
-							<div class="flex-shrink-0 w-10 h-10 rounded-full border t-border-divider group-hover:border-gold group-hover:t-bg-accent flex items-center justify-center transition-all duration-300">
-								<UIcon name="i-heroicons-arrow-right" class="w-5 h-5 t-text-muted group-hover:text-white transition-colors duration-300" />
+							<div
+								class="flex-shrink-0 w-10 h-10 rounded-full border t-border-divider group-hover:border-gold group-hover:t-bg-accent flex items-center justify-center transition-all duration-300">
+								<UIcon
+									name="i-heroicons-arrow-right"
+									class="w-5 h-5 t-text-muted group-hover:text-white transition-colors duration-300" />
 							</div>
 						</div>
 					</a>
@@ -150,15 +154,6 @@ onUnmounted(() => {
 					<p class="t-heading text-xl t-text-secondary mb-2">No Announcements</p>
 					<p class="text-sm t-text-tertiary">Check back later for updates</p>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 t-section-alt border-t t-border-divider">
-			<div class="max-w-4xl mx-auto text-center">
-				<p class="t-heading text-sm italic t-text-tertiary">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>

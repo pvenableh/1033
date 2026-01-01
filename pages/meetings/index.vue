@@ -21,7 +21,8 @@
 			<div class="max-w-4xl mx-auto">
 				<!-- Loading State -->
 				<div v-if="pending" class="text-center py-16">
-					<div class="w-12 h-12 mx-auto mb-4 border-2 t-border-accent border-t-transparent rounded-full animate-spin"></div>
+					<div
+						class="w-12 h-12 mx-auto mb-4 border-2 t-border-accent border-t-transparent rounded-full animate-spin"></div>
 					<p class="t-heading text-lg t-text-tertiary">Loading meetings...</p>
 				</div>
 
@@ -36,10 +37,7 @@
 
 				<!-- Meetings List -->
 				<div v-else-if="pastMeetings && pastMeetings.length" class="space-y-6">
-					<div
-						v-for="(item, index) in pastMeetings"
-						:key="index"
-						class="meeting-card opacity-0">
+					<div v-for="(item, index) in pastMeetings" :key="index" class="meeting-card opacity-0">
 						<MeetingsCard :meeting="item" />
 					</div>
 				</div>
@@ -52,15 +50,6 @@
 					<p class="t-heading text-xl t-text-secondary mb-2">No Meetings Found</p>
 					<p class="text-sm t-text-tertiary">Check back later for updates</p>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 t-section-alt border-t t-border-divider">
-			<div class="max-w-4xl mx-auto text-center">
-				<p class="t-heading text-sm italic t-text-tertiary">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>
@@ -113,11 +102,7 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
 
 		const cards = document.querySelectorAll('.meeting-card');
 		cards.forEach((card, index) => {
