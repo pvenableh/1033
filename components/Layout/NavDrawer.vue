@@ -13,96 +13,151 @@
 				name="i-heroicons-x-mark"
 				class="cursor-pointer h-6 w-6 -ml-[5px] -mt-[10px] mb-[10px] heroicon-sw-1.2 close-btn" />
 			<ul tabindex="0" class="nav-drawer__menu">
-				<!-- Dashboard - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/dashboard" class="flex items-center gap-2">
+				<!-- Dashboard -->
+				<li>
+					<a
+						href="/dashboard"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/dashboard', canAccessApproved, 'Dashboard')">
 						<UIcon name="i-lucide-layout-dashboard" class="w-4 h-4" />
 						Dashboard
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Announcements - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/announcements" class="flex items-center gap-2">
+				<!-- Announcements -->
+				<li>
+					<a
+						href="/announcements"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/announcements', canAccessApproved, 'Announcements')">
 						<UIcon name="i-heroicons-megaphone" class="w-4 h-4" />
 						Announcements
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Meetings - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/meetings" class="flex items-center gap-2">
+				<!-- Meetings -->
+				<li>
+					<a
+						href="/meetings"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/meetings', canAccessApproved, 'Meetings')">
 						<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
 						Meetings
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- By-Laws - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/documents" class="flex items-center gap-2">
+				<!-- By-Laws -->
+				<li>
+					<a
+						href="/documents"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/documents', canAccessApproved, 'By-Laws')">
 						<UIcon name="i-heroicons-document-text" class="w-4 h-4" />
 						By-Laws
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Rules - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/rules-regulations" class="flex items-center gap-2">
+				<!-- Rules -->
+				<li>
+					<a
+						href="/rules-regulations"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/rules-regulations', canAccessApproved, 'Rules')">
 						<UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
 						Rules
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Parking - visible to approved users or when not logged in -->
-				<li v-if="showApprovedLinks">
-					<nuxt-link to="/parking-garage" class="flex items-center gap-2">
+				<!-- Parking -->
+				<li>
+					<a
+						href="/parking-garage"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/parking-garage', canAccessApproved, 'Parking')">
 						<UIcon name="i-lucide-car" class="w-4 h-4" />
 						Parking
-					</nuxt-link>
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Channels - visible to board members, channel members, or when not logged in -->
-				<li v-if="showChannels">
-					<nuxt-link to="/channels" class="flex items-center gap-2">
+				<!-- Channels -->
+				<li>
+					<a
+						href="/channels"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessChannels}"
+						@click="(e) => handleNavClick(e, '/channels', canAccessChannels, 'Channels', 'channel membership')">
 						<UIcon name="i-lucide-messages-square" class="w-4 h-4" />
 						Channels
-					</nuxt-link>
+						<UIcon v-if="!canAccessChannels" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Security - visible to board members, owners, or when not logged in -->
-				<li v-if="showSecurity">
-					<nuxt-link to="/security" class="flex items-center gap-2">
+				<!-- Security -->
+				<li>
+					<a
+						href="/security"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessOwner}"
+						@click="(e) => handleNavClick(e, '/security', canAccessOwner, 'Security', 'owner')">
 						<UIcon name="i-lucide-cctv" class="w-4 h-4" />
 						Security
-					</nuxt-link>
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Financials - visible to board members, owners, or when not logged in -->
-				<li v-if="showFinancials">
-					<nuxt-link to="/financials" class="flex items-center gap-2">
+				<!-- Financials -->
+				<li>
+					<a
+						href="/financials"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessOwner}"
+						@click="(e) => handleNavClick(e, '/financials', canAccessOwner, 'Financials', 'owner')">
 						<UIcon name="i-heroicons-currency-dollar" class="w-4 h-4" />
 						Financials
-					</nuxt-link>
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Tasks - visible to board members or when not logged in -->
-				<li v-if="showBoardMemberLinks">
-					<nuxt-link to="/tasks" class="flex items-center gap-2">
+				<!-- Tasks -->
+				<li>
+					<a
+						href="/tasks"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessBoardMember}"
+						@click="(e) => handleNavClick(e, '/tasks', canAccessBoardMember, 'Tasks', 'board member')">
 						<UIcon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
 						Tasks
-					</nuxt-link>
+						<UIcon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
-				<!-- Admin/Users - visible to board members or when not logged in -->
-				<li v-if="showBoardMemberLinks">
-					<nuxt-link to="/admin" class="flex items-center gap-2 admin-link">
+				<!-- Admin/Users -->
+				<li>
+					<a
+						href="/admin"
+						class="flex items-center gap-2 admin-link"
+						:class="{'restricted-link': !canAccessBoardMember}"
+						@click="(e) => handleNavClick(e, '/admin', canAccessBoardMember, 'Users', 'board member')">
 						<UIcon name="i-heroicons-shield-check" class="w-4 h-4" />
 						Users
-					</nuxt-link>
+						<UIcon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
 				</li>
 
 				<!-- Divider before account section -->
-				<li v-if="user" class="nav-drawer__divider" aria-hidden="true">
+				<li class="nav-drawer__divider" aria-hidden="true">
 					<span class="divider-line"></span>
 				</li>
 
@@ -137,6 +192,8 @@ import {closeScreen} from '~~/composables/useScreen';
 
 const {user} = useDirectusAuth();
 const {isBoardMember, isOwner, isApproved} = useRoles();
+const toast = useToast();
+const router = useRouter();
 
 // Check if user has channel membership
 const hasChannelMembership = ref(false);
@@ -179,41 +236,65 @@ watch(
 	}
 );
 
-// Computed properties for navigation visibility
-// When no user is logged in, show all links (middleware will redirect to login)
-const showApprovedLinks = computed(() => {
-	return !user.value || isApproved.value;
+// Computed properties for access checks (used for styling and click handling)
+const canAccessApproved = computed(() => {
+	return user.value && isApproved.value;
 });
 
-const showChannels = computed(() => {
-	// Show when not logged in (middleware handles redirect) or when user has access
-	if (!user.value) return true;
-	return isBoardMember.value || hasChannelMembership.value;
+const canAccessChannels = computed(() => {
+	return user.value && (isBoardMember.value || hasChannelMembership.value);
 });
 
-const showFinancials = computed(() => {
-	// Show when not logged in (middleware handles redirect) or when user has access
-	if (!user.value) return true;
-	return isBoardMember.value || isOwner.value;
+const canAccessOwner = computed(() => {
+	return user.value && (isBoardMember.value || isOwner.value);
 });
 
-const showSecurity = computed(() => {
-	// Show when not logged in (middleware handles redirect) or when user has access
-	if (!user.value) return true;
-	return isBoardMember.value || isOwner.value;
+const canAccessBoardMember = computed(() => {
+	return user.value && isBoardMember.value;
 });
 
-const showBoardMemberLinks = computed(() => {
-	// Show when not logged in (middleware handles redirect) or when user is board member
-	if (!user.value) return true;
-	return isBoardMember.value;
-});
+// Handle navigation click with access check
+function handleNavClick(e: Event, path: string, hasAccess: boolean, featureName: string, requiredAccess?: string) {
+	e.preventDefault();
+	e.stopPropagation();
+
+	if (!user.value) {
+		// Not logged in - show toast and redirect to login
+		toast.add({
+			icon: 'i-heroicons-lock-closed',
+			title: 'Sign in required',
+			description: `Sign in to access ${featureName}`,
+			color: 'blue',
+		});
+		closeNavDrawer();
+		router.push(`/auth/signin?redirect=${encodeURIComponent(path)}`);
+		return;
+	}
+
+	if (!hasAccess) {
+		// Logged in but no access - show toast explaining required access
+		const accessLabel = requiredAccess || 'approved member';
+		toast.add({
+			icon: 'i-heroicons-lock-closed',
+			title: 'Access restricted',
+			description: `${featureName} requires ${accessLabel} access`,
+			color: 'amber',
+		});
+		return;
+	}
+
+	// Has access - navigate normally
+	closeNavDrawer();
+	router.push(path);
+}
 
 const navDrawerRef = ref(null);
 
 function closeNavDrawer() {
 	const element = document.getElementById('nav-drawer-toggle');
-	element.checked = false;
+	if (element) {
+		(element as HTMLInputElement).checked = false;
+	}
 	closeScreen();
 }
 
@@ -276,6 +357,23 @@ onClickOutside(navDrawerRef, () => {
 
 			a.admin-link.router-link-active {
 				color: var(--theme-warning, #f59e0b);
+			}
+
+			a.restricted-link {
+				opacity: 0.5;
+				cursor: pointer;
+
+				&:hover {
+					opacity: 0.7;
+				}
+
+				.lock-icon {
+					opacity: 0.7;
+				}
+			}
+
+			a.admin-link.restricted-link {
+				opacity: 0.4;
 			}
 		}
 	}
