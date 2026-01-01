@@ -79,7 +79,7 @@ const COLLECTIONS = {
       display_template: '{{content}}',
       sort_field: 'date_created',
       singleton: false,
-      translations: null,
+      hidden: false,
     },
     schema: {
       name: 'comments',
@@ -728,10 +728,19 @@ async function main() {
       // Collection might not exist yet
     }
 
-    const existingFieldNames = existingFields.map(f => f.field);
+    // Only consider fields with schema as real database columns (not alias fields)
+    const existingDbColumns = existingFields
+      .filter(f => f.schema !== null && f.schema !== undefined)
+      .map(f => f.field);
 
     for (const field of fields) {
-      if (existingFieldNames.includes(field.field)) {
+      // Skip alias fields (type 'alias') - they don't need database columns
+      if (field.type === 'alias') {
+        console.log(`      ⏭️  ${field.field} (alias field)`);
+        continue;
+      }
+
+      if (existingDbColumns.includes(field.field)) {
         console.log(`      ⏭️  ${field.field} (exists)`);
         continue;
       }
@@ -773,7 +782,7 @@ async function main() {
   for (const relation of RELATIONS) {
     const { collection, field: fieldName, related_collection } = relation;
 
-    // First, ensure the FK field exists
+    // First, ensure the FK field exists as a real database column
     let existingFields = [];
     try {
       existingFields = await client.request(readFields(collection));
@@ -781,7 +790,12 @@ async function main() {
       // Collection might not exist
     }
 
-    const fieldExists = existingFields.some(f => f.field === fieldName);
+    // Only consider fields with schema as real database columns
+    const existingDbColumns = existingFields
+      .filter(f => f.schema !== null && f.schema !== undefined)
+      .map(f => f.field);
+
+    const fieldExists = existingDbColumns.includes(fieldName);
 
     if (!fieldExists) {
       // Get field definition or create a default UUID field
@@ -793,9 +807,11 @@ async function main() {
           is_nullable: fieldDef?.schema?.is_nullable ?? true,
         },
         meta: {
+          hidden: false,
           interface: 'select-dropdown-m2o',
           special: ['m2o'],
           display: related_collection === 'directus_users' ? 'user' : 'related-values',
+          width: 'half',
         },
       };
 
