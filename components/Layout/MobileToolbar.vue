@@ -11,7 +11,7 @@ const props = defineProps({
 <template>
 	<div
 		id="mobile-toolbar"
-		class="mobile-toolbar flex flex-row items-center justify-center bg-gray-100 dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden pb-safe"
+		class="mobile-toolbar flex flex-row items-center justify-center bg-cream dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden pb-safe"
 		:class="{retracted: isScrollingDown}">
 		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
 			<UIcon :name="link.icon" />

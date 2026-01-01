@@ -3,18 +3,18 @@
 		class="min-h-screen w-full transition duration-300 flex items-center justify-start flex-col relative"
 		:style="{
 			backgroundColor: 'var(--theme-bg-primary)',
-			color: 'var(--theme-text-primary)'
+			color: 'var(--theme-text-primary)',
 		}">
 		<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
 		<LayoutHeader :links="headerLinks" />
 		<LayoutSecondaryNav />
-		<div class="page-content" :class="{ 'has-secondary-nav': showSecondaryNav }">
+		<div class="page-content" :class="{'has-secondary-nav': showSecondaryNav}">
 			<slot />
 		</div>
 
 		<LayoutFooter :links="footerLinks" />
 		<LayoutMobileToolbar :links="toolbarLinks" />
-		<LayoutNavButton />
+		<!-- <LayoutNavButton /> -->
 		<LayoutNavDrawer :links="drawerLinks" />
 		<transition name="screen">
 			<LayoutScreen v-if="screen" />

@@ -26,7 +26,7 @@ const avatar = computed(() => {
 			<client-only>
 				<InsightsWeather class="sm:pl-1 md:px-6" />
 			</client-only>
-			<nuxt-link to="/dashboard" class="inline-flex ml-8">
+			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
@@ -38,10 +38,11 @@ const avatar = computed(() => {
 			<NewLogo class="new-logo" />
 		</nuxt-link>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
-			<!-- <div class="hidden sm:inline-block mt-0">
-				<DarkModeToggle class="" />
-			</div> -->
-			<LayoutNavButton />
+			<nuxt-link to="/dashboard" class="inline-flex lg:hidden">
+				<AccountAvatar v-if="user" text="12" class="mr-2" />
+				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
+			</nuxt-link>
+			<LayoutNavButton class="!hidden !lg:block" />
 		</div>
 	</header>
 </template>
@@ -51,7 +52,9 @@ header {
 	background: var(--theme-header-bg, #eeeeee);
 	border-bottom: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
 	box-shadow: var(--theme-shadow-sm, -1px 2px 10px rgba(0, 0, 0, 0.05));
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+	transition:
+		transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s ease;
 	will-change: transform;
 }
 
