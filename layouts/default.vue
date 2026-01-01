@@ -7,7 +7,8 @@
 		}">
 		<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
 		<LayoutHeader :links="headerLinks" />
-		<div class="page-content">
+		<LayoutSecondaryNav />
+		<div class="page-content" :class="{ 'has-secondary-nav': showSecondaryNav }">
 			<slot />
 		</div>
 
@@ -22,6 +23,8 @@
 </template>
 <script setup lang="ts">
 const {initTheme} = useTheme();
+const {user} = useDirectusAuth();
+const {isApproved} = useRoles();
 
 interface Link {
 	name: string;
@@ -35,6 +38,11 @@ const props = defineProps({
 		type: Array as PropType<Link[]>,
 		default: () => [],
 	},
+});
+
+// Check if secondary nav should be visible (for padding adjustment)
+const showSecondaryNav = computed(() => {
+	return !!user.value && isApproved.value;
 });
 
 // Initialize theme on client side
