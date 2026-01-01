@@ -2,6 +2,13 @@
 	<div class="sell-sheet t-bg min-h-screen">
 		<!-- Hero Section -->
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
+			<!-- Weather Widget - positioned in top right -->
+			<div class="absolute top-20 right-4 sm:right-8 z-20 opacity-0 hero-weather">
+				<client-only>
+					<InsightsWeather variant="standard" :animated="true" :show-location="true" class="weather-hero-widget" />
+				</client-only>
+			</div>
+
 			<!-- Hero Background Image -->
 			<div class="fixed inset-0 z-0 hero-bg-container">
 				<div
@@ -787,6 +794,7 @@ onMounted(() => {
 		const heroTl = gsap.timeline({delay: 0.3});
 		heroTl
 			.to('.hero-image', {opacity: 1, duration: 1.2, ease: 'power2.out'})
+			.to('.hero-weather', {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'}, '-=0.8')
 			.to('.hero-address', {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'}, '-=0.6')
 			.to('.hero-title', {opacity: 1, y: 0, duration: 1, ease: 'power3.out'}, '-=0.4')
 			.to('.hero-divider', {opacity: 1, scaleX: 1, duration: 0.6, ease: 'power3.out'}, '-=0.4')
@@ -1058,6 +1066,21 @@ useHead({
 .sell-sheet {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Weather widget in hero - styled for dark background */
+.hero-weather {
+	transform: translateY(-10px);
+}
+
+.weather-hero-widget {
+	background: rgba(0, 0, 0, 0.3);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 12px;
+	padding: 12px 16px;
+	color: #fff;
+	border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 /* Hero section clips the fixed background */

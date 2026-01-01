@@ -25,6 +25,7 @@
 const {initTheme} = useTheme();
 const {user} = useDirectusAuth();
 const {isApproved} = useRoles();
+const {isSecondaryNavVisible} = useSecondaryNavToggle();
 
 interface Link {
 	name: string;
@@ -42,7 +43,7 @@ const props = defineProps({
 
 // Check if secondary nav should be visible (for padding adjustment)
 const showSecondaryNav = computed(() => {
-	return !!user.value && isApproved.value;
+	return !!user.value && isApproved.value && isSecondaryNavVisible.value;
 });
 
 // Initialize theme on client side

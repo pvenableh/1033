@@ -1,6 +1,13 @@
 <script setup>
 const {isScrollingDown} = useScrollDirection();
 const {user} = useDirectusAuth();
+const {isApproved} = useRoles();
+const {isSecondaryNavVisible, toggleSecondaryNav} = useSecondaryNavToggle();
+
+// Show toggle only for logged-in and approved users
+const showNavToggle = computed(() => {
+	return !!user.value && isApproved.value;
+});
 
 const avatar = computed(() => {
 	if (user.value.avatar) {
@@ -34,9 +41,22 @@ const avatar = computed(() => {
 		<!-- <client-only>
 			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
 		</client-only> -->
-		<nuxt-link to="/">
-			<NewLogo class="new-logo" />
-		</nuxt-link>
+		<div class="flex items-center gap-1">
+			<nuxt-link to="/">
+				<NewLogo class="new-logo" />
+			</nuxt-link>
+			<button
+				v-if="showNavToggle"
+				@click="toggleSecondaryNav"
+				class="nav-toggle-btn flex items-center justify-center w-6 h-6 rounded-full transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10"
+				:title="isSecondaryNavVisible ? 'Hide navigation' : 'Show navigation'"
+				aria-label="Toggle secondary navigation">
+				<UIcon
+					name="i-heroicons-chevron-down"
+					class="w-4 h-4 transition-transform duration-300"
+					:class="{'rotate-180': !isSecondaryNavVisible}" />
+			</button>
+		</div>
 		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
 			<nuxt-link to="/dashboard" class="inline-flex lg:hidden">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
