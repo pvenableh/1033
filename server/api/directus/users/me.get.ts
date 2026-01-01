@@ -4,44 +4,41 @@
  * Get current authenticated user's data from Directus.
  * Uses getUserDirectus() for automatic token refresh.
  */
-import { directusReadMeWithFields } from '~/server/utils/directus';
+import { getUserDirectus, directusReadMeWithFields, readMe } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
-  const session = await getUserSession(event);
-  const accessToken = getSessionAccessToken(session);
-
-  if (!accessToken) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'Authentication required',
-    });
-  }
-
   try {
+    // Use getUserDirectus which handles automatic token refresh
+    const client = await getUserDirectus(event);
+
+    // Get refreshed session with potentially new access token
+    const session = await getUserSession(event);
+    const accessToken = getSessionAccessToken(session);
+
+    if (!accessToken) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'Authentication required',
+      });
+    }
+
     const query = getQuery(event);
     const fields = query.fields
       ? String(query.fields).split(',')
       : undefined;
 
-    // If custom fields requested, fetch them
+    // If custom fields requested, use the authenticated client directly
     if (fields) {
-      const config = useRuntimeConfig();
-      const url = config.public.directusUrl || config.public.adminUrl;
-
-      const response = await $fetch(`${url}/users/me`, {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        query: {
-          fields: fields.join(','),
-        },
-      });
-
-      return (response as any).data;
+      const result = await client.request(
+        readMe({
+          fields: fields as any,
+        })
+      );
+      return result;
     }
 
-    // Otherwise use default fields
+    // Otherwise use default fields with admin token for extended access
     const userData = await directusReadMeWithFields(accessToken);
     return userData;
   } catch (error: any) {
@@ -49,6 +46,15 @@ export default defineEventHandler(async (event) => {
 
     if (error.statusCode) {
       throw error;
+    }
+
+    // Handle token expiration gracefully
+    if (error.message?.includes('Token expired') || error.status === 401) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'Session expired. Please log in again.',
+      });
     }
 
     throw createError({

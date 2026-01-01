@@ -174,6 +174,7 @@ function resetForm() {
 </script>
 
 <template>
+  <div class="admin-page bg-white dark:bg-gray-900 min-h-full">
   <div class="container mx-auto px-6 py-8">
     <div class="max-w-lg mx-auto">
       <!-- Header -->
@@ -285,5 +286,6 @@ function resetForm() {
         </UForm>
       </UCard>
     </div>
+  </div>
   </div>
 </template>
