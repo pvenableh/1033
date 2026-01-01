@@ -1,10 +1,11 @@
 /**
  * GET /api/directus/users/board-members
  *
- * Get all board members.
+ * Get all active board members from the board_member collection.
+ * Follows the relationship: board_member -> people -> directus_users
  * Available to authenticated users.
  */
-import { useDirectusAdmin, readUsers, readRoles } from '~/server/utils/directus';
+import { useDirectusAdmin, readItems } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -18,41 +19,90 @@ export default defineEventHandler(async (event) => {
   }
 
   const client = useDirectusAdmin();
+  const now = new Date().toISOString();
 
   try {
-    // First, find roles that are board-related
-    const roles = await client.request(
-      readRoles({
-        fields: ['id', 'name'],
+    // Query active board members from board_member collection
+    // Filter: status is published, and current date is within start/finish range
+    const boardMembers = await client.request(
+      readItems('board_member', {
+        fields: [
+          'id',
+          'title',
+          'status',
+          'start',
+          'finish',
+          // Get the related person
+          'people_id.id',
+          'people_id.first_name',
+          'people_id.last_name',
+          'people_id.email',
+          // Get the related directus user through person
+          'people_id.user_id.id',
+          'people_id.user_id.first_name',
+          'people_id.user_id.last_name',
+          'people_id.user_id.email',
+          'people_id.user_id.avatar',
+          'people_id.user_id.status',
+        ],
         filter: {
-          _or: [
-            { name: { _icontains: 'board' } },
-            { name: { _icontains: 'admin' } },
+          status: { _eq: 'published' },
+          _and: [
+            {
+              _or: [
+                { start: { _null: true } },
+                { start: { _lte: now } },
+              ],
+            },
+            {
+              _or: [
+                { finish: { _null: true } },
+                { finish: { _gte: now } },
+              ],
+            },
           ],
         },
-      } as any)
-    );
-
-    if (!roles || roles.length === 0) {
-      return [];
-    }
-
-    const boardRoleIds = roles.map((r: any) => r.id);
-
-    // Get users with board roles
-    const users = await client.request(
-      readUsers({
-        fields: ['id', 'email', 'first_name', 'last_name', 'avatar', 'status', 'role.id', 'role.name'],
-        filter: {
-          status: { _eq: 'active' },
-          role: { _in: boardRoleIds },
-        },
-        sort: ['first_name', 'last_name'],
         limit: -1,
       } as any)
     );
 
-    return users || [];
+    // Extract unique users from board members
+    const usersMap = new Map<string, any>();
+
+    for (const bm of boardMembers as any[]) {
+      const person = bm.people_id;
+      if (!person) continue;
+
+      const user = person.user_id;
+      if (user && user.id && user.status === 'active') {
+        // Use user data if available
+        if (!usersMap.has(user.id)) {
+          usersMap.set(user.id, {
+            id: user.id,
+            first_name: user.first_name || person.first_name,
+            last_name: user.last_name || person.last_name,
+            email: user.email || person.email,
+            avatar: user.avatar,
+            board_title: bm.title,
+          });
+        }
+      } else if (person.id && person.email) {
+        // Fallback to person data if no linked user
+        const personKey = `person-${person.id}`;
+        if (!usersMap.has(personKey)) {
+          usersMap.set(personKey, {
+            id: personKey,
+            first_name: person.first_name,
+            last_name: person.last_name,
+            email: person.email,
+            avatar: null,
+            board_title: bm.title,
+          });
+        }
+      }
+    }
+
+    return Array.from(usersMap.values());
   } catch (error: any) {
     console.error('Get board members error:', error);
 
