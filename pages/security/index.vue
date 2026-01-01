@@ -1,10 +1,15 @@
 <template>
 	<div
 		class="w-full flex flex-col lg:flex-row flex-wrap items-start justify-start min-h-screen bg-gradient-to-br from-zinc-900 to-zinc-600">
-		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white lg:py-6 mt-4 md:mt-8 mb-6">
+		<h1 class="text-3xl font-bold w-full text-center uppercase tracking-wide text-white lg:pt-6 mt-4 md:mt-8 mb-2">
 			Access Control
 		</h1>
-
+		<nuxt-link
+			to="/access-control"
+			class="text-cream-alt text-xs px-6 w-full text-center uppercase tracking-wide font-semibold mb-4 opacity-50 hover:opacity-100">
+			Review Access Control Decision Analysis
+			<UIcon name="i-heroicons-arrow-right" class="w-4 h-4 inline-block ml-2 -mb-1" />
+		</nuxt-link>
 		<!-- Mobile Tabs (hidden on lg and up) -->
 		<div class="w-full md:px-6 lg:hidden mt-0">
 			<UTabs
@@ -25,90 +30,6 @@
 					},
 				}">
 				<template #item="{item}">
-					<div v-if="item.key === 'directory'">
-						<!-- Tenants Directory Content -->
-						<div class="bg-zinc-950 shadow-2xl overflow-hidden mt-4">
-							<!-- Directory Header with Toggle -->
-							<div class="swiftlane-bg p-4">
-								<div class="flex items-center justify-start">
-									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mr-4">RESIDENT DIRECTORY</h2>
-									<button
-										@click="toggleDirectorySearch"
-										class="text-white/80 hover:text-white transition-colors focus:outline-none">
-										<UIcon
-											name="i-heroicons-magnifying-glass-circle"
-											:class="[
-												'w-5 h-5 transition-transform duration-300 mt-1',
-												isDirectorySearchOpen ? 'rotate-180' : '',
-											]" />
-									</button>
-								</div>
-
-								<!-- Collapsible Search Container -->
-								<div ref="directorySearchMobile" class="overflow-hidden" style="height: 0">
-									<div class="relative mt-3">
-										<input
-											v-model="searchQuery"
-											type="text"
-											placeholder="Search by name or unit number..."
-											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-										<UIcon
-											name="i-heroicons-magnifying-glass"
-											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-										<button
-											v-if="searchQuery"
-											@click="searchQuery = ''"
-											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
-										</button>
-									</div>
-								</div>
-							</div>
-
-							<div
-								:class="[
-									'overflow-y-auto transition-all duration-300 mt-5 mb-5',
-									isDirectorySearchOpen ? 'max-h-[100svh - 275px]' : 'max-h-[100svh - 195px]',
-								]">
-								<!-- No Results Message -->
-								<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
-									<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
-									<p>No residents found</p>
-								</div>
-
-								<div
-									v-for="(group, unitNumber) in filteredTenants"
-									:key="unitNumber"
-									class="border-b border-zinc-800 hover:bg-zinc-900 transition-colors duration-200">
-									<!-- Unit Header -->
-									<div class="bg-zinc-900 px-4 py-3 flex items-center gap-3">
-										<div
-											class="swiftlane-bg text-white font-bold text-sm tracking-wide uppercase px-3 py-0.5 min-w-[60px] text-center">
-											{{ unitNumber }}
-										</div>
-										<div class="h-px flex-1 bg-zinc-800"></div>
-									</div>
-
-									<!-- Tenant Names -->
-									<div class="bg-zinc-950">
-										<div
-											v-for="tenant in group"
-											:key="tenant.id"
-											class="px-4 py-3 border-l-4 border-transparent hover:bg-zinc-900/50 hover:border-zinc-600 transition-all duration-200">
-											<div class="flex items-center justify-between">
-												<div>
-													<p class="text-white font-semibold uppercase text-sm tracking-wide">
-														{{ tenant.display_name }}
-													</p>
-												</div>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-
 					<div v-if="item.key === 'activity'">
 						<!-- Activity Feed Content -->
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
@@ -278,93 +199,94 @@
 							</div>
 						</div>
 					</div>
-				</template>
-			</UTabs>
-		</div>
+					<div v-if="item.key === 'directory'">
+						<!-- Tenants Directory Content -->
+						<div class="bg-zinc-950 shadow-2xl overflow-hidden mt-4">
+							<!-- Directory Header with Toggle -->
+							<div class="swiftlane-bg p-4">
+								<div class="flex items-center justify-start">
+									<h2 class="text-white text-sm md:text-xl font-bold tracking-wide mr-4">RESIDENT DIRECTORY</h2>
+									<button
+										@click="toggleDirectorySearch"
+										class="text-white/80 hover:text-white transition-colors focus:outline-none">
+										<UIcon
+											name="i-heroicons-magnifying-glass-circle"
+											:class="[
+												'w-5 h-5 transition-transform duration-300 mt-1',
+												isDirectorySearchOpen ? 'rotate-180' : '',
+											]" />
+									</button>
+								</div>
 
-		<!-- Desktop Side-by-Side (hidden on mobile, visible on lg and up) -->
-		<!-- Tenants Directory - Digital Intercom Style -->
-		<div class="hidden lg:block w-1/2 p-6">
-			<div class="bg-zinc-950 shadow-2xl overflow-hidden">
-				<!-- Directory Header with Toggle -->
-				<div class="swiftlane-bg p-4 mb-4">
-					<div class="flex items-center justify-start">
-						<h2 class="text-white text-xl font-bold tracking-wide">RESIDENT DIRECTORY</h2>
-						<button
-							@click="toggleDirectorySearch"
-							class="text-white/80 hover:text-white transition-colors focus:outline-none ml-4">
-							<UIcon
-								name="i-heroicons-magnifying-glass-circle"
-								:class="[
-									'w-6 h-6 transition-transform duration-300 mt-1',
-									isDirectorySearchOpen ? 'rotate-180' : '',
-								]" />
-						</button>
-					</div>
-
-					<!-- Collapsible Search Container -->
-					<div ref="directorySearchDesktop" class="overflow-hidden" style="height: 0">
-						<div class="relative mt-3">
-							<input
-								v-model="searchQuery"
-								type="text"
-								placeholder="Search by name or unit number..."
-								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-							<UIcon
-								name="i-heroicons-magnifying-glass"
-								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
-							<button
-								v-if="searchQuery"
-								@click="searchQuery = ''"
-								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
-							</button>
-						</div>
-					</div>
-				</div>
-
-				<div
-					:class="[
-						'overflow-y-auto transition-all duration-300',
-						isDirectorySearchOpen ? 'max-h-[90svh - 275px]' : 'max-h-[90svh - 195px]',
-					]">
-					<!-- No Results Message -->
-					<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
-						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
-						<p>No residents found</p>
-					</div>
-
-					<div
-						v-for="(group, unitNumber) in filteredTenants"
-						:key="unitNumber"
-						class="border-b border-zinc-800 hover:bg-zinc-900 transition-colors duration-200">
-						<!-- Unit Header -->
-						<div class="bg-zinc-900 px-4 py-3 flex items-center gap-3">
-							<div
-								class="swiftlane-bg text-white font-bold text-sm tracking-wide uppercase px-3 py-0.5 min-w-[60px] text-center">
-								{{ unitNumber }}
+								<!-- Collapsible Search Container -->
+								<div ref="directorySearchMobile" class="overflow-hidden" style="height: 0">
+									<div class="relative mt-3">
+										<input
+											v-model="searchQuery"
+											type="text"
+											placeholder="Search by name or unit number..."
+											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+										<UIcon
+											name="i-heroicons-magnifying-glass"
+											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+										<button
+											v-if="searchQuery"
+											@click="searchQuery = ''"
+											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+										</button>
+									</div>
+								</div>
 							</div>
-							<div class="h-px flex-1 bg-zinc-800"></div>
-						</div>
 
-						<!-- Tenant Names -->
-						<div class="bg-zinc-950">
 							<div
-								v-for="tenant in group"
-								:key="tenant.id"
-								class="px-4 py-3 border-l-4 border-transparent hover:bg-zinc-900/50 hover:border-zinc-600 transition-all duration-200">
-								<div class="flex items-center justify-between">
-									<div>
-										<p class="text-white font-semibold uppercase text-sm tracking-wide">{{ tenant.display_name }}</p>
+								:class="[
+									'overflow-y-auto transition-all duration-300 mt-5 mb-5',
+									isDirectorySearchOpen ? 'max-h-[100svh - 275px]' : 'max-h-[100svh - 195px]',
+								]">
+								<!-- No Results Message -->
+								<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
+									<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+									<p>No residents found</p>
+								</div>
+
+								<div
+									v-for="(group, unitNumber) in filteredTenants"
+									:key="unitNumber"
+									class="border-b border-zinc-800 hover:bg-zinc-900 transition-colors duration-200">
+									<!-- Unit Header -->
+									<div class="bg-zinc-900 px-4 py-3 flex items-center gap-3">
+										<div
+											class="swiftlane-bg text-white font-bold text-sm tracking-wide uppercase px-3 py-0.5 min-w-[60px] text-center">
+											{{ unitNumber }}
+										</div>
+										<div class="h-px flex-1 bg-zinc-800"></div>
+									</div>
+
+									<!-- Tenant Names -->
+									<div class="bg-zinc-950">
+										<div
+											v-for="tenant in group"
+											:key="tenant.id"
+											class="px-4 py-3 border-l-4 border-transparent hover:bg-zinc-900/50 hover:border-zinc-600 transition-all duration-200">
+											<div class="flex items-center justify-between">
+												<div>
+													<p class="text-white font-semibold uppercase text-sm tracking-wide">
+														{{ tenant.display_name }}
+													</p>
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
+				</template>
+			</UTabs>
 		</div>
 
+		<!-- Desktop Side-by-Side (hidden on mobile, visible on lg and up) -->
 		<!-- Activity Feed - Digital Intercom Style -->
 		<div class="hidden lg:block w-1/2 p-6">
 			<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden">
@@ -525,6 +447,87 @@
 							v-if="!hasMore && events.length > 0 && !activitySearchQuery"
 							class="px-4 py-6 text-center text-zinc-600">
 							<p class="text-sm">End of activity feed</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Tenants Directory - Digital Intercom Style -->
+		<div class="hidden lg:block w-1/2 p-6">
+			<div class="bg-zinc-950 shadow-2xl overflow-hidden">
+				<!-- Directory Header with Toggle -->
+				<div class="swiftlane-bg p-4 mb-4">
+					<div class="flex items-center justify-start">
+						<h2 class="text-white text-xl font-bold tracking-wide">RESIDENT DIRECTORY</h2>
+						<button
+							@click="toggleDirectorySearch"
+							class="text-white/80 hover:text-white transition-colors focus:outline-none ml-4">
+							<UIcon
+								name="i-heroicons-magnifying-glass-circle"
+								:class="[
+									'w-6 h-6 transition-transform duration-300 mt-1',
+									isDirectorySearchOpen ? 'rotate-180' : '',
+								]" />
+						</button>
+					</div>
+
+					<!-- Collapsible Search Container -->
+					<div ref="directorySearchDesktop" class="overflow-hidden" style="height: 0">
+						<div class="relative mt-3">
+							<input
+								v-model="searchQuery"
+								type="text"
+								placeholder="Search by name or unit number..."
+								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
+							<UIcon
+								name="i-heroicons-magnifying-glass"
+								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
+							<button
+								v-if="searchQuery"
+								@click="searchQuery = ''"
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
+								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div
+					:class="[
+						'overflow-y-auto transition-all duration-300',
+						isDirectorySearchOpen ? 'max-h-[90svh - 275px]' : 'max-h-[90svh - 195px]',
+					]">
+					<!-- No Results Message -->
+					<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
+						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+						<p>No residents found</p>
+					</div>
+
+					<div
+						v-for="(group, unitNumber) in filteredTenants"
+						:key="unitNumber"
+						class="border-b border-zinc-800 hover:bg-zinc-900 transition-colors duration-200">
+						<!-- Unit Header -->
+						<div class="bg-zinc-900 px-4 py-3 flex items-center gap-3">
+							<div
+								class="swiftlane-bg text-white font-bold text-sm tracking-wide uppercase px-3 py-0.5 min-w-[60px] text-center">
+								{{ unitNumber }}
+							</div>
+							<div class="h-px flex-1 bg-zinc-800"></div>
+						</div>
+
+						<!-- Tenant Names -->
+						<div class="bg-zinc-950">
+							<div
+								v-for="tenant in group"
+								:key="tenant.id"
+								class="px-4 py-3 border-l-4 border-transparent hover:bg-zinc-900/50 hover:border-zinc-600 transition-all duration-200">
+								<div class="flex items-center justify-between">
+									<div>
+										<p class="text-white font-semibold uppercase text-sm tracking-wide">{{ tenant.display_name }}</p>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>

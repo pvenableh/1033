@@ -42,7 +42,7 @@ const avatar = computed(() => {
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
-			<LayoutNavButton class="!hidden !lg:block" />
+			<LayoutNavButton />
 		</div>
 	</header>
 </template>

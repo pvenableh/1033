@@ -19,6 +19,15 @@ function sideMenuToggle() {
 	</div>
 </template>
 <style scoped>
+.header #nav-btn {
+	display: none;
+	@media (min-width: theme('screens.lg')) {
+		top: 0px;
+		max-width: 100px;
+		right: calc(10px + 3rem);
+		display: block;
+	}
+}
 #nav-btn {
 	bottom: 0px;
 	right: 0px;
@@ -31,14 +40,9 @@ function sideMenuToggle() {
 	cursor: pointer;
 	transition: 0.475s var(--curve);
 	height: 65px;
+
 	@media (min-width: theme('screens.sm')) {
 		/* right: 35px; */
-	}
-
-	@media (min-width: theme('screens.lg')) {
-		top: 0px;
-		max-width: 100px;
-		right: calc(10px + 3rem);
 	}
 
 	/* @media (min-width: 1280px) {
