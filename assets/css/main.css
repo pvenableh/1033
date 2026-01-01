@@ -77,6 +77,12 @@ a {
   min-height: 100vh;
 }
 
+/* Extra padding when secondary nav is visible (logged in & approved users) */
+.page-content.has-secondary-nav {
+  /* Add additional padding for secondary nav (44px) */
+  padding-top: calc(56px + 44px + env(safe-area-inset-top, 0px));
+}
+
 /* On desktop, no need for bottom toolbar padding */
 @media (min-width: 1024px) {
   .page-content {

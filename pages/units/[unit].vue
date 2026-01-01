@@ -110,7 +110,7 @@ import {gsap} from 'gsap';
 const {params} = useRoute();
 
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

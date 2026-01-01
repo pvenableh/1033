@@ -86,7 +86,7 @@ import {gsap} from 'gsap';
 const {user} = useDirectusAuth();
 
 definePageMeta({
-	layout: 'auth',
+	layout: 'default',
 	middleware: ['auth'],
 });
 
