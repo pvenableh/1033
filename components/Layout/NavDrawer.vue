@@ -2,7 +2,11 @@
 	<div
 		id="nav-drawer"
 		ref="navDrawerRef"
-		class="flex items-center justify-center flex-col bg-white bg-opacity-75 dark:bg-gray-800 dark:text-white nav-drawer"
+		class="flex items-center justify-center flex-col nav-drawer"
+		:style="{
+			backgroundColor: 'var(--theme-drawer-bg)',
+			color: 'var(--theme-text-primary)'
+		}"
 		@click="closeNavDrawer">
 		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
 			<UIcon
@@ -28,6 +32,9 @@
 					<nuxt-link to="/auth/signin">Login</nuxt-link>
 				</li>
 			</ul>
+
+			<!-- Theme Selector -->
+			<ThemeSelector />
 		</div>
 	</div>
 </template>
@@ -101,7 +108,7 @@ onClickOutside(navDrawerRef, () => {
 			}
 
 			a.router-link-exact-active {
-				color: var(--cyan2);
+				color: var(--theme-accent-active, var(--cyan2));
 				@apply font-bold;
 			}
 		}

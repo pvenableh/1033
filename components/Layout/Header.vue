@@ -37,8 +37,9 @@ const avatar = computed(() => {
 </script>
 <template>
 	<header
-		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 dark:bg-gray-900 transition-all header bg-cream-alt"
-		:class="{retracted: isRetracted}">
+		class="w-full flex items-center justify-center sticky top-0 left-0 z-20 transition-all header"
+		:class="{retracted: isRetracted}"
+		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row">
 			<DarkModeToggle class="hidden" />
 			<client-only>
@@ -66,10 +67,10 @@ const avatar = computed(() => {
 
 <style>
 header {
-	background: #eeeeee;
-	border-bottom: solid 1px rgba(55, 55, 55, 0.05);
-	box-shadow: -1px 2px 10px rgba(0, 0, 0, 0.05);
-	transition: transform 0.25s var(--curve);
+	background: var(--theme-header-bg, #eeeeee);
+	border-bottom: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
+	box-shadow: var(--theme-shadow-sm, -1px 2px 10px rgba(0, 0, 0, 0.05));
+	transition: transform 0.25s var(--curve), background-color 0.3s ease;
 }
 
 header.retracted {
