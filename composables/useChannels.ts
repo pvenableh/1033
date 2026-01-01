@@ -44,7 +44,7 @@ export function useChannels() {
     const filter: Record<string, any> = {};
 
     if (!options?.includeArchived) {
-      filter.status = { _eq: 'active' };
+      filter.status = { _eq: 'published' };
     }
 
     return await channels.list({
@@ -100,7 +100,7 @@ export function useChannels() {
   const createChannel = async (data: CreateChannelPayload): Promise<Channel> => {
     return await channels.create({
       ...data,
-      status: 'active',
+      status: 'published',
       icon: data.icon || 'chat',
       is_private: data.is_private || false,
     });
@@ -514,7 +514,7 @@ export function useChannels() {
           'members.user_id.last_name',
         ],
         filter: {
-          status: { _eq: 'active' },
+          status: { _eq: 'published' },
         },
         sort: ['sort', 'name'],
       },

@@ -244,6 +244,31 @@ export function useDirectusFiles() {
     return filename.split('.').pop()?.toLowerCase() || '';
   };
 
+  // ==================== UPLOAD OPERATIONS ====================
+
+  /**
+   * Upload files to Directus
+   * @param formData - FormData containing file(s) under 'file' key
+   * @returns Uploaded file(s) - single file or array of files
+   */
+  const uploadFiles = async (formData: FormData): Promise<DirectusFile | DirectusFile[]> => {
+    const response = await $fetch<DirectusFile | DirectusFile[]>('/api/directus/files/upload', {
+      method: 'POST',
+      body: formData,
+    });
+    return response;
+  };
+
+  /**
+   * Update a file's metadata (alias for update, for API consistency)
+   */
+  const updateFile = async (
+    id: string,
+    data: Partial<DirectusFile>
+  ): Promise<DirectusFile> => {
+    return await update(id, data);
+  };
+
   return {
     // Read
     findOne,
@@ -254,10 +279,14 @@ export function useDirectusFiles() {
     // Update
     update,
     moveToFolder,
+    updateFile,
 
     // Delete
     remove,
     removeMany,
+
+    // Upload
+    uploadFiles,
 
     // URLs
     getUrl,
