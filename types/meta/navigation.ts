@@ -1,5 +1,4 @@
 import type {User} from '../system/index.js';
-import type {Page} from '../content/index.js';
 
 export interface Navigation {
 	date_created?: string | null;
@@ -20,7 +19,7 @@ export interface NavigationItem {
 	label?: string | null;
 	navigation?: (string | Navigation) | null;
 	open_in_new_tab?: boolean | null;
-	page?: (string | Page) | null;
+	page?: string | null;
 	parent?: (string | NavigationItem) | null;
 	sort?: number | null;
 	title?: string | null;
