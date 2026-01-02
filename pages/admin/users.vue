@@ -74,8 +74,8 @@ async function fetchUsers() {
       body: {
         operation: 'list',
         query: {
-          fields: ['id', 'first_name', 'last_name', 'email', 'status', 'role.id', 'role.name', 'description', 'date_created'],
-          sort: ['-date_created'],
+          fields: ['id', 'first_name', 'last_name', 'email', 'status', 'role.id', 'role.name', 'description'],
+          sort: ['-id'],
           limit: -1,
         },
       },

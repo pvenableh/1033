@@ -4,6 +4,8 @@
  * Returns the admin token for authenticated admin users.
  * Used for admin-only operations like financial imports.
  */
+import { hasAdminAccess } from '~/server/utils/directus';
+
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
 
@@ -15,9 +17,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if user has admin access
-  const isAdmin = session.user.role?.admin_access === true;
-  if (!isAdmin) {
+  // Check if user has admin access (from policies in Directus v11+)
+  if (!hasAdminAccess(session)) {
     throw createError({
       statusCode: 403,
       statusMessage: 'Forbidden',
