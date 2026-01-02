@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Fetch units from server endpoint
-const { data: unitsData, pending, refresh } = useLazyFetch<{ units: any[] }>(
+const { data: unitsData, pending, refresh, error } = useLazyFetch<{ units: any[] }>(
   '/api/directus/users/me/units',
   {
     server: false,
@@ -10,6 +10,12 @@ const { data: unitsData, pending, refresh } = useLazyFetch<{ units: any[] }>(
 
 const units = computed(() => {
   return unitsData.value?.units?.map((u: any) => u.units_id) || [];
+});
+
+// Get error message for display
+const errorMessage = computed(() => {
+  if (!error.value) return null;
+  return error.value.data?.message || error.value.message || 'Failed to load unit information';
 });
 
 // Expose refresh for parent components to use
@@ -23,6 +29,14 @@ defineExpose({ refresh });
     <div v-if="pending" class="text-center py-8 text-gray-500">
       <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
       <p>Loading unit information...</p>
+    </div>
+
+    <div v-else-if="errorMessage" class="text-center py-8">
+      <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+      <p class="text-red-600 mb-2">{{ errorMessage }}</p>
+      <UButton variant="soft" size="sm" @click="refresh()">
+        Try Again
+      </UButton>
     </div>
 
     <div v-else-if="units.length === 0" class="text-center py-8 text-gray-500">

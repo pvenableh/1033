@@ -2,13 +2,19 @@
 const toast = useToast();
 
 // Fetch units with vehicles from server endpoint
-const { data: unitsData, pending: unitsPending, refresh: refreshUnits } = useLazyFetch<{ units: any[] }>(
+const { data: unitsData, pending: unitsPending, refresh: refreshUnits, error: fetchError } = useLazyFetch<{ units: any[] }>(
   '/api/directus/users/me/units',
   {
     server: false,
     default: () => ({ units: [] }),
   }
 );
+
+// Get error message for display
+const errorMessage = computed(() => {
+  if (!fetchError.value) return null;
+  return fetchError.value.data?.message || fetchError.value.message || 'Failed to load vehicles';
+});
 
 // Get all vehicles from user's units
 const vehicles = computed(() => {
@@ -191,6 +197,14 @@ function getStatusBadge(status: string) {
     <div v-if="unitsPending" class="text-center py-8 text-gray-500">
       <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
       <p>Loading vehicles...</p>
+    </div>
+
+    <div v-else-if="errorMessage" class="text-center py-8">
+      <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+      <p class="text-red-600 mb-2">{{ errorMessage }}</p>
+      <UButton variant="soft" size="sm" @click="refreshUnits()">
+        Try Again
+      </UButton>
     </div>
 
     <div v-else-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
