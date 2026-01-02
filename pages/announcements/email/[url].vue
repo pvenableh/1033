@@ -55,12 +55,17 @@
 
 						<p
 							v-if="email.sendgrid_template_id === 'd-5ae6a4c8bc8b4743969c23c0dca559f9'"
-							class="w-full font-bold greeting">
+							class="w-full font-bold greeting mb-0">
 							Camila Hoffman
 							<span class="icon" style="font-size: 12px; margin-left: 2px; display: inline-block">✨</span>
-							<span class="title" style="display: block; font-size: 7px; line-height: 12px">President</span>
+							<span class="title tracking-wider" style="display: block; font-size: 7px; line-height: 12px">
+								President
+							</span>
 						</p>
 						<p v-else class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
+					</div>
+					<div class="w-full flex flex-row flex-wrap items-start board-signature">
+						<h5 class="text-[9px] uppercase tracking-wide w-full mt-2 font-bold opacity-50">Board of Directors:</h5>
 						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
 							Camila Hoffman
 							<span class="icon">✨</span>
@@ -226,10 +231,30 @@ useSeoMeta({
 		.greeting {
 			/* line-height: 1em; */
 			font-size: 15px;
+			line-height: 1.25em;
 			/* margin-bottom: 0px;
       padding-bottom: 0px; */
 		}
 
+		p {
+			font-size: 10px;
+
+			.icon {
+				font-size: 12px;
+				margin-left: 2px;
+				@apply inline-block;
+			}
+
+			.title {
+				display: block;
+				font-size: 7px;
+				line-height: 12px;
+				@apply uppercase tracking-wide;
+			}
+		}
+	}
+	.board-signature {
+		@apply border-t border-gray-300 mt-8 pt-4 flex flex-row flex-wrap;
 		p {
 			font-size: 10px;
 
