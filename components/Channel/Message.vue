@@ -1,140 +1,114 @@
 <template>
 	<div
-		class="channel-message group rounded-lg transition-colors"
+		class="channel-message group relative"
+		:data-message-id="message.id"
 		:class="[
-			isHighlighted ? 'bg-primary-50 dark:bg-primary-900/10' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
-			isReply ? 'ml-4 sm:ml-8' : ''
+			isHighlighted ? 'bg-primary-50/50 dark:bg-primary-900/10' : '',
 		]">
-		<!-- Reply Indicator - shows parent message preview -->
-		<div
-			v-if="isReply && parentMessage"
-			class="flex items-center gap-2 px-3 pt-2 pb-1 text-xs text-gray-500 dark:text-gray-400">
-			<div class="flex items-center gap-1.5">
-				<div class="w-4 h-4 border-l-2 border-t-2 border-gray-300 dark:border-gray-600 rounded-tl-md -mb-2"></div>
-				<UIcon name="i-heroicons-arrow-uturn-left" class="w-3 h-3 rotate-180" />
+		<!-- Reply connector - iOS style threading -->
+		<div v-if="isReply && parentMessage" class="reply-thread-container mb-1">
+			<!-- Vertical connector line -->
+			<div class="reply-connector">
+				<div class="connector-line"></div>
+			</div>
+
+			<!-- Parent message preview bubble -->
+			<button
+				class="reply-preview-bubble"
+				@click="scrollToParent">
 				<UAvatar
 					:src="parentAuthorAvatar"
 					:alt="parentAuthorName"
 					size="2xs"
 					class="flex-shrink-0" />
-				<span class="font-medium text-gray-600 dark:text-gray-300">{{ parentAuthorName }}</span>
-			</div>
-			<span class="truncate max-w-[200px] sm:max-w-[300px] italic">
-				{{ parentMessagePreview }}
-			</span>
+				<span class="reply-author">{{ parentAuthorName }}</span>
+				<span class="reply-text">{{ parentMessagePreview }}</span>
+			</button>
 		</div>
 
-		<!-- Reply visual connector line -->
+		<!-- Main message bubble -->
 		<div
-			v-if="isReply"
-			class="absolute left-2 sm:left-6 top-0 bottom-1/2 w-0.5 bg-gradient-to-b from-primary-300 to-primary-500 dark:from-primary-700 dark:to-primary-500 rounded-full hidden sm:block"
-			style="height: 20px; margin-top: -4px;" />
-
-		<!-- Main message content -->
-		<div class="flex gap-3 p-2" :class="{'border-l-2 border-primary-400 dark:border-primary-600 pl-3': isReply}">
-			<!-- Avatar -->
-			<UAvatar
-				:src="authorAvatar"
-				:alt="authorName"
-				:size="isReply ? 'xs' : 'sm'"
-				class="flex-shrink-0 mt-0.5" />
-
-			<!-- Content -->
-			<div class="flex-1 min-w-0">
-			<!-- Header -->
-			<div class="flex items-center gap-2 mb-1">
-				<span class="font-medium text-gray-900 dark:text-white">
-					{{ authorName }}
-				</span>
-				<span class="text-xs text-gray-500 dark:text-gray-400">
-					{{ formatTime(message.date_created) }}
-				</span>
-				<UBadge v-if="message.is_edited" size="xs" color="gray" variant="subtle">
-					edited
-				</UBadge>
+			class="message-bubble-wrapper"
+			:class="{ 'is-reply': isReply }">
+			<!-- Avatar (left side) -->
+			<div class="message-avatar">
+				<UAvatar
+					:src="authorAvatar"
+					:alt="authorName"
+					:size="isReply ? 'xs' : 'sm'"
+					class="flex-shrink-0" />
 			</div>
 
-			<!-- Message Content -->
-			<div
-				v-if="!isEditing"
-				class="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 message-content"
-				v-html="sanitizedContent" />
+			<!-- Message content bubble -->
+			<div class="message-bubble" :class="{ 'is-own': isOwnMessage }">
+				<!-- Header -->
+				<div class="message-header">
+					<span class="author-name">{{ authorName }}</span>
+					<span class="message-time">{{ formatTime(message.date_created) }}</span>
+					<UBadge v-if="message.is_edited" size="xs" color="gray" variant="subtle">
+						edited
+					</UBadge>
+				</div>
 
-			<!-- Edit Form -->
-			<div v-else class="space-y-2">
-				<UTextarea
-					v-model="editContent"
-					:rows="3"
-					autofocus
-					@keydown.esc="cancelEdit"
-					@keydown.enter.ctrl="saveEdit" />
-				<div class="flex gap-2">
-					<UButton size="xs" color="primary" @click="saveEdit">Save</UButton>
-					<UButton size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
+				<!-- Message Content -->
+				<div
+					v-if="!isEditing"
+					class="prose prose-sm dark:prose-invert max-w-none message-content"
+					v-html="sanitizedContent" />
+
+				<!-- Edit Form -->
+				<div v-else class="space-y-2">
+					<UTextarea
+						v-model="editContent"
+						:rows="3"
+						autofocus
+						@keydown.esc="cancelEdit"
+						@keydown.enter.ctrl="saveEdit" />
+					<div class="flex gap-2">
+						<UButton size="xs" color="primary" @click="saveEdit">Save</UButton>
+						<UButton size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
+					</div>
+				</div>
+
+				<!-- File Attachments -->
+				<div v-if="files.length > 0" class="mt-2 flex flex-wrap gap-2">
+					<a
+						v-for="file in files"
+						:key="file.id"
+						:href="getFileUrl(file)"
+						target="_blank"
+						class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
+						<UIcon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
+						<span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
+							{{ file.directus_files_id?.filename_download || 'File' }}
+						</span>
+					</a>
+				</div>
+
+				<!-- Mentions Badge (removed as mentions are inline) -->
+
+				<!-- Reactions Display -->
+				<ReactionDisplay
+					collection="channel_messages"
+					:item-id="message.id"
+					:owner-user-id="messageOwnerUserId"
+					:item-context="{ channelName: channelName }"
+					:show-picker="true"
+					:compact="true" />
+
+				<!-- Thread indicator -->
+				<div v-if="replyCount > 0" class="mt-2">
+					<button
+						class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+						@click="$emit('reply', message)">
+						<UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
+					</button>
 				</div>
 			</div>
 
-			<!-- File Attachments -->
-			<div v-if="files.length > 0" class="mt-2 flex flex-wrap gap-2">
-				<a
-					v-for="file in files"
-					:key="file.id"
-					:href="getFileUrl(file)"
-					target="_blank"
-					class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-					<UIcon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
-					<span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
-						{{ file.directus_files_id?.filename_download || 'File' }}
-					</span>
-				</a>
-			</div>
-
-			<!-- Mentions Badge -->
-			<div v-if="mentionedUsers.length > 0" class="mt-2 flex flex-wrap gap-1">
-				<UBadge
-					v-for="mention in mentionedUsers"
-					:key="mention.id"
-					size="xs"
-					color="sky"
-					variant="subtle">
-					@{{ mention.user_id?.first_name }} {{ mention.user_id?.last_name }}
-				</UBadge>
-			</div>
-
-			<!-- Reactions Display -->
-			<ReactionDisplay
-				collection="channel_messages"
-				:item-id="message.id"
-				:owner-user-id="messageOwnerUserId"
-				:item-context="{ channelName: channelName }"
-				:show-picker="true"
-				:compact="true" />
-
-			<!-- Thread indicator -->
-			<div v-if="replyCount > 0" class="mt-2">
-				<button
-					class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
-					@click="$emit('reply', message)">
-					<UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
-					{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
-				</button>
-			</div>
-		</div>
-
 			<!-- Actions -->
-			<div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-start gap-1">
-				<!-- Quick reaction picker -->
-				<ReactionPicker @select="handleQuickReaction">
-					<template #trigger>
-						<UButton
-							size="xs"
-							color="gray"
-							variant="ghost"
-							icon="i-heroicons-face-smile"
-							aria-label="Add reaction" />
-					</template>
-				</ReactionPicker>
-
+			<div class="message-actions">
 				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
 					<UButton
 						size="xs"
@@ -149,7 +123,6 @@
 
 <script setup lang="ts">
 import type {ChannelMessageWithRelations} from '~/types/channels';
-import type {ReactionTypeRecord} from '~/types/reactions';
 
 const props = defineProps<{
 	message: ChannelMessageWithRelations;
@@ -162,7 +135,6 @@ const emit = defineEmits(['reply', 'edit', 'delete']);
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
 const {sanitizeSync, initSanitizer} = useSanitize();
-const {toggleReaction} = useReactions();
 
 const isEditing = ref(false);
 const editContent = ref('');
@@ -227,10 +199,6 @@ const sanitizedContent = computed(() => {
 
 const files = computed(() => {
 	return props.message.files || [];
-});
-
-const mentionedUsers = computed(() => {
-	return props.message.mentions || [];
 });
 
 const replyCount = computed(() => {
@@ -350,27 +318,216 @@ const copyMessageLink = async () => {
 	await navigator.clipboard.writeText(url);
 };
 
-const handleQuickReaction = async (reactionType: ReactionTypeRecord) => {
-	try {
-		await toggleReaction(
-			{
-				collection: 'channel_messages',
-				item_id: props.message.id,
-				reaction_type: reactionType.id,
-			},
-			{
-				notifyOwner: true,
-				ownerUserId: messageOwnerUserId.value,
-				itemContext: { channelName: channelName.value },
-			}
-		);
-	} catch (error) {
-		console.error('Failed to add reaction:', error);
+const scrollToParent = () => {
+	// Find and scroll to parent message
+	if (props.parentMessage) {
+		const parentElement = document.querySelector(`[data-message-id="${props.parentMessage.id}"]`);
+		if (parentElement) {
+			parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			parentElement.classList.add('highlight-flash');
+			setTimeout(() => parentElement.classList.remove('highlight-flash'), 1500);
+		}
 	}
 };
 </script>
 
 <style scoped>
+.channel-message {
+	padding: 0.5rem;
+	border-radius: 0.75rem;
+	transition: background-color 0.2s ease;
+}
+
+.channel-message:hover {
+	background-color: rgba(0, 0, 0, 0.02);
+}
+
+:root.dark .channel-message:hover {
+	background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Reply thread container - iOS style */
+.reply-thread-container {
+	display: flex;
+	align-items: flex-end;
+	padding-left: 2.5rem;
+	position: relative;
+}
+
+/* Connector line from parent to reply */
+.reply-connector {
+	position: absolute;
+	left: 1.25rem;
+	top: -0.5rem;
+	bottom: 0;
+	width: 1.5rem;
+}
+
+.connector-line {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1.25rem;
+	height: calc(100% + 1rem);
+	border-left: 2px solid;
+	border-bottom: 2px solid;
+	border-color: rgb(var(--color-primary-300));
+	border-bottom-left-radius: 0.75rem;
+}
+
+:root.dark .connector-line {
+	border-color: rgb(var(--color-primary-700));
+}
+
+/* Parent message preview bubble */
+.reply-preview-bubble {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.25rem 0.75rem 0.25rem 0.375rem;
+	background: linear-gradient(135deg, rgb(var(--color-gray-100)), rgb(var(--color-gray-50)));
+	border: 1px solid rgb(var(--color-gray-200));
+	border-radius: 1rem;
+	font-size: 0.75rem;
+	color: rgb(var(--color-gray-600));
+	transition: all 0.2s ease;
+	cursor: pointer;
+	max-width: 100%;
+}
+
+.reply-preview-bubble:hover {
+	background: linear-gradient(135deg, rgb(var(--color-gray-200)), rgb(var(--color-gray-100)));
+	transform: translateY(-1px);
+}
+
+:root.dark .reply-preview-bubble {
+	background: linear-gradient(135deg, rgb(var(--color-gray-800)), rgb(var(--color-gray-700)));
+	border-color: rgb(var(--color-gray-600));
+	color: rgb(var(--color-gray-300));
+}
+
+:root.dark .reply-preview-bubble:hover {
+	background: linear-gradient(135deg, rgb(var(--color-gray-700)), rgb(var(--color-gray-600)));
+}
+
+.reply-author {
+	font-weight: 600;
+	color: rgb(var(--color-gray-700));
+	white-space: nowrap;
+}
+
+:root.dark .reply-author {
+	color: rgb(var(--color-gray-200));
+}
+
+.reply-text {
+	color: rgb(var(--color-gray-500));
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	max-width: 200px;
+}
+
+/* Message bubble wrapper */
+.message-bubble-wrapper {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	padding: 0.25rem;
+	border-radius: 0.75rem;
+	transition: background-color 0.15s ease;
+}
+
+.message-bubble-wrapper:hover {
+	background-color: rgba(0, 0, 0, 0.03);
+}
+
+:root.dark .message-bubble-wrapper:hover {
+	background-color: rgba(255, 255, 255, 0.03);
+}
+
+.message-bubble-wrapper.is-reply {
+	margin-left: 1rem;
+}
+
+/* Avatar styling */
+.message-avatar {
+	flex-shrink: 0;
+	margin-top: 0.125rem;
+}
+
+/* Message bubble */
+.message-bubble {
+	flex: 1;
+	min-width: 0;
+	padding: 0.5rem 0.75rem;
+	background: rgb(var(--color-gray-50));
+	border: 1px solid rgb(var(--color-gray-100));
+	border-radius: 1rem;
+	border-top-left-radius: 0.25rem;
+}
+
+:root.dark .message-bubble {
+	background: rgb(var(--color-gray-800));
+	border-color: rgb(var(--color-gray-700));
+}
+
+.message-bubble.is-own {
+	background: linear-gradient(135deg, rgb(var(--color-primary-50)), rgb(var(--color-primary-100) / 0.5));
+	border-color: rgb(var(--color-primary-200));
+}
+
+:root.dark .message-bubble.is-own {
+	background: linear-gradient(135deg, rgb(var(--color-primary-900) / 0.3), rgb(var(--color-primary-800) / 0.2));
+	border-color: rgb(var(--color-primary-800));
+}
+
+/* Message header */
+.message-header {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 0.25rem;
+	flex-wrap: wrap;
+}
+
+.author-name {
+	font-weight: 600;
+	font-size: 0.875rem;
+	color: rgb(var(--color-gray-900));
+}
+
+:root.dark .author-name {
+	color: white;
+}
+
+.message-time {
+	font-size: 0.75rem;
+	color: rgb(var(--color-gray-500));
+}
+
+/* Message actions */
+.message-actions {
+	opacity: 0;
+	transition: opacity 0.15s ease;
+	flex-shrink: 0;
+}
+
+.message-bubble-wrapper:hover .message-actions {
+	opacity: 1;
+}
+
+/* Message content styling */
+.message-content {
+	color: rgb(var(--color-gray-700));
+	font-size: 0.9375rem;
+	line-height: 1.5;
+}
+
+:root.dark .message-content {
+	color: rgb(var(--color-gray-300));
+}
+
 .message-content :deep(.mention) {
 	color: #0ea5e9;
 	font-weight: 500;
@@ -394,5 +551,32 @@ const handleQuickReaction = async (reactionType: ReactionTypeRecord) => {
 .message-content :deep(ul),
 .message-content :deep(ol) {
 	padding-left: 1.25rem;
+}
+
+/* Highlight flash animation for scrolling to parent */
+.highlight-flash {
+	animation: flash 1.5s ease-out;
+}
+
+@keyframes flash {
+	0%, 50% {
+		background-color: rgb(var(--color-primary-100));
+	}
+	100% {
+		background-color: transparent;
+	}
+}
+
+:root.dark .highlight-flash {
+	animation: flash-dark 1.5s ease-out;
+}
+
+@keyframes flash-dark {
+	0%, 50% {
+		background-color: rgb(var(--color-primary-900) / 0.3);
+	}
+	100% {
+		background-color: transparent;
+	}
 }
 </style>
