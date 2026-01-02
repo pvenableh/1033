@@ -482,8 +482,6 @@ export interface People {
 	unit?: UnitsPeople[] | string[];
 	leases?: Lease[] | string[];
 	board_member?: BoardMember[] | string[];
-	/** @description Granular permissions for this person */
-	permissions?: UserPermission[] | number[];
 }
 
 export interface PeopleUnit {
@@ -814,6 +812,90 @@ export interface UnitsPeople {
 	sort?: number | null;
 }
 
+export interface UserPermission {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: string | null;
+	date_created?: string | null;
+	user_updated?: string | null;
+	date_updated?: string | null;
+	/** @description Allow create on projects */
+	projects_create?: boolean | null;
+	/** @description Allow read on projects */
+	projects_read?: boolean | null;
+	/** @description Allow update on projects */
+	projects_update?: boolean | null;
+	/** @description Allow delete on projects */
+	projects_delete?: boolean | null;
+	/** @description Allow create on channels */
+	channels_create?: boolean | null;
+	/** @description Allow read on channels */
+	channels_read?: boolean | null;
+	/** @description Allow update on channels */
+	channels_update?: boolean | null;
+	/** @description Allow delete on channels */
+	channels_delete?: boolean | null;
+	/** @description Allow create on financials */
+	financials_create?: boolean | null;
+	/** @description Allow read on financials */
+	financials_read?: boolean | null;
+	/** @description Allow update on financials */
+	financials_update?: boolean | null;
+	/** @description Allow delete on financials */
+	financials_delete?: boolean | null;
+	/** @description Allow create on announcements */
+	announcements_create?: boolean | null;
+	/** @description Allow read on announcements */
+	announcements_read?: boolean | null;
+	/** @description Allow update on announcements */
+	announcements_update?: boolean | null;
+	/** @description Allow delete on announcements */
+	announcements_delete?: boolean | null;
+	/** @description Allow create on meetings */
+	meetings_create?: boolean | null;
+	/** @description Allow read on meetings */
+	meetings_read?: boolean | null;
+	/** @description Allow update on meetings */
+	meetings_update?: boolean | null;
+	/** @description Allow delete on meetings */
+	meetings_delete?: boolean | null;
+	/** @description Allow create on documents */
+	documents_create?: boolean | null;
+	/** @description Allow read on documents */
+	documents_read?: boolean | null;
+	/** @description Allow update on documents */
+	documents_update?: boolean | null;
+	/** @description Allow delete on documents */
+	documents_delete?: boolean | null;
+	/** @description Allow create on units & people */
+	units_create?: boolean | null;
+	/** @description Allow read on units & people */
+	units_read?: boolean | null;
+	/** @description Allow update on units & people */
+	units_update?: boolean | null;
+	/** @description Allow delete on units & people */
+	units_delete?: boolean | null;
+	/** @description Allow create on requests */
+	requests_create?: boolean | null;
+	/** @description Allow read on requests */
+	requests_read?: boolean | null;
+	/** @description Allow update on requests */
+	requests_update?: boolean | null;
+	/** @description Allow delete on requests */
+	requests_delete?: boolean | null;
+	/** @description Allow create on vendors */
+	vendors_create?: boolean | null;
+	/** @description Allow read on vendors */
+	vendors_read?: boolean | null;
+	/** @description Allow update on vendors */
+	vendors_update?: boolean | null;
+	/** @description Allow delete on vendors */
+	vendors_delete?: boolean | null;
+	/** @required */
+	person_id: People | string;
+}
+
 export interface Vehicle {
 	/** @primaryKey */
 	id: number;
@@ -910,77 +992,6 @@ export interface Vote {
 	option?: string | null;
 	unit?: string | null;
 	person?: string | null;
-}
-
-/**
- * Granular User Permissions
- * Allows admins to grant specific CRUD permissions to individual users
- * for different collection categories
- */
-export interface UserPermission {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	/** @description The person this permission applies to @required */
-	person_id: People | number;
-
-	// Projects permissions
-	projects_create?: boolean | null;
-	projects_read?: boolean | null;
-	projects_update?: boolean | null;
-	projects_delete?: boolean | null;
-
-	// Channels permissions
-	channels_create?: boolean | null;
-	channels_read?: boolean | null;
-	channels_update?: boolean | null;
-	channels_delete?: boolean | null;
-
-	// Financials permissions (accounts, transactions, budget_items, etc.)
-	financials_create?: boolean | null;
-	financials_read?: boolean | null;
-	financials_update?: boolean | null;
-	financials_delete?: boolean | null;
-
-	// Announcements permissions
-	announcements_create?: boolean | null;
-	announcements_read?: boolean | null;
-	announcements_update?: boolean | null;
-	announcements_delete?: boolean | null;
-
-	// Meetings permissions
-	meetings_create?: boolean | null;
-	meetings_read?: boolean | null;
-	meetings_update?: boolean | null;
-	meetings_delete?: boolean | null;
-
-	// Documents permissions
-	documents_create?: boolean | null;
-	documents_read?: boolean | null;
-	documents_update?: boolean | null;
-	documents_delete?: boolean | null;
-
-	// Units/People management permissions
-	units_create?: boolean | null;
-	units_read?: boolean | null;
-	units_update?: boolean | null;
-	units_delete?: boolean | null;
-
-	// Requests permissions
-	requests_create?: boolean | null;
-	requests_read?: boolean | null;
-	requests_update?: boolean | null;
-	requests_delete?: boolean | null;
-
-	// Vendors permissions
-	vendors_create?: boolean | null;
-	vendors_read?: boolean | null;
-	vendors_update?: boolean | null;
-	vendors_delete?: boolean | null;
 }
 
 export interface DirectusAccess {
@@ -1491,13 +1502,13 @@ export interface Schema {
 	transactions: Transaction[];
 	units: Unit[];
 	units_people: UnitsPeople[];
+	user_permissions: UserPermission[];
 	vehicles: Vehicle[];
 	vendors: Vendor[];
 	vendors_people: VendorsPeople[];
 	vendors_projects: VendorsProject[];
 	violation_reports: ViolationReport[];
 	votes: Vote[];
-	user_permissions: UserPermission[];
 	directus_access: DirectusAccess[];
 	directus_activity: DirectusActivity[];
 	directus_collections: DirectusCollection[];
@@ -1583,13 +1594,13 @@ export enum CollectionNames {
 	transactions = 'transactions',
 	units = 'units',
 	units_people = 'units_people',
+	user_permissions = 'user_permissions',
 	vehicles = 'vehicles',
 	vendors = 'vendors',
 	vendors_people = 'vendors_people',
 	vendors_projects = 'vendors_projects',
 	violation_reports = 'violation_reports',
 	votes = 'votes',
-	user_permissions = 'user_permissions',
 	directus_access = 'directus_access',
 	directus_activity = 'directus_activity',
 	directus_collections = 'directus_collections',
