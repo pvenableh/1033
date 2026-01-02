@@ -34,7 +34,8 @@
 			</div>
 
 			<div class="hero-content text-center relative z-10">
-				<p class="hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-12 opacity-0 text-cream-alt">
+				<p
+					class="-mt-20 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
 				</p>
 				<NewLogo class="hero-title mx-auto mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]" fill="#ffffff" stroke="#ffffff" />
@@ -56,9 +57,13 @@
 
 		<!-- Intro Section -->
 		<section ref="introRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-section-alt">
-			<div class="max-w-6xl mx-auto">
+			<div class="max-w-6xl mx-auto text-left">
+				<h2
+					class="intro-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+					Boutique Living
+				</h2>
 				<p
-					class="intro-text t-heading text-[clamp(1.25rem,3vw,1.75rem)] leading-relaxed font-light t-text text-center max-w-3xl mx-auto mb-16 opacity-0">
+					class="intro-text t-body text-[clamp(1.0625rem,3vw,1.35rem)] leading-relaxed font-light t-text text-left t-text-secondary mb-16 opacity-0">
 					1033 Lenox is a 28-unit boutique residence in the heart of Miami Beach's Flamingo Park neighborhood.
 					One-bedrooms only. Oversized balconies. No crowded hallways, no lobby lines—just smart, private living for
 					those who know the difference.
@@ -400,7 +405,7 @@
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Security</span>
 					</div>
 					<div class="content-main">
-						<div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
+						<div class="grid grid-cols-1 md:grid-cols-[1fr_1fr] lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
 							<div class="max-w-xl">
 								<h2
 									class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
@@ -424,7 +429,7 @@
 								</p>
 							</div>
 							<div
-								class="aspect-video bg-black/30 bg-blend-darken bg-cover bg-no-repeat flex items-end justify-start opacity-0 section-image"
+								class="aspect-[3/4] lg:aspect-video bg-black/30 bg-blend-darken bg-cover bg-no-repeat flex items-end justify-start opacity-0 section-image"
 								style="
 									background-image: url('https://admin.1033lenox.com/assets/6f5f0c1f-1b7f-45ea-9f79-f4c763a7bbbd?key=large');
 								">
@@ -868,7 +873,7 @@ onMounted(() => {
 		};
 
 		// Intro section
-		animateSection(introRef, ['.intro-text', '.intro-image']);
+		animateSection(introRef, ['.intro-title', '.intro-text', '.intro-image']);
 
 		// Anti High-Rise section
 		animateSection(antiHighriseRef, [

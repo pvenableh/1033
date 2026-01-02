@@ -23,9 +23,10 @@ function sideMenuToggle() {
 	display: none;
 	@media (min-width: theme('screens.lg')) {
 		top: 0px;
-		max-width: 100px;
+		max-width: 150px;
 		right: calc(10px + 3rem);
 		display: block;
+		width: 100px;
 	}
 }
 #nav-btn {
@@ -33,14 +34,12 @@ function sideMenuToggle() {
 	right: 0px;
 	z-index: 40;
 	display: block;
-	position: fixed;
 	background: none;
 	width: 33.333333%;
 	text-align: center;
 	cursor: pointer;
 	transition: 0.475s var(--curve);
 	height: 65px;
-
 	@media (min-width: theme('screens.sm')) {
 		/* right: 35px; */
 	}

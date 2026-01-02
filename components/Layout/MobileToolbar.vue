@@ -11,7 +11,7 @@ const props = defineProps({
 <template>
 	<div
 		id="mobile-toolbar"
-		class="mobile-toolbar flex flex-row items-center justify-center bg-cream dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden pb-safe"
+		class="mobile-toolbar flex flex-row items-center justify-center bg-cream dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden relative pb-safe"
 		:class="{retracted: isScrollingDown}">
 		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
 			<UIcon :name="link.icon" />
@@ -45,7 +45,9 @@ const props = defineProps({
 	/* Smooth animation for hide/show */
 	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 	will-change: transform;
-
+	#nav-btn {
+		position: absolute;
+	}
 	a {
 		width: 50%;
 		height: 50px;
