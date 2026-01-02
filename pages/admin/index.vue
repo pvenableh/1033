@@ -14,6 +14,12 @@ const adminLinks = [
     to: '/admin/users',
   },
   {
+    title: 'User Permissions',
+    description: 'Configure granular CRUD permissions for individual users',
+    icon: 'i-heroicons-key',
+    to: '/admin/permissions',
+  },
+  {
     title: 'Pending Requests',
     description: 'View and approve pending access requests',
     icon: 'i-heroicons-clock',
