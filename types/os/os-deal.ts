@@ -1,5 +1,5 @@
 import type {User} from '../system';
-import type {Organization, Contact, OsProposal, OsActivity} from '../os';
+import type {Organization, Contact, OsActivity} from '../os';
 
 export interface OsDeal {
 	id?: string;
@@ -18,7 +18,7 @@ export interface OsDeal {
 	deal_value?: number | null;
 	deal_notes?: string | null;
 	comments?: string;
-	proposals?: (string | OsProposal)[];
+	proposals?: string[];
 	contacts?: (string | OsDealContact)[];
 	activity?: string;
 	activities?: (string | OsActivity)[];

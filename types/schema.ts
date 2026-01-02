@@ -1,24 +1,6 @@
 import type {
-	BlockColumn,
-	BlockCta,
-	BlockFaq,
-	BlockForm,
-	BlockGallery,
-	BlockHero,
-	BlockHtml,
-	BlockLogocloud,
-	BlockQuote,
-	BlockRichtext,
-	BlockStep,
-	BlockTeam,
-	BlockTestimonial,
-	BlockVideo,
-} from './blocks';
-import type {
 	Navigation,
 	SEO,
-	ProjectsSettings,
-	PageSettings,
 	ChatConfig,
 	Event,
 	Metric,
@@ -35,7 +17,7 @@ import type {
 	CommentMention,
 	CommentFile,
 } from './comments';
-import type {Page, PageBlock, Category, Form, Post, Team, Testimonial, PagesProjects, PagesBlog} from './content';
+import type {Category, Form, Post, Team, Testimonial} from './content';
 import type {Inbox, HelpArticle, HelpCollection, HelpFeedback} from './help';
 import type {File, User} from './system';
 import type {
@@ -61,10 +43,6 @@ import type {
 	OsProjectFile,
 	OsProject,
 	OsProjectTemplate,
-	OsProposalApproval,
-	OsProposalBlock,
-	OsProposalContact,
-	OsProposal,
 	OsSettings,
 	OsSubscription,
 	OsTaskFile,
@@ -74,34 +52,12 @@ import type {
 
 /** Directus Schema for SDK */
 export interface Schema {
-	// Routes
-	pages: Page[];
-	pages_blocks: PageBlock[];
-
 	// Content
 	categories: Category[];
 	forms: Form[];
 	posts: Post[];
 	team: Team[];
 	testimonials: Testimonial[];
-	pages_projects: PagesProjects;
-	pages_blog: PagesBlog;
-
-	// Blocks
-	block_column: BlockColumn[];
-	block_cta: BlockCta[];
-	block_faq: BlockFaq[];
-	block_form: BlockForm[];
-	block_gallery: BlockGallery[];
-	block_hero: BlockHero[];
-	block_html: BlockHtml[];
-	block_logocloud: BlockLogocloud[];
-	block_quote: BlockQuote[];
-	block_richtext: BlockRichtext[];
-	block_steps: BlockStep[];
-	block_team: BlockTeam[];
-	block_testimonial: BlockTestimonial[];
-	block_video: BlockVideo[];
 
 	// OS
 	contacts: Contact[];
@@ -124,10 +80,6 @@ export interface Schema {
 	os_project_files: OsProjectFile[];
 	os_projects: OsProject[];
 	os_project_templates: OsProjectTemplate[];
-	os_proposal_approvals: OsProposalApproval[];
-	os_proposal_blocks: OsProposalBlock[];
-	os_proposal_contacts: OsProposalContact[];
-	os_proposals: OsProposal[];
 	os_settings: OsSettings;
 	os_subscriptions: OsSubscription[];
 	os_task_files: OsTaskFile[];
@@ -145,8 +97,6 @@ export interface Schema {
 	// Meta
 	navigation: Navigation[];
 	seo: SEO[];
-	projects_settings: ProjectsSettings;
-	page_settings: PageSettings;
 	chat_config: ChatConfig;
 
 	// Data
