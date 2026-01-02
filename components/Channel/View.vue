@@ -87,49 +87,54 @@
 				<!-- Messages List -->
 				<div
 					ref="messagesContainer"
-					class="flex-1 overflow-y-auto p-4 space-y-4"
+					class="flex-1 overflow-y-auto p-4"
 					@scroll="handleScroll">
-					<div v-if="loadingMessages" class="flex items-center justify-center py-8">
-						<UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
-					</div>
+					<!-- Centered container with max-width for better desktop readability -->
+					<div class="max-w-4xl mx-auto space-y-4">
+						<div v-if="loadingMessages" class="flex items-center justify-center py-8">
+							<UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+						</div>
 
-					<div v-else-if="messages.length === 0" class="text-center py-12">
-						<UIcon name="i-heroicons-chat-bubble-left-right" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-						<p class="text-gray-500 dark:text-gray-400">No messages yet</p>
-						<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-							Be the first to send a message!
-						</p>
-					</div>
+						<div v-else-if="messages.length === 0" class="text-center py-12">
+							<UIcon name="i-heroicons-chat-bubble-left-right" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+							<p class="text-gray-500 dark:text-gray-400">No messages yet</p>
+							<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+								Be the first to send a message!
+							</p>
+						</div>
 
-					<div v-else-if="messageSearchQuery && filteredMessages.length === 0" class="text-center py-12">
-						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
-						<p class="text-gray-500 dark:text-gray-400">No messages match your search</p>
-						<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
-							Try a different search term
-						</p>
-					</div>
+						<div v-else-if="messageSearchQuery && filteredMessages.length === 0" class="text-center py-12">
+							<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+							<p class="text-gray-500 dark:text-gray-400">No messages match your search</p>
+							<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+								Try a different search term
+							</p>
+						</div>
 
-					<template v-else>
-						<ChannelMessage
-							v-for="message in filteredMessages"
-							:key="message.id"
-							:message="message"
-							:parent-message="getParentMessage(message)"
-							:is-highlighted="messageSearchQuery && isMessageMatching(message)"
-							@reply="handleReply"
-							@edit="handleEditMessage"
-							@delete="handleDeleteMessage" />
-					</template>
+						<template v-else>
+							<ChannelMessage
+								v-for="message in filteredMessages"
+								:key="message.id"
+								:message="message"
+								:parent-message="getParentMessage(message)"
+								:is-highlighted="messageSearchQuery && isMessageMatching(message)"
+								@reply="handleReply"
+								@edit="handleEditMessage"
+								@delete="handleDeleteMessage" />
+						</template>
+					</div>
 				</div>
 
 				<!-- Message Input -->
 				<div class="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-					<ChannelMessageEditor
-						v-model="newMessageContent"
-						:channel-id="channelId"
-						:folder-id="uploadFolderId"
-						@send="handleSendMessage"
-						@mention="handleMention" />
+					<div class="max-w-4xl mx-auto">
+						<ChannelMessageEditor
+							v-model="newMessageContent"
+							:channel-id="channelId"
+							:folder-id="uploadFolderId"
+							@send="handleSendMessage"
+							@mention="handleMention" />
+					</div>
 				</div>
 			</div>
 
