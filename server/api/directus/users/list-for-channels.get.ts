@@ -5,7 +5,7 @@
  * Available to board members and admins.
  * Returns all active users with basic info.
  */
-import { useDirectusAdmin, readUsers } from '~/server/utils/directus';
+import { useDirectusAdmin, readUsers, hasAdminAccess } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -18,8 +18,8 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  // Check if user has board member or admin access
-  const isAdmin = session.user.role?.admin_access === true;
+  // Check if user has board member or admin access (from policies in Directus v11+)
+  const isAdmin = hasAdminAccess(session);
   const isBoardMember = session.user.role?.name?.toLowerCase().includes('board') ||
                         session.user.role?.name?.toLowerCase().includes('admin');
 

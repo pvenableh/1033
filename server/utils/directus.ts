@@ -358,6 +358,27 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
   return userData;
 }
 
+/**
+ * Helper to check if a session user has admin access
+ * Works with both old (role.admin_access) and new (policies) structures
+ */
+export function hasAdminAccess(session: any): boolean {
+  if (!session?.user) return false;
+
+  const role = session.user.role;
+  if (!role) return false;
+
+  // Check if admin_access is directly on the role (added by directusReadMeWithFields)
+  if (role.admin_access === true) return true;
+
+  // Fallback: Check policies array if present (Directus v11+ structure)
+  if (role.policies && Array.isArray(role.policies)) {
+    return role.policies.some((p: any) => p?.policy?.admin_access === true);
+  }
+
+  return false;
+}
+
 // Re-export SDK functions for convenience
 export {
   readMe,
