@@ -52,7 +52,15 @@
 
 					<div class="w-full flex flex-row flex-wrap items-start signature">
 						<p class="w-full font-bold greeting">{{ email.closing }}</p>
-						<p class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
+
+						<p
+							v-if="email.sendgrid_template_id === 'd-5ae6a4c8bc8b4743969c23c0dca559f9'"
+							class="w-full font-bold greeting">
+							Camila Hoffman
+							<span class="icon" style="font-size: 12px; margin-left: 2px; display: inline-block">✨</span>
+							<span class="title" style="display: block; font-size: 7px; line-height: 12px">President</span>
+						</p>
+						<p v-else class="w-full font-bold greeting">Lenox Plaza Association Board of Directors ☀️</p>
 						<p class="tracking-wide font-bold uppercase w-full sm:w-1/2">
 							Camila Hoffman
 							<span class="icon">✨</span>
