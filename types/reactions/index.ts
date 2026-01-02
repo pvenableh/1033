@@ -35,7 +35,7 @@ export interface ReactionTypeRecord {
 /**
  * Supported collection types that can have reactions
  */
-export type ReactableCollection = 'channel_messages' | 'comments';
+export type ReactableCollection = 'channel_messages' | 'comments' | 'project_events';
 
 /**
  * Reaction - A single reaction on a piece of content

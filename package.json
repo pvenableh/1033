@@ -20,7 +20,8 @@
 		"setup:channel-permissions": "node scripts/setup-channel-permissions.mjs",
 		"setup:comment-permissions": "node scripts/setup-comment-permissions.mjs",
 		"setup:reactions": "node scripts/setup-reactions.mjs",
-		"setup:all": "node scripts/setup-schema.mjs && node scripts/setup-permissions.mjs && node scripts/setup-channels.mjs && node scripts/setup-comments.mjs && node scripts/setup-reactions.mjs",
+		"setup:projects": "node scripts/setup-projects.mjs",
+		"setup:all": "node scripts/setup-schema.mjs && node scripts/setup-permissions.mjs && node scripts/setup-channels.mjs && node scripts/setup-comments.mjs && node scripts/setup-reactions.mjs && node scripts/setup-projects.mjs",
 		"generate:types": "dotenv -- sh -c 'directus-sdk-typegen -u $DIRECTUS_URL -t $DIRECTUS_SERVER_TOKEN -o ./types/directus.ts'"
 	},
 	"pnpm": {

@@ -1,16 +1,17 @@
 <template>
-	<div class="relative w-full min-h-screen flex items-center justify-start flex-col scroll-smooth">
-		<h1 class="page__content-title">Projects</h1>
-		<div class="w-full flex flex-row items-start justify-center relative">
-			<p class="mt-32 uppercase text-sm tracking-wider">Coming Soon.</p>
-		</div>
-	</div>
+  <div>
+    <ProjectTimelineProjectTimeline />
+  </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 definePageMeta({
-	layout: 'default',
-	middleware: ['auth'],
+  layout: 'default',
+  middleware: ['auth'],
+});
+
+useSeoMeta({
+  title: 'Projects | 1033 Lenox',
+  description: 'Project timeline and management',
 });
 </script>
-<style></style>
