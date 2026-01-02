@@ -15,9 +15,7 @@ import type {
 	BlockVideo,
 } from './blocks';
 import type {
-	Globals,
 	Navigation,
-	Redirect,
 	SEO,
 	ProjectsSettings,
 	PageSettings,
@@ -145,9 +143,7 @@ export interface Schema {
 	messages: Message[];
 
 	// Meta
-	globals: Globals;
 	navigation: Navigation[];
-	redirects: Redirect[];
 	seo: SEO[];
 	projects_settings: ProjectsSettings;
 	page_settings: PageSettings;
