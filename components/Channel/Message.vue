@@ -335,15 +335,6 @@ const scrollToParent = () => {
 .channel-message {
 	padding: 0.5rem;
 	border-radius: 0.75rem;
-	transition: background-color 0.2s ease;
-}
-
-.channel-message:hover {
-	background-color: rgba(0, 0, 0, 0.02);
-}
-
-:root.dark .channel-message:hover {
-	background-color: rgba(255, 255, 255, 0.02);
 }
 
 /* Reply thread container - iOS style */
@@ -435,15 +426,6 @@ const scrollToParent = () => {
 	gap: 0.75rem;
 	padding: 0.25rem;
 	border-radius: 0.75rem;
-	transition: background-color 0.15s ease;
-}
-
-.message-bubble-wrapper:hover {
-	background-color: rgba(0, 0, 0, 0.03);
-}
-
-:root.dark .message-bubble-wrapper:hover {
-	background-color: rgba(255, 255, 255, 0.03);
 }
 
 .message-bubble-wrapper.is-reply {
@@ -465,11 +447,20 @@ const scrollToParent = () => {
 	border: 1px solid rgb(var(--color-gray-100));
 	border-radius: 1rem;
 	border-top-left-radius: 0.25rem;
+	transition: box-shadow 0.15s ease;
+}
+
+.message-bubble-wrapper:hover .message-bubble {
+	box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
 }
 
 :root.dark .message-bubble {
 	background: rgb(var(--color-gray-800));
 	border-color: rgb(var(--color-gray-700));
+}
+
+:root.dark .message-bubble-wrapper:hover .message-bubble {
+	box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4), 0 1px 3px -1px rgba(0, 0, 0, 0.2);
 }
 
 .message-bubble.is-own {
