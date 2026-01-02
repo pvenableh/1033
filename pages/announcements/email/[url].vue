@@ -254,7 +254,7 @@ useSeoMeta({
 		}
 	}
 	.board-signature {
-		@apply border-t border-gray-300 mt-8 pt-4 flex flex-row flex-wrap;
+		@apply border-t border-[#999999] mt-8 pt-4 flex flex-row flex-wrap;
 		p {
 			font-size: 10px;
 

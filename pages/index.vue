@@ -2,11 +2,25 @@
 	<div class="sell-sheet t-bg min-h-screen">
 		<!-- Hero Section -->
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
-			<!-- Weather Widget - positioned in top right -->
-			<div class="absolute top-10 right-4 sm:right-8 z-20 opacity-0 hero-weather">
-				<client-only>
-					<InsightsWeather variant="standard" :animated="false" :show-location="true" class="weather-hero-widget" />
-				</client-only>
+			<!-- Widgets wrapper -->
+			<div
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-16 lg:px-0 lg:w-auto">
+				<!-- Mobile: Text-only greeting -->
+				<div class="lg:hidden mb-2">
+					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
+				</div>
+
+				<!-- Scrollable widget container -->
+				<div class="widget-container widget-container--responsive">
+					<!-- Desktop only: Glass greeting -->
+					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" class="hidden lg:flex" />
+
+					<WidgetsWeather variant="standard" :compact="true" :showLocation="true" />
+
+					<WidgetsLocation variant="standard" :compact="true" />
+					<WidgetsAnnouncements variant="standard" :compact="true" />
+					<WidgetsBuilding variant="standard" :compact="true" />
+				</div>
 			</div>
 
 			<!-- Hero Background Image -->
@@ -35,17 +49,20 @@
 
 			<div class="hero-content text-center relative z-10">
 				<p
-					class="-mt-20 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-12 opacity-0 text-cream-alt">
+					class="-mt-44 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-6 lg:mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
 				</p>
-				<NewLogo class="hero-title mx-auto mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]" fill="#ffffff" stroke="#ffffff" />
+				<NewLogo
+					class="hero-title mx-auto mb-6 backdrop:lg:mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]"
+					fill="#ffffff"
+					stroke="#ffffff" />
 				<!-- <h1
 					class="hero-title t-heading text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
 					1033 Lenox
 				</h1> -->
-				<div class="hero-divider w-16 h-px t-bg-accent mx-auto mb-8 opacity-0 scale-x-0"></div>
+				<div class="hero-divider w-16 h-px t-bg-accent mx-auto mb-4 lg:mb-8 opacity-0 scale-x-0"></div>
 				<p class="hero-tagline t-heading text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
-					The Smarter Side of South Beach
+					The Smart Life in South Beach
 				</p>
 			</div>
 			<div
@@ -289,7 +306,7 @@
 							<div
 								class="aspect-[10/6.1] flex items-center justify-center opacity-0 section-image md:col-span-2 bg-cover bg-no-repeat bg-blend-darken bg-center"
 								style="
-									background-image: url('https://admin.1033lenox.com/assets/f0a17ab1-5d73-4363-9585-149f6206e777?key=large');
+									background-image: url('https://admin.1033lenox.com/assets/a1a81a1b-cc26-46cf-a09b-c58438498731?key=large');
 								">
 								<div class="text-center p-4">
 									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
@@ -689,6 +706,7 @@ const walkTimes = [
 	{minutes: '1', destination: 'to Whole Foods'},
 	{minutes: '1', destination: 'to Flamingo Park'},
 	{minutes: '7', destination: 'to Lincoln Road'},
+	{minutes: '5', destination: 'to Ocean Drive'},
 ];
 
 const locationImages = [
@@ -696,6 +714,7 @@ const locationImages = [
 	{icon: 'i-heroicons-building-storefront', title: 'WHOLE FOODS', desc: '1 block'},
 	{icon: 'i-heroicons-ticket', title: 'FLAMINGO PARK', desc: 'Track & courts'},
 	{icon: 'i-heroicons-shopping-bag', title: 'LINCOLN ROAD', desc: 'Dining & shops'},
+	{icon: 'i-heroicons-sparkles', title: 'OCEAN DRIVE', desc: 'Dining & Nightlife'},
 ];
 
 const designFeatures = [
@@ -747,7 +766,7 @@ const amenities = [
 ];
 
 const investmentPoints = [
-	'Comprehensive coverage via Citizens + flood insurance',
+	'Competitively priced insurance with flood coverage',
 	'Fully hurricane-certified',
 	'Transparent financials via owner portal',
 ];
@@ -788,6 +807,13 @@ const lifestyleImages = [
 		span: 'aspect-square',
 		image: 'https://admin.1033lenox.com/assets/fcefe508-24ed-45c7-92ed-9d3fae9f9d75?key=large',
 	},
+	{
+		icon: 'i-lucide-tree-palm',
+		title: 'OCEAN DRIVE',
+		desc: 'Restaurants & nightlife',
+		span: 'aspect-[4/3] md:col-span-2 md:row-span-2 bg-cover bg-left-center',
+		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
+	},
 ];
 
 // GSAP animations
@@ -799,7 +825,12 @@ onMounted(() => {
 		const heroTl = gsap.timeline({delay: 0.3});
 		heroTl
 			.to('.hero-image', {opacity: 1, duration: 1.2, ease: 'power2.out'})
-			.to('.hero-weather', {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'}, '-=0.8')
+			.fromTo(
+				'.hero-widget-wrapper',
+				{opacity: 0, y: 30},
+				{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'},
+				'-=0.8'
+			)
 			.to('.hero-address', {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out'}, '-=0.6')
 			.to('.hero-title', {opacity: 1, y: 0, duration: 1, ease: 'power3.out'}, '-=0.4')
 			.to('.hero-divider', {opacity: 1, scaleX: 1, duration: 0.6, ease: 'power3.out'}, '-=0.4')
@@ -818,6 +849,17 @@ onMounted(() => {
 
 		// Hero content parallax effect - content scrolls down slowly as user scrolls
 		gsap.to('.hero-content', {
+			y: 350,
+			ease: 'none',
+			scrollTrigger: {
+				trigger: heroRef.value,
+				start: 'top top',
+				end: 'bottom top',
+				scrub: true,
+			},
+		});
+
+		gsap.to('.hero-widget-wrapper', {
 			y: 350,
 			ease: 'none',
 			scrollTrigger: {
@@ -1078,9 +1120,9 @@ useHead({
 }
 
 /* Weather widget in hero - styled for dark background */
-.hero-weather {
+/* .hero-widgets {
 	transform: translateY(-10px);
-}
+} */
 
 /* Hero section clips the fixed background */
 .hero {
