@@ -8,24 +8,26 @@
 import type { User } from '../system/user';
 
 /**
- * Available reaction types with emoji and metadata
+ * Icon families supported for reaction types
  */
-export const REACTION_TYPES = {
-  thumbs_up: { emoji: '👍', label: 'Like', shortcode: '+1' },
-  thumbs_down: { emoji: '👎', label: 'Dislike', shortcode: '-1' },
-  heart: { emoji: '❤️', label: 'Love', shortcode: 'heart' },
-  laugh: { emoji: '😄', label: 'Haha', shortcode: 'laugh' },
-  surprise: { emoji: '😮', label: 'Wow', shortcode: 'wow' },
-  sad: { emoji: '😢', label: 'Sad', shortcode: 'sad' },
-  angry: { emoji: '😠', label: 'Angry', shortcode: 'angry' },
-  fire: { emoji: '🔥', label: 'Fire', shortcode: 'fire' },
-  celebrate: { emoji: '🎉', label: 'Celebrate', shortcode: 'party' },
-  think: { emoji: '🤔', label: 'Thinking', shortcode: 'think' },
-  eyes: { emoji: '👀', label: 'Looking', shortcode: 'eyes' },
-  rocket: { emoji: '🚀', label: 'Rocket', shortcode: 'rocket' },
-} as const;
+export type IconFamily = 'heroicons' | 'lucide' | 'fluent-emoji-flat' | 'emoji';
 
-export type ReactionType = keyof typeof REACTION_TYPES;
+/**
+ * Reaction Type record from Directus
+ */
+export interface ReactionTypeRecord {
+  id: number;
+  status: 'published' | 'draft';
+  sort: number | null;
+  name: string;
+  emoji: string | null;
+  icon: string | null;
+  icon_family: IconFamily | null;
+  user_created: string | User | null;
+  user_updated: string | User | null;
+  date_created: string | null;
+  date_updated: string | null;
+}
 
 /**
  * Supported collection types that can have reactions
@@ -41,21 +43,22 @@ export interface Reaction {
   date_created: string | null;
   collection: ReactableCollection;
   item_id: string;
-  reaction_type: ReactionType;
+  reaction_type: number | ReactionTypeRecord;
 }
 
 /**
- * Reaction with populated user relation
+ * Reaction with populated relations
  */
-export interface ReactionWithUser extends Omit<Reaction, 'user_created'> {
+export interface ReactionWithRelations extends Omit<Reaction, 'user_created' | 'reaction_type'> {
   user_created: User;
+  reaction_type: ReactionTypeRecord;
 }
 
 /**
  * Aggregated reaction counts for display
  */
 export interface ReactionCount {
-  reaction_type: ReactionType;
+  reaction_type: ReactionTypeRecord;
   count: number;
   users: User[];
   hasReacted: boolean;
@@ -77,31 +80,55 @@ export interface ReactionSummary {
 export interface CreateReactionPayload {
   collection: ReactableCollection;
   item_id: string;
-  reaction_type: ReactionType;
+  reaction_type: number; // ID of the reaction_type
 }
 
 /**
- * Reaction event for real-time updates
+ * Helper to get the icon name for a reaction type based on its family
  */
-export interface ReactionEvent {
-  type: 'add' | 'remove';
-  reaction: ReactionWithUser;
+export function getReactionIcon(reactionType: ReactionTypeRecord): string {
+  if (!reactionType.icon_family || !reactionType.icon) {
+    return '';
+  }
+
+  switch (reactionType.icon_family) {
+    case 'heroicons':
+      return `i-heroicons-${reactionType.icon}`;
+    case 'lucide':
+      return `i-lucide-${reactionType.icon}`;
+    case 'fluent-emoji-flat':
+      return `i-fluent-emoji-flat-${reactionType.icon}`;
+    default:
+      return '';
+  }
 }
 
 /**
- * Helper function to get reaction metadata
+ * Helper to get the filled/solid icon variant for selected state
  */
-export function getReactionMeta(type: ReactionType) {
-  return REACTION_TYPES[type];
+export function getReactionIconFilled(reactionType: ReactionTypeRecord): string {
+  if (!reactionType.icon_family || !reactionType.icon) {
+    return '';
+  }
+
+  switch (reactionType.icon_family) {
+    case 'heroicons':
+      // Heroicons uses -solid suffix for filled variants
+      return `i-heroicons-${reactionType.icon}-solid`;
+    case 'lucide':
+      // Lucide doesn't have filled variants, use same icon
+      return `i-lucide-${reactionType.icon}`;
+    case 'fluent-emoji-flat':
+      // Fluent emoji are already flat/filled
+      return `i-fluent-emoji-flat-${reactionType.icon}`;
+    default:
+      return '';
+  }
 }
 
 /**
- * Helper to get all available reaction types
+ * Helper to check if reaction type uses emoji or icon
  */
-export function getAllReactionTypes(): { type: ReactionType; emoji: string; label: string }[] {
-  return Object.entries(REACTION_TYPES).map(([type, meta]) => ({
-    type: type as ReactionType,
-    emoji: meta.emoji,
-    label: meta.label,
-  }));
+export function usesEmoji(reactionType: ReactionTypeRecord): boolean {
+  return !!reactionType.emoji && !reactionType.icon;
 }

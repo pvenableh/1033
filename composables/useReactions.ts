@@ -7,21 +7,70 @@
 
 import type {
   Reaction,
-  ReactionWithUser,
+  ReactionWithRelations,
   ReactionCount,
   ReactionSummary,
-  ReactionType,
+  ReactionTypeRecord,
   ReactableCollection,
   CreateReactionPayload,
 } from '~/types/reactions';
-import { REACTION_TYPES, getReactionMeta } from '~/types/reactions';
 import type { User } from '~/types/system/user';
 
 export function useReactions() {
   const reactions = useDirectusItems<Reaction>('reactions');
+  const reactionTypes = useDirectusItems<ReactionTypeRecord>('reaction_types');
   const { user } = useDirectusAuth();
   const { sendTo } = useDirectusNotifications();
   const { subscribe } = useDirectusWebSocket();
+
+  // Cache for reaction types
+  const cachedReactionTypes = useState<ReactionTypeRecord[]>('reaction-types', () => []);
+
+  // ==================== REACTION TYPES ====================
+
+  /**
+   * Get all available reaction types (published only)
+   */
+  const getReactionTypes = async (): Promise<ReactionTypeRecord[]> => {
+    // Return cached if available
+    if (cachedReactionTypes.value.length > 0) {
+      return cachedReactionTypes.value;
+    }
+
+    const types = await reactionTypes.list({
+      filter: {
+        status: { _eq: 'published' },
+      },
+      sort: ['sort', 'name'],
+      limit: -1,
+    });
+
+    cachedReactionTypes.value = types;
+    return types;
+  };
+
+  /**
+   * Get a single reaction type by ID
+   */
+  const getReactionType = async (id: number): Promise<ReactionTypeRecord | null> => {
+    // Check cache first
+    const cached = cachedReactionTypes.value.find((t) => t.id === id);
+    if (cached) return cached;
+
+    try {
+      return await reactionTypes.get(id);
+    } catch {
+      return null;
+    }
+  };
+
+  /**
+   * Refresh the reaction types cache
+   */
+  const refreshReactionTypes = async (): Promise<ReactionTypeRecord[]> => {
+    cachedReactionTypes.value = [];
+    return await getReactionTypes();
+  };
 
   // ==================== QUERY OPERATIONS ====================
 
@@ -31,7 +80,7 @@ export function useReactions() {
   const getReactions = async (
     collection: ReactableCollection,
     itemId: string
-  ): Promise<ReactionWithUser[]> => {
+  ): Promise<ReactionWithRelations[]> => {
     return await reactions.list({
       filter: {
         collection: { _eq: collection },
@@ -44,9 +93,10 @@ export function useReactions() {
         'user_created.last_name',
         'user_created.avatar',
         'user_created.email',
+        'reaction_type.*',
       ],
       sort: ['date_created'],
-    }) as ReactionWithUser[];
+    }) as ReactionWithRelations[];
   };
 
   /**
@@ -59,34 +109,39 @@ export function useReactions() {
     const allReactions = await getReactions(collection, itemId);
     const currentUserId = user.value?.id;
 
-    // Group reactions by type
+    // Group reactions by reaction_type.id
     const grouped = allReactions.reduce(
       (acc, reaction) => {
-        const type = reaction.reaction_type;
-        if (!acc[type]) {
-          acc[type] = { users: [], hasReacted: false };
+        const typeId = reaction.reaction_type.id;
+        if (!acc[typeId]) {
+          acc[typeId] = {
+            reaction_type: reaction.reaction_type,
+            users: [],
+            hasReacted: false,
+          };
         }
-        acc[type].users.push(reaction.user_created);
+        acc[typeId].users.push(reaction.user_created);
         if (reaction.user_created.id === currentUserId) {
-          acc[type].hasReacted = true;
+          acc[typeId].hasReacted = true;
         }
         return acc;
       },
-      {} as Record<ReactionType, { users: User[]; hasReacted: boolean }>
+      {} as Record<number, { reaction_type: ReactionTypeRecord; users: User[]; hasReacted: boolean }>
     );
 
     // Convert to ReactionCount array
-    const reactionCounts: ReactionCount[] = Object.entries(grouped).map(
-      ([type, data]) => ({
-        reaction_type: type as ReactionType,
-        count: data.users.length,
-        users: data.users,
-        hasReacted: data.hasReacted,
-      })
-    );
+    const reactionCounts: ReactionCount[] = Object.values(grouped).map((data) => ({
+      reaction_type: data.reaction_type,
+      count: data.users.length,
+      users: data.users,
+      hasReacted: data.hasReacted,
+    }));
 
-    // Sort by count (most popular first)
-    reactionCounts.sort((a, b) => b.count - a.count);
+    // Sort by count (most popular first), then by sort order
+    reactionCounts.sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return (a.reaction_type.sort ?? 999) - (b.reaction_type.sort ?? 999);
+    });
 
     return {
       item_id: itemId,
@@ -116,10 +171,11 @@ export function useReactions() {
         'user_created.first_name',
         'user_created.last_name',
         'user_created.avatar',
+        'reaction_type.*',
       ],
       sort: ['date_created'],
       limit: -1,
-    }) as ReactionWithUser[];
+    }) as ReactionWithRelations[];
 
     const currentUserId = user.value?.id;
     const summaryMap = new Map<string, ReactionSummary>();
@@ -140,7 +196,7 @@ export function useReactions() {
       if (!summary) return;
 
       let reactionCount = summary.reactions.find(
-        (r) => r.reaction_type === reaction.reaction_type
+        (r) => r.reaction_type.id === reaction.reaction_type.id
       );
 
       if (!reactionCount) {
@@ -163,7 +219,10 @@ export function useReactions() {
 
     // Sort reactions by count for each item
     summaryMap.forEach((summary) => {
-      summary.reactions.sort((a, b) => b.count - a.count);
+      summary.reactions.sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return (a.reaction_type.sort ?? 999) - (b.reaction_type.sort ?? 999);
+      });
     });
 
     return summaryMap;
@@ -175,7 +234,7 @@ export function useReactions() {
   const hasUserReacted = async (
     collection: ReactableCollection,
     itemId: string,
-    reactionType: ReactionType
+    reactionTypeId: number
   ): Promise<boolean> => {
     if (!user.value?.id) return false;
 
@@ -183,7 +242,7 @@ export function useReactions() {
       filter: {
         collection: { _eq: collection },
         item_id: { _eq: itemId },
-        reaction_type: { _eq: reactionType },
+        reaction_type: { _eq: reactionTypeId },
         user_created: { _eq: user.value.id },
       },
     });
@@ -192,21 +251,22 @@ export function useReactions() {
   };
 
   /**
-   * Get user's reaction on an item (if any)
+   * Get user's reactions on an item (if any)
    */
-  const getUserReaction = async (
+  const getUserReactions = async (
     collection: ReactableCollection,
     itemId: string
-  ): Promise<Reaction | null> => {
-    if (!user.value?.id) return null;
+  ): Promise<ReactionWithRelations[]> => {
+    if (!user.value?.id) return [];
 
-    return await reactions.findFirst({
+    return await reactions.list({
       filter: {
         collection: { _eq: collection },
         item_id: { _eq: itemId },
         user_created: { _eq: user.value.id },
       },
-    });
+      fields: ['*', 'reaction_type.*'],
+    }) as ReactionWithRelations[];
   };
 
   // ==================== MUTATION OPERATIONS ====================
@@ -222,7 +282,7 @@ export function useReactions() {
       ownerUserId?: string;
       itemContext?: { title?: string; channelName?: string };
     }
-  ): Promise<{ action: 'added' | 'removed'; reaction?: ReactionWithUser }> => {
+  ): Promise<{ action: 'added' | 'removed'; reaction?: ReactionWithRelations }> => {
     if (!user.value?.id) {
       throw new Error('Must be logged in to react');
     }
@@ -243,13 +303,6 @@ export function useReactions() {
       return { action: 'removed' };
     }
 
-    // Check if user already has a different reaction on this item
-    // (Allow multiple different reactions from same user, or uncomment to limit to one)
-    // const anyExisting = await getUserReaction(payload.collection, payload.item_id);
-    // if (anyExisting) {
-    //   await reactions.remove(anyExisting.id);
-    // }
-
     // Create the new reaction
     const created = await reactions.create(
       {
@@ -264,9 +317,10 @@ export function useReactions() {
           'user_created.first_name',
           'user_created.last_name',
           'user_created.avatar',
+          'reaction_type.*',
         ],
       }
-    ) as ReactionWithUser;
+    ) as ReactionWithRelations;
 
     // Send notification to content owner (if different from reactor)
     if (
@@ -274,15 +328,18 @@ export function useReactions() {
       options.ownerUserId &&
       options.ownerUserId !== user.value.id
     ) {
-      const reactionMeta = getReactionMeta(payload.reaction_type);
+      const reactionType = created.reaction_type;
       const context = options.itemContext;
 
-      let subject = `${user.value.first_name} ${user.value.last_name} reacted ${reactionMeta.emoji} to your message`;
-      let message = `Your content received a ${reactionMeta.label.toLowerCase()} reaction.`;
+      // Get display text for the reaction
+      const reactionDisplay = reactionType.emoji || reactionType.name;
+
+      let subject = `${user.value.first_name} ${user.value.last_name} reacted ${reactionDisplay} to your message`;
+      let message = `Your content received a ${reactionType.name.toLowerCase()} reaction.`;
 
       if (context?.channelName) {
-        subject = `${user.value.first_name} reacted ${reactionMeta.emoji} in #${context.channelName}`;
-        message = `${user.value.first_name} ${user.value.last_name} reacted to your message with ${reactionMeta.emoji}`;
+        subject = `${user.value.first_name} reacted ${reactionDisplay} in #${context.channelName}`;
+        message = `${user.value.first_name} ${user.value.last_name} reacted to your message with ${reactionDisplay}`;
       }
 
       // Don't let notification failure block the reaction
@@ -309,7 +366,7 @@ export function useReactions() {
       ownerUserId?: string;
       itemContext?: { title?: string; channelName?: string };
     }
-  ): Promise<ReactionWithUser> => {
+  ): Promise<ReactionWithRelations> => {
     if (!user.value?.id) {
       throw new Error('Must be logged in to react');
     }
@@ -322,10 +379,18 @@ export function useReactions() {
         reaction_type: { _eq: payload.reaction_type },
         user_created: { _eq: user.value.id },
       },
+      fields: [
+        '*',
+        'user_created.id',
+        'user_created.first_name',
+        'user_created.last_name',
+        'user_created.avatar',
+        'reaction_type.*',
+      ],
     });
 
     if (existing) {
-      return existing as unknown as ReactionWithUser;
+      return existing as unknown as ReactionWithRelations;
     }
 
     const created = await reactions.create(
@@ -341,9 +406,10 @@ export function useReactions() {
           'user_created.first_name',
           'user_created.last_name',
           'user_created.avatar',
+          'reaction_type.*',
         ],
       }
-    ) as ReactionWithUser;
+    ) as ReactionWithRelations;
 
     // Send notification
     if (
@@ -351,12 +417,14 @@ export function useReactions() {
       options.ownerUserId &&
       options.ownerUserId !== user.value.id
     ) {
-      const reactionMeta = getReactionMeta(payload.reaction_type);
+      const reactionType = created.reaction_type;
+      const reactionDisplay = reactionType.emoji || reactionType.name;
+
       try {
         await sendTo(
           options.ownerUserId,
-          `${user.value.first_name} reacted ${reactionMeta.emoji} to your content`,
-          `Your content received a ${reactionMeta.label.toLowerCase()} reaction.`,
+          `${user.value.first_name} reacted ${reactionDisplay} to your content`,
+          `Your content received a ${reactionType.name.toLowerCase()} reaction.`,
           {
             collection: payload.collection,
             item: payload.item_id,
@@ -376,7 +444,7 @@ export function useReactions() {
   const removeReaction = async (
     collection: ReactableCollection,
     itemId: string,
-    reactionType: ReactionType
+    reactionTypeId: number
   ): Promise<boolean> => {
     if (!user.value?.id) {
       throw new Error('Must be logged in to remove reaction');
@@ -386,7 +454,7 @@ export function useReactions() {
       filter: {
         collection: { _eq: collection },
         item_id: { _eq: itemId },
-        reaction_type: { _eq: reactionType },
+        reaction_type: { _eq: reactionTypeId },
         user_created: { _eq: user.value.id },
       },
     });
@@ -436,7 +504,7 @@ export function useReactions() {
     itemIds: string[],
     callback: (event: {
       type: 'create' | 'delete';
-      reaction: ReactionWithUser;
+      reaction: ReactionWithRelations;
     }) => void
   ) => {
     if (itemIds.length === 0) return { unsubscribe: () => {} };
@@ -454,6 +522,7 @@ export function useReactions() {
           'user_created.first_name',
           'user_created.last_name',
           'user_created.avatar',
+          'reaction_type.*',
         ],
       },
       (event, data) => {
@@ -462,7 +531,7 @@ export function useReactions() {
           reactionData.forEach((reaction) => {
             callback({
               type: event,
-              reaction: reaction as ReactionWithUser,
+              reaction: reaction as ReactionWithRelations,
             });
           });
         }
@@ -522,13 +591,49 @@ export function useReactions() {
     };
   }
 
+  /**
+   * Create a reactive list of available reaction types
+   */
+  function useReactionTypes() {
+    const types = ref<ReactionTypeRecord[]>([]);
+    const loading = ref(true);
+    const error = ref<string | null>(null);
+
+    const fetch = async () => {
+      try {
+        types.value = await getReactionTypes();
+        error.value = null;
+      } catch (e: any) {
+        error.value = e.message;
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    onMounted(() => {
+      fetch();
+    });
+
+    return {
+      types,
+      loading,
+      error,
+      refresh: fetch,
+    };
+  }
+
   return {
+    // Reaction Types
+    getReactionTypes,
+    getReactionType,
+    refreshReactionTypes,
+
     // Query
     getReactions,
     getReactionSummary,
     getReactionsForItems,
     hasUserReacted,
-    getUserReaction,
+    getUserReactions,
 
     // Mutations
     toggleReaction,
@@ -541,8 +646,6 @@ export function useReactions() {
 
     // Reactive helpers
     useReactionSummary,
-
-    // Constants
-    REACTION_TYPES,
+    useReactionTypes,
   };
 }
