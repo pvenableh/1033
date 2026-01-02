@@ -2,6 +2,45 @@
  * POST /api/directus/users/invite
  *
  * Invite a new user (admin only).
+ *
+ * This endpoint uses Directus's built-in inviteUser function, which sends
+ * an email through Directus's configured email provider.
+ *
+ * ============================================================================
+ * DIRECTUS EMAIL TEMPLATE VARIABLES
+ * ============================================================================
+ *
+ * Configure the invite template in Directus Admin → Settings → Email Templates
+ * The "User Invite" template supports these Liquid template variables:
+ *
+ * {{url}}              - Full invite URL with token (e.g., https://yoursite.com/auth/user-invite?token=abc123)
+ * {{email}}            - Invited user's email address
+ * {{project.name}}     - Your Directus project name
+ * {{project.url}}      - Your Directus project URL
+ * {{project.logo}}     - Your Directus project logo URL
+ *
+ * ============================================================================
+ * SENDGRID DYNAMIC TEMPLATE VARIABLES (for custom implementation)
+ * ============================================================================
+ *
+ * If you switch to a custom SendGrid invite email (server/api/email/invite.post.js),
+ * these variables would be available from the invite form:
+ *
+ * {{first_name}}       - Invited user's first name
+ * {{last_name}}        - Invited user's last name
+ * {{full_name}}        - Invited user's full name
+ * {{email}}            - Invited user's email address
+ * {{role_name}}        - Name of the assigned role
+ * {{unit_number}}      - Unit number (if assigned)
+ * {{invite_url}}       - Full invite URL with token
+ * {{date_invited}}     - Formatted date/time of invitation
+ * {{inviter_name}}     - Name of admin who sent the invite (optional)
+ *
+ * Example SendGrid template usage:
+ *   Subject: "You've been invited to 1033 Lenox"
+ *   Body: "Hello {{first_name}}, click here to accept: {{invite_url}}"
+ *
+ * ============================================================================
  */
 import { useDirectusAdmin, inviteUser } from '~/server/utils/directus';
 

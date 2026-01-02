@@ -331,9 +331,10 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
         'last_name',
         'email',
         'avatar',
-        // Role info
+        // Role info (including admin_access for permission checks)
         'role.id',
         'role.name',
+        'role.admin_access',
         // Person profile - only id and phone for session
         'person_id.id',
         'person_id.phone',
