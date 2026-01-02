@@ -54,6 +54,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   '/admin': { requireAdmin: true },
   '/admin/users': { requireAdmin: true },
   '/admin/invite': { requireAdmin: true },
+  '/admin/permissions': { requireAdmin: true },
 
   // Board members and above
   '/tasks': { requireBoardMember: true },
