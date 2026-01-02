@@ -741,7 +741,7 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'aspect-[4/3] md:col-span-2 md:row-span-2 bg-cover bg-left-center',
+		span: 'col-span-2 aspect-[4/3] md:row-span-2',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
@@ -771,6 +771,13 @@ const lifestyleImages = [
 		desc: 'Daily groceries, 1 block',
 		span: 'aspect-square',
 		image: 'https://admin.1033lenox.com/assets/fcefe508-24ed-45c7-92ed-9d3fae9f9d75?key=large',
+	},
+	{
+		icon: 'i-lucide-tree-palm',
+		title: 'OCEAN DRIVE',
+		desc: 'Restaurants & nightlife',
+		span: 'col-span-2 aspect-[4/3] md:row-span-2',
+		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
 	},
 ];
 
