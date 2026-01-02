@@ -1,26 +1,16 @@
-<script setup>
-import {isOpen, taskModalData, taskModalAction} from '~/composables/useTaskModal';
+<template>
+	<div class="relative w-full min-h-screen flex items-center justify-start flex-col scroll-smooth">
+		<h1 class="page__content-title">Tasks</h1>
+		<div class="w-full flex flex-row items-start justify-center relative">
+			<p class="mt-32 uppercase text-sm tracking-wider">Coming Soon.</p>
+		</div>
+	</div>
+</template>
 
+<script setup>
 definePageMeta({
 	layout: 'default',
 	middleware: ['auth'],
 });
-
-useHead({
-	title: 'Tasks',
-});
 </script>
-<template>
-	<div class="w-full px-0">
-		<h1 class="w-full mt-12 mb-8 text-center uppercase tracking-wide font-bold text-sm">Tasks</h1>
-		<div class="w-full flex itesm-center justify-center pb-12">
-			<UButton label="Create Task" class="uppercase tracking-wide font-bold" color="gray" @click="openModal" />
-			<UModal v-model="isOpen">
-				<TasksTaskDetail :action="taskModalAction" :task="taskModalData" />
-			</UModal>
-		</div>
-		<client-only>
-			<TasksBoard />
-		</client-only>
-	</div>
-</template>
+<style></style>
