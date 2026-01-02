@@ -136,7 +136,7 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'https://1033lenox.com',
 		name: '1033 Lenox',
-		description: 'Luxury living in the heart of Atlanta - 1033 Lenox Park Boulevard NE',
+		description: 'Luxury living in the heart of Miami Beach - 1033 Lenox Ave Miami Beach, FL',
 		defaultLocale: 'en',
 	},
 
@@ -151,7 +151,7 @@ export default defineNuxtConfig({
 		manifest: {
 			name: '1033 Lenox',
 			short_name: '1033 Lenox',
-			description: 'Luxury living in the heart of Atlanta',
+			description: 'Luxury living in the heart of Miami Beach',
 			theme_color: '#00efd1',
 			background_color: '#FDFCFA',
 			display: 'standalone',
