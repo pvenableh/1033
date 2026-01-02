@@ -149,7 +149,7 @@
 
 <script setup lang="ts">
 import type {ChannelMessageWithRelations} from '~/types/channels';
-import type {ReactionType} from '~/types/reactions';
+import type {ReactionTypeRecord} from '~/types/reactions';
 
 const props = defineProps<{
 	message: ChannelMessageWithRelations;
@@ -350,13 +350,13 @@ const copyMessageLink = async () => {
 	await navigator.clipboard.writeText(url);
 };
 
-const handleQuickReaction = async (reactionType: ReactionType) => {
+const handleQuickReaction = async (reactionType: ReactionTypeRecord) => {
 	try {
 		await toggleReaction(
 			{
 				collection: 'channel_messages',
 				item_id: props.message.id,
-				reaction_type: reactionType,
+				reaction_type: reactionType.id,
 			},
 			{
 				notifyOwner: true,
