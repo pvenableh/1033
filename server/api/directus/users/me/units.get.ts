@@ -4,6 +4,7 @@
  * Fetch current user's units with related pets and vehicles.
  * Uses admin client to fetch all related data.
  */
+import { useDirectusAdmin, readUser, readItems } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -27,32 +28,18 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const config = useRuntimeConfig();
-  const directusUrl = config.public.directusUrl || config.public.adminUrl;
-  const staticToken = config.staticToken;
-
-  if (!directusUrl || !staticToken) {
-    console.error('units.get: Missing Directus configuration');
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      message: 'Server configuration error',
-    });
-  }
-
   try {
+    // Get the admin Directus client
+    const adminClient = useDirectusAdmin();
+
     // First, get the user with their person_id
     console.log('units.get: Fetching user with person_id...');
-    const userResponse = await $fetch<{ data: any }>(`${directusUrl}/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${staticToken}`,
-      },
-      query: {
-        fields: 'id,person_id',
-      },
-    });
+    const user = await adminClient.request(
+      readUser(userId, {
+        fields: ['id', 'person_id'],
+      })
+    );
 
-    const user = userResponse.data;
     console.log('units.get: user =', JSON.stringify(user));
 
     if (!user.person_id) {
@@ -62,33 +49,30 @@ export default defineEventHandler(async (event) => {
     }
 
     // Get the person ID (handle both object and primitive)
-    const personId = typeof user.person_id === 'object' ? user.person_id.id : user.person_id;
+    const personId = typeof user.person_id === 'object' ? (user.person_id as any).id : user.person_id;
     console.log('units.get: personId =', personId);
 
-    // First, query the junction table to get unit IDs for this person
-    // This avoids complex M2M filter syntax issues
+    // Query the junction table to get unit IDs for this person
     console.log('units.get: Fetching junction table for personId =', personId);
 
-    const junctionResponse = await $fetch<{ data: any[] }>(`${directusUrl}/items/units_people`, {
-      headers: {
-        Authorization: `Bearer ${staticToken}`,
-      },
-      query: {
-        fields: 'units_id',
-        'filter[people_id][_eq]': personId,
-      },
-    });
+    const junctionData = await adminClient.request(
+      readItems('units_people', {
+        fields: ['units_id'],
+        filter: {
+          people_id: { _eq: personId },
+        },
+      })
+    );
 
-    const junctionData = junctionResponse.data || [];
     console.log('units.get: Junction data =', JSON.stringify(junctionData));
 
-    if (junctionData.length === 0) {
+    if (!junctionData || junctionData.length === 0) {
       console.log('units.get: No units found for this person');
       return { units: [] };
     }
 
     // Get the unit IDs
-    const unitIds = junctionData.map(j => j.units_id).filter(Boolean);
+    const unitIds = junctionData.map((j: any) => j.units_id).filter(Boolean);
     console.log('units.get: Unit IDs =', unitIds);
 
     if (unitIds.length === 0) {
@@ -96,11 +80,8 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the full unit data with pets and vehicles
-    const unitsResponse = await $fetch<{ data: any[] }>(`${directusUrl}/items/units`, {
-      headers: {
-        Authorization: `Bearer ${staticToken}`,
-      },
-      query: {
+    const units = await adminClient.request(
+      readItems('units', {
         fields: [
           'id',
           'number',
@@ -129,16 +110,17 @@ export default defineEventHandler(async (event) => {
           'vehicles.category',
           'vehicles.parking_spot',
           'vehicles.status',
-        ].join(','),
-        'filter[id][_in]': unitIds.join(','),
-      },
-    });
+        ],
+        filter: {
+          id: { _in: unitIds },
+        },
+      })
+    );
 
-    const units = unitsResponse.data || [];
-    console.log('units.get: Found', units.length, 'units');
+    console.log('units.get: Found', units?.length || 0, 'units');
 
     // Format the response to match what the frontend expects
-    const formattedUnits = units.map(unit => ({
+    const formattedUnits = (units || []).map((unit: any) => ({
       units_id: unit,
     }));
 
@@ -151,16 +133,35 @@ export default defineEventHandler(async (event) => {
       data: error?.data,
       statusCode: error?.statusCode,
       statusMessage: error?.statusMessage,
+      responseStatus: error?.response?.status,
     }, null, 2));
 
-    if (error.statusCode) {
-      throw error;
+    // Get the status code from various possible locations
+    const statusCode = error?.statusCode || error?.response?.status || error?.status;
+    const errorMessage = error?.errors?.[0]?.message || error?.message || 'Failed to fetch user units';
+
+    // Handle specific Directus error codes
+    if (statusCode === 403) {
+      throw createError({
+        statusCode: 403,
+        statusMessage: 'Forbidden',
+        message: 'You do not have permission to access this resource. Please contact an administrator.',
+      });
     }
 
+    if (statusCode === 401) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'Authentication required. Please log in again.',
+      });
+    }
+
+    // For any other error, throw a properly formatted H3 error
     throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      message: error?.message || 'Failed to fetch user units',
+      statusCode: statusCode || 500,
+      statusMessage: statusCode ? 'Error' : 'Internal Server Error',
+      message: errorMessage,
     });
   }
 });
