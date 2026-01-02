@@ -516,7 +516,9 @@ const openInviteModal = async () => {
 const confirmInvite = async () => {
 	if (!selectedUserToInvite.value) return;
 
+	const invitedUserName = selectedUserToInvite.value.label;
 	inviting.value = true;
+
 	try {
 		const newMember = await inviteMember(
 			props.channelId,
@@ -531,7 +533,7 @@ const confirmInvite = async () => {
 
 		toast.add({
 			title: 'Member invited',
-			description: `${selectedUserToInvite.value.label} has been invited to the channel`,
+			description: `${invitedUserName} has been invited to the channel`,
 			color: 'green',
 		});
 	} catch (e: any) {

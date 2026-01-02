@@ -185,6 +185,7 @@ export function useChannels() {
 
   /**
    * Invite a user to a channel
+   * Returns the created member with user data populated for immediate UI update
    */
   const inviteMember = async (
     channelId: string,
@@ -208,18 +209,39 @@ export function useChannels() {
       user_id: userId,
       role,
       notifications_enabled: true,
+      invited_by: user.value?.id,
     } as Partial<ChannelMember>);
 
-    // Send notification to invited user
-    const channel = await getChannel(channelId);
-    await sendTo(
-      userId,
-      `You've been invited to #${channel.name}`,
-      `${user.value?.first_name} ${user.value?.last_name} invited you to the channel "${channel.name}".`,
-      { collection: 'channels', item: channelId }
-    );
+    // Fetch the member with full user relations for proper UI display
+    const memberWithRelations = await channelMembers.get(member.id, {
+      fields: [
+        '*',
+        'user_id.id',
+        'user_id.first_name',
+        'user_id.last_name',
+        'user_id.email',
+        'user_id.avatar',
+        'invited_by.id',
+        'invited_by.first_name',
+        'invited_by.last_name',
+      ],
+    });
 
-    return member;
+    // Send notification to invited user (don't let notification failure block the invite)
+    try {
+      const channel = await getChannel(channelId);
+      await sendTo(
+        userId,
+        `You've been invited to #${channel.name}`,
+        `${user.value?.first_name} ${user.value?.last_name} invited you to the channel "${channel.name}".`,
+        { collection: 'channels', item: channelId }
+      );
+    } catch (notificationError) {
+      // Log but don't fail the invite if notification fails
+      console.warn('Failed to send channel invite notification:', notificationError);
+    }
+
+    return memberWithRelations;
   };
 
   /**
