@@ -20,6 +20,12 @@ const adminLinks = [
     to: '/admin/permissions',
   },
   {
+    title: 'Project Management',
+    description: 'Manage projects, timelines, events, and tasks',
+    icon: 'i-heroicons-folder',
+    to: '/admin/projects',
+  },
+  {
     title: 'Pending Requests',
     description: 'View and approve pending access requests',
     icon: 'i-heroicons-clock',
