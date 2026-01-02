@@ -5,7 +5,10 @@
  * Supports reactions on any content type (messages, comments, etc.)
  */
 
-import type { User } from '../system/user';
+import type { DirectusUser } from '../directus';
+
+// Alias for backwards compatibility with existing code
+type User = DirectusUser;
 
 /**
  * Icon families supported for reaction types

@@ -1,6 +1,7 @@
-export type * from './content';
-export type * from './meta';
-export type * from './system';
-export type * from './help';
-export type * from './os';
-export type * from './schema';
+// Auto-generated Directus types
+export type * from './directus';
+
+// Custom app-specific types
+export type * from './channels';
+export type * from './comments';
+export type * from './reactions';

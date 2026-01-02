@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { User, Role } from '~/types';
+import type { DirectusUser, DirectusRole } from '~/types/directus';
 
 definePageMeta({
   layout: 'default',
@@ -11,10 +11,10 @@ const toast = useToast();
 const { isAdmin, APP_ROLES } = useRoles();
 
 // State
-const users = ref<User[]>([]);
-const roles = ref<Role[]>([]);
+const users = ref<DirectusUser[]>([]);
+const roles = ref<DirectusRole[]>([]);
 const loading = ref(true);
-const selectedUser = ref<User | null>(null);
+const selectedUser = ref<DirectusUser | null>(null);
 const showUserModal = ref(false);
 const actionLoading = ref(false);
 

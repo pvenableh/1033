@@ -1,4 +1,4 @@
-import type { Role, User } from '~/types';
+import type { DirectusRole, DirectusUser } from '~/types/directus';
 
 /**
  * Application Role Names (Directus Roles)
@@ -114,7 +114,7 @@ interface PersonRecord {
 /**
  * Extended user interface with person relationship
  */
-interface ExtendedUser extends User {
+interface ExtendedUser extends DirectusUser {
   // Direct M2O relationship to people (via person_id field)
   person_id?: PersonRecord | null;
   // Legacy: for backwards compatibility
@@ -145,14 +145,14 @@ export function useRoles() {
   /**
    * Get the current user's role object (Directus role)
    */
-  const userRole = computed<Role | null>(() => {
+  const userRole = computed<DirectusRole | null>(() => {
     if (!user.value) return null;
 
     const role = user.value.role;
     if (typeof role === 'string') {
-      return { id: role, name: '', icon: '', description: null, ip_access: [], enforce_tfa: false, admin_access: false, app_access: false, users: [] };
+      return { id: role, name: '' } as DirectusRole;
     }
-    return role as Role;
+    return role as DirectusRole;
   });
 
   /**
