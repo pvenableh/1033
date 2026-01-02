@@ -1,7 +1,9 @@
 <template>
 	<div class="channel-view h-full flex flex-col">
-		<!-- Header -->
-		<div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+		<!-- Header - hidden on mobile when parent provides its own header -->
+		<div
+			class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+			:class="{'hidden lg:block': hideHeaderOnMobile}">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
 					<UIcon
@@ -14,20 +16,28 @@
 								Private
 							</UBadge>
 						</h2>
-						<p v-if="channel?.description" class="text-sm text-gray-500 dark:text-gray-400">
+						<p v-if="channel?.description" class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
 							{{ channel.description }}
 						</p>
 					</div>
 				</div>
 
 				<div class="flex items-center gap-2">
+					<!-- Search toggle button -->
+					<UButton
+						size="sm"
+						color="gray"
+						:variant="showMessageSearch ? 'soft' : 'ghost'"
+						icon="i-heroicons-magnifying-glass"
+						@click="toggleMessageSearch" />
 					<UButton
 						size="sm"
 						color="gray"
 						variant="ghost"
 						icon="i-heroicons-users"
 						@click="showMembersPanel = !showMembersPanel">
-						{{ memberCount }}
+						<span class="hidden sm:inline">{{ memberCount }}</span>
+						<span class="sm:hidden">{{ memberCount }}</span>
 					</UButton>
 					<UDropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
 						<UButton
@@ -38,6 +48,37 @@
 					</UDropdown>
 				</div>
 			</div>
+
+			<!-- Message Search Bar -->
+			<Transition name="slide-down">
+				<div v-if="showMessageSearch" class="mt-3">
+					<div class="relative">
+						<UInput
+							ref="messageSearchInput"
+							v-model="messageSearchQuery"
+							placeholder="Search messages..."
+							icon="i-heroicons-magnifying-glass"
+							size="sm"
+							class="w-full">
+							<template #trailing>
+								<div class="flex items-center gap-1">
+									<span v-if="messageSearchQuery && filteredMessages.length > 0" class="text-xs text-gray-500">
+										{{ filteredMessages.length }} result{{ filteredMessages.length !== 1 ? 's' : '' }}
+									</span>
+									<UButton
+										v-if="messageSearchQuery"
+										color="gray"
+										variant="link"
+										icon="i-heroicons-x-mark"
+										size="xs"
+										:padded="false"
+										@click="messageSearchQuery = ''" />
+								</div>
+							</template>
+						</UInput>
+					</div>
+				</div>
+			</Transition>
 		</div>
 
 		<div class="flex-1 flex overflow-hidden">
@@ -60,11 +101,21 @@
 						</p>
 					</div>
 
+					<div v-else-if="messageSearchQuery && filteredMessages.length === 0" class="text-center py-12">
+						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+						<p class="text-gray-500 dark:text-gray-400">No messages match your search</p>
+						<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
+							Try a different search term
+						</p>
+					</div>
+
 					<template v-else>
 						<ChannelMessage
-							v-for="message in messages"
+							v-for="message in filteredMessages"
 							:key="message.id"
 							:message="message"
+							:parent-message="getParentMessage(message)"
+							:is-highlighted="messageSearchQuery && isMessageMatching(message)"
 							@reply="handleReply"
 							@edit="handleEditMessage"
 							@delete="handleDeleteMessage" />
@@ -82,11 +133,20 @@
 				</div>
 			</div>
 
-			<!-- Members Sidebar -->
+			<!-- Members Sidebar - Desktop: slide panel, Mobile: slide-over -->
+			<!-- Mobile overlay -->
+			<Transition name="fade">
+				<div
+					v-if="showMembersPanel"
+					class="fixed inset-0 bg-black/50 z-40 lg:hidden"
+					@click="showMembersPanel = false" />
+			</Transition>
+
 			<Transition name="slide">
 				<div
 					v-if="showMembersPanel"
-					class="w-64 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 overflow-y-auto">
+					class="w-72 lg:w-64 border-l border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 overflow-y-auto
+						   fixed lg:relative right-0 inset-y-0 z-50 lg:z-auto">
 					<ChannelMembers
 						:channel-id="channelId"
 						:members="members"
@@ -176,9 +236,13 @@ const props = defineProps({
 		type: String,
 		required: true,
 	},
+	hideHeaderOnMobile: {
+		type: Boolean,
+		default: false,
+	},
 });
 
-const emit = defineEmits(['channel-updated']);
+const emit = defineEmits(['channel-updated', 'channel-loaded']);
 
 const {
 	getChannel,
@@ -205,6 +269,9 @@ const loadingMessages = ref(true);
 const loadingChannel = ref(true);
 const showMembersPanel = ref(false);
 const showInviteModal = ref(false);
+const showMessageSearch = ref(false);
+const messageSearchQuery = ref('');
+const messageSearchInput = ref<HTMLElement | null>(null);
 const newMessageContent = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const uploadFolderId = ref<string | null>(null);
@@ -235,6 +302,58 @@ const channelIcon = computed(() => {
 const memberCount = computed(() => {
 	return members.value.length;
 });
+
+const filteredMessages = computed(() => {
+	if (!messageSearchQuery.value.trim()) {
+		return messages.value;
+	}
+	const query = messageSearchQuery.value.toLowerCase().trim();
+	return messages.value.filter(message => {
+		// Search in message content (strip HTML tags)
+		const textContent = message.content?.replace(/<[^>]*>/g, '').toLowerCase() || '';
+		if (textContent.includes(query)) return true;
+
+		// Search in author name
+		const author = message.user_created;
+		if (author && typeof author !== 'string') {
+			const authorName = `${author.first_name} ${author.last_name}`.toLowerCase();
+			if (authorName.includes(query)) return true;
+		}
+
+		return false;
+	});
+});
+
+const isMessageMatching = (message: ChannelMessageWithRelations) => {
+	if (!messageSearchQuery.value.trim()) return false;
+	const query = messageSearchQuery.value.toLowerCase().trim();
+	const textContent = message.content?.replace(/<[^>]*>/g, '').toLowerCase() || '';
+	return textContent.includes(query);
+};
+
+const toggleMessageSearch = () => {
+	showMessageSearch.value = !showMessageSearch.value;
+	if (showMessageSearch.value) {
+		nextTick(() => {
+			(messageSearchInput.value as any)?.input?.focus();
+		});
+	} else {
+		messageSearchQuery.value = '';
+	}
+};
+
+const getParentMessage = (message: ChannelMessageWithRelations) => {
+	if (!message.parent_id) return null;
+
+	// parent_id could be a string or an object
+	const parentId = typeof message.parent_id === 'string'
+		? message.parent_id
+		: (message.parent_id as any)?.id;
+
+	if (!parentId) return null;
+
+	return messages.value.find(m => m.id === parentId) || null;
+};
 
 const canManageChannel = computed(() => {
 	return isBoardMember.value || isAdmin.value;
@@ -274,6 +393,7 @@ const loadChannel = async () => {
 	try {
 		channel.value = await getChannel(props.channelId);
 		members.value = channel.value.members || [];
+		emit('channel-loaded', channel.value);
 	} catch (e: any) {
 		toast.add({title: 'Error', description: e.message || 'Failed to load channel', color: 'red'});
 	} finally {
@@ -479,5 +599,34 @@ watch(() => props.channelId, async () => {
 .slide-leave-to {
 	transform: translateX(100%);
 	opacity: 0;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+
+/* Mobile adjustments */
+@media (max-width: 1023px) {
+	.channel-view :deep(.prose) {
+		max-width: 100%;
+	}
+}
+
+/* Slide down transition for search */
+.slide-down-enter-active,
+.slide-down-leave-active {
+	transition: all 0.2s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+	opacity: 0;
+	transform: translateY(-10px);
 }
 </style>

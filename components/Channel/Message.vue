@@ -1,16 +1,46 @@
 <template>
 	<div
-		class="channel-message group flex gap-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
-		:class="{'bg-primary-50 dark:bg-primary-900/10': isHighlighted}">
-		<!-- Avatar -->
-		<UAvatar
-			:src="authorAvatar"
-			:alt="authorName"
-			size="sm"
-			class="flex-shrink-0 mt-0.5" />
+		class="channel-message group rounded-lg transition-colors"
+		:class="[
+			isHighlighted ? 'bg-primary-50 dark:bg-primary-900/10' : 'hover:bg-gray-50 dark:hover:bg-gray-800/50',
+			isReply ? 'ml-4 sm:ml-8' : ''
+		]">
+		<!-- Reply Indicator - shows parent message preview -->
+		<div
+			v-if="isReply && parentMessage"
+			class="flex items-center gap-2 px-3 pt-2 pb-1 text-xs text-gray-500 dark:text-gray-400">
+			<div class="flex items-center gap-1.5">
+				<div class="w-4 h-4 border-l-2 border-t-2 border-gray-300 dark:border-gray-600 rounded-tl-md -mb-2"></div>
+				<UIcon name="i-heroicons-arrow-uturn-left" class="w-3 h-3 rotate-180" />
+				<UAvatar
+					:src="parentAuthorAvatar"
+					:alt="parentAuthorName"
+					size="2xs"
+					class="flex-shrink-0" />
+				<span class="font-medium text-gray-600 dark:text-gray-300">{{ parentAuthorName }}</span>
+			</div>
+			<span class="truncate max-w-[200px] sm:max-w-[300px] italic">
+				{{ parentMessagePreview }}
+			</span>
+		</div>
 
-		<!-- Content -->
-		<div class="flex-1 min-w-0">
+		<!-- Reply visual connector line -->
+		<div
+			v-if="isReply"
+			class="absolute left-2 sm:left-6 top-0 bottom-1/2 w-0.5 bg-gradient-to-b from-primary-300 to-primary-500 dark:from-primary-700 dark:to-primary-500 rounded-full hidden sm:block"
+			style="height: 20px; margin-top: -4px;" />
+
+		<!-- Main message content -->
+		<div class="flex gap-3 p-2" :class="{'border-l-2 border-primary-400 dark:border-primary-600 pl-3': isReply}">
+			<!-- Avatar -->
+			<UAvatar
+				:src="authorAvatar"
+				:alt="authorName"
+				:size="isReply ? 'xs' : 'sm'"
+				class="flex-shrink-0 mt-0.5" />
+
+			<!-- Content -->
+			<div class="flex-1 min-w-0">
 			<!-- Header -->
 			<div class="flex items-center gap-2 mb-1">
 				<span class="font-medium text-gray-900 dark:text-white">
@@ -82,15 +112,16 @@
 			</div>
 		</div>
 
-		<!-- Actions -->
-		<div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-start gap-1">
-			<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
-				<UButton
-					size="xs"
-					color="gray"
-					variant="ghost"
-					icon="i-heroicons-ellipsis-horizontal" />
-			</UDropdown>
+			<!-- Actions -->
+			<div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-start gap-1">
+				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
+					<UButton
+						size="xs"
+						color="gray"
+						variant="ghost"
+						icon="i-heroicons-ellipsis-horizontal" />
+				</UDropdown>
+			</div>
 		</div>
 	</div>
 </template>
@@ -102,6 +133,7 @@ import DOMPurify from 'isomorphic-dompurify';
 const props = defineProps<{
 	message: ChannelMessageWithRelations;
 	isHighlighted?: boolean;
+	parentMessage?: ChannelMessageWithRelations | null;
 }>();
 
 const emit = defineEmits(['reply', 'edit', 'delete']);
@@ -111,6 +143,34 @@ const {user} = useDirectusAuth();
 
 const isEditing = ref(false);
 const editContent = ref('');
+
+// Reply-related computed properties
+const isReply = computed(() => {
+	return props.message.parent_id !== null && props.message.parent_id !== undefined;
+});
+
+const parentAuthorAvatar = computed(() => {
+	if (!props.parentMessage) return null;
+	const author = props.parentMessage.user_created;
+	if (!author || typeof author === 'string') return null;
+	return author.avatar
+		? `${config.public.directusUrl}/assets/${author.avatar}?key=small`
+		: null;
+});
+
+const parentAuthorName = computed(() => {
+	if (!props.parentMessage) return 'Unknown';
+	const author = props.parentMessage.user_created;
+	if (!author || typeof author === 'string') return 'Unknown';
+	return `${author.first_name} ${author.last_name}`;
+});
+
+const parentMessagePreview = computed(() => {
+	if (!props.parentMessage || !props.parentMessage.content) return '';
+	// Strip HTML and truncate
+	const text = props.parentMessage.content.replace(/<[^>]*>/g, '');
+	return text.length > 50 ? text.substring(0, 50) + '...' : text;
+});
 
 const authorAvatar = computed(() => {
 	const author = props.message.user_created;

@@ -2,7 +2,7 @@
 	<div class="channel-list h-full flex flex-col">
 		<!-- Header -->
 		<div class="p-4 border-b border-gray-200 dark:border-gray-700">
-			<div class="flex items-center justify-between">
+			<div class="flex items-center justify-between mb-3">
 				<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Channels</h2>
 				<UButton
 					v-if="canCreateChannel"
@@ -11,6 +11,27 @@
 					variant="ghost"
 					icon="i-heroicons-plus"
 					@click="showCreateModal = true" />
+			</div>
+			<!-- Search Input -->
+			<div class="relative">
+				<UInput
+					v-model="searchQuery"
+					placeholder="Search channels..."
+					icon="i-heroicons-magnifying-glass"
+					size="sm"
+					:ui="{icon: {trailing: {pointer: ''}}}"
+					class="w-full">
+					<template #trailing>
+						<UButton
+							v-if="searchQuery"
+							color="gray"
+							variant="link"
+							icon="i-heroicons-x-mark"
+							size="xs"
+							:padded="false"
+							@click="searchQuery = ''" />
+					</template>
+				</UInput>
 			</div>
 		</div>
 
@@ -39,19 +60,36 @@
 				</UButton>
 			</div>
 
-			<nav v-else class="py-2">
+			<div v-else-if="filteredChannels.length === 0 && searchQuery" class="p-4 text-center text-gray-500 dark:text-gray-400">
+				<UIcon name="i-heroicons-magnifying-glass" class="w-8 h-8 mx-auto mb-2 opacity-50" />
+				<p class="text-sm">No channels match "{{ searchQuery }}"</p>
+			</div>
+
+			<nav v-else class="py-2 space-y-1">
 				<button
-					v-for="channel in channels"
+					v-for="channel in filteredChannels"
 					:key="channel.id"
-					class="w-full px-4 py-2 flex items-center gap-3 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-left"
-					:class="{'bg-primary-50 dark:bg-primary-900/20 border-l-2 border-primary-500': selectedChannelId === channel.id}"
+					class="channel-item w-full px-4 py-2.5 flex items-center gap-3 transition-all duration-200 text-left rounded-lg mx-auto"
+					:class="[
+						selectedChannelId === channel.id
+							? 'channel-active bg-primary-100 dark:bg-primary-900/40 border-l-4 border-primary-500 shadow-sm'
+							: 'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent'
+					]"
+					style="width: calc(100% - 8px);"
 					@click="selectChannel(channel)">
 					<UIcon
 						:name="getChannelIcon(channel)"
-						class="w-5 h-5 text-gray-500 dark:text-gray-400 flex-shrink-0" />
+						class="w-5 h-5 flex-shrink-0 transition-colors"
+						:class="selectedChannelId === channel.id
+							? 'text-primary-600 dark:text-primary-400'
+							: 'text-gray-500 dark:text-gray-400'" />
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2">
-							<span class="font-medium text-gray-900 dark:text-white truncate">
+							<span
+								class="font-medium truncate transition-colors"
+								:class="selectedChannelId === channel.id
+									? 'text-primary-700 dark:text-primary-300'
+									: 'text-gray-900 dark:text-white'">
 								{{ channel.name }}
 							</span>
 							<UBadge
@@ -62,14 +100,15 @@
 								Private
 							</UBadge>
 						</div>
-						<p v-if="channel.description" class="text-xs text-gray-500 truncate">
+						<p v-if="channel.description" class="text-xs text-gray-500 dark:text-gray-400 truncate">
 							{{ channel.description }}
 						</p>
 					</div>
 					<UBadge
 						v-if="getUnreadCount(channel.id) > 0"
 						size="xs"
-						color="primary">
+						color="primary"
+						class="animate-pulse">
 						{{ getUnreadCount(channel.id) }}
 					</UBadge>
 				</button>
@@ -171,6 +210,7 @@ const error = ref<string | null>(null);
 const showCreateModal = ref(false);
 const creating = ref(false);
 const unreadCounts = ref<Record<string, number>>({});
+const searchQuery = ref('');
 
 const newChannel = ref({
 	name: '',
@@ -193,6 +233,17 @@ const iconOptions = [
 ];
 
 const canCreateChannel = computed(() => isBoardMember.value || isAdmin.value);
+
+const filteredChannels = computed(() => {
+	if (!searchQuery.value.trim()) {
+		return channels.value;
+	}
+	const query = searchQuery.value.toLowerCase().trim();
+	return channels.value.filter(channel =>
+		channel.name.toLowerCase().includes(query) ||
+		(channel.description && channel.description.toLowerCase().includes(query))
+	);
+});
 
 const getChannelIcon = (channel: Channel) => {
 	if (channel.icon) {
