@@ -538,6 +538,117 @@ export interface PresentationsFile {
 	directus_files_id?: DirectusFile | string | null;
 }
 
+export interface ProjectCategory {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	name?: string | null;
+	color?: string | null;
+	/** @description e.g., i-heroicons-folder */
+	icon?: string | null;
+}
+
+export interface ProjectEventCategory {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	name?: string | null;
+	color?: string | null;
+	text_color?: string | null;
+	icon?: string | null;
+}
+
+export interface ProjectEventFile {
+	/** @primaryKey */
+	id: number;
+	sort?: number | null;
+	project_event_id?: ProjectEvent | string | null;
+	directus_files_id?: DirectusFile | string | null;
+}
+
+export interface ProjectEvent {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @required */
+	project_id: Project | string;
+	/** @required */
+	title: string;
+	description?: string | null;
+	/** @required */
+	event_date: string;
+	category_id?: ProjectCategory | string | null;
+	is_milestone?: boolean | null;
+	tasks?: ProjectTask[] | string[];
+	files?: ProjectEventFile[] | string[];
+	spawned_projects?: Project[] | string[];
+}
+
+export interface Project {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @required */
+	name: string;
+	description?: string | null;
+	color?: string | null;
+	icon?: string | null;
+	/** @required */
+	start_date: string;
+	target_end_date?: string | null;
+	actual_end_date?: string | null;
+	category_id?: ProjectCategory | string | null;
+	parent_id?: Project | string | null;
+	parent_event_id?: ProjectEvent | string | null;
+	events?: ProjectEvent[] | string[];
+	children?: Project[] | string[];
+}
+
+export interface ProjectTask {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	/** @required */
+	event_id: ProjectEvent | string;
+	title?: string | null;
+	description?: string | null;
+	assignee_id?: DirectusUser | string | null;
+	completed?: boolean | null;
+	completed_at?: string | null;
+	completed_by?: DirectusUser | string | null;
+	due_date?: string | null;
+	priority?: 'low' | 'medium' | 'high' | null;
+	watchers?: ProjectTaskWatcher[] | string[];
+}
+
+export interface ProjectTaskWatcher {
+	/** @primaryKey */
+	id: number;
+	sort?: number | null;
+	date_created?: string | null;
+	task_id?: ProjectTask | string | null;
+	user_id?: DirectusUser | string | null;
+}
+
 export interface Reaction {
 	/** @primaryKey */
 	id: number;
@@ -1291,6 +1402,13 @@ export interface Schema {
 	pets_files: PetsFile[];
 	presentations: Presentation[];
 	presentations_files: PresentationsFile[];
+	project_categories: ProjectCategory[];
+	project_event_categories: ProjectEventCategory[];
+	project_event_files: ProjectEventFile[];
+	project_events: ProjectEvent[];
+	projects: Project[];
+	project_tasks: ProjectTask[];
+	project_task_watchers: ProjectTaskWatcher[];
 	reactions: Reaction[];
 	reaction_types: ReactionType[];
 	renderings: Rendering[];
@@ -1375,6 +1493,13 @@ export enum CollectionNames {
 	pets_files = 'pets_files',
 	presentations = 'presentations',
 	presentations_files = 'presentations_files',
+	project_categories = 'project_categories',
+	project_event_categories = 'project_event_categories',
+	project_event_files = 'project_event_files',
+	project_events = 'project_events',
+	projects = 'projects',
+	project_tasks = 'project_tasks',
+	project_task_watchers = 'project_task_watchers',
 	reactions = 'reactions',
 	reaction_types = 'reaction_types',
 	renderings = 'renderings',
