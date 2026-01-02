@@ -101,7 +101,16 @@
 				</UBadge>
 			</div>
 
-			<!-- Reactions / Thread indicator (future feature) -->
+			<!-- Reactions Display -->
+			<ReactionDisplay
+				collection="channel_messages"
+				:item-id="message.id"
+				:owner-user-id="messageOwnerUserId"
+				:item-context="{ channelName: channelName }"
+				:show-picker="true"
+				:compact="true" />
+
+			<!-- Thread indicator -->
 			<div v-if="replyCount > 0" class="mt-2">
 				<button
 					class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
@@ -114,6 +123,18 @@
 
 			<!-- Actions -->
 			<div class="opacity-0 group-hover:opacity-100 transition-opacity flex items-start gap-1">
+				<!-- Quick reaction picker -->
+				<ReactionPicker @select="handleQuickReaction">
+					<template #trigger>
+						<UButton
+							size="xs"
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-face-smile"
+							aria-label="Add reaction" />
+					</template>
+				</ReactionPicker>
+
 				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
 					<UButton
 						size="xs"
@@ -128,6 +149,7 @@
 
 <script setup lang="ts">
 import type {ChannelMessageWithRelations} from '~/types/channels';
+import type {ReactionType} from '~/types/reactions';
 
 const props = defineProps<{
 	message: ChannelMessageWithRelations;
@@ -140,6 +162,7 @@ const emit = defineEmits(['reply', 'edit', 'delete']);
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
 const {sanitizeSync, initSanitizer} = useSanitize();
+const {toggleReaction} = useReactions();
 
 const isEditing = ref(false);
 const editContent = ref('');
@@ -213,6 +236,18 @@ const mentionedUsers = computed(() => {
 const replyCount = computed(() => {
 	// TODO: Add reply count from API
 	return 0;
+});
+
+const messageOwnerUserId = computed(() => {
+	const author = props.message.user_created;
+	if (!author || typeof author === 'string') return undefined;
+	return author.id;
+});
+
+const channelName = computed(() => {
+	const channel = props.message.channel_id;
+	if (!channel || typeof channel === 'string') return undefined;
+	return channel.name;
 });
 
 const messageActions = computed(() => {
@@ -313,6 +348,25 @@ const confirmDelete = () => {
 const copyMessageLink = async () => {
 	const url = `${window.location.origin}${window.location.pathname}?message=${props.message.id}`;
 	await navigator.clipboard.writeText(url);
+};
+
+const handleQuickReaction = async (reactionType: ReactionType) => {
+	try {
+		await toggleReaction(
+			{
+				collection: 'channel_messages',
+				item_id: props.message.id,
+				reaction_type: reactionType,
+			},
+			{
+				notifyOwner: true,
+				ownerUserId: messageOwnerUserId.value,
+				itemContext: { channelName: channelName.value },
+			}
+		);
+	} catch (error) {
+		console.error('Failed to add reaction:', error);
+	}
 };
 </script>
 
