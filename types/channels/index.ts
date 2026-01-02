@@ -4,8 +4,11 @@
  * TypeScript definitions for the Slack-like channel system.
  */
 
-import type { User } from '../system/user';
-import type { File } from '../system/file';
+import type { DirectusUser, DirectusFile } from '../directus';
+
+// Alias for backwards compatibility with existing code
+type User = DirectusUser;
+type File = DirectusFile;
 
 /**
  * Channel - A communication channel/room

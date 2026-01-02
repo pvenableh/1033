@@ -5,8 +5,11 @@
  * Supports rich text, @mentions, file attachments, and threaded replies.
  */
 
-import type { User } from '../system/user';
-import type { File } from '../system/file';
+import type { DirectusUser, DirectusFile } from '../directus';
+
+// Alias for backwards compatibility with existing code
+type User = DirectusUser;
+type File = DirectusFile;
 
 /**
  * Comment - A rich text comment on any item

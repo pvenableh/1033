@@ -14,7 +14,7 @@ import type {
   ReactableCollection,
   CreateReactionPayload,
 } from '~/types/reactions';
-import type { User } from '~/types/system/user';
+import type { DirectusUser } from '~/types/directus';
 
 export function useReactions() {
   const reactions = useDirectusItems<Reaction>('reactions');
@@ -126,7 +126,7 @@ export function useReactions() {
         }
         return acc;
       },
-      {} as Record<number, { reaction_type: ReactionTypeRecord; users: User[]; hasReacted: boolean }>
+      {} as Record<number, { reaction_type: ReactionTypeRecord; users: DirectusUser[]; hasReacted: boolean }>
     );
 
     // Convert to ReactionCount array
