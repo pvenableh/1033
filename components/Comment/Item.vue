@@ -115,7 +115,6 @@
 
 <script setup lang="ts">
 import type {CommentWithRelations} from '~/types/comments';
-import DOMPurify from 'isomorphic-dompurify';
 
 const props = defineProps<{
 	comment: CommentWithRelations;
@@ -129,10 +128,16 @@ const emit = defineEmits(['reply', 'edit', 'delete', 'toggle-resolved']);
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
 const {canEditComment} = useComments();
+const {sanitizeSync, initSanitizer} = useSanitize();
 
 const isEditing = ref(false);
 const editContent = ref('');
 const saving = ref(false);
+
+// Initialize DOMPurify on client
+onMounted(() => {
+	initSanitizer();
+});
 
 const authorAvatar = computed(() => {
 	const author = props.comment.user_created;
@@ -152,10 +157,7 @@ const canEdit = computed(() => canEditComment(props.comment));
 
 const sanitizedContent = computed(() => {
 	if (!props.comment.content) return '';
-	return DOMPurify.sanitize(props.comment.content, {
-		ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'a', 'ul', 'ol', 'li', 'span', 'img'],
-		ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'data-id', 'data-label'],
-	});
+	return sanitizeSync(props.comment.content);
 });
 
 const files = computed(() => props.comment.files || []);

@@ -128,7 +128,6 @@
 
 <script setup lang="ts">
 import type {ChannelMessageWithRelations} from '~/types/channels';
-import DOMPurify from 'isomorphic-dompurify';
 
 const props = defineProps<{
 	message: ChannelMessageWithRelations;
@@ -140,9 +139,15 @@ const emit = defineEmits(['reply', 'edit', 'delete']);
 
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
+const {sanitizeSync, initSanitizer} = useSanitize();
 
 const isEditing = ref(false);
 const editContent = ref('');
+
+// Initialize DOMPurify on client
+onMounted(() => {
+	initSanitizer();
+});
 
 // Reply-related computed properties
 const isReply = computed(() => {
@@ -194,10 +199,7 @@ const isOwnMessage = computed(() => {
 
 const sanitizedContent = computed(() => {
 	if (!props.message.content) return '';
-	return DOMPurify.sanitize(props.message.content, {
-		ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 's', 'u', 'a', 'ul', 'ol', 'li', 'span', 'img'],
-		ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'src', 'alt', 'data-id', 'data-label'],
-	});
+	return sanitizeSync(props.message.content);
 });
 
 const files = computed(() => {
