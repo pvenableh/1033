@@ -1,10 +1,32 @@
 <template>
 	<div v-if="editor" class="channel-message-editor relative">
+		<!-- Reply indicator -->
+		<Transition name="slide-down">
+			<div
+				v-if="replyTo"
+				class="reply-indicator flex items-center gap-2 px-3 py-2 bg-primary-50 dark:bg-primary-900/20 border border-b-0 border-primary-200 dark:border-primary-800 rounded-t-lg">
+				<div class="flex-1 flex items-center gap-2 min-w-0">
+					<UIcon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary-500 rotate-180 flex-shrink-0" />
+					<span class="text-sm text-primary-700 dark:text-primary-300 flex-shrink-0">Replying to</span>
+					<span class="font-medium text-sm text-primary-800 dark:text-primary-200 flex-shrink-0">{{ replyToAuthorName }}</span>
+					<span class="text-sm text-primary-600 dark:text-primary-400 truncate">{{ replyToPreview }}</span>
+				</div>
+				<UButton
+					size="xs"
+					color="primary"
+					variant="ghost"
+					icon="i-heroicons-x-mark"
+					class="flex-shrink-0"
+					@click="$emit('cancel-reply')" />
+			</div>
+		</Transition>
+
 		<editor-content
 			:editor="editor"
-			class="border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white text-[14px] transition-all duration-200 overflow-y-auto focus:border-primary-500 relative"
+			class="border border-gray-300 dark:border-gray-600 dark:text-white text-[14px] transition-all duration-200 overflow-y-auto focus:border-primary-500 relative"
 			:class="[
 				{'ring-2 ring-primary-500': editor.isFocused},
+				replyTo ? 'rounded-b-lg border-t-0' : 'rounded-lg',
 				height,
 			]" />
 
@@ -88,6 +110,7 @@
 </template>
 
 <script setup lang="ts">
+import type {PropType} from 'vue';
 import StarterKit from '@tiptap/starter-kit';
 import {Editor, EditorContent} from '@tiptap/vue-3';
 import {Extension} from '@tiptap/core';
@@ -96,7 +119,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import CharacterCount from '@tiptap/extension-character-count';
 import Mention from '@tiptap/extension-mention';
-import type {MentionData} from '~/types/channels';
+import type {MentionData, ChannelMessageWithRelations} from '~/types/channels';
 
 const {processUpload, validateFiles} = useFileUpload();
 
@@ -107,6 +130,10 @@ const props = defineProps({
 	},
 	channelId: {
 		type: String,
+		default: null,
+	},
+	replyTo: {
+		type: Object as PropType<ChannelMessageWithRelations | null>,
 		default: null,
 	},
 	height: {
@@ -135,7 +162,21 @@ const props = defineProps({
 	},
 });
 
-const emit = defineEmits(['update:modelValue', 'send', 'mention', 'files-uploaded']);
+const emit = defineEmits(['update:modelValue', 'send', 'mention', 'files-uploaded', 'cancel-reply']);
+
+// Reply computed properties
+const replyToAuthorName = computed(() => {
+	if (!props.replyTo) return '';
+	const author = props.replyTo.user_created;
+	if (!author || typeof author === 'string') return 'Unknown';
+	return `${author.first_name} ${author.last_name}`;
+});
+
+const replyToPreview = computed(() => {
+	if (!props.replyTo || !props.replyTo.content) return '';
+	const text = props.replyTo.content.replace(/<[^>]*>/g, '');
+	return text.length > 60 ? text.substring(0, 60) + '...' : text;
+});
 
 // Enter-to-send toggle state (persisted in localStorage)
 const enterToSend = ref(false);
@@ -192,6 +233,7 @@ const handleSend = () => {
 	emit('send', {
 		content,
 		mentionedUserIds: mentionIds,
+		parentId: props.replyTo?.id || null,
 	});
 
 	// Clear editor
@@ -637,5 +679,30 @@ onBeforeUnmount(() => {
 .mentions-menu {
 	position: absolute;
 	z-index: 50;
+}
+
+/* Reply indicator slide transition */
+.slide-down-enter-active,
+.slide-down-leave-active {
+	transition: all 0.2s ease;
+}
+
+.slide-down-enter-from,
+.slide-down-leave-to {
+	opacity: 0;
+	transform: translateY(-10px);
+}
+
+.reply-indicator {
+	animation: pulse-border 2s ease-in-out infinite;
+}
+
+@keyframes pulse-border {
+	0%, 100% {
+		border-color: rgb(var(--color-primary-200));
+	}
+	50% {
+		border-color: rgb(var(--color-primary-400));
+	}
 }
 </style>

@@ -132,8 +132,10 @@
 							v-model="newMessageContent"
 							:channel-id="channelId"
 							:folder-id="uploadFolderId"
+							:reply-to="replyToMessage"
 							@send="handleSendMessage"
-							@mention="handleMention" />
+							@mention="handleMention"
+							@cancel-reply="replyToMessage = null" />
 					</div>
 				</div>
 			</div>
@@ -280,6 +282,7 @@ const messageSearchInput = ref<HTMLElement | null>(null);
 const newMessageContent = ref('');
 const messagesContainer = ref<HTMLElement | null>(null);
 const uploadFolderId = ref<string | null>(null);
+const replyToMessage = ref<ChannelMessageWithRelations | null>(null);
 
 // Invite modal state
 const invitableUsers = ref<any[]>([]);
@@ -431,12 +434,13 @@ const handleScroll = () => {
 	// TODO: Implement infinite scroll for older messages
 };
 
-const handleSendMessage = async (payload: {content: string; mentionedUserIds: string[]}) => {
+const handleSendMessage = async (payload: {content: string; mentionedUserIds: string[]; parentId?: string | null}) => {
 	try {
 		const message = await sendMessage({
 			channel_id: props.channelId,
 			content: payload.content,
 			mentioned_user_ids: payload.mentionedUserIds,
+			parent_id: payload.parentId || null,
 		});
 
 		// Create optimistic message with current user data for immediate display
@@ -444,6 +448,7 @@ const handleSendMessage = async (payload: {content: string; mentionedUserIds: st
 		const optimisticMessage = {
 			...message,
 			user_created: user.value,
+			parent_id: payload.parentId || null,
 		};
 
 		// Check if message already exists (from real-time subscription race)
@@ -453,6 +458,7 @@ const handleSendMessage = async (payload: {content: string; mentionedUserIds: st
 		}
 
 		newMessageContent.value = '';
+		replyToMessage.value = null; // Clear reply state after sending
 		scrollToBottom();
 	} catch (e: any) {
 		toast.add({title: 'Error', description: e.message || 'Failed to send message', color: 'red'});
@@ -464,7 +470,14 @@ const handleMention = (mentionData: any) => {
 };
 
 const handleReply = (message: ChannelMessageWithRelations) => {
-	// TODO: Open thread view
+	replyToMessage.value = message;
+	// Focus the editor
+	nextTick(() => {
+		const editorElement = document.querySelector('.channel-message-editor .ProseMirror');
+		if (editorElement instanceof HTMLElement) {
+			editorElement.focus();
+		}
+	});
 };
 
 const handleEditMessage = async (message: ChannelMessageWithRelations, newContent: string) => {
