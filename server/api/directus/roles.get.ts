@@ -3,7 +3,7 @@
  *
  * Fetch all roles (admin only).
  */
-import { useDirectusAdmin, readItems } from '~/server/utils/directus';
+import { useDirectusAdmin, readRoles } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -31,10 +31,10 @@ export default defineEventHandler(async (event) => {
 
     // Fetch roles with id, name, and description
     const roles = await client.request(
-      readItems('directus_roles' as any, {
+      readRoles({
         fields: ['id', 'name', 'description'],
         sort: ['name'],
-      } as any)
+      })
     );
 
     return roles;
