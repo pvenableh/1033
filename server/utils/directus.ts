@@ -318,6 +318,7 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
   console.log('directusReadMeWithFields: Got user ID:', userId);
 
   // Fetch only essential user data for session (keep under 4KB cookie limit)
+  // Note: In Directus v11+, admin_access is on policies, not roles
   const response = await $fetch<{ data: DirectusUserData }>(`${url}/users/${userId}`, {
     headers: {
       Authorization: `Bearer ${adminToken}`,
@@ -331,10 +332,11 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
         'last_name',
         'email',
         'avatar',
-        // Role info (including admin_access for permission checks)
+        // Role info
         'role.id',
         'role.name',
-        'role.admin_access',
+        // Policies with admin_access (Directus v11+ structure)
+        'role.policies.policy.admin_access',
         // Person profile - only id and phone for session
         'person_id.id',
         'person_id.phone',
@@ -344,7 +346,16 @@ export async function directusReadMeWithFields(accessToken: string): Promise<Dir
 
   console.log('directusReadMeWithFields: Got user - ID:', response.data.id, 'Status:', response.data.status, 'Email:', response.data.email);
 
-  return response.data;
+  // Extract admin_access from policies and add to role for backwards compatibility
+  const userData = response.data;
+  if (userData.role && typeof userData.role === 'object') {
+    const policies = (userData.role as any).policies || [];
+    // User has admin access if any of their role's policies grant admin_access
+    const hasAdminAccess = policies.some((p: any) => p?.policy?.admin_access === true);
+    (userData.role as any).admin_access = hasAdminAccess;
+  }
+
+  return userData;
 }
 
 // Re-export SDK functions for convenience
