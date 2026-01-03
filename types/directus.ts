@@ -892,6 +892,12 @@ export interface UserPermission {
 	vendors_update?: boolean | null;
 	/** @description Allow delete on vendors */
 	vendors_delete?: boolean | null;
+	/** @description Allow approving pet registrations */
+	pets_approve?: boolean | null;
+	/** @description Allow approving vehicle registrations */
+	vehicles_approve?: boolean | null;
+	/** @description Allow approving lease submissions */
+	leases_approve?: boolean | null;
 	/** @required */
 	person_id: People | string;
 }

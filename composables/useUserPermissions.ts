@@ -18,6 +18,17 @@ export const PERMISSION_CATEGORIES = {
 export type PermissionCategory = (typeof PERMISSION_CATEGORIES)[keyof typeof PERMISSION_CATEGORIES];
 
 /**
+ * Approval categories for items that require board approval
+ */
+export const APPROVAL_CATEGORIES = {
+  PETS: 'pets',
+  VEHICLES: 'vehicles',
+  LEASES: 'leases',
+} as const;
+
+export type ApprovalCategory = (typeof APPROVAL_CATEGORIES)[keyof typeof APPROVAL_CATEGORIES];
+
+/**
  * CRUD actions
  */
 export const CRUD_ACTIONS = {
@@ -77,6 +88,27 @@ export const PERMISSION_CATEGORY_META: Record<PermissionCategory, { label: strin
     label: 'Vendors',
     icon: 'i-heroicons-building-storefront',
     description: 'Vendor contacts and information',
+  },
+};
+
+/**
+ * Approval category metadata for UI display
+ */
+export const APPROVAL_CATEGORY_META: Record<ApprovalCategory, { label: string; icon: string; description: string }> = {
+  pets: {
+    label: 'Pets',
+    icon: 'i-heroicons-heart',
+    description: 'Approve or reject pet registrations',
+  },
+  vehicles: {
+    label: 'Vehicles',
+    icon: 'i-heroicons-truck',
+    description: 'Approve or reject vehicle registrations',
+  },
+  leases: {
+    label: 'Leases',
+    icon: 'i-heroicons-document-check',
+    description: 'Approve or reject lease submissions',
   },
 };
 
@@ -184,6 +216,45 @@ export function useUserPermissions() {
   }
 
   /**
+   * Check if user can approve items in an approval category
+   * Admins always have approval permissions
+   * Board members have approval permissions by default
+   * Others need explicit approval permission
+   */
+  function canApprove(category: ApprovalCategory): boolean {
+    // Admins always have all permissions
+    if (isAdmin.value) {
+      return true;
+    }
+
+    // Board members have all permissions by default
+    if (isBoardMember.value) {
+      return true;
+    }
+
+    // Check granular approval permissions
+    if (!permissions.value) {
+      return false;
+    }
+
+    const key = `${category}_approve` as keyof UserPermission;
+    return permissions.value[key] === true;
+  }
+
+  /**
+   * Get approval permissions summary
+   */
+  const approvalSummary = computed(() => {
+    const summary: Record<ApprovalCategory, boolean> = {} as any;
+
+    for (const category of Object.values(APPROVAL_CATEGORIES)) {
+      summary[category] = canApprove(category);
+    }
+
+    return summary;
+  });
+
+  /**
    * Get all permissions for a category
    */
   function getCategoryPermissions(category: PermissionCategory): Record<CrudAction, boolean> {
@@ -248,17 +319,21 @@ export function useUserPermissions() {
     canRead,
     canUpdate,
     canDelete,
+    canApprove,
     getCategoryPermissions,
 
     // Computed
     permissionSummary,
+    approvalSummary,
     hasGranularPermissions,
     hasFullAccess,
 
     // Constants
     PERMISSION_CATEGORIES,
+    APPROVAL_CATEGORIES,
     CRUD_ACTIONS,
     PERMISSION_CATEGORY_META,
+    APPROVAL_CATEGORY_META,
   };
 }
 

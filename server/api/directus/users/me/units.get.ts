@@ -2,10 +2,10 @@
  * GET /api/directus/users/me/units
  *
  * Fetch current user's units with related pets and vehicles.
- * Uses admin client to access units with people relationship filter.
+ * Uses the authenticated user's own Directus credentials.
  * The person_id from session is used to filter units.
  */
-import { useDirectusAdmin, readItems } from '~/server/utils/directus';
+import { getUserDirectus, readItems } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -41,8 +41,10 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Use admin Directus client to access units with people relationship filter
-    const client = useDirectusAdmin();
+    // Use the authenticated user's own Directus client
+    console.log('units.get: Creating user Directus client...');
+    const client = await getUserDirectus(event);
+    console.log('units.get: User client created successfully');
 
     // Fetch units where the current person is linked
     // Filter units by the people relationship to find the user's units
@@ -115,6 +117,7 @@ export default defineEventHandler(async (event) => {
 
     // Handle specific Directus error codes
     if (statusCode === 403) {
+      console.error('403 Forbidden - user may not have permission to access units or the relationship filter');
       throw createError({
         statusCode: 403,
         statusMessage: 'Forbidden',
@@ -123,10 +126,11 @@ export default defineEventHandler(async (event) => {
     }
 
     if (statusCode === 401) {
+      console.error('401 Unauthorized - user session may have expired');
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
-        message: 'Authentication required. Please log in again.',
+        message: 'Your session has expired. Please log in again.',
       });
     }
 

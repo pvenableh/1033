@@ -4,7 +4,7 @@
  * Delete a pet.
  * Users can only delete pets in units they belong to.
  */
-import { useDirectusAdmin, readUser, readItems, readItem, deleteItem } from '~/server/utils/directus';
+import { getUserDirectus, readItems, readItem, deleteItem } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -26,27 +26,21 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const userId = session.user.id;
+  // Get person_id from session
+  const rawPersonId = session.user.person_id;
+  const personId = typeof rawPersonId === 'object' && rawPersonId !== null ? rawPersonId.id : rawPersonId;
+
+  if (!personId) {
+    throw createError({
+      statusCode: 403,
+      statusMessage: 'Forbidden',
+      message: 'User has no associated person record',
+    });
+  }
 
   try {
-    const client = useDirectusAdmin();
-
-    // Get user's person_id
-    const user = await client.request(
-      readUser(userId, {
-        fields: ['id', 'person_id'],
-      } as any)
-    );
-
-    if (!user.person_id) {
-      throw createError({
-        statusCode: 403,
-        statusMessage: 'Forbidden',
-        message: 'User has no associated person record',
-      });
-    }
-
-    const personId = typeof user.person_id === 'object' ? user.person_id.id : user.person_id;
+    // Use the authenticated user's own Directus client
+    const client = await getUserDirectus(event);
 
     // Get the pet to find its unit
     const pet = await client.request(
@@ -75,7 +69,7 @@ export default defineEventHandler(async (event) => {
           },
         },
         limit: 1,
-      } as any)
+      })
     );
 
     if (!units || (units as any[]).length === 0) {
