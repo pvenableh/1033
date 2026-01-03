@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { People, UserPermission } from '~/types/directus';
-import { PERMISSION_CATEGORIES, PERMISSION_CATEGORY_META, CRUD_ACTIONS } from '~/composables/useUserPermissions';
+import { PERMISSION_CATEGORIES, PERMISSION_CATEGORY_META, CRUD_ACTIONS, APPROVAL_CATEGORIES, APPROVAL_CATEGORY_META } from '~/composables/useUserPermissions';
 
 definePageMeta({
   layout: 'default',
@@ -82,10 +82,15 @@ function openPermissionModal(person: People) {
       person_id: person.id,
       status: 'published',
     };
+    // Initialize CRUD permissions
     for (const category of Object.values(PERMISSION_CATEGORIES)) {
       for (const action of Object.values(CRUD_ACTIONS)) {
         (permissionForm.value as any)[`${category}_${action}`] = false;
       }
+    }
+    // Initialize approval permissions
+    for (const category of Object.values(APPROVAL_CATEGORIES)) {
+      (permissionForm.value as any)[`${category}_approve`] = false;
     }
   }
 
@@ -188,11 +193,18 @@ function hasAnyPermission(person: People): boolean {
   const perm = person.permissions?.[0] as UserPermission | undefined;
   if (!perm || typeof perm !== 'object') return false;
 
+  // Check CRUD permissions
   for (const category of Object.values(PERMISSION_CATEGORIES)) {
     for (const action of Object.values(CRUD_ACTIONS)) {
       if ((perm as any)[`${category}_${action}`] === true) {
         return true;
       }
+    }
+  }
+  // Check approval permissions
+  for (const category of Object.values(APPROVAL_CATEGORIES)) {
+    if ((perm as any)[`${category}_approve`] === true) {
+      return true;
     }
   }
   return false;
@@ -203,11 +215,18 @@ function getPermissionCount(person: People): number {
   if (!perm || typeof perm !== 'object') return 0;
 
   let count = 0;
+  // Count CRUD permissions
   for (const category of Object.values(PERMISSION_CATEGORIES)) {
     for (const action of Object.values(CRUD_ACTIONS)) {
       if ((perm as any)[`${category}_${action}`] === true) {
         count++;
       }
+    }
+  }
+  // Count approval permissions
+  for (const category of Object.values(APPROVAL_CATEGORIES)) {
+    if ((perm as any)[`${category}_approve`] === true) {
+      count++;
     }
   }
   return count;
@@ -369,7 +388,35 @@ onMounted(() => {
           </template>
 
           <div class="space-y-6 max-h-[60vh] overflow-y-auto">
-            <!-- Permission Categories -->
+            <!-- Approval Permissions Section -->
+            <div class="border-2 border-amber-200 dark:border-amber-800 rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
+              <div class="flex items-center gap-2 mb-3">
+                <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
+                <span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
+              </div>
+              <p class="text-xs text-amber-700 dark:text-amber-300 mb-4">
+                Allow this user to approve member submissions (pets, vehicles, leases).
+                Board members have these permissions by default.
+              </p>
+              <div class="grid grid-cols-3 gap-4">
+                <div
+                  v-for="category in Object.values(APPROVAL_CATEGORIES)"
+                  :key="category"
+                  class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
+                >
+                  <UIcon :name="APPROVAL_CATEGORY_META[category].icon" class="w-5 h-5 text-amber-600" />
+                  <UCheckbox
+                    v-model="(permissionForm as any)[`${category}_approve`]"
+                    :label="`Approve ${APPROVAL_CATEGORY_META[category].label}`"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- CRUD Permission Categories -->
+            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Content Permissions (CRUD)</h4>
+            </div>
             <div
               v-for="category in Object.values(PERMISSION_CATEGORIES)"
               :key="category"
