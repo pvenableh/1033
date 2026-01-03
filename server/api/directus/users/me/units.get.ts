@@ -2,10 +2,10 @@
  * GET /api/directus/users/me/units
  *
  * Fetch current user's units with related pets and vehicles.
- * Uses public client since units are publicly readable.
+ * Uses admin client to access units with people relationship filter.
  * The person_id from session is used to filter units.
  */
-import { getPublicDirectus, readItems } from '~/server/utils/directus';
+import { useDirectusAdmin, readItems } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    // Use public Directus client since units are publicly readable
-    const client = getPublicDirectus();
+    // Use admin Directus client to access units with people relationship filter
+    const client = useDirectusAdmin();
 
     // Fetch units where the current person is linked
     // Filter units by the people relationship to find the user's units
