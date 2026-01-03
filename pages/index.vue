@@ -56,7 +56,7 @@
 					Miami Beach · Flamingo Park
 				</p>
 				<NewLogo
-					class="hero-title mx-auto mb-6 backdrop:lg:mb-8 opacity-0 w-52 sm:w-72 md:w-[600px]"
+					class="hero-title mx-auto mb-6 backdrop:lg:mb-8 opacity-0 w-52 sm:w-72 md:w-[375px] lg:w-[425px] xl:w-[525px]"
 					fill="#ffffff"
 					stroke="#ffffff" />
 				<!-- <h1
