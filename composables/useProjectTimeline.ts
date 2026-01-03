@@ -98,26 +98,25 @@ export function useProjectTimeline() {
     error.value = null;
 
     try {
+      // Fetch without deep filtering - filter client-side instead
+      // (Directus deep parameter can cause "Invalid query. 'json' field" errors)
       const result = await projects.list({
         fields: projectFields,
         filter: {
           status: { _in: ['active', 'completed'] },
         },
         sort: ['sort', '-date_created'],
-        deep: {
-          events: {
-            _filter: { status: { _eq: 'published' } },
-            _sort: ['event_date'],
-          },
-          children: {
-            _filter: { status: { _in: ['active', 'completed'] } },
-          },
-        },
       });
 
-      // Enrich events with comment/reaction counts
+      // Filter and sort events/children client-side
       for (const project of result) {
+        // Filter events to only published ones and sort by event_date
         if (project.events) {
+          project.events = (project.events as ProjectEventWithRelations[])
+            .filter((e) => e.status === 'published')
+            .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+
+          // Enrich events with comment/reaction counts
           for (const event of project.events as ProjectEventWithRelations[]) {
             try {
               // Use existing polymorphic systems
@@ -133,6 +132,13 @@ export function useProjectTimeline() {
               event.reaction_count = 0;
             }
           }
+        }
+
+        // Filter children to only active/completed
+        if (project.children) {
+          project.children = (project.children as Project[]).filter((c) =>
+            ['active', 'completed'].includes(c.status)
+          );
         }
       }
 
@@ -151,21 +157,18 @@ export function useProjectTimeline() {
    */
   const fetchProject = async (projectId: string): Promise<ProjectWithRelations | null> => {
     try {
+      // Fetch without deep filtering - filter client-side instead
       const result = await projects.get(projectId, {
         fields: projectFields,
-        deep: {
-          events: {
-            _filter: { status: { _eq: 'published' } },
-            _sort: ['event_date'],
-          },
-          children: {
-            _filter: { status: { _in: ['active', 'completed'] } },
-          },
-        },
       });
 
-      // Enrich events with counts
+      // Filter events to only published ones and sort by event_date
       if (result.events) {
+        result.events = (result.events as ProjectEventWithRelations[])
+          .filter((e) => e.status === 'published')
+          .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+
+        // Enrich events with counts
         for (const event of result.events as ProjectEventWithRelations[]) {
           try {
             const [commentCount, reactionSummary] = await Promise.all([
@@ -179,6 +182,13 @@ export function useProjectTimeline() {
             event.reaction_count = 0;
           }
         }
+      }
+
+      // Filter children to only active/completed
+      if (result.children) {
+        result.children = (result.children as Project[]).filter((c) =>
+          ['active', 'completed'].includes(c.status)
+        );
       }
 
       return result as ProjectWithRelations;
