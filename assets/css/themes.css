@@ -466,6 +466,10 @@ a.theme-link:hover {
 	border-color: var(--theme-divider);
 }
 
+.t-border-accent {
+	border-color: var(--theme-accent-primary);
+}
+
 /* Divider/separator utilities */
 .t-divider {
 	border-color: var(--theme-divider);

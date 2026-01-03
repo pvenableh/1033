@@ -44,6 +44,7 @@ const projectForm = ref<Partial<Project>>({
   category_id: null,
   start_date: new Date().toISOString().split('T')[0],
   target_end_date: null,
+  member_visible: false,
 });
 
 // Permission checks
@@ -131,6 +132,7 @@ async function fetchProjects() {
             'actual_end_date',
             'date_created',
             'date_updated',
+            'member_visible',
             'category_id.id',
             'category_id.name',
             'category_id.color',
@@ -189,6 +191,7 @@ function openCreateModal() {
     category_id: null,
     start_date: new Date().toISOString().split('T')[0],
     target_end_date: null,
+    member_visible: false,
   };
   showProjectModal.value = true;
 }
@@ -205,6 +208,7 @@ function openEditModal(project: Project) {
     category_id: typeof project.category_id === 'object' ? project.category_id?.id : project.category_id,
     start_date: project.start_date,
     target_end_date: project.target_end_date,
+    member_visible: project.member_visible || false,
   };
   showProjectModal.value = true;
 }
@@ -476,7 +480,7 @@ onMounted(async () => {
               { key: 'actions', label: 'Actions' },
             ]"
             :loading="loading"
-            :empty-state="{ icon: 'i-heroicons-folder', label: 'No projects found' }"
+            :empty-state="{ icon: 'i-lucide-chart-no-axes-gantt', label: 'No projects found' }"
           >
             <template #name-data="{ row }">
               <div class="flex items-center gap-3">
@@ -485,7 +489,23 @@ onMounted(async () => {
                   :style="{ backgroundColor: row.color || '#C4A052' }"
                 />
                 <div>
-                  <p class="font-medium">{{ row.name }}</p>
+                  <div class="flex items-center gap-2">
+                    <p class="font-medium">{{ row.name }}</p>
+                    <UTooltip
+                      v-if="row.member_visible"
+                      text="Visible to members"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <UIcon name="i-heroicons-eye" class="w-4 h-4 text-green-500" />
+                    </UTooltip>
+                    <UTooltip
+                      v-else
+                      text="Hidden from members"
+                      :popper="{ placement: 'top' }"
+                    >
+                      <UIcon name="i-heroicons-eye-slash" class="w-4 h-4 text-gray-400" />
+                    </UTooltip>
+                  </div>
                   <p
                     v-if="row.description"
                     class="text-xs text-gray-500 truncate max-w-xs"
@@ -691,6 +711,17 @@ onMounted(async () => {
                   placeholder="i-heroicons-folder"
                 />
               </UFormGroup>
+            </div>
+
+            <!-- Member Visibility -->
+            <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div>
+                <p class="font-medium">Visible to Members</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                  When enabled, all approved members can view this project
+                </p>
+              </div>
+              <UToggle v-model="projectForm.member_visible" />
             </div>
           </div>
 

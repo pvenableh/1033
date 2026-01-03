@@ -36,6 +36,9 @@ export interface Project {
   parent_id: string | Project | null; // Parent project (for sub-projects)
   parent_event_id: string | ProjectEvent | null; // Event that spawned this sub-project
 
+  // Visibility
+  member_visible: boolean; // Whether regular members can see this project
+
   // Timeline bounds
   start_date: string; // ISO date
   target_end_date: string | null;
@@ -260,6 +263,7 @@ export interface CreateProjectPayload {
   start_date: string;
   target_end_date?: string | null;
   status?: 'draft' | 'active' | 'completed' | 'archived';
+  member_visible?: boolean;
 }
 
 /**
