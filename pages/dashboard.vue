@@ -1,16 +1,17 @@
 <script setup>
-const {user} = useDirectusAuth();
+const { user } = useDirectusAuth();
 
 definePageMeta({
 	layout: 'default',
-	middleware: ['auth'],
+	middleware: ['auth', 'role'],
 });
 </script>
+
 <template>
-	<div class="min-h-screen flex items-center justify-center">
-		<p class="text-sm tracking-wide uppercase">Coming Soon</p>
+	<Dashboard v-if="user" :user="user" />
+	<div v-else class="min-h-screen flex items-center justify-center">
+		<p class="text-sm tracking-wide uppercase">Loading...</p>
 	</div>
-	<!-- <Dashboard :user="user" /> -->
 </template>
 <style>
 .home {
