@@ -1,65 +1,45 @@
-<script setup>
-const props = defineProps({
-	user: {
-		type: Object,
-		default: null,
-	},
-});
+<script setup lang="ts">
+import type { DirectusUser } from '~/types/directus';
 
-function getBoardMemberByYear(obj, targetYear) {
-	if (Array.isArray(obj)) {
-		// If it's an array, recursively check each element
-		for (let i = 0; i < obj.length; i++) {
-			const result = getBoardMemberByYear(obj[i], targetYear);
+const props = defineProps<{
+	user: DirectusUser;
+}>();
 
-			if (result) {
-				return result; // If a matching object is found, return it
-			}
-		}
+const { isOwner, isTenant, isBoardMember, isAdmin, hasOwnerAccess } = useRoles();
 
-		return null; // If no matching object is found in the array
-	} else if (typeof obj === 'object' && obj !== null) {
-		// If it's an object, recursively check each property
-		for (let key in obj) {
-			if (key === 'board_member' && Array.isArray(obj[key]) && obj[key].length > 0) {
-				// Check if 'board_member' array has an object with the target year
-				const matchingMember = obj[key].find((member) => member.year === targetYear);
-				return matchingMember || null; // Return the matching member or null if not found
-			} else {
-				const result = getBoardMemberByYear(obj[key], targetYear);
-
-				if (result) {
-					return result; // If a matching object is found, return it
-				}
-			}
-		}
-
-		return null; // If no matching object is found in the object
+/**
+ * Determine which dashboard to show based on user's role and permissions
+ * Priority:
+ * 1. Owners, Board Members, Admins, Property Managers -> Owner Dashboard (full access)
+ * 2. Tenants -> Tenant Dashboard (unit-focused)
+ * 3. All others -> Member Dashboard (basic access)
+ */
+const dashboardType = computed(() => {
+	// Admins, board members, and owners get the full owner dashboard
+	if (isAdmin.value || isBoardMember.value || hasOwnerAccess.value) {
+		return 'owner';
 	}
 
-	return null; // If it's neither an array nor an object
-}
+	// Tenants get the tenant-specific dashboard
+	if (isTenant.value) {
+		return 'tenant';
+	}
 
-const boardMember = getBoardMemberByYear(props.user, '2023');
+	// Default to member dashboard for basic members
+	return 'member';
+});
 </script>
+
 <template>
-	<div class="grid grid-flow-row-dense grid-cols-2 gap-x-4 gap-y-12 lg:gap-y-20 lg:gap-x-10 dashboard">
-		<div class="col-span-2 mt-8">
-			<h2 class="text-3xl">
-				{{ greetUser() }}
-				<span class="bg-clip-text text-transparent bg-gradient-to-r from-sky-400 to-sky-600 font-bold">
-					{{ user.first_name }}.
-				</span>
-			</h2>
-		</div>
-		<InsightsBoardMember :board-member="boardMember" class="col-span-2 lg:col-span-1" v-if="boardMember" />
-		<InsightsPerson :user="user" class="col-span-2 lg:col-span-1" />
-		<InsightsReserves class="col-span-2 lg:col-span-1" />
-		<InsightsNewsletter class="col-span-2 lg:col-span-1" />
-		<InsightsMeetings class="col-span-2 lg:col-span-1" />
-		<InsightsAnnouncements class="col-span-2 lg:col-span-1" />
-		<InsightsBoard class="col-span-2" />
-		<InsightsUnits class="col-span-2" />
+	<div>
+		<!-- Owner Dashboard: Full access with all widgets -->
+		<DashboardOwner v-if="dashboardType === 'owner'" :user="user" />
+
+		<!-- Tenant Dashboard: Unit and lease focused -->
+		<DashboardTenant v-else-if="dashboardType === 'tenant'" :user="user" />
+
+		<!-- Member Dashboard: Basic information -->
+		<DashboardMember v-else :user="user" />
 	</div>
 </template>
 
