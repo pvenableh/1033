@@ -25,8 +25,12 @@ import {
   deleteItem,
   deleteItems,
   aggregate,
+  readNotifications,
+  createNotification,
+  updateNotification,
+  deleteNotification,
 } from '~/server/utils/directus';
-import { readSingleton } from '@directus/sdk';
+import { readSingleton, readNotification } from '@directus/sdk';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
@@ -86,10 +90,31 @@ export default defineEventHandler(async (event) => {
     client = useDirectusAdmin();
   }
 
+  // Check if this is the notifications collection (requires special SDK methods)
+  const isNotificationsCollection = body.collection === 'directus_notifications';
+
   try {
     switch (body.operation) {
       case 'list': {
         const query = body.query || {};
+
+        // Use readNotifications for directus_notifications collection
+        if (isNotificationsCollection) {
+          const result = await client.request(
+            readNotifications({
+              fields: query.fields,
+              filter: query.filter,
+              sort: query.sort,
+              limit: query.limit,
+              offset: query.offset,
+              page: query.page,
+              search: query.search,
+              deep: query.deep,
+            } as any)
+          );
+          return result;
+        }
+
         const result = await client.request(
           readItems(body.collection, {
             fields: query.fields,
@@ -115,6 +140,18 @@ export default defineEventHandler(async (event) => {
         }
 
         const query = body.query || {};
+
+        // Use readNotification for directus_notifications collection
+        if (isNotificationsCollection) {
+          const result = await client.request(
+            readNotification(body.id, {
+              fields: query.fields,
+              deep: query.deep,
+            } as any)
+          );
+          return result;
+        }
+
         const result = await client.request(
           readItem(body.collection, body.id, {
             fields: query.fields,
@@ -147,6 +184,22 @@ export default defineEventHandler(async (event) => {
 
         // Use admin client for public submissions
         const createClient = isPublicSubmission ? useDirectusAdmin() : client;
+
+        // Use createNotification for directus_notifications collection
+        if (isNotificationsCollection) {
+          // Notifications don't support bulk create with createNotification
+          if (Array.isArray(body.data)) {
+            const results = [];
+            for (const item of body.data) {
+              const result = await createClient.request(createNotification(item));
+              results.push(result);
+            }
+            return results;
+          } else {
+            const result = await createClient.request(createNotification(body.data));
+            return result;
+          }
+        }
 
         // Support single or multiple items
         if (Array.isArray(body.data)) {
@@ -187,6 +240,22 @@ export default defineEventHandler(async (event) => {
           });
         }
 
+        // Use updateNotification for directus_notifications collection
+        if (isNotificationsCollection) {
+          // Notifications don't support bulk update with updateNotification
+          if (Array.isArray(body.id)) {
+            const results = [];
+            for (const id of body.id) {
+              const result = await client.request(updateNotification(id, body.data));
+              results.push(result);
+            }
+            return results;
+          } else {
+            const result = await client.request(updateNotification(body.id, body.data));
+            return result;
+          }
+        }
+
         // Support single or multiple items
         if (Array.isArray(body.id)) {
           const result = await client.request(
@@ -216,6 +285,19 @@ export default defineEventHandler(async (event) => {
             statusMessage: 'Bad Request',
             message: 'ID is required for delete operation',
           });
+        }
+
+        // Use deleteNotification for directus_notifications collection
+        if (isNotificationsCollection) {
+          // Notifications don't support bulk delete with deleteNotification
+          if (Array.isArray(body.id)) {
+            for (const id of body.id) {
+              await client.request(deleteNotification(id));
+            }
+          } else {
+            await client.request(deleteNotification(body.id));
+          }
+          return { success: true };
         }
 
         // Support single or multiple items
