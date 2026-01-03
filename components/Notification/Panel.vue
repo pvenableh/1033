@@ -170,7 +170,7 @@ const tabs = computed(() => [
 	},
 	{
 		value: 'announcements' as const,
-		label: 'Announcements',
+		label: 'Notices',
 		count: unreadAnnouncementCount.value,
 	},
 ]);
@@ -210,7 +210,7 @@ const emptyStateTitle = computed(() => {
 		case 'unread':
 			return 'All caught up!';
 		case 'announcements':
-			return 'No announcements';
+			return 'No notices';
 		default:
 			return 'No notifications';
 	}

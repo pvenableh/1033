@@ -2,122 +2,177 @@
  * useNotificationCenter composable
  *
  * Central state management for the notification system.
- * Combines user notifications from Directus with public announcements.
+ * Combines user notifications from Directus with public notices.
  * Provides reactive state for unread counts and panel visibility.
  */
 
 import type { DirectusNotification } from './useDirectusNotifications';
 
-export interface Announcement {
+export interface Notice {
   id: string;
   title: string;
-  subtitle?: string;
   content?: string;
-  url?: string;
-  date_sent: string;
-  status: string;
-  tags?: string[];
-  is_public?: boolean;
+  type: 'announcement' | 'update' | 'alert' | 'maintenance';
+  visibility: string[];
+  status: 'draft' | 'published' | 'archived';
+  published_at?: string;
+  expires_at?: string;
+  pinned: boolean;
+  date_created?: string;
 }
+
+// Keep Announcement for backwards compatibility
+export type Announcement = Notice;
 
 export interface NotificationCenterState {
   isOpen: boolean;
-  activeTab: 'all' | 'unread' | 'announcements';
+  activeTab: 'all' | 'unread' | 'notices';
   notifications: DirectusNotification[];
-  announcements: Announcement[];
+  notices: Notice[];
   unreadCount: number;
-  unreadAnnouncementCount: number;
+  unreadNoticeCount: number;
   loading: boolean;
   error: string | null;
 }
 
 // Global state (singleton pattern for SSR compatibility)
 const isOpen = ref(false);
-const activeTab = ref<'all' | 'unread' | 'announcements'>('unread');
+const activeTab = ref<'all' | 'unread' | 'notices'>('unread');
 const notifications = ref<DirectusNotification[]>([]);
-const announcements = ref<Announcement[]>([]);
+const notices = ref<Notice[]>([]);
 const loading = ref(false);
 const error = ref<string | null>(null);
 const lastFetchTime = ref<number>(0);
 
-// LocalStorage key for tracking read announcements (for public visitors)
-const STORAGE_KEY = '1033_read_announcements';
-const readAnnouncementIds = ref<Set<string>>(new Set());
+// LocalStorage key for tracking read notices (for public visitors)
+const STORAGE_KEY = '1033_read_notices';
+const readNoticeIds = ref<Set<string>>(new Set());
 
 export function useNotificationCenter() {
   const { user } = useDirectusAuth();
   const directusNotifications = useDirectusNotifications();
-  const announcementsCollection = useDirectusItems<Announcement>('announcements', { requireAuth: false });
+  const noticesCollection = useDirectusItems<Notice>('notices', { requireAuth: false });
 
-  // Computed: total unread count (notifications + unread announcements)
+  // Computed: total unread count (notifications + unread notices)
   const unreadNotificationCount = computed(() => {
     return notifications.value.filter((n) => n.status === 'inbox').length;
   });
 
-  const unreadAnnouncementCount = computed(() => {
-    return announcements.value.filter((a) => !readAnnouncementIds.value.has(a.id)).length;
+  const unreadNoticeCount = computed(() => {
+    return notices.value.filter((n) => !readNoticeIds.value.has(n.id)).length;
   });
+
+  // Alias for backwards compatibility
+  const unreadAnnouncementCount = unreadNoticeCount;
 
   const totalUnreadCount = computed(() => {
-    return unreadNotificationCount.value + unreadAnnouncementCount.value;
+    return unreadNotificationCount.value + unreadNoticeCount.value;
   });
 
-  // Initialize read announcements from localStorage
-  const initReadAnnouncements = () => {
+  // Initialize read notices from localStorage
+  const initReadNotices = () => {
     if (import.meta.client) {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
-          readAnnouncementIds.value = new Set(JSON.parse(stored));
+          readNoticeIds.value = new Set(JSON.parse(stored));
         }
       } catch (e) {
-        console.error('Failed to load read announcements from localStorage:', e);
+        console.error('Failed to load read notices from localStorage:', e);
       }
     }
   };
 
-  // Save read announcements to localStorage
-  const saveReadAnnouncements = () => {
+  // Save read notices to localStorage
+  const saveReadNotices = () => {
     if (import.meta.client) {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...readAnnouncementIds.value]));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([...readNoticeIds.value]));
       } catch (e) {
-        console.error('Failed to save read announcements to localStorage:', e);
+        console.error('Failed to save read notices to localStorage:', e);
       }
     }
   };
 
-  // Mark an announcement as read (for public visitors)
-  const markAnnouncementAsRead = (announcementId: string) => {
-    readAnnouncementIds.value.add(announcementId);
-    saveReadAnnouncements();
+  // Mark a notice as read (for public visitors)
+  const markNoticeAsRead = (noticeId: string) => {
+    readNoticeIds.value.add(noticeId);
+    saveReadNotices();
   };
 
-  // Check if an announcement has been read
-  const isAnnouncementRead = (announcementId: string): boolean => {
-    return readAnnouncementIds.value.has(announcementId);
+  // Alias for backwards compatibility
+  const markAnnouncementAsRead = markNoticeAsRead;
+
+  // Check if a notice has been read
+  const isNoticeRead = (noticeId: string): boolean => {
+    return readNoticeIds.value.has(noticeId);
   };
 
-  // Fetch announcements (public - no auth required)
-  const fetchAnnouncements = async () => {
+  // Alias for backwards compatibility
+  const isAnnouncementRead = isNoticeRead;
+
+  // Determine visibility filter based on user status
+  const getVisibilityFilter = () => {
+    const { isBoardMember } = useRoles();
+
+    // Build visibility array based on user role
+    const visibilities = ['public'];
+
+    if (user.value) {
+      visibilities.push('residents');
+
+      if (isBoardMember.value) {
+        visibilities.push('board');
+      }
+    }
+
+    return visibilities;
+  };
+
+  // Fetch notices (public - no auth required for public notices)
+  const fetchNotices = async () => {
     try {
-      const result = await announcementsCollection.list({
-        fields: ['id', 'title', 'subtitle', 'content', 'url', 'date_sent', 'status', 'tags', 'is_public'],
+      const now = new Date().toISOString();
+      const visibilities = getVisibilityFilter();
+
+      const result = await noticesCollection.list({
+        fields: ['id', 'title', 'content', 'type', 'visibility', 'status', 'published_at', 'expires_at', 'pinned', 'date_created'],
         filter: {
-          status: { _eq: 'sent' },
-          _or: [
-            { is_public: { _eq: true } },
-            { is_public: { _null: true } }, // Treat null as public for backwards compatibility
+          status: { _eq: 'published' },
+          _and: [
+            // Check visibility - at least one visibility must match
+            {
+              _or: visibilities.map((v) => ({
+                visibility: { _contains: v },
+              })),
+            },
+            // Check if published (or no publish date set)
+            {
+              _or: [
+                { published_at: { _lte: now } },
+                { published_at: { _null: true } },
+              ],
+            },
+            // Check if not expired (or no expiry date set)
+            {
+              _or: [
+                { expires_at: { _gte: now } },
+                { expires_at: { _null: true } },
+              ],
+            },
           ],
         },
-        sort: ['-date_sent'],
+        sort: ['-pinned', '-published_at', '-date_created'],
         limit: 20,
       });
-      announcements.value = result;
+      notices.value = result;
     } catch (e: any) {
-      console.error('Failed to fetch announcements:', e);
+      console.error('Failed to fetch notices:', e);
     }
   };
+
+  // Alias for backwards compatibility
+  const fetchAnnouncements = fetchNotices;
 
   // Fetch user notifications (requires auth)
   const fetchNotifications = async () => {
@@ -151,7 +206,7 @@ export function useNotificationCenter() {
     lastFetchTime.value = now;
 
     try {
-      await Promise.all([fetchNotifications(), fetchAnnouncements()]);
+      await Promise.all([fetchNotifications(), fetchNotices()]);
     } finally {
       loading.value = false;
     }
@@ -196,11 +251,11 @@ export function useNotificationCenter() {
         n.status = 'archived';
       });
 
-      // Mark all announcements as read
-      announcements.value.forEach((a) => {
-        readAnnouncementIds.value.add(a.id);
+      // Mark all notices as read
+      notices.value.forEach((n) => {
+        readNoticeIds.value.add(n.id);
       });
-      saveReadAnnouncements();
+      saveReadNotices();
     } catch (e: any) {
       error.value = e.message;
     }
@@ -229,7 +284,7 @@ export function useNotificationCenter() {
 
   // Initialize on mount
   const initialize = () => {
-    initReadAnnouncements();
+    initReadNotices();
     refresh();
   };
 
@@ -255,13 +310,16 @@ export function useNotificationCenter() {
     isOpen: readonly(isOpen),
     activeTab,
     notifications: readonly(notifications),
-    announcements: readonly(announcements),
+    notices: readonly(notices),
+    // Backwards compatibility alias
+    announcements: readonly(notices),
     loading: readonly(loading),
     error: readonly(error),
 
     // Computed
     unreadNotificationCount,
-    unreadAnnouncementCount,
+    unreadNoticeCount,
+    unreadAnnouncementCount, // Backwards compatibility
     totalUnreadCount,
 
     // Panel controls
@@ -275,14 +333,18 @@ export function useNotificationCenter() {
     markAsUnread,
     deleteNotification,
 
-    // Announcement actions
+    // Notice actions
+    markNoticeAsRead,
+    isNoticeRead,
+    // Backwards compatibility aliases
     markAnnouncementAsRead,
     isAnnouncementRead,
 
     // Data fetching
     refresh,
     fetchNotifications,
-    fetchAnnouncements,
+    fetchNotices,
+    fetchAnnouncements, // Backwards compatibility
     initialize,
 
     // Auto-refresh
