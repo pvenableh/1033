@@ -54,14 +54,13 @@ const form = ref<Partial<Notice>>({
   title: '',
   content: '',
   type: 'announcement',
-  visibility: ['public'],
+  visibility: ['residents'],
   pinned: false,
 });
 
-// Visibility options
+// Visibility options (no public option - notifications require sign-in)
 const visibilityOptions = [
-  { label: 'Public (Everyone)', value: 'public' },
-  { label: 'Residents Only', value: 'residents' },
+  { label: 'Residents', value: 'residents' },
   { label: 'Board Members', value: 'board' },
   { label: 'Staff', value: 'staff' },
 ];
@@ -136,7 +135,7 @@ function openCreateModal() {
     title: '',
     content: '',
     type: 'announcement',
-    visibility: ['public'],
+    visibility: ['residents'],
     pinned: false,
   };
   showModal.value = true;
