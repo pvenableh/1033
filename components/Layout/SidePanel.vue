@@ -1,11 +1,11 @@
 <template>
 	<div>
 		<!-- Trigger slot -->
-		<slot name="trigger" :toggle="togglePanel" :is-open="isOpen">
+		<!-- <slot name="trigger" :toggle="togglePanel" :is-open="isOpen">
 			<UButton variant="ghost" @click="togglePanel">
 				Open Panel
 			</UButton>
-		</slot>
+		</slot> -->
 
 		<!-- Teleport the panel to body -->
 		<Teleport to="body">
@@ -206,7 +206,7 @@ onMounted(() => {
 	document.addEventListener('keydown', handleKeydown);
 	// Initialize panel position
 	if (sidePanel.value) {
-		gsap.set(sidePanel.value, { x: '100%' });
+		gsap.set(sidePanel.value, {x: '100%'});
 	}
 });
 

@@ -457,6 +457,24 @@ export interface Newsletter {
 	link?: string | null;
 }
 
+export interface Notice {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	title?: string | null;
+	content?: string | null;
+	published_at?: string | null;
+	expires_at?: string | null;
+	pinned?: boolean | null;
+	type?: 'announcement' | 'update' | 'alert' | 'maintenance' | null;
+	visibility?: 'public' | 'residents' | 'board' | 'staff' | null;
+}
+
 export interface People {
 	/** @primaryKey */
 	id: number;
@@ -482,6 +500,7 @@ export interface People {
 	unit?: UnitsPeople[] | string[];
 	leases?: Lease[] | string[];
 	board_member?: BoardMember[] | string[];
+	permissions?: UserPermission[] | string[];
 }
 
 export interface PeopleUnit {
@@ -616,6 +635,7 @@ export interface Project {
 	category_id?: ProjectCategory | string | null;
 	parent_id?: Project | string | null;
 	parent_event_id?: ProjectEvent | string | null;
+	member_visible?: boolean | null;
 	events?: ProjectEvent[] | string[];
 	children?: Project[] | string[];
 }
@@ -892,18 +912,13 @@ export interface UserPermission {
 	vendors_update?: boolean | null;
 	/** @description Allow delete on vendors */
 	vendors_delete?: boolean | null;
-	/** @description Allow approving pet registrations */
-	pets_approve?: boolean | null;
-	/** @description Allow approving vehicle registrations */
-	vehicles_approve?: boolean | null;
-	/** @description Allow approving lease submissions */
-	leases_approve?: boolean | null;
-	/** @description Allow managing notices (in-app notifications) */
-	notices_approved?: boolean | null;
-	/** @description Allow managing email announcements */
-	announcements_approved?: boolean | null;
 	/** @required */
 	person_id: People | string;
+	pets_approve?: boolean | null;
+	vehicles_approve?: boolean | null;
+	leases_approve?: boolean | null;
+	notices_approved?: boolean | null;
+	announcements_approved?: boolean | null;
 }
 
 export interface Vehicle {
@@ -1490,6 +1505,7 @@ export interface Schema {
 	meetings_presentations: MeetingsPresentation[];
 	monthly_statements: MonthlyStatement[];
 	newsletters: Newsletter[];
+	notices: Notice[];
 	people: People[];
 	people_units: PeopleUnit[];
 	pets: Pet[];
@@ -1582,6 +1598,7 @@ export enum CollectionNames {
 	meetings_presentations = 'meetings_presentations',
 	monthly_statements = 'monthly_statements',
 	newsletters = 'newsletters',
+	notices = 'notices',
 	people = 'people',
 	people_units = 'people_units',
 	pets = 'pets',

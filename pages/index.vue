@@ -6,7 +6,7 @@
 			<div
 				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
 				<!-- Mobile: Text-only greeting -->
-				<div class="lg:hidden mb-2">
+				<div class="lg:hidden mb-2 pl-4">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
 				</div>
 
@@ -18,9 +18,9 @@
 					<WidgetsWeather variant="standard" :compact="true" :showLocation="true" />
 
 					<!-- Mobile: compact location widget -->
-					<WidgetsLocation variant="standard" :compact="true" class="md:hidden" />
+					<WidgetsLocation variant="standard" :compact="true" :maxLocations="2" class="lg:hidden" />
 					<!-- Medium+: narrow location widget (single column, keeps widget compact) -->
-					<WidgetsLocation variant="narrow" :compact="false" :maxLocations="4" class="hidden md:flex" />
+					<WidgetsLocation variant="narrow" :compact="false" :maxLocations="4" class="hidden lg:flex" />
 					<WidgetsAnnouncements variant="standard" :compact="true" />
 					<WidgetsBuilding variant="standard" :compact="true" />
 				</div>
@@ -157,7 +157,7 @@
 								style="
 									background-image: url('https://admin.1033lenox.com/assets/d4c23c5a-f15f-4d76-9afc-4cddd20eecca?key=large');
 								">
-								<div class="text-left p-6">
+								<div class="w-full text-left p-6">
 									<!-- <div
 										class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
 										<UIcon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
@@ -246,7 +246,7 @@
 								</h2>
 							</div>
 
-	<!-- Mobile: 2 column grid -->
+							<!-- Mobile: 2 column grid -->
 							<div class="grid grid-cols-2 gap-4 md:hidden">
 								<div
 									v-for="(item, index) in lifestyleImages"
@@ -263,7 +263,14 @@
 							<!-- Medium+: Marquee component -->
 							<div class="hidden md:block overflow-hidden">
 								<Marquee
-									:images="lifestyleImages.map(item => ({ src: item.image, alt: item.title, caption: item.title, description: item.desc }))"
+									:images="
+										lifestyleImages.map((item) => ({
+											src: item.image,
+											alt: item.title,
+											caption: item.title,
+											description: item.desc,
+										}))
+									"
 									:pause-on-hover="true"
 									direction="left"
 									:speed="60"
@@ -570,8 +577,8 @@
 							Shape What's Next
 						</h2>
 						<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
-							Our shared spaces are ready for reimagining. For the right residents—those with vision, expertise,
-							and the desire to leave their mark—this is an opportunity to help craft something exceptional.
+							Our shared spaces are ready for reimagining. For the right residents—those with vision, expertise, and the
+							desire to leave their mark—this is an opportunity to help craft something exceptional.
 						</p>
 
 						<div class="community-spaces grid grid-cols-1 sm:grid-cols-2 gap-6 my-8">
@@ -594,9 +601,9 @@
 						<div class="community-cta t-bg-subtle p-6 my-8 opacity-0">
 							<p class="text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Get Involved</p>
 							<p class="text-[0.9375rem] t-text-secondary leading-relaxed">
-								We welcome professionals who value a local, active lifestyle and want to contribute to
-								building a more thoughtful community. Your energy and vision could help shape spaces
-								that serve residents for decades to come.
+								We welcome professionals who value a local, active lifestyle and want to contribute to building a more
+								thoughtful community. Your energy and vision could help shape spaces that serve residents for decades to
+								come.
 							</p>
 						</div>
 
@@ -877,7 +884,8 @@ const communitySpaces = [
 	{
 		icon: 'i-heroicons-building-library',
 		name: 'The Clubhouse',
-		vision: 'A blank canvas awaiting transformation—envision a modern fitness studio paired with a focused co-working space.',
+		vision:
+			'A blank canvas awaiting transformation—envision a modern fitness studio paired with a focused co-working space.',
 	},
 	{
 		icon: 'i-heroicons-archive-box',

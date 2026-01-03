@@ -103,13 +103,13 @@ header.retracted {
 		width: 180px;
 	} */
 
-	/* path {
+	path {
 		opacity: 0.4;
 		animation-name: logo;
-		animation-duration: 5s;
-		animation-timing-function: var(--curve);
+		animation-duration: 9s;
+		animation-timing-function: ease-in-out;
 		animation-iteration-count: infinite;
-	} */
+	}
 
 	path:nth-of-type(1) {
 		animation-delay: 0.1s;
@@ -340,20 +340,26 @@ header.retracted {
 	}
 }
 
+:root {
+	--logo-fill: #454545;
+}
+
+:root.dark {
+	--logo-fill: #e5e0d8;
+}
+
 @keyframes logo {
 	0% {
 		opacity: 0.9;
-		fill: #666666;
+		fill: var(--logo-fill);
 	}
-
 	50% {
 		opacity: 1;
-		fill: var(--cyan);
+		fill: #8b7355;
 	}
-
 	100% {
 		opacity: 0.9;
-		fill: #666666;
+		fill: var(--logo-fill);
 	}
 }
 </style>
