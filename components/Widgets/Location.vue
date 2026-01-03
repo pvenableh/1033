@@ -4,69 +4,77 @@
  *
  * Shows walking distances to Whole Foods, Flamingo Park,
  * beach, and other Miami Beach highlights.
+ *
+ * Address: 1033 Lenox Ave, Miami Beach FL 33139
  */
 
 interface Props {
-	variant?: 'compact' | 'standard' | 'detailed';
+	variant?: 'compact' | 'standard' | 'detailed' | 'narrow';
 	animated?: boolean;
 	/** Compact mode for mobile */
 	compact?: boolean;
+	/** Maximum number of locations to display in detailed/narrow views */
+	maxLocations?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	variant: 'standard',
 	animated: false,
 	compact: false,
+	maxLocations: 6,
 });
 
-// Static location data for 1033 Lenox Ave, Miami Beach
+// Static location data for 1033 Lenox Ave, Miami Beach FL 33139
 const landmarks = [
 	{
 		name: 'Flamingo Park',
 		distance: '0.1 mi',
-		walkTime: '2 min',
+		walkTime: '1 min',
 		icon: 'i-heroicons-sun',
 		category: 'recreation',
 	},
 	{
 		name: 'Whole Foods',
-		distance: '0.2 mi',
-		walkTime: '4 min',
+		distance: '0.1 mi',
+		walkTime: '1 min',
 		icon: 'i-heroicons-shopping-bag',
 		category: 'grocery',
 	},
 	{
-		name: 'Beach',
+		name: 'The Bay',
+		distance: '0.2 mi',
+		walkTime: '2 min',
+		icon: 'i-heroicons-sparkles',
+		category: 'waterfront',
+	},
+	{
+		name: 'Ocean Drive',
+		distance: '0.4 mi',
+		walkTime: '5 min',
+		icon: 'i-lucide-tree-palm',
+		category: 'dining',
+	},
+	{
+		name: 'The Beach',
 		distance: '0.5 mi',
-		walkTime: '10 min',
+		walkTime: '6 min',
 		icon: 'i-heroicons-sun',
 		category: 'beach',
 	},
 	{
 		name: 'Lincoln Road',
 		distance: '0.6 mi',
-		walkTime: '12 min',
+		walkTime: '7 min',
 		icon: 'i-heroicons-building-storefront',
 		category: 'shopping',
-	},
-	{
-		name: 'Sunset Harbour',
-		distance: '0.4 mi',
-		walkTime: '8 min',
-		icon: 'i-heroicons-cake',
-		category: 'dining',
-	},
-	{
-		name: 'Miami Beach Golf Club',
-		distance: '0.3 mi',
-		walkTime: '6 min',
-		icon: 'i-heroicons-flag',
-		category: 'recreation',
 	},
 ];
 
 // Neighborhood info
+const address = '1033 Lenox Ave';
 const neighborhood = 'Flamingo Park';
+const city = 'Miami Beach';
+const state = 'FL';
 const zipCode = '33139';
 const walkScore = 94;
 const bikeScore = 89;
@@ -74,6 +82,9 @@ const bikeScore = 89;
 // Primary highlight for compact/standard
 const primaryLandmark = landmarks[0]; // Flamingo Park
 const secondaryLandmark = landmarks[1]; // Whole Foods
+
+// Compute visible landmarks based on maxLocations
+const visibleLandmarks = computed(() => landmarks.slice(0, props.maxLocations));
 
 function getIcon(): string {
 	return props.animated ? 'i-meteocons-clear-day-fill' : 'i-heroicons-map-pin';
@@ -88,7 +99,7 @@ function getIcon(): string {
 			{
 				'gap-0': variant === 'compact',
 				'gap-1': variant === 'standard',
-				'gap-2': variant === 'detailed',
+				'gap-2': variant === 'detailed' || variant === 'narrow',
 			},
 		]">
 		<!-- Primary Stats Row -->
@@ -106,16 +117,33 @@ function getIcon(): string {
 		</div>
 
 		<!-- Standard variant -->
-		<div v-if="variant !== 'compact'" class="flex flex-col gap-0.5 text-[10px] text-cream uppercase">
+		<div v-if="variant === 'standard'" class="flex flex-col gap-0.5 text-[10px] text-cream uppercase">
 			<span class="font-medium">{{ neighborhood }} neighborhood</span>
 			<span class="text-cream/70">{{ primaryLandmark.walkTime }} to {{ primaryLandmark.name }}</span>
 		</div>
 
-		<!-- Detailed variant (hide on compact mobile) -->
+		<!-- Narrow variant - single column layout for sidebar use -->
+		<div
+			v-if="variant === 'narrow' && !compact"
+			class="flex flex-col gap-1.5 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+			<div
+				v-for="landmark in visibleLandmarks"
+				:key="landmark.name"
+				class="flex items-center gap-1.5 text-[11px]">
+				<UIcon :name="landmark.icon" class="glass-widget__detail-icon text-sm shrink-0" />
+				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
+				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
+			</div>
+		</div>
+
+		<!-- Detailed variant - two column layout (hide on compact mobile) -->
 		<div
 			v-if="variant === 'detailed' && !compact"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-			<div v-for="landmark in landmarks" :key="landmark.name" class="flex items-center gap-1.5 text-[11px]">
+			<div
+				v-for="landmark in visibleLandmarks"
+				:key="landmark.name"
+				class="flex items-center gap-1.5 text-[11px]">
 				<UIcon :name="landmark.icon" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
 				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
