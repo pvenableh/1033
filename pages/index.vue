@@ -4,20 +4,23 @@
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
 				</div>
 
 				<!-- Scrollable widget container -->
-				<div class="widget-container widget-container--responsive">
+				<div class="widget-container widget-container--responsive pl-4 lg:pl-0">
 					<!-- Desktop only: Glass greeting -->
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" class="hidden lg:flex" />
 
 					<WidgetsWeather variant="standard" :compact="true" :showLocation="true" />
 
-					<WidgetsLocation variant="standard" :compact="true" />
+					<!-- Mobile: compact location widget -->
+					<WidgetsLocation variant="standard" :compact="true" class="md:hidden" />
+					<!-- Medium+: detailed location widget -->
+					<WidgetsLocation variant="detailed" :compact="false" class="hidden md:flex" />
 					<WidgetsAnnouncements variant="standard" :compact="true" />
 					<WidgetsBuilding variant="standard" :compact="true" />
 				</div>
@@ -125,7 +128,7 @@
 		</section>
 
 		<!-- Anti High-Rise Section -->
-		<section ref="antiHighriseRef" class="section py-24 lg:py-32 px-6 lg:px-16">
+		<section ref="antiHighriseRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
@@ -275,7 +278,7 @@
 		</section>
 
 		<!-- Design Section -->
-		<section ref="designRef" class="section py-24 lg:py-32 px-6 lg:px-16">
+		<section ref="designRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
@@ -414,7 +417,7 @@
 		</section>
 
 		<!-- Security Section -->
-		<section ref="securityRef" class="section py-24 lg:py-32 px-6 lg:px-16">
+		<section ref="securityRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
@@ -498,7 +501,7 @@
 			</div>
 		</section>
 		<!-- Amenities Section -->
-		<section ref="amenitiesRef" class="section py-24 lg:py-32 px-6 lg:px-16">
+		<section ref="amenitiesRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
@@ -586,9 +589,9 @@
 						<div class="community-cta t-bg-subtle p-6 my-8 opacity-0">
 							<p class="text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Get Involved</p>
 							<p class="text-[0.9375rem] t-text-secondary leading-relaxed">
-								We welcome professionals in design, architecture, fitness, hospitality, and urban planning
-								who want to contribute to building a more thoughtful community. Your expertise could help
-								shape spaces that serve residents for decades to come.
+								We welcome professionals who value a local, active lifestyle and want to be part of a
+								residential community—not just a place to sleep. If you're looking for neighbors who
+								share your commitment to thoughtful living, this is your place.
 							</p>
 						</div>
 
@@ -831,7 +834,7 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3]',
+		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
@@ -866,7 +869,7 @@ const lifestyleImages = [
 		icon: 'i-lucide-tree-palm',
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
-		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3]',
+		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
 	},
 ];
