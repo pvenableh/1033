@@ -114,6 +114,9 @@ import type {MentionData} from '~/types/comments';
 
 const {processUpload, validateFiles} = useFileUpload();
 
+// Default folder for comment uploads
+const COMMENT_UPLOADS_FOLDER = 'aa5ef2f0-fda1-48d4-b853-f696447d3dc9';
+
 const props = defineProps({
 	modelValue: {
 		type: String,
@@ -154,6 +157,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'submit', 'mention', 'cancel', 'files-uploaded']);
+
+// Computed folder ID - use prop if provided, otherwise default folder
+const uploadFolderId = computed(() => props.folderId ?? COMMENT_UPLOADS_FOLDER);
 
 const editor = ref<Editor | null>(null);
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -258,17 +264,16 @@ const handleFiles = async (files: File[]) => {
 		const result = await uploadFiles(formData);
 		const uploadedFiles = Array.isArray(result) ? result : [result];
 
-		if (props.folderId) {
-			await Promise.all(
-				uploadedFiles.map(async (file: any) => {
-					try {
-						await updateFile(file.id, {folder: props.folderId});
-					} catch (updateError) {
-						console.error('Error updating file:', updateError);
-					}
-				})
-			);
-		}
+		// Update files with folder
+		await Promise.all(
+			uploadedFiles.map(async (file: any) => {
+				try {
+					await updateFile(file.id, {folder: uploadFolderId.value});
+				} catch (updateError) {
+					console.error('Error updating file:', updateError);
+				}
+			})
+		);
 
 		// Insert files into editor
 		uploadedFiles.forEach((file: any) => {
