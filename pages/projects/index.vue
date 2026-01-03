@@ -100,7 +100,7 @@
 
       <!-- Empty State -->
       <div v-else class="text-center py-12">
-        <UIcon name="i-heroicons-folder" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <UIcon name="i-lucide-chart-no-axes-gantt" class="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h3 class="text-lg font-medium text-gray-600 dark:text-gray-400">No projects yet</h3>
         <p class="text-gray-500">Building projects will appear here when created.</p>
       </div>
@@ -121,6 +121,7 @@ useSeoMeta({
   description: 'View building projects and timelines',
 });
 
+const { isBoardMember } = useRoles();
 const projects = ref<Project[]>([]);
 const loading = ref(true);
 
@@ -133,10 +134,24 @@ const filteredProjects = computed(() => {
   return projects.value.filter((p) => ['active', 'completed'].includes(p.status));
 });
 
-// Fetch projects
+// Fetch projects based on user role
 async function fetchProjects() {
   loading.value = true;
   try {
+    // Build filter based on role
+    // Board members see all active/completed projects
+    // Regular members only see projects marked as member_visible
+    const filter: Record<string, any> = {
+      status: {
+        _in: ['active', 'completed'],
+      },
+    };
+
+    // Non-board members only see member-visible projects
+    if (!isBoardMember.value) {
+      filter.member_visible = { _eq: true };
+    }
+
     const response = await $fetch<Project[]>('/api/directus/items', {
       method: 'POST',
       body: {
@@ -154,6 +169,7 @@ async function fetchProjects() {
             'target_end_date',
             'actual_end_date',
             'date_created',
+            'member_visible',
             'category_id.id',
             'category_id.name',
             'category_id.color',
@@ -161,11 +177,7 @@ async function fetchProjects() {
             'user_created.first_name',
             'user_created.last_name',
           ],
-          filter: {
-            status: {
-              _in: ['active', 'completed'],
-            },
-          },
+          filter,
           sort: ['-date_created'],
           limit: -1,
         },
