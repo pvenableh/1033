@@ -586,6 +586,7 @@ onMounted(() => {
                 mode="full"
                 height="min-h-[200px] max-h-[400px]"
                 :allow-uploads="true"
+                folder-id="2ff19b77-0aa8-4474-af8f-20512666ddb9"
               />
             </UFormGroup>
 

@@ -489,6 +489,9 @@ import CharacterCount from '@tiptap/extension-character-count';
 
 import type { DirectusFile, DirectusFolder } from '~/types/directus';
 
+// Default folder for announcement uploads
+const ANNOUNCEMENT_UPLOADS_FOLDER = '2ff19b77-0aa8-4474-af8f-20512666ddb9';
+
 // Props
 const props = defineProps<{
   modelValue?: string;
@@ -496,7 +499,7 @@ const props = defineProps<{
   mode?: 'full' | 'simple'; // full = all features, simple = basic formatting
   height?: string;
   disabled?: boolean;
-  folderId?: string | null; // Organization folder for file browsing
+  folderId?: string | null; // Organization folder for file browsing (defaults to Announcement Uploads)
   allowUploads?: boolean;
   showToolbar?: boolean;
   characterLimit?: number;
@@ -764,6 +767,9 @@ const handleFileUpload = async (event: Event) => {
   if (input) input.value = '';
 };
 
+// Get the upload folder - use prop if provided, otherwise use default announcement uploads folder
+const uploadFolderId = computed(() => props.folderId ?? ANNOUNCEMENT_UPLOADS_FOLDER);
+
 const handleFilesUpload = async (filesToUpload: File[]) => {
   isUploading.value = true;
   uploadProgress.value = 0;
@@ -781,9 +787,7 @@ const handleFilesUpload = async (filesToUpload: File[]) => {
 
       const formData = new FormData();
       formData.append('file', file);
-      if (props.folderId) {
-        formData.append('folder', props.folderId);
-      }
+      formData.append('folder', uploadFolderId.value);
 
       const result = await filesComposable.uploadFiles(formData);
       const uploadedFile = Array.isArray(result) ? result[0] : result;
@@ -820,8 +824,8 @@ const handleFilesUpload = async (filesToUpload: File[]) => {
 // File browser functions
 const openFileBrowser = async () => {
   showFileBrowser.value = true;
-  currentFolder.value = props.folderId || null;
-  folderPath.value = [{ id: props.folderId || null, name: 'Files' }];
+  currentFolder.value = uploadFolderId.value;
+  folderPath.value = [{ id: uploadFolderId.value, name: 'Announcement Uploads' }];
   await loadFilesAndFolders();
 };
 

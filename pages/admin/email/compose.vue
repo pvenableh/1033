@@ -13,6 +13,9 @@ const config = useRuntimeConfig();
 const { isAdmin, isBoardMember } = useRoles();
 const { canManage } = useUserPermissions();
 
+// Default folder for announcement uploads
+const ANNOUNCEMENT_UPLOADS_FOLDER = '2ff19b77-0aa8-4474-af8f-20512666ddb9';
+
 // Check if user has access
 const hasAccess = computed(() => {
   return canManage('announcements');
@@ -504,8 +507,8 @@ const foldersComposable = useDirectusFolders();
 
 async function openAttachmentBrowser() {
   showAttachmentBrowser.value = true;
-  currentAttachmentFolder.value = null;
-  attachmentFolderPath.value = [{ id: null, name: 'All Files' }];
+  currentAttachmentFolder.value = ANNOUNCEMENT_UPLOADS_FOLDER;
+  attachmentFolderPath.value = [{ id: ANNOUNCEMENT_UPLOADS_FOLDER, name: 'Announcement Uploads' }];
   await loadAttachmentFilesAndFolders();
 }
 
@@ -578,6 +581,7 @@ async function uploadAttachment(event: Event) {
   try {
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('folder', ANNOUNCEMENT_UPLOADS_FOLDER);
 
     const result = await filesComposable.uploadFiles(formData);
     const uploadedFile = Array.isArray(result) ? result[0] : result;
@@ -719,6 +723,7 @@ onMounted(async () => {
                   mode="full"
                   height="min-h-[300px] max-h-[500px]"
                   :allow-uploads="true"
+                  :folder-id="ANNOUNCEMENT_UPLOADS_FOLDER"
                 />
               </UFormGroup>
 
