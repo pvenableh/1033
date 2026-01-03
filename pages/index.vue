@@ -4,7 +4,7 @@
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-16 lg:px-0 lg:w-auto lg:items-end">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
@@ -470,7 +470,7 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">08</span>
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">06</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Value</span>
 					</div>
 					<div class="content-main max-w-2xl">
@@ -502,7 +502,7 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">06</span>
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">07</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Amenities</span>
 					</div>
 					<div class="content-main max-w-4xl">
@@ -553,7 +553,7 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">07</span>
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">08</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Community</span>
 					</div>
 					<div class="content-main max-w-4xl">
