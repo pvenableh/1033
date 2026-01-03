@@ -1,5 +1,5 @@
 <script setup>
-const { user } = useDirectusAuth();
+const {user} = useDirectusAuth();
 
 definePageMeta({
 	layout: 'default',
@@ -8,9 +8,15 @@ definePageMeta({
 </script>
 
 <template>
-	<Dashboard v-if="user" :user="user" />
-	<div v-else class="min-h-screen flex items-center justify-center">
+	<!-- <Dashboard v-if="user" :user="user" /> -->
+	<!-- <div v-else class="min-h-screen flex items-center justify-center">
 		<p class="text-sm tracking-wide uppercase">Loading...</p>
+	</div> -->
+	<div class="relative w-full min-h-screen flex items-center justify-start flex-col scroll-smooth">
+		<h1 class="page__content-title">Dashboard</h1>
+		<div class="w-full flex flex-row items-start justify-center relative">
+			<p class="mt-32 uppercase text-sm tracking-wider">Coming Soon.</p>
+		</div>
 	</div>
 </template>
 <style>
