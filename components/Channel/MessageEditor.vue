@@ -123,6 +123,9 @@ import type {MentionData, ChannelMessageWithRelations} from '~/types/channels';
 
 const {processUpload, validateFiles} = useFileUpload();
 
+// Default folder for channel message uploads
+const CHANNEL_UPLOADS_FOLDER = 'a37304fc-9bf9-40a2-838e-647adb2d10e4';
+
 const props = defineProps({
 	modelValue: {
 		type: String,
@@ -163,6 +166,9 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:modelValue', 'send', 'mention', 'files-uploaded', 'cancel-reply']);
+
+// Computed folder ID - use prop if provided, otherwise default folder
+const uploadFolderId = computed(() => props.folderId ?? CHANNEL_UPLOADS_FOLDER);
 
 // Reply computed properties
 const replyToAuthorName = computed(() => {
@@ -270,21 +276,19 @@ const handleFiles = async (files: File[]) => {
 		const result = await uploadFiles(formData);
 		const uploadedFiles = Array.isArray(result) ? result : [result];
 
-		// Update files with folder if provided
-		if (props.folderId) {
-			await Promise.all(
-				uploadedFiles.map(async (file: any) => {
-					try {
-						await updateFile(file.id, {
-							folder: props.folderId,
-							title: processedFiles.find((pf: any) => pf.sanitizedName === file.filename_download)?.originalName,
-						});
-					} catch (updateError) {
-						console.error('Error updating file:', updateError);
-					}
-				})
-			);
-		}
+		// Update files with folder
+		await Promise.all(
+			uploadedFiles.map(async (file: any) => {
+				try {
+					await updateFile(file.id, {
+						folder: uploadFolderId.value,
+						title: processedFiles.find((pf: any) => pf.sanitizedName === file.filename_download)?.originalName,
+					});
+				} catch (updateError) {
+					console.error('Error updating file:', updateError);
+				}
+			})
+		);
 
 		// Insert files into editor
 		uploadedFiles.forEach((file: any) => {
