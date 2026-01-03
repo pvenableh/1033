@@ -785,7 +785,7 @@ onMounted(async () => {
         <!-- Recipients & Actions (Right) -->
         <div class="space-y-6">
           <!-- Recipients Card -->
-          <UCard class="sticky top-6">
+          <UCard>
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold">Recipients</h3>

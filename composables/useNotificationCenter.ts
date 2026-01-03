@@ -143,17 +143,13 @@ export function useNotificationCenter() {
     try {
       const now = new Date().toISOString();
 
+      // Fetch published notices and filter visibility client-side
+      // (Directus JSON fields don't support _contains filter)
       const result = await noticesCollection.list({
         fields: ['id', 'title', 'content', 'type', 'visibility', 'status', 'published_at', 'expires_at', 'pinned', 'date_created'],
         filter: {
           status: { _eq: 'published' },
           _and: [
-            // Check visibility - at least one visibility must match
-            {
-              _or: visibilities.map((v) => ({
-                visibility: { _contains: v },
-              })),
-            },
             // Check if published (or no publish date set)
             {
               _or: [
@@ -171,9 +167,16 @@ export function useNotificationCenter() {
           ],
         },
         sort: ['-pinned', '-published_at', '-date_created'],
-        limit: 20,
+        limit: 50,
       });
-      notices.value = result;
+
+      // Filter by visibility client-side (visibility is a JSON array)
+      notices.value = result.filter((notice) => {
+        if (!notice.visibility || !Array.isArray(notice.visibility)) {
+          return false;
+        }
+        return visibilities.some((v) => notice.visibility.includes(v));
+      });
     } catch (e: any) {
       console.error('Failed to fetch notices:', e);
     }

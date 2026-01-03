@@ -672,6 +672,11 @@ onMounted(() => {
     extensions,
     content: props.modelValue || '',
     editable: !props.disabled,
+    editorProps: {
+      attributes: {
+        class: 'prose prose-sm dark:prose-invert max-w-none p-3 focus:outline-none',
+      },
+    },
     onUpdate: () => {
       if (editor.value) {
         emit('update:modelValue', editor.value.getHTML());
