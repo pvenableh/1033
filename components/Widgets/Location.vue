@@ -37,22 +37,8 @@ const landmarks = [
 		name: 'Whole Foods',
 		distance: '0.1 mi',
 		walkTime: '1 min',
-		icon: 'i-heroicons-shopping-bag',
+		icon: 'i-lucide-apple',
 		category: 'grocery',
-	},
-	{
-		name: 'The Bay',
-		distance: '0.2 mi',
-		walkTime: '2 min',
-		icon: 'i-heroicons-sparkles',
-		category: 'waterfront',
-	},
-	{
-		name: 'Ocean Drive',
-		distance: '0.4 mi',
-		walkTime: '5 min',
-		icon: 'i-lucide-tree-palm',
-		category: 'dining',
 	},
 	{
 		name: 'The Beach',
@@ -67,6 +53,20 @@ const landmarks = [
 		walkTime: '7 min',
 		icon: 'i-heroicons-building-storefront',
 		category: 'shopping',
+	},
+	{
+		name: 'Ocean Drive',
+		distance: '0.4 mi',
+		walkTime: '5 min',
+		icon: 'i-lucide-tree-palm',
+		category: 'dining',
+	},
+	{
+		name: 'The Bay',
+		distance: '0.2 mi',
+		walkTime: '2 min',
+		icon: 'i-heroicons-sparkles',
+		category: 'waterfront',
 	},
 ];
 
