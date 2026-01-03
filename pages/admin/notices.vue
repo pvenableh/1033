@@ -486,10 +486,12 @@ onMounted(() => {
             </UFormGroup>
 
             <UFormGroup label="Content">
-              <UTextarea
+              <TiptapEditor
                 v-model="form.content"
-                placeholder="Notice content (supports HTML)"
-                :rows="6"
+                placeholder="Write your notice content..."
+                mode="simple"
+                height="min-h-[150px] max-h-[300px]"
+                :allow-uploads="false"
               />
             </UFormGroup>
 

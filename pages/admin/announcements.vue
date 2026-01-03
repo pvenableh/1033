@@ -416,7 +416,7 @@ onMounted(() => {
             v-if="canCreate"
             icon="i-heroicons-plus"
             color="primary"
-            @click="openCreateModal">
+            to="/admin/email/compose">
             New Announcement
           </UButton>
         </div>
@@ -517,7 +517,7 @@ onMounted(() => {
                   color="primary"
                   variant="ghost"
                   icon="i-heroicons-pencil"
-                  @click="openEditModal(row)"
+                  :to="`/admin/email/compose?id=${row.id}`"
                 />
                 <UButton
                   v-if="canDelete"
@@ -580,10 +580,13 @@ onMounted(() => {
             </div>
 
             <UFormGroup label="Content">
-              <UTextarea
+              <TiptapEditor
                 v-model="form.content"
-                placeholder="Email content (supports HTML)"
-                :rows="8"
+                placeholder="Write your announcement content..."
+                mode="full"
+                height="min-h-[200px] max-h-[400px]"
+                :allow-uploads="true"
+                folder-id="2ff19b77-0aa8-4474-af8f-20512666ddb9"
               />
             </UFormGroup>
 
