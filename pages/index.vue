@@ -547,6 +547,60 @@
 				</div>
 			</div>
 		</section>
+
+		<!-- Community Engagement Section -->
+		<section ref="communityRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
+			<div class="max-w-6xl mx-auto">
+				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
+					<div class="content-label flex flex-col gap-2 opacity-0">
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">07</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Community</span>
+					</div>
+					<div class="content-main max-w-4xl">
+						<h2
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							Shape What's Next
+						</h2>
+						<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
+							Our shared spaces are ready for reimagining. For the right residents—those with vision, expertise,
+							and the desire to leave their mark—this is an opportunity to help craft something exceptional.
+						</p>
+
+						<div class="community-spaces grid grid-cols-1 sm:grid-cols-2 gap-6 my-8">
+							<div
+								v-for="(space, index) in communitySpaces"
+								:key="index"
+								class="community-space-item p-6 t-bg-subtle opacity-0">
+								<div class="flex items-start gap-4">
+									<div class="community-icon w-8 h-8 flex-shrink-0 t-text-accent-tertiary">
+										<UIcon :name="space.icon" class="w-8 h-8" />
+									</div>
+									<div>
+										<p class="text-sm font-medium t-text mb-2">{{ space.name }}</p>
+										<p class="text-[0.875rem] leading-relaxed t-text-secondary">{{ space.vision }}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="community-cta t-bg-subtle p-6 my-8 opacity-0">
+							<p class="text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Get Involved</p>
+							<p class="text-[0.9375rem] t-text-secondary leading-relaxed">
+								We welcome professionals in design, architecture, fitness, hospitality, and urban planning
+								who want to contribute to building a more thoughtful community. Your expertise could help
+								shape spaces that serve residents for decades to come.
+							</p>
+						</div>
+
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+							The canvas is ready. The community awaits.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<!-- Pet Section -->
 		<!-- <section ref="petsRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream">
 			<div class="max-w-6xl mx-auto">
@@ -695,6 +749,7 @@ const turnkeyRef = ref(null);
 const securityRef = ref(null);
 const amenitiesRef = ref(null);
 const investmentRef = ref(null);
+const communityRef = ref(null);
 const petsRef = ref(null);
 const galleryRef = ref(null);
 const ctaRef = ref(null);
@@ -813,6 +868,29 @@ const lifestyleImages = [
 		desc: 'Restaurants & nightlife',
 		span: 'col-span-2 aspect-[4/3]',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
+	},
+];
+
+const communitySpaces = [
+	{
+		icon: 'i-heroicons-building-library',
+		name: 'The Clubhouse',
+		vision: 'A blank canvas awaiting transformation—envision a modern fitness studio paired with a focused co-working space.',
+	},
+	{
+		icon: 'i-heroicons-archive-box',
+		name: 'Storage Evolution',
+		vision: 'Climate-controlled personal storage with premium lockers—secure space for what matters.',
+	},
+	{
+		icon: 'i-heroicons-sparkles',
+		name: 'Adventure Room',
+		vision: 'Dedicated secure storage for bikes, paddle boards, and beach gear—supporting the active lifestyle.',
+	},
+	{
+		icon: 'i-heroicons-sun',
+		name: 'Courtyard Revival',
+		vision: 'Irrigation upgrades, curated seating areas, lush vegetation, and perhaps a fountain—an urban oasis refined.',
 	},
 ];
 
@@ -972,6 +1050,16 @@ onMounted(() => {
 			'.section-title',
 			'.section-image',
 			'.amenity-item',
+			'.section-tagline',
+		]);
+
+		// Community section
+		animateSection(communityRef, [
+			'.content-label',
+			'.section-title',
+			'.section-body',
+			'.community-space-item',
+			'.community-cta',
 			'.section-tagline',
 		]);
 
