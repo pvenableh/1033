@@ -34,6 +34,7 @@ import {
 	readPermissions,
 	deletePermission,
 	updatePermission,
+	readPolicies,
 } from '@directus/sdk';
 import * as readline from 'readline';
 
@@ -49,10 +50,12 @@ const ROLES = {
 };
 
 // Policy UUIDs (Directus 11+ uses policies instead of roles for permissions)
+// Note: PUBLIC policy is looked up dynamically since it may vary by installation
 const POLICIES = {
 	BOARD_MEMBER: '50deeb53-29e4-4e7a-9c21-9c571e78fcb2',
 	MEMBER: 'ab66d5f6-8eb0-48e4-a021-68d758aae525',
 	PENDING: '2a9627a9-424d-472f-aaf1-478948d7549b',
+	PUBLIC: null, // Will be populated at runtime
 };
 
 // Collections to set up permissions for
@@ -197,6 +200,19 @@ async function main() {
 		await client.login({email, password});
 		console.log('✅ Authenticated successfully');
 
+		// Look up the public policy
+		console.log('\n🔍 Looking up public policy...');
+		const policies = await client.request(readPolicies({limit: -1}));
+		const publicPolicy = policies.find(
+			(p) => p.name?.toLowerCase() === 'public' || p.admin_access === false && !p.app_access
+		);
+		if (publicPolicy) {
+			POLICIES.PUBLIC = publicPolicy.id;
+			console.log(`   Found public policy: ${publicPolicy.id}`);
+		} else {
+			console.log('   ⚠️  No public policy found - public permissions will be skipped');
+		}
+
 		// Get existing permissions
 		console.log('\n📋 Fetching existing permissions...');
 		const existingPermissions = await client.request(
@@ -245,16 +261,18 @@ async function main() {
 			}
 
 			// Public permissions
-			if (config.public && config.public.length > 0) {
+			if (config.public && config.public.length > 0 && POLICIES.PUBLIC) {
 				console.log('   Setting up Public permissions...');
 				for (const perm of config.public) {
 					await createOrUpdatePermission(client, existingPermissions, {
 						collection,
-						role: null, // null role = public
+						policy: POLICIES.PUBLIC,
 						...perm,
 					});
 					await delay(100);
 				}
+			} else if (config.public && config.public.length > 0 && !POLICIES.PUBLIC) {
+				console.log('   ⚠️  Skipping Public permissions (no public policy found)');
 			}
 		}
 
