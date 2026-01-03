@@ -52,6 +52,7 @@ const emptyVehicle = {
   make: '',
   model: '',
   year: '',
+  image: null as string | null,
   color: '',
   license_plate: '',
   state: '',
@@ -224,7 +225,8 @@ function getStatusBadge(status: string) {
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0">
             <div class="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <UIcon name="i-heroicons-truck" class="w-8 h-8 text-gray-400" />
+              <img v-if="vehicle.image" :src="'https://admin.1033lenox.com/assets' + vehicle.image + '?key=small'" alt="Vehicle Image" v-if="vehicle.image" class="w-full h-full object-cover" />
+              <UIcon v-else name="i-lucide-car" class="w-8 h-8 text-gray-400" />
             </div>
           </div>
 
