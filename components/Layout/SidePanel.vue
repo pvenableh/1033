@@ -17,14 +17,14 @@
 				leave-to-class="opacity-0">
 				<div
 					v-if="isOpen"
-					class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 z-40"
+					class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/75 z-50"
 					@click="closeOnClickOutside && closePanel()" />
 			</Transition>
 
 			<!-- Side Panel -->
 			<div
 				ref="sidePanel"
-				class="fixed top-0 right-0 bottom-0 z-50 transform translate-x-full"
+				class="fixed top-0 right-0 bottom-0 z-[60] transform translate-x-full"
 				:class="[widthClass, {'pointer-events-none': !isOpen}]">
 				<div
 					ref="panelContent"
