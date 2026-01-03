@@ -125,12 +125,12 @@ function getIcon(): string {
 		<!-- Narrow variant - single column layout for sidebar use -->
 		<div
 			v-if="variant === 'narrow' && !compact"
-			class="flex flex-col gap-1.5 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
+			class="flex flex-col gap-1 mt-1.5 pt-1.5 border-t border-gray-200 dark:border-gray-700">
 			<div
 				v-for="landmark in visibleLandmarks"
 				:key="landmark.name"
-				class="flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="landmark.icon" class="glass-widget__detail-icon text-sm shrink-0" />
+				class="flex items-center gap-1 text-[10px]">
+				<UIcon :name="landmark.icon" class="glass-widget__detail-icon text-xs shrink-0" />
 				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
 				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
 			</div>

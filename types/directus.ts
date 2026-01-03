@@ -898,6 +898,10 @@ export interface UserPermission {
 	vehicles_approve?: boolean | null;
 	/** @description Allow approving lease submissions */
 	leases_approve?: boolean | null;
+	/** @description Allow managing notices (in-app notifications) */
+	notices_approved?: boolean | null;
+	/** @description Allow managing email announcements */
+	announcements_approved?: boolean | null;
 	/** @required */
 	person_id: People | string;
 }

@@ -10,7 +10,7 @@ const showNavToggle = computed(() => {
 });
 
 const avatar = computed(() => {
-	if (user.value.avatar) {
+	if (user.value?.avatar) {
 		return 'https://admin.1033lenox.com/assets/' + user.value.avatar + '?key=medium';
 	} else {
 		return (
@@ -57,7 +57,10 @@ const avatar = computed(() => {
 				<NewLogo class="new-logo" />
 			</nuxt-link>
 		</div>
-		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6">
+		<div class="absolute flex items-center justify-center flex-row right-[10px] sm:pr-1 md:px-6 gap-1">
+			<ClientOnly>
+				<NotificationBell />
+			</ClientOnly>
 			<nuxt-link to="/dashboard" class="inline-flex lg:hidden">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />

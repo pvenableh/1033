@@ -29,6 +29,16 @@ export const APPROVAL_CATEGORIES = {
 export type ApprovalCategory = (typeof APPROVAL_CATEGORIES)[keyof typeof APPROVAL_CATEGORIES];
 
 /**
+ * Management categories - single flag grants full access to manage
+ */
+export const MANAGEMENT_CATEGORIES = {
+  NOTICES: 'notices',
+  ANNOUNCEMENTS: 'announcements',
+} as const;
+
+export type ManagementCategory = (typeof MANAGEMENT_CATEGORIES)[keyof typeof MANAGEMENT_CATEGORIES];
+
+/**
  * CRUD actions
  */
 export const CRUD_ACTIONS = {
@@ -109,6 +119,22 @@ export const APPROVAL_CATEGORY_META: Record<ApprovalCategory, { label: string; i
     label: 'Leases',
     icon: 'i-heroicons-document-check',
     description: 'Approve or reject lease submissions',
+  },
+};
+
+/**
+ * Management category metadata for UI display
+ */
+export const MANAGEMENT_CATEGORY_META: Record<ManagementCategory, { label: string; icon: string; description: string }> = {
+  notices: {
+    label: 'Notices',
+    icon: 'i-heroicons-bell',
+    description: 'Create and manage in-app notices',
+  },
+  announcements: {
+    label: 'Announcements',
+    icon: 'i-heroicons-megaphone',
+    description: 'Create and send email announcements',
   },
 };
 
@@ -242,6 +268,32 @@ export function useUserPermissions() {
   }
 
   /**
+   * Check if user can manage items in a management category
+   * Uses the [category]_approved pattern (e.g., notices_approved, announcements_approved)
+   * Admins and board members always have management permissions
+   * Others need explicit _approved permission
+   */
+  function canManage(category: ManagementCategory): boolean {
+    // Admins always have all permissions
+    if (isAdmin.value) {
+      return true;
+    }
+
+    // Board members have all permissions by default
+    if (isBoardMember.value) {
+      return true;
+    }
+
+    // Check granular management permissions
+    if (!permissions.value) {
+      return false;
+    }
+
+    const key = `${category}_approved` as keyof UserPermission;
+    return permissions.value[key] === true;
+  }
+
+  /**
    * Get approval permissions summary
    */
   const approvalSummary = computed(() => {
@@ -249,6 +301,19 @@ export function useUserPermissions() {
 
     for (const category of Object.values(APPROVAL_CATEGORIES)) {
       summary[category] = canApprove(category);
+    }
+
+    return summary;
+  });
+
+  /**
+   * Get management permissions summary
+   */
+  const managementSummary = computed(() => {
+    const summary: Record<ManagementCategory, boolean> = {} as any;
+
+    for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+      summary[category] = canManage(category);
     }
 
     return summary;
@@ -320,20 +385,24 @@ export function useUserPermissions() {
     canUpdate,
     canDelete,
     canApprove,
+    canManage,
     getCategoryPermissions,
 
     // Computed
     permissionSummary,
     approvalSummary,
+    managementSummary,
     hasGranularPermissions,
     hasFullAccess,
 
     // Constants
     PERMISSION_CATEGORIES,
     APPROVAL_CATEGORIES,
+    MANAGEMENT_CATEGORIES,
     CRUD_ACTIONS,
     PERMISSION_CATEGORY_META,
     APPROVAL_CATEGORY_META,
+    MANAGEMENT_CATEGORY_META,
   };
 }
 

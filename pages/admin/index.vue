@@ -26,6 +26,24 @@ const adminLinks = [
     to: '/admin/projects',
   },
   {
+    title: 'Notices',
+    description: 'Create and manage in-app notices for residents and visitors',
+    icon: 'i-heroicons-bell',
+    to: '/admin/notices',
+  },
+  {
+    title: 'Email Announcements',
+    description: 'Create, edit, and send email announcements via SendGrid',
+    icon: 'i-heroicons-megaphone',
+    to: '/admin/announcements',
+  },
+  {
+    title: 'Email Activity',
+    description: 'Track email opens, clicks, bounces, and delivery status',
+    icon: 'i-heroicons-chart-bar',
+    to: '/admin/email-activity',
+  },
+  {
     title: 'Pending Requests',
     description: 'View and approve pending access requests',
     icon: 'i-heroicons-clock',
