@@ -5,16 +5,20 @@
 export function useSecondaryNavToggle() {
 	const STORAGE_KEY = 'secondary-nav-visible';
 
+	// Track if we've already initialized from storage to avoid re-running
+	const isInitialized = useState<boolean>('secondaryNavInitialized', () => false);
+
 	// Initialize with true (visible by default)
 	const isSecondaryNavVisible = useState<boolean>('secondaryNavVisible', () => true);
 
 	// Load preference from localStorage on client side
 	const initFromStorage = () => {
-		if (import.meta.client) {
+		if (import.meta.client && !isInitialized.value) {
 			const stored = localStorage.getItem(STORAGE_KEY);
 			if (stored !== null) {
 				isSecondaryNavVisible.value = stored === 'true';
 			}
+			isInitialized.value = true;
 		}
 	};
 
@@ -34,8 +38,13 @@ export function useSecondaryNavToggle() {
 		}
 	};
 
-	// Initialize on first use
-	initFromStorage();
+	// Initialize from storage after hydration to avoid mismatch
+	// Using nextTick ensures Vue has finished hydrating
+	if (import.meta.client) {
+		nextTick(() => {
+			initFromStorage();
+		});
+	}
 
 	return {
 		isSecondaryNavVisible: readonly(isSecondaryNavVisible),

@@ -86,6 +86,32 @@
 						</UTooltip>
 					</li>
 
+					<!-- Projects - visible to all approved users -->
+					<li>
+						<UTooltip text="Projects" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/projects"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/projects')}">
+								<UIcon name="i-heroicons-folder" class="w-5 h-5" />
+								<span class="hidden">Projects</span>
+							</nuxt-link>
+						</UTooltip>
+					</li>
+
+					<!-- Account - visible to all approved users -->
+					<li>
+						<UTooltip text="Account" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/account"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/account')}">
+								<UIcon name="i-heroicons-user-circle" class="w-5 h-5" />
+								<span class="hidden">Account</span>
+							</nuxt-link>
+						</UTooltip>
+					</li>
+
 					<!-- Channels - visible to board_members OR users with channel membership -->
 					<li v-if="showChannels">
 						<UTooltip text="Channels" :popper="{placement: 'bottom'}" class="uppercase">
