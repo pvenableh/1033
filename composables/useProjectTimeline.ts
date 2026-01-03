@@ -17,6 +17,7 @@ import type {
 } from '~/types/projects';
 
 export function useProjectTimeline() {
+  const { user } = useDirectusAuth();
   const projects = useDirectusItems<Project>('projects');
   const events = useDirectusItems<ProjectEvent>('project_events');
   const tasks = useDirectusItems<ProjectTask>('project_tasks');
@@ -94,6 +95,12 @@ export function useProjectTimeline() {
    * Fetch all projects with full relations
    */
   const fetchProjects = async () => {
+    // Wait for authentication before fetching
+    if (!user.value?.id) {
+      loading.value = false;
+      return;
+    }
+
     loading.value = true;
     error.value = null;
 
@@ -156,6 +163,11 @@ export function useProjectTimeline() {
    * Fetch a single project by ID
    */
   const fetchProject = async (projectId: string): Promise<ProjectWithRelations | null> => {
+    // Wait for authentication before fetching
+    if (!user.value?.id) {
+      return null;
+    }
+
     try {
       // Fetch without deep filtering - filter client-side instead
       const result = await projects.get(projectId, {

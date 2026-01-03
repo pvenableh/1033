@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { ProjectWithRelations, ProjectEventWithRelations } from '~/types/projects';
@@ -121,6 +121,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Composables
+const { user } = useDirectusAuth();
 const { projects, loading, error, refresh, toggleTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
 
@@ -198,16 +199,26 @@ const handleTaskToggle = async (taskId: string, completed: boolean) => {
 
 // GSAP animations
 let ctx: gsap.Context;
+let hasFetched = false;
 
-onMounted(async () => {
-  // Fetch projects
-  await refresh();
+// Watch for user to become available and fetch projects
+watch(
+  () => user.value?.id,
+  async (userId) => {
+    if (userId && !hasFetched) {
+      hasFetched = true;
+      await refresh();
 
-  // Set initial focus if provided
-  if (props.initialFocus) {
-    focusedProjectId.value = props.initialFocus;
-  }
+      // Set initial focus if provided
+      if (props.initialFocus) {
+        focusedProjectId.value = props.initialFocus;
+      }
+    }
+  },
+  { immediate: true }
+);
 
+onMounted(() => {
   ctx = gsap.context(() => {
     // Fade in header
     gsap.fromTo(
