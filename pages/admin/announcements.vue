@@ -41,7 +41,7 @@ const statusFilter = ref<string>('all');
 // Recipients state
 const allPeople = ref<any[]>([]);
 const selectedRecipients = ref<string[]>([]);
-const recipientFilter = ref<'all' | 'owners' | 'tenants' | 'board'>('all');
+const recipientFilter = ref<'all' | 'owners' | 'tenants'>('all');
 const loadingRecipients = ref(false);
 
 // Form state
@@ -96,9 +96,6 @@ const filteredRecipients = computed(() => {
     case 'tenants':
       result = result.filter(p => p.is_resident && !p.is_owner);
       break;
-    case 'board':
-      result = result.filter(p => p.is_board_member);
-      break;
   }
 
   return result;
@@ -138,7 +135,7 @@ async function fetchPeople() {
         collection: 'people',
         operation: 'list',
         query: {
-          fields: ['id', 'first_name', 'last_name', 'email', 'is_owner', 'is_resident', 'is_board_member', 'category'],
+          fields: ['id', 'first_name', 'last_name', 'email', 'is_owner', 'is_resident', 'category'],
           filter: {
             status: { _eq: 'published' },
             email: { _nnull: true },
@@ -652,14 +649,6 @@ onMounted(() => {
                 >
                   Tenants ({{ allPeople.filter(p => p.is_resident && !p.is_owner).length }})
                 </UButton>
-                <UButton
-                  :color="recipientFilter === 'board' ? 'primary' : 'gray'"
-                  :variant="recipientFilter === 'board' ? 'soft' : 'ghost'"
-                  size="sm"
-                  @click="recipientFilter = 'board'"
-                >
-                  Board ({{ allPeople.filter(p => p.is_board_member).length }})
-                </UButton>
               </div>
               <div class="flex gap-2">
                 <UButton size="xs" variant="ghost" @click="selectAllRecipients">Select All</UButton>
@@ -694,7 +683,6 @@ onMounted(() => {
                   </div>
                   <div class="flex gap-1">
                     <UBadge v-if="person.is_owner" color="green" variant="soft" size="xs">Owner</UBadge>
-                    <UBadge v-if="person.is_board_member" color="purple" variant="soft" size="xs">Board</UBadge>
                   </div>
                 </label>
               </div>

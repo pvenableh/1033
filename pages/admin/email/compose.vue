@@ -45,7 +45,7 @@ const form = reactive({
 // Recipients state
 const allPeople = ref<any[]>([]);
 const selectedRecipients = ref<string[]>([]);
-const recipientFilter = ref<'all' | 'owners' | 'tenants' | 'board'>('all');
+const recipientFilter = ref<'all' | 'owners' | 'tenants'>('all');
 const loadingRecipients = ref(false);
 const selectionMode = ref<'all' | 'selected'>('all');
 
@@ -90,7 +90,6 @@ const recipientFilterOptions = [
   { label: 'All Members', value: 'all', icon: 'i-heroicons-users' },
   { label: 'Owners Only', value: 'owners', icon: 'i-heroicons-home' },
   { label: 'Tenants Only', value: 'tenants', icon: 'i-heroicons-key' },
-  { label: 'Board Members', value: 'board', icon: 'i-heroicons-building-office' },
 ] as const;
 
 // Computed
@@ -103,9 +102,6 @@ const filteredRecipients = computed(() => {
       break;
     case 'tenants':
       result = result.filter(p => p.is_resident && !p.is_owner);
-      break;
-    case 'board':
-      result = result.filter(p => p.is_board_member);
       break;
   }
 
@@ -125,7 +121,6 @@ const memberCounts = computed(() => ({
   all: allPeople.value.length,
   owners: allPeople.value.filter(p => p.is_owner).length,
   tenants: allPeople.value.filter(p => p.is_resident && !p.is_owner).length,
-  board: allPeople.value.filter(p => p.is_board_member).length,
 }));
 
 // Fetch existing announcement if editing
@@ -176,7 +171,7 @@ async function fetchPeople() {
         collection: 'people',
         operation: 'list',
         query: {
-          fields: ['id', 'first_name', 'last_name', 'email', 'is_owner', 'is_resident', 'is_board_member', 'category'],
+          fields: ['id', 'first_name', 'last_name', 'email', 'is_owner', 'is_resident', 'category'],
           filter: {
             status: { _eq: 'published' },
             email: { _nnull: true },

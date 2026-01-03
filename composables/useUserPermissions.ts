@@ -167,7 +167,7 @@ export function useUserPermissions() {
         method: 'POST',
         body: {
           collection: 'user_permissions',
-          operation: 'search',
+          operation: 'list',
           query: {
             filter: {
               person_id: { _eq: linkedPerson.value.id },
