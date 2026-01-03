@@ -73,7 +73,6 @@ export default defineEventHandler(async (event) => {
           'vehicles.id',
           'vehicles.make',
           'vehicles.model',
-          'vehicles.year',
           'vehicles.color',
           'vehicles.license_plate',
           'vehicles.state',

@@ -5,6 +5,7 @@
  * Uses getUserDirectus() for automatic token refresh.
  */
 import { getUserDirectus, directusReadMeWithFields, readMe } from '~/server/utils/directus';
+import { getSessionAccessToken } from '~/server/utils/session';
 
 export default defineEventHandler(async (event) => {
   try {
