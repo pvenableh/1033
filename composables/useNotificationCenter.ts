@@ -111,29 +111,37 @@ export function useNotificationCenter() {
   // Alias for backwards compatibility
   const isAnnouncementRead = isNoticeRead;
 
-  // Determine visibility filter based on user status
+  // Determine visibility filter based on user status (requires authentication)
   const getVisibilityFilter = () => {
     const { isBoardMember } = useRoles();
 
+    // Notifications require sign-in - no public visibility
+    if (!user.value) {
+      return [];
+    }
+
     // Build visibility array based on user role
-    const visibilities = ['public'];
+    const visibilities = ['residents'];
 
-    if (user.value) {
-      visibilities.push('residents');
-
-      if (isBoardMember.value) {
-        visibilities.push('board');
-      }
+    if (isBoardMember.value) {
+      visibilities.push('board');
     }
 
     return visibilities;
   };
 
-  // Fetch notices (public - no auth required for public notices)
+  // Fetch notices (requires authentication - no public visibility)
   const fetchNotices = async () => {
+    const visibilities = getVisibilityFilter();
+
+    // No notices for unauthenticated users
+    if (visibilities.length === 0) {
+      notices.value = [];
+      return;
+    }
+
     try {
       const now = new Date().toISOString();
-      const visibilities = getVisibilityFilter();
 
       const result = await noticesCollection.list({
         fields: ['id', 'title', 'content', 'type', 'visibility', 'status', 'published_at', 'expires_at', 'pinned', 'date_created'],
@@ -305,6 +313,49 @@ export function useNotificationCenter() {
     }
   };
 
+  // Realtime WebSocket subscription for notices
+  let noticesUnsubscribe: (() => void) | null = null;
+
+  const startRealtimeSubscription = async () => {
+    // Only subscribe for authenticated users
+    if (!user.value) {
+      return;
+    }
+
+    try {
+      const { subscribe } = useDirectusWebSocket();
+
+      noticesUnsubscribe = await subscribe<Notice>(
+        {
+          collection: 'notices',
+          query: {
+            fields: ['id', 'title', 'content', 'type', 'visibility', 'status', 'published_at', 'expires_at', 'pinned', 'date_created'],
+            filter: {
+              status: { _eq: 'published' },
+            },
+          },
+          uid: 'notices-realtime',
+        },
+        (event) => {
+          // Refresh notices on any change (create, update, delete)
+          if (event.type === 'create' || event.type === 'update' || event.type === 'delete') {
+            fetchNotices();
+          }
+        }
+      );
+    } catch (e: any) {
+      // WebSocket subscription failed - fall back to polling only
+      console.warn('Notices realtime subscription failed, using polling fallback:', e.message);
+    }
+  };
+
+  const stopRealtimeSubscription = () => {
+    if (noticesUnsubscribe) {
+      noticesUnsubscribe();
+      noticesUnsubscribe = null;
+    }
+  };
+
   return {
     // State
     isOpen: readonly(isOpen),
@@ -350,5 +401,9 @@ export function useNotificationCenter() {
     // Auto-refresh
     startAutoRefresh,
     stopAutoRefresh,
+
+    // Realtime subscription
+    startRealtimeSubscription,
+    stopRealtimeSubscription,
   };
 }
