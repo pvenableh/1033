@@ -12,7 +12,7 @@ export interface Notice {
   id: string;
   title: string;
   content?: string;
-  type: 'announcement' | 'update' | 'alert' | 'maintenance';
+  type: 'announcement' | 'anouncement' | 'update' | 'alert' | 'maintenance' | string;
   visibility: string[];
   status: 'draft' | 'published' | 'archived';
   published_at?: string;
