@@ -273,6 +273,7 @@ export function useReactions() {
 
   /**
    * Toggle a reaction on an item (add if not exists, remove if exists)
+   * Only allows ONE reaction per user per item - adding a new reaction removes any existing one
    * Returns the created reaction or null if removed
    */
   const toggleReaction = async (
@@ -282,25 +283,37 @@ export function useReactions() {
       ownerUserId?: string;
       itemContext?: { title?: string; channelName?: string };
     }
-  ): Promise<{ action: 'added' | 'removed'; reaction?: ReactionWithRelations }> => {
+  ): Promise<{ action: 'added' | 'removed' | 'switched'; reaction?: ReactionWithRelations }> => {
     if (!user.value?.id) {
       throw new Error('Must be logged in to react');
     }
 
-    // Check for existing reaction of this type from this user
-    const existing = await reactions.findFirst({
+    // Check for ANY existing reaction from this user on this item
+    const existingReactions = await reactions.list({
       filter: {
         collection: { _eq: payload.collection },
         item_id: { _eq: payload.item_id },
-        reaction_type: { _eq: payload.reaction_type },
         user_created: { _eq: user.value.id },
       },
+      limit: -1,
     });
 
-    if (existing) {
-      // Remove the reaction
-      await reactions.remove(existing.id);
+    const existingSameType = existingReactions.find(
+      (r) => r.reaction_type === payload.reaction_type
+    );
+
+    if (existingSameType) {
+      // User clicked the same reaction type - remove it (toggle off)
+      await reactions.remove(existingSameType.id);
       return { action: 'removed' };
+    }
+
+    // Track if we're switching from another reaction
+    const isSwitching = existingReactions.length > 0;
+
+    // Remove any other existing reactions before adding the new one
+    if (isSwitching) {
+      await reactions.remove(existingReactions.map((r) => r.id));
     }
 
     // Create the new reaction
@@ -323,7 +336,9 @@ export function useReactions() {
     ) as ReactionWithRelations;
 
     // Send notification to content owner (if different from reactor)
+    // Only notify on new reactions, not when switching
     if (
+      !isSwitching &&
       options?.notifyOwner &&
       options.ownerUserId &&
       options.ownerUserId !== user.value.id
@@ -353,11 +368,12 @@ export function useReactions() {
       }
     }
 
-    return { action: 'added', reaction: created };
+    return { action: isSwitching ? 'switched' : 'added', reaction: created };
   };
 
   /**
    * Add a reaction (creates if not exists)
+   * Only allows ONE reaction per user per item - adding a new reaction removes any existing one
    */
   const addReaction = async (
     payload: CreateReactionPayload,
@@ -371,12 +387,11 @@ export function useReactions() {
       throw new Error('Must be logged in to react');
     }
 
-    // Check for existing
-    const existing = await reactions.findFirst({
+    // Check for ANY existing reaction from this user on this item
+    const existingReactions = await reactions.list({
       filter: {
         collection: { _eq: payload.collection },
         item_id: { _eq: payload.item_id },
-        reaction_type: { _eq: payload.reaction_type },
         user_created: { _eq: user.value.id },
       },
       fields: [
@@ -387,10 +402,22 @@ export function useReactions() {
         'user_created.avatar',
         'reaction_type.*',
       ],
+      limit: -1,
     });
 
-    if (existing) {
-      return existing as unknown as ReactionWithRelations;
+    // Check if user already has the same reaction type
+    const existingSameType = existingReactions.find(
+      (r) => r.reaction_type === payload.reaction_type ||
+             (typeof r.reaction_type === 'object' && (r.reaction_type as ReactionTypeRecord).id === payload.reaction_type)
+    );
+
+    if (existingSameType) {
+      return existingSameType as unknown as ReactionWithRelations;
+    }
+
+    // Remove any other existing reactions before adding the new one
+    if (existingReactions.length > 0) {
+      await reactions.remove(existingReactions.map((r) => r.id));
     }
 
     const created = await reactions.create(
@@ -411,8 +438,9 @@ export function useReactions() {
       }
     ) as ReactionWithRelations;
 
-    // Send notification
+    // Send notification only for new reactions (not when switching)
     if (
+      existingReactions.length === 0 &&
       options?.notifyOwner &&
       options.ownerUserId &&
       options.ownerUserId !== user.value.id
