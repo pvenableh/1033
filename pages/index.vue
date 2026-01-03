@@ -893,7 +893,7 @@ const communitySpaces = [
 	{
 		icon: 'i-heroicons-sun',
 		name: 'Courtyard Revival',
-		vision: 'Irrigation upgrades, curated seating areas, lush vegetation, and perhaps a fountain—an urban oasis refined.',
+		vision: 'Curated seating areas, lush vegetation, and perhaps a fountain—an urban oasis refined.',
 	},
 ];
 
