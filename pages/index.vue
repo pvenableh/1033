@@ -246,25 +246,29 @@
 								</h2>
 							</div>
 
-							<div class="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1.5fr] md:grid-rows-2 gap-4">
+	<!-- Mobile: 2 column grid -->
+							<div class="grid grid-cols-2 gap-4 md:hidden">
 								<div
 									v-for="(item, index) in lifestyleImages"
 									:key="index"
-									:class="[
-										'bg-black/30 bg-blend-darken flex items-center justify-center opacity-0 gallery-image',
-										item.span,
-									]"
-									:style="
-										item.image
-											? `background-image: url('${item.image}'); background-size: cover; background-position: center;`
-											: ''
-									">
+									class="aspect-square bg-black/30 bg-blend-darken flex items-center justify-center opacity-0 gallery-image bg-cover bg-center"
+									:style="item.image ? `background-image: url('${item.image}');` : ''">
 									<div class="text-center p-4">
 										<UIcon :name="item.icon" class="w-8 h-8 text-cream mx-auto mb-2" />
 										<p class="text-xs text-cream font-medium mb-1">{{ item.title }}</p>
 										<p class="text-[10px] text-cream-alt">{{ item.desc }}</p>
 									</div>
 								</div>
+							</div>
+							<!-- Medium+: Marquee component -->
+							<div class="hidden md:block">
+								<Marquee
+									:images="lifestyleImages.map(item => ({ src: item.image, alt: item.title }))"
+									:pause-on-hover="true"
+									direction="left"
+									:speed="60"
+									:image-height="280"
+									:gap="8" />
 							</div>
 						</div>
 
@@ -834,42 +838,36 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto md:h-full',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
 		icon: 'i-heroicons-heart',
 		title: 'FLAMINGO PARK',
 		desc: 'Tennis, track, outdoor gyms',
-		span: 'aspect-square md:col-start-2 md:row-start-1',
 		image: 'https://admin.1033lenox.com/assets/5a4cdbe6-01e9-4aff-b4ef-fb109012ce95?key=large',
 	},
 	{
 		icon: 'i-heroicons-shopping-bag',
 		title: 'LINCOLN ROAD',
 		desc: 'Weekend brunch & shopping',
-		span: 'aspect-square md:col-start-2 md:row-start-2',
 		image: 'https://admin.1033lenox.com/assets/ac56a2bd-27ca-4621-a262-2685fca8b88f?key=large',
 	},
 	{
 		icon: 'i-heroicons-sparkles',
 		title: 'BAY SUNSET',
 		desc: 'Evening walks on the bay',
-		span: 'aspect-square md:col-start-3 md:row-start-1',
 		image: 'https://admin.1033lenox.com/assets/29f0d3b2-9120-4db8-877f-8406b26cb43e?key=large',
 	},
 	{
 		icon: 'i-lucide-apple',
 		title: 'WHOLE FOODS',
 		desc: 'Daily groceries, 1 block',
-		span: 'aspect-square md:col-start-3 md:row-start-2',
 		image: 'https://admin.1033lenox.com/assets/fcefe508-24ed-45c7-92ed-9d3fae9f9d75?key=large',
 	},
 	{
 		icon: 'i-lucide-tree-palm',
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
-		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto md:h-full',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
 	},
 ];
