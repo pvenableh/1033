@@ -6,13 +6,19 @@
 					v-for="n in [28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]"
 					:key="n"
 					class="spot"
-					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					:class="{
+						occupied: getSpotInfo(n)?.vehicles.length > 0,
+						'user-spot': isUserSpot(n),
+						restricted: !canViewSpotDetails(n)
+					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
+					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -20,13 +26,19 @@
 					v-for="n in [16, 15]"
 					:key="n"
 					class="spot"
-					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					:class="{
+						occupied: getSpotInfo(n)?.vehicles.length > 0,
+						'user-spot': isUserSpot(n),
+						restricted: !canViewSpotDetails(n)
+					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
+					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -34,13 +46,19 @@
 					v-for="n in [13, 14]"
 					:key="n"
 					class="spot"
-					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					:class="{
+						occupied: getSpotInfo(n)?.vehicles.length > 0,
+						'user-spot': isUserSpot(n),
+						restricted: !canViewSpotDetails(n)
+					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
+					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -48,13 +66,19 @@
 					v-for="n in [12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1]"
 					:key="n"
 					class="spot"
-					:class="{occupied: getSpotInfo(n)?.vehicles.length > 0}"
+					:class="{
+						occupied: getSpotInfo(n)?.vehicles.length > 0,
+						'user-spot': isUserSpot(n),
+						restricted: !canViewSpotDetails(n)
+					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
 					<div class="spot__details">
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
+					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="center-area">
@@ -180,12 +204,44 @@
 import gsap from 'gsap';
 const unitsCollection = useDirectusItems('units', {requireAuth: false});
 import {onClickOutside} from '@vueuse/core';
+
+const {user} = useDirectusAuth();
+const {isBoardMember} = useRoles();
+
 const selectedSpot = ref(null);
 const isSpotDetailsVisible = ref(false);
 const spotDetailsRef = ref(null);
 const containerRef = ref(null);
 const vehicleImageModal = ref(false);
 const vehicleImage = ref('');
+
+// Get the current user's parking spot number(s)
+const userParkingSpots = computed(() => {
+	if (!user.value?.person_id) return [];
+
+	// Find units where this person is linked
+	const userUnits = units.filter((unit) => {
+		if (!unit.people) return false;
+		return unit.people.some((p) => p?.people_id?.id === user.value.person_id);
+	});
+
+	// Get parking spot numbers for user's units
+	return userUnits.map((u) => u.parking_spot).filter(Boolean);
+});
+
+// Check if user can view a specific parking spot's details
+const canViewSpotDetails = (spotNumber) => {
+	// Board members and above can view all spots
+	if (isBoardMember.value) return true;
+
+	// Members can only view their own spot
+	return userParkingSpots.value.includes(spotNumber?.toString());
+};
+
+// Check if a spot belongs to the current user
+const isUserSpot = (spotNumber) => {
+	return userParkingSpots.value.includes(spotNumber?.toString());
+};
 
 const showVehicleImage = (image) => {
 	vehicleImage.value = image;
@@ -206,7 +262,7 @@ watch(isSwipingDown, (swiping) => {
 
 const units = await unitsCollection.list({
 	fields: [
-		'*,vehicles.make,vehicles.model,vehicles.license_plate,vehicles.color,vehicles.image,vehicles.category,people.people_id.status,people.people_id.first_name,people.people_id.last_name,people.people_id.category,people.people_id.phone,people.people_id.email',
+		'*,vehicles.make,vehicles.model,vehicles.license_plate,vehicles.color,vehicles.image,vehicles.category,people.people_id.id,people.people_id.status,people.people_id.first_name,people.people_id.last_name,people.people_id.category,people.people_id.phone,people.people_id.email',
 	],
 	filter: {
 		status: {
@@ -254,8 +310,20 @@ const getSpotInfo = computed(() => (spotNumber) => {
 });
 
 const tl = gsap.timeline({paused: true});
+const toast = useToast();
 
 const showSpotDetails = async (n) => {
+	// Check if user can view this spot's details
+	if (!canViewSpotDetails(n)) {
+		toast.add({
+			icon: 'i-heroicons-lock-closed',
+			title: 'Access Restricted',
+			description: 'You can only view details of your own parking spot',
+			color: 'amber',
+		});
+		return;
+	}
+
 	selectedSpot.value = getSpotInfo.value(n); // Set selected spot data
 	isSpotDetailsVisible.value = true;
 
@@ -384,6 +452,32 @@ onClickOutside(spotDetailsRef, () => {
 
 .spot.occupied {
 	@apply bg-gray-200 dark:text-black;
+}
+
+.spot.user-spot {
+	@apply ring-2 ring-amber-400 ring-inset;
+
+	.spot__number {
+		@apply bg-amber-500;
+	}
+}
+
+.spot.restricted {
+	@apply opacity-60 cursor-not-allowed;
+}
+
+.spot__lock {
+	@apply absolute right-1 top-1 w-3 h-3 text-gray-400;
+	@media (min-width: theme('screens.lg')) {
+		@apply right-2 top-auto bottom-2;
+	}
+}
+
+.spot__user-indicator {
+	@apply absolute right-1 top-1 w-3 h-3 text-amber-500;
+	@media (min-width: theme('screens.lg')) {
+		@apply right-2 top-auto bottom-2;
+	}
 }
 
 .center-area {

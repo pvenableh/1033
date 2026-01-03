@@ -91,6 +91,19 @@
 					</a>
 				</li>
 
+				<!-- Projects -->
+				<li>
+					<a
+						href="/projects"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/projects', canAccessApproved, 'Projects')">
+						<UIcon name="i-heroicons-folder" class="w-4 h-4" />
+						Projects
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- Channels -->
 				<li>
 					<a
@@ -447,6 +460,9 @@ onClickOutside(navDrawerRef, () => {
 	}
 	li:nth-of-type(14) {
 		transition-delay: 0.24s;
+	}
+	li:nth-of-type(15) {
+		transition-delay: 0.255s;
 	}
 }
 
