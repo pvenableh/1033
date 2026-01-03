@@ -156,7 +156,7 @@ async function fetchProjects() {
       method: 'POST',
       body: {
         collection: 'projects',
-        operation: 'search',
+        operation: 'list',
         query: {
           fields: [
             'id',
