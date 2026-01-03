@@ -4,7 +4,7 @@
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-16 lg:px-0 lg:w-auto lg:items-end">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
@@ -243,7 +243,7 @@
 								</h2>
 							</div>
 
-							<div class="grid grid-cols-2 gap-4">
+							<div class="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4">
 								<div
 									v-for="(item, index) in lifestyleImages"
 									:key="index"
@@ -470,7 +470,7 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">08</span>
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">06</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Value</span>
 					</div>
 					<div class="content-main max-w-2xl">
@@ -502,7 +502,7 @@
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">
-						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">06</span>
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">07</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Amenities</span>
 					</div>
 					<div class="content-main max-w-4xl">
@@ -547,6 +547,60 @@
 				</div>
 			</div>
 		</section>
+
+		<!-- Community Engagement Section -->
+		<section ref="communityRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
+			<div class="max-w-6xl mx-auto">
+				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
+					<div class="content-label flex flex-col gap-2 opacity-0">
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">08</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Community</span>
+					</div>
+					<div class="content-main max-w-4xl">
+						<h2
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							Shape What's Next
+						</h2>
+						<p class="section-body text-[1.0625rem] leading-relaxed t-text-secondary mb-8 opacity-0">
+							Our shared spaces are ready for reimagining. For the right residents—those with vision, expertise,
+							and the desire to leave their mark—this is an opportunity to help craft something exceptional.
+						</p>
+
+						<div class="community-spaces grid grid-cols-1 sm:grid-cols-2 gap-6 my-8">
+							<div
+								v-for="(space, index) in communitySpaces"
+								:key="index"
+								class="community-space-item p-6 t-bg-subtle opacity-0">
+								<div class="flex items-start gap-4">
+									<div class="community-icon w-8 h-8 flex-shrink-0 t-text-accent-tertiary">
+										<UIcon :name="space.icon" class="w-8 h-8" />
+									</div>
+									<div>
+										<p class="text-sm font-medium t-text mb-2">{{ space.name }}</p>
+										<p class="text-[0.875rem] leading-relaxed t-text-secondary">{{ space.vision }}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div class="community-cta t-bg-subtle p-6 my-8 opacity-0">
+							<p class="text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Get Involved</p>
+							<p class="text-[0.9375rem] t-text-secondary leading-relaxed">
+								We welcome professionals in design, architecture, fitness, hospitality, and urban planning
+								who want to contribute to building a more thoughtful community. Your expertise could help
+								shape spaces that serve residents for decades to come.
+							</p>
+						</div>
+
+						<p
+							class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+							The canvas is ready. The community awaits.
+						</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<!-- Pet Section -->
 		<!-- <section ref="petsRef" class="section py-24 lg:py-32 px-6 lg:px-16 bg-cream">
 			<div class="max-w-6xl mx-auto">
@@ -695,6 +749,7 @@ const turnkeyRef = ref(null);
 const securityRef = ref(null);
 const amenitiesRef = ref(null);
 const investmentRef = ref(null);
+const communityRef = ref(null);
 const petsRef = ref(null);
 const galleryRef = ref(null);
 const ctaRef = ref(null);
@@ -776,43 +831,66 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'col-span-2 md:col-span-1 aspect-[4/3] md:row-span-2',
+		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3]',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
 		icon: 'i-heroicons-heart',
 		title: 'FLAMINGO PARK',
 		desc: 'Tennis, track, outdoor gyms',
-		span: 'aspect-square',
+		span: 'aspect-square md:col-start-2 md:row-start-1',
 		image: 'https://admin.1033lenox.com/assets/5a4cdbe6-01e9-4aff-b4ef-fb109012ce95?key=large',
 	},
 	{
 		icon: 'i-heroicons-shopping-bag',
 		title: 'LINCOLN ROAD',
 		desc: 'Weekend brunch & shopping',
-		span: 'aspect-square',
+		span: 'aspect-square md:col-start-2 md:row-start-2',
 		image: 'https://admin.1033lenox.com/assets/ac56a2bd-27ca-4621-a262-2685fca8b88f?key=large',
 	},
 	{
 		icon: 'i-heroicons-sparkles',
 		title: 'BAY SUNSET',
 		desc: 'Evening walks on the bay',
-		span: 'aspect-square',
+		span: 'aspect-square md:col-start-3 md:row-start-1',
 		image: 'https://admin.1033lenox.com/assets/29f0d3b2-9120-4db8-877f-8406b26cb43e?key=large',
 	},
 	{
 		icon: 'i-lucide-apple',
 		title: 'WHOLE FOODS',
 		desc: 'Daily groceries, 1 block',
-		span: 'aspect-square',
+		span: 'aspect-square md:col-start-3 md:row-start-2',
 		image: 'https://admin.1033lenox.com/assets/fcefe508-24ed-45c7-92ed-9d3fae9f9d75?key=large',
 	},
 	{
 		icon: 'i-lucide-tree-palm',
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
-		span: 'col-span-2 aspect-[4/3]',
+		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3]',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
+	},
+];
+
+const communitySpaces = [
+	{
+		icon: 'i-heroicons-building-library',
+		name: 'The Clubhouse',
+		vision: 'A blank canvas awaiting transformation—envision a modern fitness studio paired with a focused co-working space.',
+	},
+	{
+		icon: 'i-heroicons-archive-box',
+		name: 'Storage Evolution',
+		vision: 'Climate-controlled personal storage with premium lockers—secure space for what matters.',
+	},
+	{
+		icon: 'i-heroicons-sparkles',
+		name: 'Adventure Room',
+		vision: 'Dedicated secure storage for bikes, paddle boards, and beach gear—supporting the active lifestyle.',
+	},
+	{
+		icon: 'i-heroicons-sun',
+		name: 'Courtyard Revival',
+		vision: 'Irrigation upgrades, curated seating areas, lush vegetation, and perhaps a fountain—an urban oasis refined.',
 	},
 ];
 
@@ -972,6 +1050,16 @@ onMounted(() => {
 			'.section-title',
 			'.section-image',
 			'.amenity-item',
+			'.section-tagline',
+		]);
+
+		// Community section
+		animateSection(communityRef, [
+			'.content-label',
+			'.section-title',
+			'.section-body',
+			'.community-space-item',
+			'.community-cta',
 			'.section-tagline',
 		]);
 
