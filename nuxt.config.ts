@@ -24,12 +24,8 @@ export default defineNuxtConfig({
 					content: 'width=device-width, initial-scale=1.0, maximum-scale=5, viewport-fit=cover',
 				},
 				{
-					name: 'apple-mobile-web-app-capable',
+					name: 'mobile-web-app-capable',
 					content: 'yes',
-				},
-				{
-					name: 'apple-mobile-web-app-status-bar-style',
-					content: 'black-translucent',
 				},
 			],
 			link: [
