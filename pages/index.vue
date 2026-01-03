@@ -589,9 +589,9 @@
 						<div class="community-cta t-bg-subtle p-6 my-8 opacity-0">
 							<p class="text-sm tracking-[0.15em] uppercase t-text-accent-tertiary mb-4">Get Involved</p>
 							<p class="text-[0.9375rem] t-text-secondary leading-relaxed">
-								We welcome professionals who value a local, active lifestyle and want to be part of a
-								residential community—not just a place to sleep. If you're looking for neighbors who
-								share your commitment to thoughtful living, this is your place.
+								We welcome professionals who value a local, active lifestyle and want to contribute to
+								building a more thoughtful community. Your energy and vision could help shape spaces
+								that serve residents for decades to come.
 							</p>
 						</div>
 
