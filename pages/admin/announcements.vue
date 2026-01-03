@@ -8,23 +8,23 @@ definePageMeta({
 
 const toast = useToast();
 const { isAdmin, isBoardMember } = useRoles();
-const { hasPermission } = useUserPermissions();
+const { canManage } = useUserPermissions();
 
-// Check if user has access
+// Check if user has access - uses announcements_approved permission
 const hasAccess = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'read');
+  return canManage('announcements');
 });
 
 const canCreate = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'create');
+  return canManage('announcements');
 });
 
 const canEdit = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'update');
+  return canManage('announcements');
 });
 
 const canDelete = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'delete');
+  return canManage('announcements');
 });
 
 // State

@@ -20,23 +20,23 @@ interface Notice {
 
 const toast = useToast();
 const { isAdmin, isBoardMember } = useRoles();
-const { hasPermission } = useUserPermissions();
+const { canManage } = useUserPermissions();
 
-// Check if user has access
+// Check if user has access - uses notices_approved permission
 const hasAccess = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'read');
+  return canManage('notices');
 });
 
 const canCreate = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'create');
+  return canManage('notices');
 });
 
 const canEdit = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'update');
+  return canManage('notices');
 });
 
 const canDelete = computed(() => {
-  return isAdmin.value || isBoardMember.value || hasPermission('announcements', 'delete');
+  return canManage('notices');
 });
 
 // State
