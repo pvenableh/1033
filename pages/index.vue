@@ -19,8 +19,8 @@
 
 					<!-- Mobile: compact location widget -->
 					<WidgetsLocation variant="standard" :compact="true" class="md:hidden" />
-					<!-- Medium+: detailed location widget -->
-					<WidgetsLocation variant="detailed" :compact="false" class="hidden md:flex" />
+					<!-- Medium+: narrow location widget (single column, keeps widget compact) -->
+					<WidgetsLocation variant="narrow" :compact="false" :maxLocations="4" class="hidden md:flex" />
 					<WidgetsAnnouncements variant="standard" :compact="true" />
 					<WidgetsBuilding variant="standard" :compact="true" />
 				</div>
@@ -246,7 +246,7 @@
 								</h2>
 							</div>
 
-							<div class="grid grid-cols-2 md:grid-cols-4 md:grid-rows-2 gap-4">
+							<div class="grid grid-cols-2 md:grid-cols-[1.5fr_1fr_1fr_1.5fr] md:grid-rows-2 gap-4">
 								<div
 									v-for="(item, index) in lifestyleImages"
 									:key="index"
@@ -834,7 +834,7 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto',
+		span: 'col-span-2 md:col-span-1 md:col-start-1 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto md:h-full',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
@@ -869,7 +869,7 @@ const lifestyleImages = [
 		icon: 'i-lucide-tree-palm',
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
-		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto',
+		span: 'col-span-2 md:col-span-1 md:col-start-4 md:row-start-1 md:row-span-2 aspect-[4/3] md:aspect-auto md:h-full',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
 	},
 ];
