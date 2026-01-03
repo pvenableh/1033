@@ -261,14 +261,15 @@
 								</div>
 							</div>
 							<!-- Medium+: Marquee component -->
-							<div class="hidden md:block">
+							<div class="hidden md:block overflow-hidden">
 								<Marquee
-									:images="lifestyleImages.map(item => ({ src: item.image, alt: item.title }))"
+									:images="lifestyleImages.map(item => ({ src: item.image, alt: item.title, caption: item.title, description: item.desc }))"
 									:pause-on-hover="true"
 									direction="left"
 									:speed="60"
 									:image-height="280"
-									:gap="8" />
+									:gap="8"
+									:show-captions="true" />
 							</div>
 						</div>
 

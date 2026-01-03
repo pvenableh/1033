@@ -1,8 +1,11 @@
 <template>
 	<LayoutSidePanel
-		v-model="isOpen"
+		:model-value="isOpen"
+		@update:model-value="handlePanelToggle"
 		title="Notifications"
 		@closed="handleClosed">
+		<!-- Empty trigger slot - Bell.vue provides the trigger -->
+		<template #trigger></template>
 		<template #header>
 			<div class="flex items-center justify-between w-full">
 				<h2 class="font-semibold text-gray-900 dark:text-white">Notifications</h2>
@@ -265,5 +268,13 @@ const handleAnnouncementClick = (announcement: Announcement) => {
 
 const handleClosed = () => {
 	// Panel was closed
+};
+
+const handlePanelToggle = (value: boolean) => {
+	if (value) {
+		// Panel should open - but this is handled by Bell.vue
+	} else {
+		closePanel();
+	}
 };
 </script>
