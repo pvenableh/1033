@@ -22,7 +22,10 @@
 						<div class="flex flex-col items-center md:items-end text-center md:text-right">
 							<div class="mb-6">
 								<div class="w-20 h-20 rounded-full overflow-hidden border-2 t-border-accent mx-auto md:ml-auto md:mr-0">
-									<img :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" class="w-full h-full object-cover" />
+									<img
+										:src="avatar"
+										:alt="user?.first_name + ' ' + user?.last_name"
+										class="w-full h-full object-cover" />
 								</div>
 								<p class="font-serif text-lg t-text mt-3">{{ user?.first_name }} {{ user?.last_name }}</p>
 							</div>
@@ -32,11 +35,13 @@
 									:key="index"
 									:class="[
 										'nav-item flex items-center justify-center md:justify-end gap-2 py-3 cursor-pointer transition-all duration-300',
-										panel === item.id ? 't-text-accent-tertiary' : 't-text-tertiary hover:t-text'
+										panel === item.id ? 't-text-accent-tertiary' : 't-text-tertiary hover:t-text',
 									]"
 									@click.prevent="changePanel(item.id)">
 									<span class="text-xs tracking-[0.15em] uppercase">{{ item.label }}</span>
-									<span class="w-1.5 h-1.5 rounded-full transition-all duration-300" :class="panel === item.id ? 't-bg-accent' : 'bg-transparent'"></span>
+									<span
+										class="w-1.5 h-1.5 rounded-full transition-all duration-300"
+										:class="panel === item.id ? 't-bg-accent' : 'bg-transparent'"></span>
 								</a>
 								<div class="mt-4 pt-4 border-t t-border-divider">
 									<AccountLogout v-if="user" class="w-full flex justify-center md:justify-end" />
@@ -65,15 +70,6 @@
 						</div>
 					</div>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 t-bg-alt border-t t-border-divider">
-			<div class="max-w-5xl mx-auto text-center">
-				<p class="font-serif text-sm italic t-text-tertiary">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>
@@ -121,11 +117,7 @@ let ctx: gsap.Context;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
 		gsap.fromTo(
 			'.account-nav',
 			{opacity: 0, x: -20},
