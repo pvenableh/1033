@@ -54,11 +54,13 @@ export default defineEventHandler(async (event) => {
   // Determine which client to use based on operation and authentication
   // Read operations can use admin client for public data
   // Write operations require user authentication for permission-aware operations
+  // System collections (directus_*) require user's client for proper context
   const isWriteOperation = ['create', 'update', 'delete'].includes(body.operation);
+  const isSystemCollection = body.collection?.startsWith('directus_');
 
   let client;
-  if (isWriteOperation && session?.user) {
-    // Use user's authenticated client for write operations (with auto token refresh)
+  if ((isWriteOperation || isSystemCollection) && session?.user) {
+    // Use user's authenticated client for write operations and system collections (with auto token refresh)
     try {
       client = await getUserDirectus(event);
     } catch (error: any) {
@@ -72,8 +74,15 @@ export default defineEventHandler(async (event) => {
       }
       throw error;
     }
+  } else if (isSystemCollection && !session?.user) {
+    // System collections require authentication
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Authentication required for system collections',
+    });
   } else {
-    // Use admin client for read operations
+    // Use admin client for read operations on regular collections
     client = useDirectusAdmin();
   }
 
