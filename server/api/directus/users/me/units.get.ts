@@ -20,7 +20,9 @@ export default defineEventHandler(async (event) => {
 
   const userId = session.user.id;
   // Get person_id directly from session (stored during login)
-  const personId = session.user.person_id;
+  // Handle case where person_id might be an object with an id property
+  const rawPersonId = session.user.person_id;
+  const personId = typeof rawPersonId === 'object' && rawPersonId !== null ? rawPersonId.id : rawPersonId;
 
   console.log('units.get: userId =', userId, 'personId =', personId);
 
