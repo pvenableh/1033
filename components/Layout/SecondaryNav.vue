@@ -93,7 +93,7 @@
 								to="/projects"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/projects')}">
-								<UIcon name="i-heroicons-folder" class="w-5 h-5" />
+								<UIcon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
 								<span class="hidden">Projects</span>
 							</nuxt-link>
 						</UTooltip>

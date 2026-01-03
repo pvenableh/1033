@@ -1,14 +1,14 @@
 <template>
-	<div class="account-page bg-cream min-h-screen">
+	<div class="account-page t-bg min-h-screen">
 		<!-- Hero Section -->
-		<section class="py-12 lg:py-16 px-6 lg:px-16 bg-cream-alt">
+		<section class="py-12 lg:py-16 px-6 lg:px-16 t-bg-alt">
 			<div class="max-w-5xl mx-auto">
 				<div class="page-header text-center opacity-0">
-					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resident Portal</p>
-					<h1 class="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<p class="text-xs tracking-[0.3em] uppercase mb-4 t-text-accent-tertiary">Resident Portal</p>
+					<h1 class="font-serif text-[clamp(2rem,5vw,3.5rem)] font-light tracking-tight leading-tight mb-6 t-text">
 						My Account
 					</h1>
-					<div class="w-16 h-px bg-gold mx-auto"></div>
+					<div class="w-16 h-px t-bg-accent mx-auto"></div>
 				</div>
 			</div>
 		</section>
@@ -21,24 +21,24 @@
 					<div class="account-nav md:w-56 flex-shrink-0 opacity-0">
 						<div class="flex flex-col items-center md:items-end text-center md:text-right">
 							<div class="mb-6">
-								<div class="w-20 h-20 rounded-full overflow-hidden border-2 border-gold mx-auto md:ml-auto md:mr-0">
+								<div class="w-20 h-20 rounded-full overflow-hidden border-2 t-border-accent mx-auto md:ml-auto md:mr-0">
 									<img :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" class="w-full h-full object-cover" />
 								</div>
-								<p class="font-serif text-lg text-gray-800 mt-3">{{ user?.first_name }} {{ user?.last_name }}</p>
+								<p class="font-serif text-lg t-text mt-3">{{ user?.first_name }} {{ user?.last_name }}</p>
 							</div>
-							<nav class="w-full border-t border-divider pt-4 md:border-t-0 md:pt-0">
+							<nav class="w-full border-t t-border-divider pt-4 md:border-t-0 md:pt-0">
 								<a
 									v-for="(item, index) in navItems"
 									:key="index"
 									:class="[
 										'nav-item flex items-center justify-center md:justify-end gap-2 py-3 cursor-pointer transition-all duration-300',
-										panel === item.id ? 'text-gold-dark' : 'text-gray-500 hover:text-gray-800'
+										panel === item.id ? 't-text-accent-tertiary' : 't-text-tertiary hover:t-text'
 									]"
 									@click.prevent="changePanel(item.id)">
 									<span class="text-xs tracking-[0.15em] uppercase">{{ item.label }}</span>
-									<span class="w-1.5 h-1.5 rounded-full transition-all duration-300" :class="panel === item.id ? 'bg-gold' : 'bg-transparent'"></span>
+									<span class="w-1.5 h-1.5 rounded-full transition-all duration-300" :class="panel === item.id ? 't-bg-accent' : 'bg-transparent'"></span>
 								</a>
-								<div class="mt-4 pt-4 border-t border-divider">
+								<div class="mt-4 pt-4 border-t t-border-divider">
 									<AccountLogout v-if="user" class="w-full flex justify-center md:justify-end" />
 								</div>
 							</nav>
@@ -47,7 +47,7 @@
 
 					<!-- Content Panels -->
 					<div class="flex-1 account-content opacity-0">
-						<div class="bg-white border border-divider p-6 lg:p-8">
+						<div class="t-bg-elevated border t-border-divider p-6 lg:p-8">
 							<transition-group name="fade" mode="out-in">
 								<div v-if="panel === 1" key="1">
 									<AccountProfile />
@@ -69,9 +69,9 @@
 		</section>
 
 		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
+		<section class="py-12 px-6 lg:px-16 t-bg-alt border-t t-border-divider">
 			<div class="max-w-5xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
+				<p class="font-serif text-sm italic t-text-tertiary">
 					1033 Lenox Avenue · Miami Beach, FL 33139
 				</p>
 			</div>
