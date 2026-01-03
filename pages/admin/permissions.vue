@@ -43,7 +43,7 @@ async function fetchPeople() {
       method: 'POST',
       body: {
         collection: 'people',
-        operation: 'search',
+        operation: 'list',
         query: {
           fields: ['id', 'first_name', 'last_name', 'email', 'category', 'is_owner', 'is_resident', 'permissions.*'],
           filter: {

@@ -117,7 +117,7 @@ async function fetchProjects() {
       method: 'POST',
       body: {
         collection: 'projects',
-        operation: 'search',
+        operation: 'list',
         query: {
           fields: [
             'id',
@@ -162,7 +162,7 @@ async function fetchCategories() {
       method: 'POST',
       body: {
         collection: 'project_categories',
-        operation: 'search',
+        operation: 'list',
         query: {
           fields: ['id', 'name', 'color', 'icon'],
           filter: { status: { _eq: 'published' } },

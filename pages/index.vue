@@ -4,7 +4,7 @@
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-16 lg:px-0 lg:w-auto">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 px-4 lg:bottom-auto lg:top-5 lg:left-auto lg:right-16 lg:px-0 lg:w-auto lg:items-end">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
@@ -210,7 +210,7 @@
 						</div>
 
 						<div
-							class="walk-times grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 py-12 my-8 border-y t-border-divider">
+							class="walk-times grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 py-12 my-8 border-y t-border-divider">
 							<div v-for="(item, index) in walkTimes" :key="index" class="walk-item text-center opacity-0">
 								<span class="t-heading text-5xl font-light leading-none block t-text">{{ item.minutes }}</span>
 								<span class="text-xs tracking-wide uppercase t-text-accent-tertiary block mb-1">min</span>
@@ -243,7 +243,7 @@
 								</h2>
 							</div>
 
-							<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+							<div class="grid grid-cols-2 gap-4">
 								<div
 									v-for="(item, index) in lifestyleImages"
 									:key="index"
@@ -776,7 +776,7 @@ const lifestyleImages = [
 		icon: 'i-heroicons-sun',
 		title: 'BEACH MORNING',
 		desc: 'Sunrise run on the sand',
-		span: 'col-span-2 aspect-[4/3] md:row-span-2',
+		span: 'col-span-2 md:col-span-1 aspect-[4/3] md:row-span-2',
 		image: 'https://admin.1033lenox.com/assets/2713f5c4-2799-41b5-bf4c-fac49c1e002c?key=large',
 	},
 	{
@@ -811,7 +811,7 @@ const lifestyleImages = [
 		icon: 'i-lucide-tree-palm',
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
-		span: 'col-span-2 aspect-[4/3] md:row-span-2',
+		span: 'col-span-2 aspect-[4/3]',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
 	},
 ];
@@ -1133,6 +1133,12 @@ useHead({
 .hero-bg-container {
 	position: fixed;
 	inset: 0;
+}
+
+/* All sections after hero need proper stacking context */
+.section {
+	position: relative;
+	z-index: 10;
 }
 
 /* Smooth scroll behavior */
