@@ -638,7 +638,7 @@
 
 		<!-- Investment Section -->
 
-		<AvailableListings class="t-bg-alt" />
+		<AvailableListings />
 		<Marquee
 			v-if="marqueeImages.length"
 			:images="marqueeImages"
