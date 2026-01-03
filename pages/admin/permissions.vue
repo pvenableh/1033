@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import type { People, UserPermission } from '~/types/directus';
-import { PERMISSION_CATEGORIES, PERMISSION_CATEGORY_META, CRUD_ACTIONS, APPROVAL_CATEGORIES, APPROVAL_CATEGORY_META } from '~/composables/useUserPermissions';
+import {
+  PERMISSION_CATEGORIES,
+  PERMISSION_CATEGORY_META,
+  CRUD_ACTIONS,
+  APPROVAL_CATEGORIES,
+  APPROVAL_CATEGORY_META,
+  MANAGEMENT_CATEGORIES,
+  MANAGEMENT_CATEGORY_META,
+} from '~/composables/useUserPermissions';
 
 definePageMeta({
   layout: 'default',
@@ -91,6 +99,10 @@ function openPermissionModal(person: People) {
     // Initialize approval permissions
     for (const category of Object.values(APPROVAL_CATEGORIES)) {
       (permissionForm.value as any)[`${category}_approve`] = false;
+    }
+    // Initialize management permissions
+    for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+      (permissionForm.value as any)[`${category}_approved`] = false;
     }
   }
 
@@ -189,6 +201,52 @@ function toggleAllCategory(category: string, value: boolean) {
   }
 }
 
+function toggleAllApprovals(value: boolean) {
+  for (const category of Object.values(APPROVAL_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approve`] = value;
+  }
+}
+
+function toggleAllManagement(value: boolean) {
+  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approved`] = value;
+  }
+}
+
+function grantAllPermissions() {
+  // Grant all CRUD permissions
+  for (const category of Object.values(PERMISSION_CATEGORIES)) {
+    for (const action of Object.values(CRUD_ACTIONS)) {
+      (permissionForm.value as any)[`${category}_${action}`] = true;
+    }
+  }
+  // Grant all approval permissions
+  for (const category of Object.values(APPROVAL_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approve`] = true;
+  }
+  // Grant all management permissions
+  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approved`] = true;
+  }
+}
+
+function clearAllPermissions() {
+  // Clear all CRUD permissions
+  for (const category of Object.values(PERMISSION_CATEGORIES)) {
+    for (const action of Object.values(CRUD_ACTIONS)) {
+      (permissionForm.value as any)[`${category}_${action}`] = false;
+    }
+  }
+  // Clear all approval permissions
+  for (const category of Object.values(APPROVAL_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approve`] = false;
+  }
+  // Clear all management permissions
+  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+    (permissionForm.value as any)[`${category}_approved`] = false;
+  }
+}
+
 function hasAnyPermission(person: People): boolean {
   const perm = person.permissions?.[0] as UserPermission | undefined;
   if (!perm || typeof perm !== 'object') return false;
@@ -204,6 +262,12 @@ function hasAnyPermission(person: People): boolean {
   // Check approval permissions
   for (const category of Object.values(APPROVAL_CATEGORIES)) {
     if ((perm as any)[`${category}_approve`] === true) {
+      return true;
+    }
+  }
+  // Check management permissions
+  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+    if ((perm as any)[`${category}_approved`] === true) {
       return true;
     }
   }
@@ -226,6 +290,12 @@ function getPermissionCount(person: People): number {
   // Count approval permissions
   for (const category of Object.values(APPROVAL_CATEGORIES)) {
     if ((perm as any)[`${category}_approve`] === true) {
+      count++;
+    }
+  }
+  // Count management permissions
+  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+    if ((perm as any)[`${category}_approved`] === true) {
       count++;
     }
   }
@@ -388,11 +458,83 @@ onMounted(() => {
           </template>
 
           <div class="space-y-6 max-h-[60vh] overflow-y-auto">
+            <!-- Quick Actions -->
+            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions</span>
+              <div class="flex gap-2">
+                <UButton
+                  size="sm"
+                  color="green"
+                  variant="soft"
+                  icon="i-heroicons-check-circle"
+                  @click="grantAllPermissions"
+                >
+                  Grant All
+                </UButton>
+                <UButton
+                  size="sm"
+                  color="gray"
+                  variant="soft"
+                  icon="i-heroicons-x-circle"
+                  @click="clearAllPermissions"
+                >
+                  Clear All
+                </UButton>
+              </div>
+            </div>
+
+            <!-- Management Permissions Section -->
+            <div class="border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-blue-600" />
+                  <span class="font-medium text-blue-800 dark:text-blue-200">Management Permissions</span>
+                </div>
+                <div class="flex gap-2">
+                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllManagement(true)">
+                    All
+                  </UButton>
+                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllManagement(false)">
+                    None
+                  </UButton>
+                </div>
+              </div>
+              <p class="text-xs text-blue-700 dark:text-blue-300 mb-4">
+                Allow this user to create and manage notices or email announcements.
+              </p>
+              <div class="grid grid-cols-2 gap-4">
+                <div
+                  v-for="category in Object.values(MANAGEMENT_CATEGORIES)"
+                  :key="category"
+                  class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
+                >
+                  <UIcon :name="MANAGEMENT_CATEGORY_META[category].icon" class="w-5 h-5 text-blue-600" />
+                  <div class="flex-1">
+                    <UCheckbox
+                      v-model="(permissionForm as any)[`${category}_approved`]"
+                      :label="MANAGEMENT_CATEGORY_META[category].label"
+                    />
+                    <p class="text-xs text-gray-500 ml-6">{{ MANAGEMENT_CATEGORY_META[category].description }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- Approval Permissions Section -->
             <div class="border-2 border-amber-200 dark:border-amber-800 rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
-              <div class="flex items-center gap-2 mb-3">
-                <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
-                <span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-2">
+                  <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
+                  <span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
+                </div>
+                <div class="flex gap-2">
+                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllApprovals(true)">
+                    All
+                  </UButton>
+                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllApprovals(false)">
+                    None
+                  </UButton>
+                </div>
               </div>
               <p class="text-xs text-amber-700 dark:text-amber-300 mb-4">
                 Allow this user to approve member submissions (pets, vehicles, leases).
