@@ -1,5 +1,5 @@
 <template>
-	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-section-alt">
+	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 		<div class="max-w-6xl mx-auto">
 			<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 				<div class="content-label flex flex-col gap-2 opacity-0">
@@ -93,18 +93,18 @@ onMounted(() => {
 			elements.forEach((el, elIndex) => {
 				gsap.fromTo(
 					el,
-					{opacity: 0, y: 30},
+					{opacity: 0, y: 20},
 					{
 						opacity: 1,
 						y: 0,
-						duration: 0.8,
-						ease: 'power3.out',
+						duration: 0.5,
+						ease: 'power2.out',
 						scrollTrigger: {
 							trigger: el,
-							start: 'top 85%',
+							start: 'top 90%',
 							toggleActions: 'play none none none',
 						},
-						delay: elIndex * 0.1,
+						delay: elIndex * 0.03,
 					}
 				);
 			});
