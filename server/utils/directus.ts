@@ -89,6 +89,10 @@ export function useDirectusAdmin() {
     throw new Error('DIRECTUS_URL is not configured');
   }
 
+  if (!token) {
+    throw new Error('DIRECTUS_SERVER_TOKEN is not configured. Admin API access requires a valid static token.');
+  }
+
   return createDirectus(url)
     .with(rest())
     .with(staticToken(token));
