@@ -97,6 +97,7 @@ const trackClass = computed(() => [
 
 .marquee-horizontal-container {
 	width: 100%;
+	max-width: 100%;
 }
 
 .marquee-vertical-container {
