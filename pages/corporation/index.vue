@@ -5,7 +5,8 @@
 			<div class="max-w-4xl mx-auto">
 				<div class="page-header text-center opacity-0">
 					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Official Records</p>
-					<h1 class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<h1
+						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
 						Corporate Documents
 					</h1>
 					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
@@ -27,11 +28,15 @@
 						target="_blank"
 						class="document-card group block bg-white p-6 lg:p-8 border border-divider hover:border-gold transition-all duration-300 opacity-0">
 						<div class="flex items-start gap-4">
-							<div class="flex-shrink-0 w-12 h-12 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
-								<UIcon name="i-heroicons-document-arrow-down" class="w-6 h-6 text-gray-400 group-hover:text-white transition-colors duration-300" />
+							<div
+								class="flex-shrink-0 w-12 h-12 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
+								<UIcon
+									name="i-heroicons-document-arrow-down"
+									class="w-6 h-6 text-gray-400 group-hover:text-white transition-colors duration-300" />
 							</div>
 							<div class="flex-1">
-								<h3 class="font-serif text-lg font-normal text-gray-800 leading-snug mb-2 group-hover:text-gold-dark transition-colors duration-300">
+								<h3
+									class="font-serif text-lg font-normal text-gray-800 leading-snug mb-2 group-hover:text-gold-dark transition-colors duration-300">
 									{{ file.directus_files_id.title }}
 								</h3>
 								<p class="text-xs tracking-[0.15em] uppercase text-gold-dark">
@@ -50,15 +55,6 @@
 					<p class="font-serif text-xl text-gray-600 mb-2">No Documents Available</p>
 					<p class="text-sm text-gray-500">Check back later for updates</p>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
-			<div class="max-w-4xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>
@@ -84,11 +80,7 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
 
 		const cards = document.querySelectorAll('.document-card');
 		cards.forEach((card, index) => {

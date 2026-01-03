@@ -5,7 +5,8 @@
 			<div class="max-w-4xl mx-auto">
 				<div class="page-header text-center opacity-0">
 					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resident Information</p>
-					<h1 class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<h1
+						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
 						Unit {{ params.unit }}
 					</h1>
 					<div class="w-16 h-px bg-gold mx-auto"></div>
@@ -35,7 +36,8 @@
 				<div v-else-if="unitData" class="unit-content opacity-0">
 					<div class="bg-white border border-divider p-8 lg:p-12">
 						<div class="text-center mb-10">
-							<div class="w-20 h-20 mx-auto mb-6 rounded-full bg-cream-alt border-2 border-gold flex items-center justify-center">
+							<div
+								class="w-20 h-20 mx-auto mb-6 rounded-full bg-cream-alt border-2 border-gold flex items-center justify-center">
 								<span class="font-serif text-2xl text-gold-dark">{{ unitData.number }}</span>
 							</div>
 							<h2 class="font-serif text-2xl text-gray-800 mb-2">Unit {{ unitData.number }}</h2>
@@ -50,7 +52,8 @@
 									v-for="(person, index) in unitData.people"
 									:key="index"
 									class="flex items-center gap-4 p-4 bg-cream-alt border border-divider">
-									<div class="w-12 h-12 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0">
+									<div
+										class="w-12 h-12 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0">
 										<UIcon name="i-heroicons-user" class="w-6 h-6 text-gold-dark" />
 									</div>
 									<div class="flex-1">
@@ -89,15 +92,6 @@
 					<p class="font-serif text-xl text-gray-600 mb-2">Unit Not Found</p>
 					<p class="text-sm text-gray-500">The requested unit could not be found</p>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
-			<div class="max-w-4xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>
@@ -142,11 +136,7 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
 		gsap.fromTo(
 			'.unit-content',
 			{opacity: 0, y: 20},

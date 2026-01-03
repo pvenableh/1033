@@ -5,7 +5,8 @@
 			<div class="max-w-5xl mx-auto">
 				<div class="page-header text-center opacity-0">
 					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Governing Documents</p>
-					<h1 class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<h1
+						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
 						By-Laws
 					</h1>
 					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
@@ -52,15 +53,6 @@
 				</div>
 			</div>
 		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
-			<div class="max-w-5xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
-			</div>
-		</section>
 	</div>
 </template>
 
@@ -95,16 +87,8 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
-		gsap.fromTo(
-			'.docs-nav',
-			{opacity: 0, x: -20},
-			{opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
+		gsap.fromTo('.docs-nav', {opacity: 0, x: -20}, {opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4});
 		gsap.fromTo(
 			'.docs-content',
 			{opacity: 0, y: 20},
@@ -125,7 +109,9 @@ onUnmounted(() => {
 }
 
 :deep(.by-laws-content) {
-	h2, h3, h4 {
+	h2,
+	h3,
+	h4 {
 		@apply font-serif font-normal text-gray-800 mt-8 mb-4 first:mt-0;
 	}
 	h2 {
@@ -137,7 +123,8 @@ onUnmounted(() => {
 	p {
 		@apply text-gray-600 leading-relaxed mb-4;
 	}
-	ul, ol {
+	ul,
+	ol {
 		@apply text-gray-600 mb-4 pl-6;
 	}
 	li {

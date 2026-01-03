@@ -5,7 +5,8 @@
 			<div class="max-w-5xl mx-auto">
 				<div class="page-header text-center opacity-0">
 					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Community Guidelines</p>
-					<h1 class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
+					<h1
+						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
 						Rules & Regulations
 					</h1>
 					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
@@ -52,22 +53,11 @@
 									class="font-serif text-2xl font-normal text-gray-800 mb-6 pb-4 border-b border-divider">
 									{{ rule.title }}
 								</h3>
-								<div
-									v-html="rule.description"
-									class="rule-content prose prose-gray max-w-none"></div>
+								<div v-html="rule.description" class="rule-content prose prose-gray max-w-none"></div>
 							</div>
 						</div>
 					</div>
 				</div>
-			</div>
-		</section>
-
-		<!-- Footer Section -->
-		<section class="py-12 px-6 lg:px-16 bg-cream-alt border-t border-divider">
-			<div class="max-w-5xl mx-auto text-center">
-				<p class="font-serif text-sm italic text-gray-500">
-					1033 Lenox Avenue · Miami Beach, FL 33139
-				</p>
 			</div>
 		</section>
 	</div>
@@ -95,16 +85,8 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo(
-			'.page-header',
-			{opacity: 0, y: 30},
-			{opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2}
-		);
-		gsap.fromTo(
-			'.rules-nav',
-			{opacity: 0, x: -20},
-			{opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4}
-		);
+		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
+		gsap.fromTo('.rules-nav', {opacity: 0, x: -20}, {opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4});
 		gsap.fromTo(
 			'.rules-content',
 			{opacity: 0, y: 20},
@@ -145,7 +127,8 @@ onUnmounted(() => {
 }
 
 :deep(.rule-content) {
-	h4, h5 {
+	h4,
+	h5 {
 		@apply font-serif font-normal text-gray-800 mt-6 mb-3;
 	}
 	h4 {
@@ -157,7 +140,8 @@ onUnmounted(() => {
 	p {
 		@apply text-gray-600 leading-relaxed mb-4;
 	}
-	ul, ol {
+	ul,
+	ol {
 		@apply text-gray-600 mb-4 pl-6;
 	}
 	li {
