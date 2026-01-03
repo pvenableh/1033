@@ -2,16 +2,42 @@
  * POST /api/auth/refresh-session
  *
  * Refreshes the current session with fresh user data from Directus.
- * Also refreshes Directus tokens if they are close to expiring.
+ * Also refreshes Directus tokens if they are close to expiring or invalid.
  */
 import { createDirectus, rest, authentication, refresh } from '@directus/sdk';
 import { directusReadMeWithFields } from '~/server/utils/directus';
+
+/**
+ * Helper to refresh Directus tokens
+ */
+async function refreshDirectusTokens(refreshToken: string) {
+  const config = useRuntimeConfig();
+  const directusUrl = config.public.directusUrl || config.public.adminUrl;
+
+  const directus = createDirectus(directusUrl)
+    .with(rest())
+    .with(authentication('json'));
+
+  const authResult = await directus.request(
+    refresh({ mode: 'json', refresh_token: refreshToken })
+  );
+
+  if (!authResult.access_token) {
+    throw new Error('Token refresh failed - no access token returned');
+  }
+
+  return {
+    accessToken: authResult.access_token,
+    refreshToken: authResult.refresh_token || refreshToken,
+    expiresAt: Date.now() + (authResult.expires || 900) * 1000,
+  };
+}
 
 export default defineEventHandler(async (event) => {
   try {
     // Get current session
     const session = await getUserSession(event);
-    const refreshToken = getSessionRefreshToken(session);
+    let refreshToken = getSessionRefreshToken(session);
 
     if (!session?.user || !refreshToken) {
       throw createError({
@@ -24,34 +50,21 @@ export default defineEventHandler(async (event) => {
     let accessToken = getSessionAccessToken(session);
     let expiresAt = (session as any).expiresAt;
 
-    // Check if token needs refresh:
+    // Check if token needs refresh based on expiry time:
     // - If expiresAt is not set (old session without expiry tracking)
     // - Or if token is within 5 minutes of expiring
     // - Or if token is already expired
     const fiveMinutes = 5 * 60 * 1000;
     const now = Date.now();
-    const needsRefresh = !expiresAt || now > expiresAt - fiveMinutes;
+    const needsRefreshByTime = !expiresAt || now > expiresAt - fiveMinutes;
 
-    if (needsRefresh) {
-      console.log('refresh-session: Token needs refresh, expiresAt:', expiresAt, 'now:', now);
-      const config = useRuntimeConfig();
-      const directusUrl = config.public.directusUrl || config.public.adminUrl;
-
+    if (needsRefreshByTime) {
+      console.log('refresh-session: Token needs refresh by time, expiresAt:', expiresAt, 'now:', now);
       try {
-        const directus = createDirectus(directusUrl)
-          .with(rest())
-          .with(authentication('json'));
-
-        const authResult = await directus.request(
-          refresh({ mode: 'json', refresh_token: refreshToken })
-        );
-
-        if (!authResult.access_token) {
-          throw new Error('Token refresh failed');
-        }
-
-        accessToken = authResult.access_token;
-        expiresAt = Date.now() + (authResult.expires || 900) * 1000;
+        const tokens = await refreshDirectusTokens(refreshToken);
+        accessToken = tokens.accessToken;
+        refreshToken = tokens.refreshToken;
+        expiresAt = tokens.expiresAt;
 
         // Update tokens in session immediately
         await setUserSession(event, {
@@ -59,11 +72,12 @@ export default defineEventHandler(async (event) => {
           expiresAt,
           secure: {
             directusAccessToken: accessToken,
-            directusRefreshToken: authResult.refresh_token || refreshToken,
+            directusRefreshToken: refreshToken,
           },
         });
       } catch (error) {
         console.error('Token refresh failed:', error);
+        await clearUserSession(event);
         throw createError({
           statusCode: 401,
           statusMessage: 'Unauthorized',
@@ -72,9 +86,59 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    // Get fresh user data from Directus
+    // Try to get fresh user data from Directus
+    // If the token is invalid (e.g., revoked), we'll catch the 401 and try to refresh
     console.log('refresh-session: Fetching fresh user data...');
-    const userData = await directusReadMeWithFields(accessToken!);
+    let userData;
+    try {
+      userData = await directusReadMeWithFields(accessToken!);
+    } catch (fetchError: any) {
+      // If we get a 401 and haven't already refreshed, try refreshing tokens
+      const is401 = fetchError?.statusCode === 401 ||
+                    fetchError?.cause?.statusCode === 401 ||
+                    fetchError?.message?.includes('401');
+
+      if (is401 && !needsRefreshByTime) {
+        console.log('refresh-session: Got 401, attempting token refresh...');
+        try {
+          const tokens = await refreshDirectusTokens(refreshToken);
+          accessToken = tokens.accessToken;
+          refreshToken = tokens.refreshToken;
+          expiresAt = tokens.expiresAt;
+
+          // Retry fetching user data with new token
+          userData = await directusReadMeWithFields(accessToken);
+
+          // Update tokens in session
+          await setUserSession(event, {
+            ...session,
+            expiresAt,
+            secure: {
+              directusAccessToken: accessToken,
+              directusRefreshToken: refreshToken,
+            },
+          });
+        } catch (refreshError) {
+          console.error('Token refresh after 401 failed:', refreshError);
+          await clearUserSession(event);
+          throw createError({
+            statusCode: 401,
+            statusMessage: 'Unauthorized',
+            message: 'Session expired. Please login again.',
+          });
+        }
+      } else {
+        // Either already tried to refresh or error is not 401
+        console.error('Failed to fetch user data:', fetchError);
+        await clearUserSession(event);
+        throw createError({
+          statusCode: 401,
+          statusMessage: 'Unauthorized',
+          message: 'Session expired. Please login again.',
+        });
+      }
+    }
+
     console.log('refresh-session: Got user data:', {
       id: userData.id,
       first_name: userData.first_name,
