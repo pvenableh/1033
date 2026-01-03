@@ -2,9 +2,10 @@
  * GET /api/directus/users/me/units
  *
  * Fetch current user's units with related pets and vehicles.
- * Uses admin client to fetch all related data.
+ * Uses public client since units are publicly readable.
+ * The person_id from session is used to filter units.
  */
-import { useDirectusAdmin, readUser, readItems } from '~/server/utils/directus';
+import { getPublicDirectus, readItems } from '~/server/utils/directus';
 
 export default defineEventHandler(async (event) => {
   const session = await getUserSession(event);
@@ -18,7 +19,10 @@ export default defineEventHandler(async (event) => {
   }
 
   const userId = session.user.id;
-  console.log('units.get: userId =', userId);
+  // Get person_id directly from session (stored during login)
+  const personId = session.user.person_id;
+
+  console.log('units.get: userId =', userId, 'personId =', personId);
 
   if (!userId) {
     throw createError({
@@ -28,59 +32,21 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // If no person_id in session, user has no associated person record
+  if (!personId) {
+    console.log('units.get: No person_id in session, returning empty units');
+    return { units: [] };
+  }
+
   try {
-    // Get the admin Directus client
-    const adminClient = useDirectusAdmin();
+    // Use public Directus client since units are publicly readable
+    const client = getPublicDirectus();
 
-    // First, get the user with their person_id
-    console.log('units.get: Fetching user with person_id...');
-    const user = await adminClient.request(
-      readUser(userId, {
-        fields: ['id', 'person_id'],
-      })
-    );
+    // Fetch units where the current person is linked
+    // Filter units by the people relationship to find the user's units
+    console.log('units.get: Fetching units for personId =', personId);
 
-    console.log('units.get: user =', JSON.stringify(user));
-
-    if (!user.person_id) {
-      // User has no associated person record
-      console.log('units.get: No person_id, returning empty units');
-      return { units: [] };
-    }
-
-    // Get the person ID (handle both object and primitive)
-    const personId = typeof user.person_id === 'object' ? (user.person_id as any).id : user.person_id;
-    console.log('units.get: personId =', personId);
-
-    // Query the junction table to get unit IDs for this person
-    console.log('units.get: Fetching junction table for personId =', personId);
-
-    const junctionData = await adminClient.request(
-      readItems('units_people', {
-        fields: ['units_id'],
-        filter: {
-          people_id: { _eq: personId },
-        },
-      })
-    );
-
-    console.log('units.get: Junction data =', JSON.stringify(junctionData));
-
-    if (!junctionData || junctionData.length === 0) {
-      console.log('units.get: No units found for this person');
-      return { units: [] };
-    }
-
-    // Get the unit IDs
-    const unitIds = junctionData.map((j: any) => j.units_id).filter(Boolean);
-    console.log('units.get: Unit IDs =', unitIds);
-
-    if (unitIds.length === 0) {
-      return { units: [] };
-    }
-
-    // Fetch the full unit data with pets and vehicles
-    const units = await adminClient.request(
+    const units = await client.request(
       readItems('units', {
         fields: [
           'id',
@@ -112,7 +78,12 @@ export default defineEventHandler(async (event) => {
           'vehicles.status',
         ],
         filter: {
-          id: { _in: unitIds },
+          status: { _eq: 'published' },
+          people: {
+            people_id: {
+              id: { _eq: personId },
+            },
+          },
         },
       })
     );

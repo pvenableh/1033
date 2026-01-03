@@ -74,6 +74,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   '/requests': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
   '/security': { requireResident: true },
   '/units': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/projects': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
 
   // Pending users - limited access
   '/pending': { roles: [APP_ROLES.PENDING, APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
