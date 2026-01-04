@@ -204,39 +204,9 @@ const handleTaskToggle = async (taskId: string, completed: boolean) => {
 
 // GSAP animations
 let ctx: gsap.Context;
-// Use a ref to track fetch status to survive hydration
-const hasFetched = ref(false);
 
-// Watch for user to become available and fetch projects (client-side only)
-if (import.meta.client) {
-  watch(
-    () => user.value?.id,
-    async (userId) => {
-      if (userId && !hasFetched.value) {
-        hasFetched.value = true;
-        await refresh();
-
-        // Set initial focus if provided
-        if (props.initialFocus) {
-          focusedProjectId.value = props.initialFocus;
-
-          // If focused project isn't in the list, try to fetch it individually
-          const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
-          if (!focusedInList) {
-            const focusedProject = await fetchProject(props.initialFocus);
-            if (focusedProject) {
-              // Add the fetched project to the list
-              projects.value = [...projects.value, focusedProject];
-            }
-          }
-        }
-      }
-    },
-    { immediate: true }
-  );
-}
-
-onMounted(() => {
+// Fetch projects on mount (client-side)
+onMounted(async () => {
   ctx = gsap.context(() => {
     // Fade in header
     gsap.fromTo(
@@ -245,6 +215,43 @@ onMounted(() => {
       { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, ease: 'power3.out' }
     );
   });
+
+  // Fetch projects - wait for user if not immediately available
+  const fetchData = async () => {
+    await refresh();
+
+    // Set initial focus if provided
+    if (props.initialFocus) {
+      focusedProjectId.value = props.initialFocus;
+
+      // If focused project isn't in the list, try to fetch it individually
+      const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
+      if (!focusedInList) {
+        const focusedProject = await fetchProject(props.initialFocus);
+        if (focusedProject) {
+          // Add the fetched project to the list
+          projects.value = [...projects.value, focusedProject];
+        }
+      }
+    }
+  };
+
+  // If user is already available, fetch immediately
+  if (user.value?.id) {
+    await fetchData();
+  } else {
+    // Wait for user to become available
+    const stopWatch = watch(
+      () => user.value?.id,
+      async (userId) => {
+        if (userId) {
+          stopWatch(); // Stop watching once we have a user
+          await fetchData();
+        }
+      },
+      { immediate: true }
+    );
+  }
 });
 
 onUnmounted(() => {
