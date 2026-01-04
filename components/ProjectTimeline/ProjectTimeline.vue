@@ -121,7 +121,11 @@ interface Props {
 const props = defineProps<Props>();
 
 // Composables
+<<<<<<< HEAD
 const { user, fetch: fetchSession } = useDirectusAuth();
+=======
+const { user, fetch: fetchSession, loggedIn } = useDirectusAuth();
+>>>>>>> 032e04b (Fix project details page: move fetch to onMounted for reliable client-side execution)
 const { projects, loading, error, refresh, fetchProject, toggleTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
 
@@ -219,22 +223,41 @@ onMounted(async () => {
   // Ensure session is loaded from cookies/storage
   await fetchSession();
 
-  // Now fetch projects
-  await refresh();
+  // Function to fetch projects and set focus
+  const fetchData = async () => {
+    await refresh();
 
-  // Set initial focus if provided
-  if (props.initialFocus) {
-    focusedProjectId.value = props.initialFocus;
+    // Set initial focus if provided
+    if (props.initialFocus) {
+      focusedProjectId.value = props.initialFocus;
 
-    // If focused project isn't in the list, try to fetch it individually
-    const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
-    if (!focusedInList) {
-      const focusedProject = await fetchProject(props.initialFocus);
-      if (focusedProject) {
-        // Add the fetched project to the list
-        projects.value = [...projects.value, focusedProject];
+      // If focused project isn't in the list, try to fetch it individually
+      const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
+      if (!focusedInList) {
+        const focusedProject = await fetchProject(props.initialFocus);
+        if (focusedProject) {
+          // Add the fetched project to the list
+          projects.value = [...projects.value, focusedProject];
+        }
       }
     }
+  };
+
+  // If already logged in, fetch immediately
+  if (loggedIn.value) {
+    await fetchData();
+  } else {
+    // Wait for login state to become true
+    const stopWatch = watch(
+      loggedIn,
+      async (isLoggedIn) => {
+        if (isLoggedIn) {
+          stopWatch();
+          await fetchData();
+        }
+      },
+      { immediate: true }
+    );
   }
 });
 
