@@ -106,7 +106,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import type { ProjectWithRelations, ProjectEventWithRelations } from '~/types/projects';
@@ -121,7 +121,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Composables
-const { user } = useDirectusAuth();
+const { user, fetch: fetchSession } = useDirectusAuth();
 const { projects, loading, error, refresh, fetchProject, toggleTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
 
@@ -216,41 +216,25 @@ onMounted(async () => {
     );
   });
 
-  // Fetch projects - wait for user if not immediately available
-  const fetchData = async () => {
-    await refresh();
+  // Ensure session is loaded from cookies/storage
+  await fetchSession();
 
-    // Set initial focus if provided
-    if (props.initialFocus) {
-      focusedProjectId.value = props.initialFocus;
+  // Now fetch projects
+  await refresh();
 
-      // If focused project isn't in the list, try to fetch it individually
-      const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
-      if (!focusedInList) {
-        const focusedProject = await fetchProject(props.initialFocus);
-        if (focusedProject) {
-          // Add the fetched project to the list
-          projects.value = [...projects.value, focusedProject];
-        }
+  // Set initial focus if provided
+  if (props.initialFocus) {
+    focusedProjectId.value = props.initialFocus;
+
+    // If focused project isn't in the list, try to fetch it individually
+    const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
+    if (!focusedInList) {
+      const focusedProject = await fetchProject(props.initialFocus);
+      if (focusedProject) {
+        // Add the fetched project to the list
+        projects.value = [...projects.value, focusedProject];
       }
     }
-  };
-
-  // If user is already available, fetch immediately
-  if (user.value?.id) {
-    await fetchData();
-  } else {
-    // Wait for user to become available
-    const stopWatch = watch(
-      () => user.value?.id,
-      async (userId) => {
-        if (userId) {
-          stopWatch(); // Stop watching once we have a user
-          await fetchData();
-        }
-      },
-      { immediate: true }
-    );
   }
 });
 
