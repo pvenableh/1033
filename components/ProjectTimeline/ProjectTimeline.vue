@@ -122,7 +122,7 @@ const props = defineProps<Props>();
 
 // Composables
 const { user } = useDirectusAuth();
-const { projects, loading, error, refresh, toggleTask } = useProjectTimeline();
+const { projects, loading, error, refresh, fetchProject, toggleTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
 
 // View state
@@ -137,6 +137,12 @@ const rootProjects = computed(() => projects.value.filter((p) => !p.parent_id));
 const visibleProjects = computed(() => {
   if (!focusedProjectId.value) return projects.value;
 
+  // Check if focused project exists in the list
+  const focusedProject = projects.value.find((pr) => pr.id === focusedProjectId.value);
+
+  // If focused project doesn't exist in the list, show all projects as fallback
+  if (!focusedProject) return projects.value;
+
   return projects.value.filter((p) => {
     // Show focused project
     if (p.id === focusedProjectId.value) return true;
@@ -146,7 +152,6 @@ const visibleProjects = computed(() => {
     if (parentId === focusedProjectId.value) return true;
 
     // Show parent of focused project
-    const focusedProject = projects.value.find((pr) => pr.id === focusedProjectId.value);
     const focusedParentId =
       typeof focusedProject?.parent_id === 'object'
         ? focusedProject?.parent_id?.id
@@ -199,24 +204,37 @@ const handleTaskToggle = async (taskId: string, completed: boolean) => {
 
 // GSAP animations
 let ctx: gsap.Context;
-let hasFetched = false;
+// Use a ref to track fetch status to survive hydration
+const hasFetched = ref(false);
 
-// Watch for user to become available and fetch projects
-watch(
-  () => user.value?.id,
-  async (userId) => {
-    if (userId && !hasFetched) {
-      hasFetched = true;
-      await refresh();
+// Watch for user to become available and fetch projects (client-side only)
+if (import.meta.client) {
+  watch(
+    () => user.value?.id,
+    async (userId) => {
+      if (userId && !hasFetched.value) {
+        hasFetched.value = true;
+        await refresh();
 
-      // Set initial focus if provided
-      if (props.initialFocus) {
-        focusedProjectId.value = props.initialFocus;
+        // Set initial focus if provided
+        if (props.initialFocus) {
+          focusedProjectId.value = props.initialFocus;
+
+          // If focused project isn't in the list, try to fetch it individually
+          const focusedInList = projects.value.find((p) => p.id === props.initialFocus);
+          if (!focusedInList) {
+            const focusedProject = await fetchProject(props.initialFocus);
+            if (focusedProject) {
+              // Add the fetched project to the list
+              projects.value = [...projects.value, focusedProject];
+            }
+          }
+        }
       }
-    }
-  },
-  { immediate: true }
-);
+    },
+    { immediate: true }
+  );
+}
 
 onMounted(() => {
   ctx = gsap.context(() => {
