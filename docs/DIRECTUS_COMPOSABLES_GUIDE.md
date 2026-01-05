@@ -1476,7 +1476,919 @@ export interface ItemsQuery {
 
 ---
 
+## 10. Real-Time WebSocket Composable
+
+### Configuration
+
+Add WebSocket URL to your config:
+
+```typescript
+// nuxt.config.ts
+runtimeConfig: {
+  public: {
+    directusUrl: process.env.DIRECTUS_URL,
+    websocketUrl: process.env.DIRECTUS_WS_URL, // wss://your-directus.com/websocket
+  }
+}
+```
+
+### server/api/websocket/token.get.ts
+
+```typescript
+export default defineEventHandler(async (event) => {
+  const session = await getUserSession(event)
+
+  if (!session?.secure?.directusAccessToken) {
+    throw createError({ statusCode: 401, message: 'Not authenticated' })
+  }
+
+  return { token: session.secure.directusAccessToken }
+})
+```
+
+### composables/useDirectusWebSocket.ts
+
+```typescript
+import { createDirectus, realtime, authentication } from '@directus/sdk'
+
+interface SubscriptionOptions {
+  collection: string
+  query?: {
+    fields?: string[]
+    filter?: Record<string, any>
+  }
+  uid?: string
+}
+
+interface SubscriptionEvent<T = any> {
+  type: 'init' | 'create' | 'update' | 'delete'
+  data: T[]
+}
+
+type SubscriptionCallback<T = any> = (event: SubscriptionEvent<T>) => void
+
+export function useDirectusWebSocket() {
+  const config = useRuntimeConfig()
+
+  const isConnected = ref(false)
+  const isConnecting = ref(false)
+  const connectionError = ref<string | null>(null)
+  const reconnectAttempts = ref(0)
+  const maxReconnectAttempts = 10
+
+  let client: ReturnType<typeof createDirectus> | null = null
+  const subscriptions = new Map<string, { unsubscribe: () => void }>()
+
+  async function connect() {
+    if (isConnected.value || isConnecting.value) return
+
+    isConnecting.value = true
+    connectionError.value = null
+
+    try {
+      // Get token from server
+      const { token } = await $fetch<{ token: string }>('/api/websocket/token')
+
+      client = createDirectus(config.public.websocketUrl)
+        .with(authentication())
+        .with(realtime())
+
+      // Authenticate WebSocket connection
+      await client.connect()
+      await client.sendMessage({ type: 'auth', access_token: token })
+
+      isConnected.value = true
+      isConnecting.value = false
+      reconnectAttempts.value = 0
+
+    } catch (error: any) {
+      isConnecting.value = false
+      connectionError.value = error.message
+      scheduleReconnect()
+    }
+  }
+
+  function scheduleReconnect() {
+    if (reconnectAttempts.value >= maxReconnectAttempts) {
+      connectionError.value = 'Max reconnection attempts reached'
+      return
+    }
+
+    const delay = Math.min(1000 * Math.pow(2, reconnectAttempts.value), 30000)
+    reconnectAttempts.value++
+
+    setTimeout(() => connect(), delay)
+  }
+
+  async function subscribe<T = any>(
+    options: SubscriptionOptions,
+    callback: SubscriptionCallback<T>
+  ): Promise<string> {
+    if (!isConnected.value) {
+      await connect()
+    }
+
+    const uid = options.uid || `${options.collection}-${Date.now()}`
+
+    const { subscription } = await client!.subscribe(options.collection, {
+      query: options.query,
+      uid,
+    })
+
+    // Handle subscription events
+    ;(async () => {
+      for await (const event of subscription) {
+        callback(event as SubscriptionEvent<T>)
+      }
+    })()
+
+    subscriptions.set(uid, {
+      unsubscribe: () => client?.sendMessage({ type: 'unsubscribe', uid })
+    })
+
+    return uid
+  }
+
+  function unsubscribe(uid: string) {
+    const sub = subscriptions.get(uid)
+    if (sub) {
+      sub.unsubscribe()
+      subscriptions.delete(uid)
+    }
+  }
+
+  function disconnect() {
+    subscriptions.forEach((_, uid) => unsubscribe(uid))
+    client?.disconnect()
+    client = null
+    isConnected.value = false
+  }
+
+  // Auto-cleanup on unmount
+  onUnmounted(() => disconnect())
+
+  return {
+    isConnected: readonly(isConnected),
+    isConnecting: readonly(isConnecting),
+    connectionError: readonly(connectionError),
+    reconnectAttempts: readonly(reconnectAttempts),
+    connect,
+    disconnect,
+    subscribe,
+    unsubscribe,
+  }
+}
+```
+
+### Reactive Subscription Hook
+
+```typescript
+// composables/useDirectusSubscription.ts
+export function useDirectusSubscription<T = any>(
+  collection: string,
+  options?: {
+    fields?: string[]
+    filter?: Record<string, any>
+    immediate?: boolean
+  }
+) {
+  const { subscribe, unsubscribe, isConnected } = useDirectusWebSocket()
+
+  const items = ref<T[]>([])
+  const loading = ref(false)
+  const error = ref<string | null>(null)
+
+  let subscriptionId: string | null = null
+
+  async function start() {
+    if (subscriptionId) return
+
+    loading.value = true
+    error.value = null
+
+    try {
+      subscriptionId = await subscribe<T>(
+        {
+          collection,
+          query: {
+            fields: options?.fields,
+            filter: options?.filter,
+          }
+        },
+        (event) => {
+          switch (event.type) {
+            case 'init':
+              items.value = event.data
+              break
+            case 'create':
+              items.value = [...items.value, ...event.data]
+              break
+            case 'update':
+              items.value = items.value.map(item => {
+                const updated = event.data.find((d: any) => d.id === (item as any).id)
+                return updated || item
+              })
+              break
+            case 'delete':
+              const deletedIds = event.data.map((d: any) => d.id)
+              items.value = items.value.filter((item: any) => !deletedIds.includes(item.id))
+              break
+          }
+        }
+      )
+    } catch (e: any) {
+      error.value = e.message
+    } finally {
+      loading.value = false
+    }
+  }
+
+  function stop() {
+    if (subscriptionId) {
+      unsubscribe(subscriptionId)
+      subscriptionId = null
+    }
+  }
+
+  // Auto-start if immediate
+  if (options?.immediate !== false) {
+    onMounted(() => start())
+  }
+
+  onUnmounted(() => stop())
+
+  return {
+    items: readonly(items),
+    loading: readonly(loading),
+    error: readonly(error),
+    isConnected,
+    start,
+    stop,
+  }
+}
+```
+
+### Usage Example
+
+```vue
+<script setup lang="ts">
+// Subscribe to real-time updates
+const { items: tasks, loading } = useDirectusSubscription<Task>('tasks', {
+  fields: ['id', 'title', 'status', 'assigned_to.*'],
+  filter: { status: { _neq: 'archived' } }
+})
+
+// Or manual subscription
+const { subscribe, unsubscribe, isConnected } = useDirectusWebSocket()
+
+onMounted(async () => {
+  await subscribe(
+    { collection: 'messages', query: { fields: ['*', 'author.*'] } },
+    (event) => {
+      if (event.type === 'create') {
+        // New message received
+        console.log('New message:', event.data)
+      }
+    }
+  )
+})
+</script>
+
+<template>
+  <div>
+    <span v-if="isConnected" class="text-green-500">Connected</span>
+    <div v-for="task in tasks" :key="task.id">
+      {{ task.title }}
+    </div>
+  </div>
+</template>
+```
+
+---
+
+## 11. Directus Core Collection Composables
+
+### composables/useDirectusActivity.ts
+
+```typescript
+import type { ItemsQuery } from '~/types/directus'
+
+interface DirectusActivity {
+  id: number
+  action: 'create' | 'update' | 'delete' | 'login' | 'comment'
+  user: string | null
+  timestamp: string
+  ip: string | null
+  user_agent: string | null
+  collection: string
+  item: string
+  comment: string | null
+  revisions: number[]
+}
+
+export function useDirectusActivity() {
+  const items = useDirectusItems<DirectusActivity>('directus_activity')
+
+  async function getActivity(query?: ItemsQuery) {
+    return await items.list({
+      sort: ['-timestamp'],
+      ...query,
+    })
+  }
+
+  async function getActivityForItem(collection: string, itemId: string, query?: ItemsQuery) {
+    return await items.list({
+      filter: {
+        collection: { _eq: collection },
+        item: { _eq: itemId },
+      },
+      sort: ['-timestamp'],
+      ...query,
+    })
+  }
+
+  async function getActivityForUser(userId: string, query?: ItemsQuery) {
+    return await items.list({
+      filter: { user: { _eq: userId } },
+      sort: ['-timestamp'],
+      ...query,
+    })
+  }
+
+  async function getRecentActivity(limit = 50) {
+    return await items.list({
+      sort: ['-timestamp'],
+      limit,
+      fields: ['*', 'user.first_name', 'user.last_name', 'user.avatar'],
+    })
+  }
+
+  async function getActivityByAction(action: DirectusActivity['action'], query?: ItemsQuery) {
+    return await items.list({
+      filter: { action: { _eq: action } },
+      sort: ['-timestamp'],
+      ...query,
+    })
+  }
+
+  return {
+    getActivity,
+    getActivityForItem,
+    getActivityForUser,
+    getRecentActivity,
+    getActivityByAction,
+  }
+}
+```
+
+### composables/useDirectusNotifications.ts
+
+```typescript
+interface DirectusNotification {
+  id: string
+  timestamp: string
+  status: 'inbox' | 'archived'
+  recipient: string
+  sender: string | null
+  subject: string
+  message: string | null
+  collection: string | null
+  item: string | null
+}
+
+export function useDirectusNotifications() {
+  const items = useDirectusItems<DirectusNotification>('directus_notifications')
+
+  // Create notifications
+  async function create(data: Partial<DirectusNotification>) {
+    return await items.create(data)
+  }
+
+  async function createMany(notifications: Partial<DirectusNotification>[]) {
+    return await Promise.all(notifications.map(n => create(n)))
+  }
+
+  async function sendTo(
+    userId: string,
+    subject: string,
+    message?: string,
+    options?: { collection?: string; item?: string }
+  ) {
+    return await create({
+      recipient: userId,
+      subject,
+      message,
+      collection: options?.collection,
+      item: options?.item,
+    })
+  }
+
+  async function broadcast(userIds: string[], subject: string, message?: string) {
+    return await createMany(
+      userIds.map(userId => ({ recipient: userId, subject, message }))
+    )
+  }
+
+  // Read notifications
+  async function getMyNotifications(query?: ItemsQuery) {
+    return await items.list({
+      sort: ['-timestamp'],
+      ...query,
+    })
+  }
+
+  async function getUnread() {
+    return await items.list({
+      filter: { status: { _eq: 'inbox' } },
+      sort: ['-timestamp'],
+    })
+  }
+
+  async function getArchived() {
+    return await items.list({
+      filter: { status: { _eq: 'archived' } },
+      sort: ['-timestamp'],
+    })
+  }
+
+  async function countUnread(): Promise<number> {
+    return await items.count({ status: { _eq: 'inbox' } })
+  }
+
+  // Update notifications
+  async function archive(id: string) {
+    return await items.update(id, { status: 'archived' })
+  }
+
+  async function archiveMany(ids: string[]) {
+    return await Promise.all(ids.map(id => archive(id)))
+  }
+
+  async function archiveAll() {
+    const unread = await getUnread()
+    return await archiveMany(unread.map(n => n.id))
+  }
+
+  async function markAsUnread(id: string) {
+    return await items.update(id, { status: 'inbox' })
+  }
+
+  // Delete notifications
+  async function remove(id: string) {
+    return await items.remove(id)
+  }
+
+  async function removeMany(ids: string[]) {
+    return await items.remove(ids)
+  }
+
+  async function clearArchived() {
+    const archived = await getArchived()
+    return await removeMany(archived.map(n => n.id))
+  }
+
+  // Reactive hook
+  function useNotificationList(options?: { autoRefresh?: number }) {
+    const notifications = ref<DirectusNotification[]>([])
+    const unreadCount = ref(0)
+    const loading = ref(false)
+
+    async function refresh() {
+      loading.value = true
+      try {
+        const [list, count] = await Promise.all([
+          getMyNotifications(),
+          countUnread(),
+        ])
+        notifications.value = list
+        unreadCount.value = count
+      } finally {
+        loading.value = false
+      }
+    }
+
+    let interval: ReturnType<typeof setInterval> | null = null
+
+    onMounted(() => {
+      refresh()
+      if (options?.autoRefresh) {
+        interval = setInterval(refresh, options.autoRefresh)
+      }
+    })
+
+    onUnmounted(() => {
+      if (interval) clearInterval(interval)
+    })
+
+    return {
+      notifications: readonly(notifications),
+      unreadCount: readonly(unreadCount),
+      loading: readonly(loading),
+      refresh,
+    }
+  }
+
+  return {
+    create,
+    createMany,
+    sendTo,
+    broadcast,
+    getMyNotifications,
+    getUnread,
+    getArchived,
+    countUnread,
+    archive,
+    archiveMany,
+    archiveAll,
+    markAsUnread,
+    remove,
+    removeMany,
+    clearArchived,
+    useNotificationList,
+  }
+}
+```
+
+### composables/useDirectusRoles.ts
+
+```typescript
+interface DirectusRole {
+  id: string
+  name: string
+  icon: string
+  description: string | null
+  ip_access: string[] | null
+  enforce_tfa: boolean
+  admin_access: boolean
+  app_access: boolean
+  users: string[]
+}
+
+export function useDirectusRoles() {
+  const items = useDirectusItems<DirectusRole>('directus_roles')
+
+  async function list(query?: ItemsQuery) {
+    return await items.list(query)
+  }
+
+  async function get(id: string, query?: ItemsQuery) {
+    return await items.get(id, query)
+  }
+
+  async function getByName(name: string) {
+    const roles = await items.list({
+      filter: { name: { _eq: name } },
+      limit: 1,
+    })
+    return roles[0] || null
+  }
+
+  async function create(data: Partial<DirectusRole>) {
+    return await items.create(data)
+  }
+
+  async function update(id: string, data: Partial<DirectusRole>) {
+    return await items.update(id, data)
+  }
+
+  async function remove(id: string) {
+    return await items.remove(id)
+  }
+
+  async function getAdminRoles() {
+    return await items.list({
+      filter: { admin_access: { _eq: true } },
+    })
+  }
+
+  async function getPublicRoles() {
+    return await items.list({
+      filter: {
+        admin_access: { _eq: false },
+        app_access: { _eq: true },
+      },
+    })
+  }
+
+  async function getRoleUsers(roleId: string) {
+    const role = await items.get(roleId, {
+      fields: ['users.*'],
+    })
+    return role?.users || []
+  }
+
+  return {
+    list,
+    get,
+    getByName,
+    create,
+    update,
+    remove,
+    getAdminRoles,
+    getPublicRoles,
+    getRoleUsers,
+  }
+}
+```
+
+### composables/useDirectusFolders.ts
+
+```typescript
+interface DirectusFolder {
+  id: string
+  name: string
+  parent: string | null
+}
+
+export function useDirectusFolders() {
+  const items = useDirectusItems<DirectusFolder>('directus_folders')
+
+  async function list(query?: ItemsQuery) {
+    return await items.list(query)
+  }
+
+  async function get(id: string, query?: ItemsQuery) {
+    return await items.get(id, query)
+  }
+
+  async function create(name: string, parentId?: string) {
+    return await items.create({ name, parent: parentId || null })
+  }
+
+  async function createPath(path: string): Promise<DirectusFolder> {
+    const parts = path.split('/').filter(Boolean)
+    let parentId: string | null = null
+    let folder: DirectusFolder | null = null
+
+    for (const part of parts) {
+      const existing = await findByName(part, parentId)
+      if (existing) {
+        folder = existing
+        parentId = existing.id
+      } else {
+        folder = await create(part, parentId || undefined)
+        parentId = folder.id
+      }
+    }
+
+    return folder!
+  }
+
+  async function update(id: string, data: Partial<DirectusFolder>) {
+    return await items.update(id, data)
+  }
+
+  async function rename(id: string, newName: string) {
+    return await update(id, { name: newName })
+  }
+
+  async function move(id: string, newParentId: string | null) {
+    return await update(id, { parent: newParentId })
+  }
+
+  async function remove(id: string) {
+    return await items.remove(id)
+  }
+
+  async function getRootFolders() {
+    return await items.list({
+      filter: { parent: { _null: true } },
+      sort: ['name'],
+    })
+  }
+
+  async function getChildren(parentId: string) {
+    return await items.list({
+      filter: { parent: { _eq: parentId } },
+      sort: ['name'],
+    })
+  }
+
+  async function findByName(name: string, parentId?: string | null) {
+    const filter: Record<string, any> = { name: { _eq: name } }
+    if (parentId) {
+      filter.parent = { _eq: parentId }
+    } else if (parentId === null) {
+      filter.parent = { _null: true }
+    }
+
+    const folders = await items.list({ filter, limit: 1 })
+    return folders[0] || null
+  }
+
+  async function getTree(): Promise<(DirectusFolder & { children: any[] })[]> {
+    const allFolders = await items.list({ sort: ['name'] })
+
+    function buildTree(parentId: string | null): any[] {
+      return allFolders
+        .filter(f => f.parent === parentId)
+        .map(f => ({
+          ...f,
+          children: buildTree(f.id),
+        }))
+    }
+
+    return buildTree(null)
+  }
+
+  async function getPath(folderId: string): Promise<DirectusFolder[]> {
+    const path: DirectusFolder[] = []
+    let currentId: string | null = folderId
+
+    while (currentId) {
+      const folder = await get(currentId)
+      if (folder) {
+        path.unshift(folder)
+        currentId = folder.parent
+      } else {
+        break
+      }
+    }
+
+    return path
+  }
+
+  async function getPathString(folderId: string): Promise<string> {
+    const path = await getPath(folderId)
+    return path.map(f => f.name).join('/')
+  }
+
+  return {
+    list,
+    get,
+    create,
+    createPath,
+    update,
+    rename,
+    move,
+    remove,
+    getRootFolders,
+    getChildren,
+    findByName,
+    getTree,
+    getPath,
+    getPathString,
+  }
+}
+```
+
+### composables/useDirectusRevisions.ts
+
+```typescript
+interface DirectusRevision {
+  id: number
+  activity: number
+  collection: string
+  item: string
+  data: Record<string, any>
+  delta: Record<string, any>
+  parent: number | null
+  version: string | null
+}
+
+export function useDirectusRevisions() {
+  const items = useDirectusItems<DirectusRevision>('directus_revisions')
+
+  async function list(query?: ItemsQuery) {
+    return await items.list(query)
+  }
+
+  async function get(id: number, query?: ItemsQuery) {
+    return await items.get(id, query)
+  }
+
+  async function getForItem(collection: string, itemId: string, query?: ItemsQuery) {
+    return await items.list({
+      filter: {
+        collection: { _eq: collection },
+        item: { _eq: itemId },
+      },
+      sort: ['-id'],
+      ...query,
+    })
+  }
+
+  async function getLatest(collection: string, itemId: string) {
+    const revisions = await getForItem(collection, itemId, { limit: 1 })
+    return revisions[0] || null
+  }
+
+  async function compare(revisionId1: number, revisionId2: number) {
+    const [rev1, rev2] = await Promise.all([
+      get(revisionId1),
+      get(revisionId2),
+    ])
+
+    if (!rev1 || !rev2) return null
+
+    const changes: Record<string, { old: any; new: any }> = {}
+    const allKeys = new Set([...Object.keys(rev1.data), ...Object.keys(rev2.data)])
+
+    for (const key of allKeys) {
+      if (JSON.stringify(rev1.data[key]) !== JSON.stringify(rev2.data[key])) {
+        changes[key] = { old: rev1.data[key], new: rev2.data[key] }
+      }
+    }
+
+    return changes
+  }
+
+  return {
+    list,
+    get,
+    getForItem,
+    getLatest,
+    compare,
+  }
+}
+```
+
+### composables/useDirectusPresets.ts
+
+```typescript
+interface DirectusPreset {
+  id: number
+  bookmark: string | null
+  user: string | null
+  role: string | null
+  collection: string
+  search: string | null
+  layout: string | null
+  layout_query: Record<string, any> | null
+  layout_options: Record<string, any> | null
+  refresh_interval: number | null
+  filter: Record<string, any> | null
+  icon: string
+  color: string | null
+}
+
+export function useDirectusPresets() {
+  const items = useDirectusItems<DirectusPreset>('directus_presets')
+
+  async function list(query?: ItemsQuery) {
+    return await items.list(query)
+  }
+
+  async function get(id: number, query?: ItemsQuery) {
+    return await items.get(id, query)
+  }
+
+  async function getForCollection(collection: string) {
+    return await items.list({
+      filter: { collection: { _eq: collection } },
+    })
+  }
+
+  async function getBookmarks() {
+    return await items.list({
+      filter: { bookmark: { _nnull: true } },
+    })
+  }
+
+  async function create(data: Partial<DirectusPreset>) {
+    return await items.create(data)
+  }
+
+  async function createBookmark(
+    collection: string,
+    name: string,
+    filter?: Record<string, any>,
+    options?: Partial<DirectusPreset>
+  ) {
+    return await create({
+      collection,
+      bookmark: name,
+      filter,
+      ...options,
+    })
+  }
+
+  async function update(id: number, data: Partial<DirectusPreset>) {
+    return await items.update(id, data)
+  }
+
+  async function remove(id: number) {
+    return await items.remove(id)
+  }
+
+  return {
+    list,
+    get,
+    getForCollection,
+    getBookmarks,
+    create,
+    createBookmark,
+    update,
+    remove,
+  }
+}
+```
+
+---
+
 ## Quick Reference
+
+### Composables
 
 | Composable | Purpose |
 |------------|---------|
@@ -1485,6 +2397,16 @@ export interface ItemsQuery {
 | `useDirectusItems(collection)` | Generic CRUD for any collection |
 | `useDirectusFiles()` | File uploads and URL helpers |
 | `useRoles()` | Role-based access checks |
+| `useDirectusWebSocket()` | Real-time subscriptions |
+| `useDirectusSubscription()` | Reactive real-time data |
+| `useDirectusActivity()` | Activity log operations |
+| `useDirectusNotifications()` | In-app notifications |
+| `useDirectusRoles()` | Role management |
+| `useDirectusFolders()` | Folder hierarchy management |
+| `useDirectusRevisions()` | Revision history |
+| `useDirectusPresets()` | Saved filters/bookmarks |
+
+### API Routes
 
 | API Route | Method | Purpose |
 |-----------|--------|---------|
@@ -1494,6 +2416,7 @@ export interface ItemsQuery {
 | `/api/directus/items` | POST | Generic CRUD operations |
 | `/api/directus/users/me` | GET/PATCH | Current user data |
 | `/api/directus/files/upload` | POST | Upload files |
+| `/api/websocket/token` | GET | WebSocket auth token |
 
 ---
 
