@@ -518,7 +518,7 @@ const allowUploads = computed(() => props.allowUploads ?? true);
 const heightClass = computed(() => props.height ?? 'min-h-[200px] max-h-[500px]');
 
 // Editor state
-const editor = shallowRef<Editor | null>(null);
+const editor = ref<Editor | null>(null);
 const linkUrl = ref('');
 
 // Image state
