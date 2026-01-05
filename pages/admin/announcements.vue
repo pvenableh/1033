@@ -577,14 +577,21 @@ onMounted(() => {
             </div>
 
             <UFormGroup label="Content">
-              <TiptapEditor
-                v-model="form.content"
-                placeholder="Write your announcement content..."
-                mode="full"
-                height="min-h-[200px] max-h-[400px]"
-                :allow-uploads="true"
-                folder-id="2ff19b77-0aa8-4474-af8f-20512666ddb9"
-              />
+              <ClientOnly>
+                <TiptapEditor
+                  v-model="form.content"
+                  placeholder="Write your announcement content..."
+                  mode="full"
+                  height="min-h-[200px] max-h-[400px]"
+                  :allow-uploads="true"
+                  folder-id="2ff19b77-0aa8-4474-af8f-20512666ddb9"
+                />
+                <template #fallback>
+                  <div class="min-h-[200px] border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                    <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+                  </div>
+                </template>
+              </ClientOnly>
             </UFormGroup>
 
             <UCheckbox v-model="form.urgent" label="Mark as urgent" />
