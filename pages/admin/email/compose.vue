@@ -712,14 +712,21 @@ onMounted(async () => {
               </UFormGroup>
 
               <UFormGroup label="Message" required>
-                <TiptapEditor
-                  v-model="form.content"
-                  placeholder="Write your announcement message..."
-                  mode="full"
-                  height="min-h-[300px] max-h-[500px]"
-                  :allow-uploads="true"
-                  :folder-id="ANNOUNCEMENT_UPLOADS_FOLDER"
-                />
+                <ClientOnly>
+                  <TiptapEditor
+                    v-model="form.content"
+                    placeholder="Write your announcement message..."
+                    mode="full"
+                    height="min-h-[300px] max-h-[500px]"
+                    :allow-uploads="true"
+                    :folder-id="ANNOUNCEMENT_UPLOADS_FOLDER"
+                  />
+                  <template #fallback>
+                    <div class="min-h-[300px] border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                      <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+                    </div>
+                  </template>
+                </ClientOnly>
               </UFormGroup>
 
               <UFormGroup label="Closing">

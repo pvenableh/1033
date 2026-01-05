@@ -485,13 +485,20 @@ onMounted(() => {
             </UFormGroup>
 
             <UFormGroup label="Content">
-              <TiptapEditor
-                v-model="form.content"
-                placeholder="Write your notice content..."
-                mode="simple"
-                height="min-h-[150px] max-h-[300px]"
-                :allow-uploads="false"
-              />
+              <ClientOnly>
+                <TiptapEditor
+                  v-model="form.content"
+                  placeholder="Write your notice content..."
+                  mode="simple"
+                  height="min-h-[150px] max-h-[300px]"
+                  :allow-uploads="false"
+                />
+                <template #fallback>
+                  <div class="min-h-[150px] border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
+                    <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+                  </div>
+                </template>
+              </ClientOnly>
             </UFormGroup>
 
             <div class="grid grid-cols-2 gap-4">
