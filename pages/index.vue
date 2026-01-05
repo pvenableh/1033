@@ -1,17 +1,17 @@
 <template>
 	<div class="sell-sheet t-bg min-h-screen">
 		<!-- Hero Section -->
-		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6 lg:px-16">
+		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-auto lg:top-5 lg:left-auto lg:right-6 xl:right-16 lg:px-0 lg:w-auto lg:items-end">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-8">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2 pl-4">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
 				</div>
 
 				<!-- Scrollable widget container -->
-				<div class="widget-container widget-container--responsive pl-4 lg:pl-0">
+				<div class="widget-container widget-container--responsive pl-4 lg:pl-6 overflow-x-auto scrollbar-hide">
 					<!-- Desktop only: Glass greeting -->
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" class="hidden lg:flex" />
 
@@ -50,7 +50,7 @@
 				<div class="absolute inset-0 bg-gradient-to-b from-black/60 to-black/40"></div>
 			</div>
 
-			<div class="hero-content text-center relative z-10">
+			<div class="hero-content text-center relative z-10 lg:-mt-32">
 				<p
 					class="-mt-44 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-6 lg:mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
@@ -69,7 +69,7 @@
 				</p>
 			</div>
 			<div
-				class="absolute bottom-16 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-0 scroll-indicator z-10">
+				class="hidden absolute bottom-16 left-1/2 -translate-x-1/2 flex-col items-center gap-2 opacity-0 scroll-indicator z-10">
 				<span class="text-[0.625rem] tracking-[0.2em] uppercase t-text-tertiary">Scroll to discover</span>
 				<div class="w-px h-10 bg-gradient-to-b from-gold to-transparent scroll-line"></div>
 			</div>
@@ -1253,5 +1253,14 @@ useHead({
 		align-self: start;
 		height: fit-content;
 	}
+}
+
+/* Hide scrollbar while maintaining scroll functionality */
+.scrollbar-hide {
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+	display: none; /* Chrome, Safari, Opera */
 }
 </style>
