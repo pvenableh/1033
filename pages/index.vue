@@ -4,17 +4,19 @@
 		<section ref="heroRef" class="hero min-h-screen flex flex-col justify-center items-center relative px-6">
 			<!-- Widgets wrapper -->
 			<div
-				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-8">
+				class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-12 mb-4">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2 pl-4">
 					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
 				</div>
 
-				<!-- Scrollable widget container -->
-				<div class="widget-container widget-container--responsive pl-4 lg:pl-6 overflow-x-auto scrollbar-hide">
-					<!-- Desktop only: Glass greeting -->
-					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" class="hidden lg:flex" />
+				<!-- Desktop only: Glass greeting above widgets -->
+				<div class="hidden lg:block pl-6 mb-3">
+					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" />
+				</div>
 
+				<!-- Scrollable widget container -->
+				<div class="widget-container widget-container--responsive pl-4 lg:pl-6">
 					<WidgetsWeather variant="standard" :compact="true" :showLocation="true" />
 
 					<!-- Mobile: compact location widget -->
