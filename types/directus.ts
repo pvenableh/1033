@@ -940,6 +940,7 @@ export interface Vehicle {
 	parking_spot?: string | null;
 	rental_agreement?: DirectusFile | string | null;
 	category?: 'Car' | 'Scooter' | 'Motorcycle' | 'Van' | null;
+	year?: string | null;
 }
 
 export interface Vendor {

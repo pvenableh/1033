@@ -95,10 +95,9 @@ function getIcon(): string {
 	<div
 		class="glass-widget flex-col text-cream uppercase"
 		:class="[
-			compact ? 'px-4 py-2' : 'px-6 py-3',
+			compact ? 'px-4 py-2' : 'px-4 py-2',
 			{
-				'gap-0': variant === 'compact',
-				'gap-1': variant === 'standard',
+				'gap-1': variant === 'compact' || variant === 'standard',
 				'gap-2': variant === 'detailed' || variant === 'narrow',
 			},
 		]">
@@ -123,8 +122,8 @@ function getIcon(): string {
 		</div>
 
 		<!-- Narrow variant - single column layout for sidebar use -->
-		<div v-if="variant === 'narrow' && !compact" class="flex flex-col gap-1 mt-1.5 pt-1.5 0">
-			<div v-for="landmark in visibleLandmarks" :key="landmark.name" class="flex items-center gap-1 text-[10px]">
+		<div v-if="variant === 'narrow' && !compact" class="flex flex-col gap-0.5 text-[10px] text-cream uppercase">
+			<div v-for="landmark in visibleLandmarks" :key="landmark.name" class="flex items-center">
 				<!-- <UIcon :name="landmark.icon" class="glass-widget__detail-icon text-xs shrink-0" /> -->
 				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
 				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
