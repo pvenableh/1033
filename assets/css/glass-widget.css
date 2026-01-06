@@ -81,19 +81,19 @@
 		flex-shrink: 0;
 	}
 
-	/* Desktop (lg): vertical stack */
+	/* Desktop (lg): keep horizontal row with scroll */
 	@media (min-width: 1024px) {
 		.widget-container--responsive {
-			flex-direction: column;
-			overflow-x: visible;
-			overflow-y: visible;
-			scroll-snap-type: none;
-			gap: 0.75rem;
+			flex-direction: row;
+			overflow-x: auto;
+			overflow-y: hidden;
+			scroll-snap-type: x mandatory;
+			gap: 0.5rem;
 		}
 
 		.widget-container--responsive > * {
-			scroll-snap-align: unset;
-			flex-shrink: 1;
+			scroll-snap-align: start;
+			flex-shrink: 0;
 		}
 	}
 
