@@ -81,8 +81,8 @@ const adminLinks = [
         v-for="link in adminLinks"
         :key="link.to"
         :to="link.to"
-        class="block p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 transition-colors">
-        <UIcon :name="link.icon" class="w-8 h-8 text-primary-500 mb-4" />
+        class="block p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary dark:hover:border-primary transition-colors">
+        <UIcon :name="link.icon" class="w-8 h-8 text-primary mb-4" />
         <h3 class="font-semibold text-lg mb-2">{{ link.title }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ link.description }}</p>
       </NuxtLink>

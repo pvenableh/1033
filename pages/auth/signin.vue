@@ -41,7 +41,7 @@ function movePanel(val: string) {
 					Request Access
 				</h2>
 				<AccountAccessRequestForm />
-				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('login')">Already have an account? <span class="text-primary-500">Sign In</span></a>
+				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('login')">Already have an account? <span class="text-primary">Sign In</span></a>
 			</div>
 			<div v-if="panel === 'login'" key="2" class="flex items-center justify-center flex-col login-panel">
 				<p
@@ -61,7 +61,7 @@ function movePanel(val: string) {
 
 				<AccountLoginForm />
 
-				<a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button mt-4">New resident? <span class="text-primary-500">Request Access</span></a>
+				<a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button mt-4">New resident? <span class="text-primary">Request Access</span></a>
 				<a class="cursor-pointer login-panel__nav-button mt-2" @click.prevent="movePanel('request')">Reset Password</a>
 			</div>
 			<div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
@@ -73,6 +73,7 @@ function movePanel(val: string) {
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 .login {
 	/* height: 90vh; */
 }

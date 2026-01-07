@@ -79,7 +79,7 @@
 					</button>
 
 					<!-- Reply count -->
-					<span v-if="replyCount > 0" class="text-xs text-primary-600 dark:text-primary-400">
+					<span v-if="replyCount > 0" class="text-xs text-primary dark:text-primary">
 						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
 					</span>
 

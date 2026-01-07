@@ -130,7 +130,7 @@ const props = defineProps({
 	},
 	focusRingClasses: {
 		type: String,
-		default: 'ring-2 ring-primary-500 ring-offset-2 dark:ring-offset-gray-900 border-cyan-200',
+		default: 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-900 border-cyan-200',
 	},
 	disabled: {
 		type: Boolean,
@@ -741,6 +741,7 @@ onBeforeUnmount(() => {
 </script>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 /* .character-count {
 	transition: color 0.2s ease;
 }
@@ -843,7 +844,7 @@ onBeforeUnmount(() => {
 }
 
 .tiptap-container:focus-within + div button {
-	@apply text-primary-500;
+	@apply text-primary;
 }
 
 /* Ensure proper contrast in dark mode */

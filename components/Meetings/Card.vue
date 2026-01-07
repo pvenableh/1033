@@ -92,6 +92,7 @@ const formattedTime = computed(() => {
 });
 </script>
 <style>
+@reference "~/assets/css/tailwind.css";
 .meeting-card {
 	width: 100%;
 	max-width: 800px;

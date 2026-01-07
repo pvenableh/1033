@@ -130,6 +130,7 @@ const transformedImages = computed(() => {
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 .swiper {
 	width: 100%; /* Or your desired width */
 	height: 350px; /* Or your desired height */

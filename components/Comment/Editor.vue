@@ -11,7 +11,7 @@
 			<div class="flex-1">
 				<editor-content
 					:editor="editor"
-					class="border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white text-sm transition-all duration-200 overflow-y-auto focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500"
+					class="border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white text-sm transition-all duration-200 overflow-y-auto focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
 					:class="[height]" />
 
 				<div class="flex items-center justify-between mt-2">

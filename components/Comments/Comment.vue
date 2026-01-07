@@ -49,6 +49,7 @@ const avatar = computed(() => {
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .comment {
 	&__user-avatar {
 		@apply mr-2;

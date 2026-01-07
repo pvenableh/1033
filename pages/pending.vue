@@ -17,7 +17,7 @@ async function handleLogout() {
   <div class="flex items-center justify-center min-h-[80vh] px-6">
     <div class="max-w-md w-full text-center">
       <div class="mb-8">
-        <UIcon name="i-heroicons-clock" class="w-16 h-16 text-primary-500 mx-auto" />
+        <UIcon name="i-heroicons-clock" class="w-16 h-16 text-primary mx-auto" />
       </div>
 
       <h1 class="text-2xl font-bold mb-4">Access Pending</h1>

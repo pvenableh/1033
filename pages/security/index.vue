@@ -24,7 +24,7 @@
 						},
 						rounded: 'rounded-[3px]',
 						tab: {
-							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary-500 dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide  rounded-none text-white hover:text-white/80 font-semibold',
+							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide  rounded-none text-white hover:text-white/80 font-semibold',
 							rounded: 'rounded-[3px]',
 						},
 					},

@@ -72,7 +72,7 @@
 					class="channel-item w-full px-4 py-2.5 flex items-center gap-3 transition-all duration-200 text-left rounded-lg mx-auto"
 					:class="[
 						selectedChannelId === channel.id
-							? 'channel-active bg-primary-100 dark:bg-primary-900/40 border-l-4 border-primary-500 shadow-sm'
+							? 'channel-active bg-primary-100 dark:bg-primary-900/40 border-l-4 border-primary shadow-sm'
 							: 'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent'
 					]"
 					style="width: calc(100% - 8px);"
@@ -81,7 +81,7 @@
 						:name="getChannelIcon(channel)"
 						class="w-5 h-5 flex-shrink-0 transition-colors"
 						:class="selectedChannelId === channel.id
-							? 'text-primary-600 dark:text-primary-400'
+							? 'text-primary dark:text-primary'
 							: 'text-gray-500 dark:text-gray-400'" />
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2">

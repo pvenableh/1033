@@ -304,7 +304,7 @@
     <!-- Editor Content -->
     <editor-content
       :editor="editor"
-      class="tiptap-content border border-gray-300 dark:border-gray-600 dark:text-white transition-all duration-200 overflow-y-auto focus-within:border-primary-500 dark:focus-within:border-primary-400"
+      class="tiptap-content border border-gray-300 dark:border-gray-600 dark:text-white transition-all duration-200 overflow-y-auto focus-within:border-primary dark:focus-within:border-primary-400"
       :class="[
         showToolbar ? 'rounded-b-lg' : 'rounded-lg',
         heightClass,
@@ -376,7 +376,7 @@
         <div class="flex items-center gap-1 text-sm border-b dark:border-gray-700 pb-2 mb-3">
           <template v-for="(folder, index) in folderPath" :key="folder.id || 'root'">
             <button
-              class="hover:text-primary-500 hover:underline"
+              class="hover:text-primary hover:underline"
               :class="{ 'font-medium': index === folderPath.length - 1 }"
               @click="navigateToFolder(folder.id, folder.name)"
             >
@@ -426,7 +426,7 @@
             <button
               v-for="file in filteredFiles"
               :key="file.id"
-              class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+              class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
               @click="selectFile(file)"
             >
               <div class="w-full aspect-square rounded overflow-hidden bg-gray-100 dark:bg-gray-700 mb-2">
@@ -440,7 +440,7 @@
                   <UIcon :name="getFileIcon(file.type || '')" class="w-8 h-8 text-gray-400" />
                 </div>
               </div>
-              <span class="text-xs text-center truncate w-full group-hover:text-primary-500">
+              <span class="text-xs text-center truncate w-full group-hover:text-primary">
                 {{ file.title || file.filename_download }}
               </span>
             </button>
@@ -922,7 +922,7 @@ const ToolbarButton = defineComponent({
           class: [
             'p-1.5 rounded transition-colors flex items-center gap-0.5',
             props.active
-              ? 'bg-primary-100 dark:bg-primary-900 text-primary-600 dark:text-primary-400'
+              ? 'bg-primary-100 dark:bg-primary-900 text-primary dark:text-primary'
               : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700',
             props.disabled && 'opacity-50 cursor-not-allowed',
           ],
