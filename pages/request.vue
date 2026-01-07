@@ -227,6 +227,7 @@ const onSubmit = handleSubmit(async (values) => {
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 .transition-group {
 	position: relative;
 }

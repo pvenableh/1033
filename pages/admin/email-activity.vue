@@ -517,7 +517,7 @@ onMounted(() => {
                   v-if="row.clicked_url"
                   :href="row.clicked_url"
                   target="_blank"
-                  class="text-xs text-primary-500 hover:underline truncate block max-w-[200px]"
+                  class="text-xs text-primary hover:underline truncate block max-w-[200px]"
                 >
                   {{ row.clicked_url }}
                 </a>

@@ -6,10 +6,10 @@
 				v-if="replyTo"
 				class="reply-indicator flex items-center gap-2 px-3 py-2 bg-primary-50 dark:bg-primary-900/20 border border-b-0 border-primary-200 dark:border-primary-800 rounded-t-lg">
 				<div class="flex-1 flex items-center gap-2 min-w-0">
-					<UIcon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary-500 rotate-180 flex-shrink-0" />
+					<UIcon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary rotate-180 flex-shrink-0" />
 					<span class="text-sm text-primary-700 dark:text-primary-300 flex-shrink-0">Replying to</span>
 					<span class="font-medium text-sm text-primary-800 dark:text-primary-200 flex-shrink-0">{{ replyToAuthorName }}</span>
-					<span class="text-sm text-primary-600 dark:text-primary-400 truncate">{{ replyToPreview }}</span>
+					<span class="text-sm text-primary dark:text-primary truncate">{{ replyToPreview }}</span>
 				</div>
 				<UButton
 					size="xs"
@@ -23,9 +23,9 @@
 
 		<editor-content
 			:editor="editor"
-			class="border border-gray-300 dark:border-gray-600 dark:text-white text-[14px] transition-all duration-200 overflow-y-auto focus:border-primary-500 relative"
+			class="border border-gray-300 dark:border-gray-600 dark:text-white text-[14px] transition-all duration-200 overflow-y-auto focus:border-primary relative"
 			:class="[
-				{'ring-2 ring-primary-500': editor.isFocused},
+				{'ring-2 ring-primary': editor.isFocused},
 				replyTo ? 'rounded-b-lg border-t-0' : 'rounded-lg',
 				height,
 			]" />

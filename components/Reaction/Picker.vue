@@ -124,7 +124,7 @@ const getIconName = (reactionType: ReactionTypeRecord) => {
 
 const getIconClass = (reactionType: ReactionTypeRecord) => {
 	if (isSelected(reactionType)) {
-		return 'text-primary-600 dark:text-primary-400';
+		return 'text-primary dark:text-primary';
 	}
 	return 'text-gray-600 dark:text-gray-400';
 };

@@ -680,7 +680,7 @@ onMounted(async () => {
                 :class="[
                   'flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all',
                   form.template === option.value
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
+                    ? 'border-primary bg-primary-50 dark:bg-primary-900/20 text-primary'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300',
                 ]"
               >
@@ -810,7 +810,7 @@ onMounted(async () => {
                   :class="[
                     'p-2 rounded-lg border text-center transition-all text-xs',
                     recipientFilter === option.value
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
+                      ? 'border-primary bg-primary-50 dark:bg-primary-900/20 text-primary'
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300',
                   ]"
                 >
@@ -1020,7 +1020,7 @@ onMounted(async () => {
           <div class="flex items-center gap-1 text-sm border-b dark:border-gray-700 pb-2 mb-3">
             <template v-for="(folder, index) in attachmentFolderPath" :key="folder.id || 'root'">
               <button
-                class="hover:text-primary-500 hover:underline"
+                class="hover:text-primary hover:underline"
                 :class="{ 'font-medium': index === attachmentFolderPath.length - 1 }"
                 @click="navigateToAttachmentFolder(folder.id, folder.name)"
               >
@@ -1070,7 +1070,7 @@ onMounted(async () => {
               <button
                 v-for="file in filteredAttachmentFiles"
                 :key="file.id"
-                class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 @click="selectAttachmentFile(file)"
               >
                 <div class="w-10 h-10 mb-2 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700">

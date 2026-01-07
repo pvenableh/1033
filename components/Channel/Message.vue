@@ -99,7 +99,7 @@
 				<!-- Thread indicator -->
 				<div v-if="replyCount > 0" class="mt-2">
 					<button
-						class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+						class="text-xs text-primary dark:text-primary hover:underline flex items-center gap-1"
 						@click="$emit('reply', message)">
 						<UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
 						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}

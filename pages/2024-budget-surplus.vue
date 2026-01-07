@@ -238,6 +238,7 @@ function openExternalLink() {
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .options {
 	&__list {
 		flex-direction: column;

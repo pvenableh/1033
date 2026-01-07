@@ -50,7 +50,7 @@ defineExpose({ refresh });
         <template #header>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <UIcon name="i-heroicons-home" class="w-6 h-6 text-primary-500" />
+              <UIcon name="i-heroicons-home" class="w-6 h-6 text-primary" />
               <div>
                 <h3 class="font-bold text-lg">Unit {{ unit.number }}</h3>
                 <p class="text-sm text-gray-500">{{ unit.occupant }}</p>

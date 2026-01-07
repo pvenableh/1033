@@ -96,6 +96,8 @@ definePageMeta({
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
+
 .intro {
 	background-image: url('https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073');
 	background-color: rgba(0, 0, 0, 0.5);

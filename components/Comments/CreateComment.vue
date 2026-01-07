@@ -78,6 +78,7 @@ async function updateParent() {
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .comment-input {
 	border-radius: 18px;
 	background: rgb(245, 245, 245);

@@ -32,7 +32,7 @@
 				class="relative px-4 py-2.5 text-sm font-medium transition-colors"
 				:class="[
 					activeTab === tab.value
-						? 'text-primary-600 dark:text-primary-400'
+						? 'text-primary dark:text-primary'
 						: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
 				]">
 				{{ tab.label }}
@@ -41,7 +41,7 @@
 					class="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium rounded-full"
 					:class="[
 						activeTab === tab.value
-							? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+							? 'bg-primary-100 text-primary dark:bg-primary-900/30 dark:text-primary'
 							: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
 					]">
 					{{ tab.count }}
@@ -49,7 +49,7 @@
 				<!-- Active indicator -->
 				<div
 					v-if="activeTab === tab.value"
-					class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-400" />
+					class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-primary" />
 			</button>
 		</div>
 

@@ -199,6 +199,7 @@ const mailtoLink = computed(() => {
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__item {
 		@apply px-4;
