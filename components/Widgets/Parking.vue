@@ -101,7 +101,7 @@ function getIcon(): string {
 			<span class="text-cream">Parking Spots</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<UIcon :name="getIcon()" />
+				<Icon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -116,37 +116,37 @@ function getIcon(): string {
 			v-if="variant === 'detailed'"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-home" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-home" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Total Units</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalUnits }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-truck" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-truck" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Total Spots</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalSpots }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-chart-pie" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-chart-pie" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Ratio</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ parkingRatio }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-shield-check" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-shield-check" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Type</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ parkingType }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-key" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-key" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Registered</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalVehicles }} vehicles</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-lock-closed" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-lock-closed" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Security</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ isSecured ? 'Gated' : 'Open' }}</span>
 			</div>
@@ -155,7 +155,7 @@ function getIcon(): string {
 
 	<!-- Empty State -->
 	<div v-else class="glass-widget flex flex-row items-center gap-2 text-cream uppercase px-8 py-4">
-		<UIcon name="i-heroicons-truck" class="text-lg" />
+		<Icon name="i-heroicons-truck" class="text-lg" />
 		<span class="text-xs">Parking info unavailable</span>
 	</div>
 </template>

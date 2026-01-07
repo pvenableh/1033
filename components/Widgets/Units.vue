@@ -117,7 +117,7 @@ function getIcon(type: string): string {
 			<span class="text-cream">Units</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<UIcon :name="getIcon('building')" />
+				<Icon :name="getIcon('building')" />
 			</span>
 		</div>
 
@@ -131,7 +131,7 @@ function getIcon(type: string): string {
 		<div
 			v-if="variant !== 'compact' && showProjectsSection"
 			class="flex items-center gap-1.5 text-[10px] text-cream/80 mt-1 pt-1 border-t border-cream/10">
-			<UIcon :name="getIcon('project')" class="glass-widget__detail-icon text-sm" />
+			<Icon :name="getIcon('project')" class="glass-widget__detail-icon text-sm" />
 			<span>{{ projectCount }} Active Project{{ projectCount !== 1 ? 's' : '' }}</span>
 		</div>
 
@@ -140,31 +140,31 @@ function getIcon(type: string): string {
 			v-if="variant === 'detailed'"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="getIcon('unit')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon :name="getIcon('unit')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Total Units</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalUnits }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="getIcon('owner')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon :name="getIcon('owner')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Owner-Occupied</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ ownerOccupied }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="getIcon('tenant')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon :name="getIcon('tenant')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Tenant-Occupied</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ tenantOccupied }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="getIcon('percentage')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon :name="getIcon('percentage')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Owner %</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ ownerPercentage }}%</span>
 			</div>
 
 			<div v-if="showProjectsSection" class="col-span-2 flex items-center gap-1.5 text-[11px]">
-				<UIcon :name="getIcon('project')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon :name="getIcon('project')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Active Projects</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ projectCount }}</span>
 			</div>
@@ -173,7 +173,7 @@ function getIcon(type: string): string {
 
 	<!-- Error State -->
 	<div v-else class="glass-widget flex flex-row items-center gap-2 text-cream uppercase px-8 py-4">
-		<UIcon name="i-heroicons-exclamation-triangle" class="text-lg" />
+		<Icon name="i-heroicons-exclamation-triangle" class="text-lg" />
 		<span class="text-xs">Building data unavailable</span>
 	</div>
 </template>

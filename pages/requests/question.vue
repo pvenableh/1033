@@ -154,23 +154,23 @@ const onSubmit = handleSubmit(async (values) => {
 				</p>
 				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
 					<div class="grid sm:grid-cols-2 gap-4 w-full">
-						<UFormGroup label="Name" required :error="nameError">
-							<UInput v-model="name" />
+						<FormGroup label="Name" required :error="nameError">
+							<Input v-model="name" />
 						</UFormGroup>
-						<UFormGroup label="Email" required :error="emailError">
-							<UInput v-model="email" type="email" placeholder="name@domain.com" />
+						<FormGroup label="Email" required :error="emailError">
+							<Input v-model="email" type="email" placeholder="name@domain.com" />
 						</UFormGroup>
 					</div>
 					<div class="grid sm:grid-cols-2 gap-4">
-						<UFormGroup label="Subject" required :error="subjectError">
+						<FormGroup label="Subject" required :error="subjectError">
 							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
 						</UFormGroup>
-						<UFormGroup label="Unit" required :error="unitError">
+						<FormGroup label="Unit" required :error="unitError">
 							<USelect v-model="unit" :options="formattedOptions" placeholder="Select your unit" />
 						</UFormGroup>
 					</div>
 					<!-- Description -->
-					<UFormGroup label="Description" required :error="descriptionError">
+					<FormGroup label="Description" required :error="descriptionError">
 						<TipTap
 							v-model="description"
 							placeholder="Please provide detailed information about your request"
@@ -178,13 +178,13 @@ const onSubmit = handleSubmit(async (values) => {
 					</UFormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
-						<UButton type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
-						<UButton type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
+						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
+						<Button type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 							{{ isSubmitting ? 'Submitting...' : 'Submit' }}
 						</UButton>
 					</div>
 				</form>
-				<!-- <UButton @click="handleNext" color="primary">Next</UButton> -->
+				<!-- <Button @click="handleNext" color="primary">Next</UButton> -->
 			</div>
 			<div v-else class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
@@ -197,7 +197,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<span class="font-bold text-[var(--cyan)]" v-if="subject">{{ subject.toLowerCase() }} {{ category }}</span>
 					was submitted successfully.
 				</p>
-				<UButton @click="handleReset" color="primary">Reset Form</UButton>
+				<Button @click="handleReset" color="primary">Reset Form</UButton>
 			</div>
 		</TransitionGroup>
 	</div>

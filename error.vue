@@ -47,7 +47,7 @@ const {x, y} = useMouse({touch: false});
 				<p class="text-gray-600 mb-8 text-xs">
 					The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 				</p>
-				<UButton
+				<Button
 					@click="handleError"
 					class="px-6"
 					color="primary"

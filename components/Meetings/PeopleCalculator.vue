@@ -11,7 +11,7 @@
 				v-for="(person, index) in boardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title">
-				<UAvatar
+				<Avatar
 					size="xs"
 					chip-color="primary"
 					:src="
@@ -29,7 +29,7 @@
 				v-for="(person, index) in nonBoardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name">
-				<UAvatar
+				<Avatar
 					size="xs"
 					:src="
 						'https://ui-avatars.com/api/?name=' +

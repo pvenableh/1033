@@ -16,7 +16,7 @@
 			class="w-full flex flex-row justify-between border-gray-300 border-r border-l border-b toolbar"
 			:class="{' !border-cyan-200': editor.isFocused}">
 			<div class="flex items-center flex-row">
-				<UButton
+				<Button
 					v-for="(button, index) in toolbarButtons"
 					:key="index"
 					size="xs"
@@ -25,8 +25,8 @@
 					class="transform scale-75"
 					:class="{'is-active': editor.isActive(button.command)}"
 					@click="button.action" />
-				<UPopover :popper="{placement: 'bottom-start'}" mode="click">
-					<UButton
+				<Popover :popper="{placement: 'bottom-start'}" mode="click">
+					<Button
 						size="xs"
 						variant="ghost"
 						:icon="'i-heroicons-link'"
@@ -34,14 +34,14 @@
 						:class="{'is-active': editor.isActive('link')}" />
 					<template #panel="{close}">
 						<div class="p-2 w-72 space-y-4">
-							<UFormGroup label="URL">
-								<UInput v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
+							<FormGroup label="URL">
+								<Input v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
 							</UFormGroup>
 							<div class="flex justify-end space-x-2">
-								<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
+								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 									Remove
 								</UButton>
-								<UButton size="xs" color="primary" @click="setLink(close)">
+								<Button size="xs" color="primary" @click="setLink(close)">
 									{{ editor.isActive('link') ? 'Update' : 'Add' }}
 								</UButton>
 							</div>
@@ -62,7 +62,7 @@
 					}">
 					{{ characterCount }} / {{ characterLimit }}
 				</span>
-				<UButton
+				<Button
 					v-if="allowUploads"
 					@click="$refs.fileInput.click()"
 					size="xs"
@@ -77,7 +77,7 @@
 		<div ref="mentionsPortal" class="mentions-portal" />
 		<UModal v-model="isModalOpen" fullscreen>
 			<div class="relative">
-				<UButton
+				<Button
 					class="absolute top-2 right-2 z-10"
 					color="gray"
 					variant="outline"

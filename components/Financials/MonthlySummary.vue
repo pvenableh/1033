@@ -1,13 +1,13 @@
 <template>
-	<UCard>
+	<Card>
 		<template #header>
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg font-semibold uppercase tracking-wide">{{ month }} SNAPSHOT</h3>
 				<div class="flex gap-2">
-					<UBadge v-if="complianceRisk.riskLevel === 'CRITICAL'" color="red" variant="solid" size="xs">
+					<Badge v-if="complianceRisk.riskLevel === 'CRITICAL'" color="red" variant="solid" size="xs">
 						FL VIOLATION
 					</UBadge>
-					<UButton size="xs" color="gray" variant="ghost" :to="`/financials/monthly-report/${month.toLowerCase()}`">
+					<Button size="xs" color="gray" variant="ghost" :to="`/financials/monthly-report/${month.toLowerCase()}`">
 						VIEW DETAILS →
 					</UButton>
 				</div>
@@ -78,7 +78,7 @@
 					:key="alert.id"
 					class="flex items-center p-2 rounded-lg text-sm"
 					:class="alert.type === 'critical' ? 'bg-red-50 text-red-700' : 'bg-yellow-50 text-yellow-700'">
-					<UIcon
+					<Icon
 						:name="alert.type === 'critical' ? 'i-heroicons-exclamation-circle' : 'i-heroicons-exclamation-triangle'"
 						class="w-4 h-4 mr-2 flex-shrink-0" />
 					<span>{{ alert.message }}</span>
@@ -120,7 +120,7 @@
 			<div class="pt-2 border-t">
 				<div class="flex items-center justify-between">
 					<span class="text-sm font-medium">FL Compliance</span>
-					<UBadge
+					<Badge
 						:color="
 							complianceRisk.riskLevel === 'CRITICAL' ? 'red' : complianceRisk.riskLevel === 'HIGH' ? 'orange' : 'green'
 						"
@@ -135,7 +135,7 @@
 					class="mt-2 p-2 rounded text-xs"
 					:class="complianceRisk.riskLevel === 'CRITICAL' ? 'bg-red-50 text-red-700' : 'bg-orange-50 text-orange-700'">
 					<div class="flex items-center">
-						<UIcon name="i-heroicons-exclamation-triangle" class="w-3 h-3 mr-1" />
+						<Icon name="i-heroicons-exclamation-triangle" class="w-3 h-3 mr-1" />
 						<span v-if="complianceRisk.personalLiability">Board liability risk</span>
 						<span v-else>Compliance violations</span>
 					</div>

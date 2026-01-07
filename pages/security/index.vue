@@ -8,7 +8,7 @@
 			to="/access-control"
 			class="text-cream-alt text-xs px-6 w-full text-center uppercase tracking-wide font-semibold mb-4 opacity-50 hover:opacity-100">
 			Review Access Control Decision Analysis
-			<UIcon name="i-heroicons-arrow-right" class="w-4 h-4 inline-block ml-2 -mb-1" />
+			<Icon name="i-heroicons-arrow-right" class="w-4 h-4 inline-block ml-2 -mb-1" />
 		</nuxt-link>
 		<!-- Mobile Tabs (hidden on lg and up) -->
 		<div class="w-full md:px-6 lg:hidden mt-0">
@@ -41,7 +41,7 @@
 										<button
 											@click="toggleActivitySearch"
 											class="text-white/80 hover:text-white transition-colors focus:outline-none">
-											<UIcon
+											<Icon
 												name="i-heroicons-magnifying-glass-circle"
 												:class="[
 													'w-5 h-5 transition-transform duration-300 mt-1',
@@ -65,7 +65,7 @@
 											type="text"
 											placeholder="Search by name, access point, or status..."
 											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-										<UIcon
+										<Icon
 											name="i-heroicons-magnifying-glass"
 											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 
@@ -75,7 +75,7 @@
 											@click="manualRefresh"
 											:disabled="pending || loadingMore"
 											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
-											<UIcon
+											<Icon
 												name="i-heroicons-arrow-path"
 												class="w-5 h-5"
 												:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
@@ -85,7 +85,7 @@
 											v-else
 											@click="activitySearchQuery = ''"
 											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+											<Icon name="i-heroicons-x-mark" class="w-5 h-5" />
 										</button>
 									</div>
 								</div>
@@ -99,18 +99,18 @@
 									isActivitySearchOpen ? 'max-h-[100svh - 275px]' : 'max-h-[100svh - 195px]',
 								]">
 								<div v-if="pending && events.length === 0" class="px-4 py-8 text-center text-zinc-500">
-									<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
+									<Icon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
 									<p class="mt-4">Loading activity...</p>
 								</div>
 
 								<div v-else-if="error && events.length === 0" class="px-4 py-8 text-center text-red-500">
-									<UIcon name="i-heroicons-exclamation-circle" class="w-12 h-12 mx-auto mb-2" />
+									<Icon name="i-heroicons-exclamation-circle" class="w-12 h-12 mx-auto mb-2" />
 									<p>Error loading activity</p>
 								</div>
 
 								<!-- No Results Message -->
 								<div v-else-if="filteredEvents.length === 0" class="px-4 py-8 text-center text-zinc-500">
-									<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+									<Icon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
 									<p>No activity found</p>
 								</div>
 
@@ -131,7 +131,7 @@
 												<div
 													v-else
 													class="w-32 h-32 bg-zinc-800 flex items-center justify-center border border-zinc-700">
-													<UIcon name="i-heroicons-user-circle" class="w-8 h-8 text-zinc-600" />
+													<Icon name="i-heroicons-user-circle" class="w-8 h-8 text-zinc-600" />
 												</div>
 											</div>
 
@@ -185,7 +185,7 @@
 
 									<!-- Loading More Indicator -->
 									<div v-if="loadingMore" class="px-4 py-6 text-center text-zinc-500">
-										<UIcon name="i-heroicons-arrow-path" class="w-6 h-6 mx-auto animate-spin text-blue-500" />
+										<Icon name="i-heroicons-arrow-path" class="w-6 h-6 mx-auto animate-spin text-blue-500" />
 										<p class="mt-2 text-sm">Loading more...</p>
 									</div>
 
@@ -209,7 +209,7 @@
 									<button
 										@click="toggleDirectorySearch"
 										class="text-white/80 hover:text-white transition-colors focus:outline-none">
-										<UIcon
+										<Icon
 											name="i-heroicons-magnifying-glass-circle"
 											:class="[
 												'w-5 h-5 transition-transform duration-300 mt-1',
@@ -226,14 +226,14 @@
 											type="text"
 											placeholder="Search by name or unit number..."
 											class="w-full swiftlane-bg border border-white/20 px-4 py-2 md:py-3 pl-11 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-										<UIcon
+										<Icon
 											name="i-heroicons-magnifying-glass"
 											class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 										<button
 											v-if="searchQuery"
 											@click="searchQuery = ''"
 											class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-											<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+											<Icon name="i-heroicons-x-mark" class="w-5 h-5" />
 										</button>
 									</div>
 								</div>
@@ -246,7 +246,7 @@
 								]">
 								<!-- No Results Message -->
 								<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
-									<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+									<Icon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
 									<p>No residents found</p>
 								</div>
 
@@ -298,7 +298,7 @@
 							<button
 								@click="toggleActivitySearch"
 								class="text-white/80 hover:text-white transition-colors focus:outline-none">
-								<UIcon
+								<Icon
 									name="i-heroicons-magnifying-glass-circle"
 									:class="[
 										'w-6 h-6 transition-transform duration-300 mt-1',
@@ -322,7 +322,7 @@
 								type="text"
 								placeholder="Search by name, access point, or status..."
 								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-							<UIcon
+							<Icon
 								name="i-heroicons-magnifying-glass"
 								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 
@@ -332,7 +332,7 @@
 								@click="manualRefresh"
 								:disabled="pending || loadingMore"
 								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors disabled:opacity-50">
-								<UIcon
+								<Icon
 									name="i-heroicons-arrow-path"
 									class="w-5 h-5"
 									:class="isAutoRefreshing || pending ? 'animate-spin' : ''" />
@@ -342,7 +342,7 @@
 								v-else
 								@click="activitySearchQuery = ''"
 								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+								<Icon name="i-heroicons-x-mark" class="w-5 h-5" />
 							</button>
 						</div>
 					</div>
@@ -356,18 +356,18 @@
 						isActivitySearchOpen ? 'max-h-[720px]' : 'max-h-[800px]',
 					]">
 					<div v-if="pending && events.length === 0" class="px-4 py-8 text-center text-zinc-500">
-						<UIcon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
+						<Icon name="i-heroicons-arrow-path" class="w-8 h-8 mx-auto animate-spin text-blue-500" />
 						<p class="mt-4">Loading activity...</p>
 					</div>
 
 					<div v-else-if="error && events.length === 0" class="px-4 py-8 text-center text-red-500">
-						<UIcon name="i-heroicons-exclamation-circle" class="w-12 h-12 mx-auto mb-2" />
+						<Icon name="i-heroicons-exclamation-circle" class="w-12 h-12 mx-auto mb-2" />
 						<p>Error loading activity</p>
 					</div>
 
 					<!-- No Results Message -->
 					<div v-else-if="filteredEvents.length === 0" class="px-4 py-8 text-center text-zinc-500">
-						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+						<Icon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
 						<p>No activity found</p>
 					</div>
 
@@ -386,7 +386,7 @@
 										class="w-32 h-32 object-cover border border-zinc-700 cursor-pointer hover:opacity-80 transition-opacity"
 										alt="Access photo" />
 									<div v-else class="w-32 h-32 bg-zinc-800 flex items-center justify-center border border-zinc-700">
-										<UIcon name="i-heroicons-user-circle" class="w-8 h-8 text-zinc-600" />
+										<Icon name="i-heroicons-user-circle" class="w-8 h-8 text-zinc-600" />
 									</div>
 								</div>
 
@@ -438,7 +438,7 @@
 
 						<!-- Loading More Indicator -->
 						<div v-if="loadingMore" class="px-4 py-6 text-center text-zinc-500">
-							<UIcon name="i-heroicons-arrow-path" class="w-6 h-6 mx-auto animate-spin text-blue-500" />
+							<Icon name="i-heroicons-arrow-path" class="w-6 h-6 mx-auto animate-spin text-blue-500" />
 							<p class="mt-2 text-sm">Loading more...</p>
 						</div>
 
@@ -462,7 +462,7 @@
 						<button
 							@click="toggleDirectorySearch"
 							class="text-white/80 hover:text-white transition-colors focus:outline-none ml-4">
-							<UIcon
+							<Icon
 								name="i-heroicons-magnifying-glass-circle"
 								:class="[
 									'w-6 h-6 transition-transform duration-300 mt-1',
@@ -479,14 +479,14 @@
 								type="text"
 								placeholder="Search by name or unit number..."
 								class="w-full swiftlane-bg border border-white/20 px-4 py-2 pl-11 pr-12 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/40 focus:bg-white/20 transition-all" />
-							<UIcon
+							<Icon
 								name="i-heroicons-magnifying-glass"
 								class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-white/60" />
 							<button
 								v-if="searchQuery"
 								@click="searchQuery = ''"
 								class="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors">
-								<UIcon name="i-heroicons-x-mark" class="w-5 h-5" />
+								<Icon name="i-heroicons-x-mark" class="w-5 h-5" />
 							</button>
 						</div>
 					</div>
@@ -499,7 +499,7 @@
 					]">
 					<!-- No Results Message -->
 					<div v-if="Object.keys(filteredTenants).length === 0" class="px-4 py-8 text-center text-zinc-500">
-						<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
+						<Icon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-2 text-zinc-700" />
 						<p>No residents found</p>
 					</div>
 
@@ -549,7 +549,7 @@
 						</p>
 					</div>
 					<button @click="isPhotoModalOpen = false" class="text-zinc-400 hover:text-white transition-colors">
-						<UIcon name="i-heroicons-x-mark" class="w-6 h-6" />
+						<Icon name="i-heroicons-x-mark" class="w-6 h-6" />
 					</button>
 				</div>
 

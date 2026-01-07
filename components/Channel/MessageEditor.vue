@@ -6,12 +6,12 @@
 				v-if="replyTo"
 				class="reply-indicator flex items-center gap-2 px-3 py-2 bg-primary-50 dark:bg-primary-900/20 border border-b-0 border-primary-200 dark:border-primary-800 rounded-t-lg">
 				<div class="flex-1 flex items-center gap-2 min-w-0">
-					<UIcon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary rotate-180 flex-shrink-0" />
+					<Icon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary rotate-180 flex-shrink-0" />
 					<span class="text-sm text-primary-700 dark:text-primary-300 flex-shrink-0">Replying to</span>
 					<span class="font-medium text-sm text-primary-800 dark:text-primary-200 flex-shrink-0">{{ replyToAuthorName }}</span>
 					<span class="text-sm text-primary dark:text-primary truncate">{{ replyToPreview }}</span>
 				</div>
-				<UButton
+				<Button
 					size="xs"
 					color="primary"
 					variant="ghost"
@@ -33,7 +33,7 @@
 		<div class="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-b-lg border-x border-b border-gray-300 dark:border-gray-600">
 			<div class="flex items-center gap-1">
 				<!-- Formatting buttons -->
-				<UButton
+				<Button
 					v-for="(button, index) in toolbarButtons"
 					:key="index"
 					size="xs"
@@ -44,7 +44,7 @@
 					@click="button.action" />
 
 				<!-- Mention button -->
-				<UButton
+				<Button
 					size="xs"
 					variant="ghost"
 					color="gray"
@@ -52,7 +52,7 @@
 					@click="insertMentionTrigger" />
 
 				<!-- File upload button -->
-				<UButton
+				<Button
 					v-if="allowUploads"
 					size="xs"
 					variant="ghost"
@@ -64,14 +64,14 @@
 			<div class="flex items-center gap-2">
 				<!-- Enter-to-send toggle -->
 				<UTooltip :text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
-					<UButton
+					<Button
 						size="xs"
 						:variant="enterToSend ? 'solid' : 'ghost'"
 						:color="enterToSend ? 'primary' : 'gray'"
 						class="text-xs font-mono px-1.5"
 						@click="toggleEnterToSend">
 						<span class="flex items-center gap-0.5">
-							<UIcon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
+							<Icon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
 							<span class="hidden sm:inline text-[10px]">Enter</span>
 						</span>
 					</UButton>
@@ -89,7 +89,7 @@
 				</span>
 
 				<!-- Send button -->
-				<UButton
+				<Button
 					size="xs"
 					color="primary"
 					:icon="'i-heroicons-paper-airplane'"

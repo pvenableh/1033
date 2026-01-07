@@ -12,7 +12,7 @@
 					<a
 						:href="'mailto:' + item.email"
 						class="w-8 h-8 inline-flex items-center justify-center ml-2 border border-gray-400 rounded-full p-1">
-						<UIcon name="i-heroicons-envelope" class="w-4 h-4" />
+						<Icon name="i-heroicons-envelope" class="w-4 h-4" />
 					</a>
 				</h5>
 				<h5 class="w-full uppercase tracking-wide mb-2">

@@ -88,7 +88,7 @@ function minutes(files) {
 	<div class="insight meetings">
 		<h1 class="relative insight__label">
 			Board Meetings:
-			<UBadge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
+			<Badge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ pastMeetings.length }}
 			</UBadge>
 		</h1>
@@ -137,7 +137,7 @@ function minutes(files) {
 		<div class="w-full flex items-center justify-center mt-8">
 			<nuxt-link to="/meetings/" class="insight__link">
 				View All Meetings
-				<UIcon name="i-heroicons-arrow-right" />
+				<Icon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>
 		<div v-if="error">Error</div>

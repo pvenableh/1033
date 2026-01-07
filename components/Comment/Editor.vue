@@ -1,7 +1,7 @@
 <template>
 	<div v-if="editor" class="comment-editor relative">
 		<div class="flex gap-3">
-			<UAvatar
+			<Avatar
 				v-if="showAvatar"
 				:src="currentUserAvatar"
 				:alt="currentUserName"
@@ -17,7 +17,7 @@
 				<div class="flex items-center justify-between mt-2">
 					<div class="flex items-center gap-1">
 						<!-- Formatting buttons -->
-						<UButton
+						<Button
 							v-for="(button, index) in toolbarButtons"
 							:key="index"
 							size="xs"
@@ -28,7 +28,7 @@
 							@click="button.action" />
 
 						<!-- Mention button -->
-						<UButton
+						<Button
 							size="xs"
 							variant="ghost"
 							color="gray"
@@ -36,7 +36,7 @@
 							@click="insertMentionTrigger" />
 
 						<!-- File upload button -->
-						<UButton
+						<Button
 							v-if="allowUploads"
 							size="xs"
 							variant="ghost"
@@ -45,8 +45,8 @@
 							@click="$refs.fileInput.click()" />
 
 						<!-- Link button -->
-						<UPopover :popper="{placement: 'top'}" mode="click">
-							<UButton
+						<Popover :popper="{placement: 'top'}" mode="click">
+							<Button
 								size="xs"
 								variant="ghost"
 								color="gray"
@@ -54,16 +54,16 @@
 								:class="{'bg-gray-200 dark:bg-gray-700': editor.isActive('link')}" />
 							<template #panel="{close}">
 								<div class="p-2 w-64 space-y-2">
-									<UInput
+									<Input
 										v-model="linkUrl"
 										placeholder="https://example.com"
 										size="sm"
 										@keyup.enter="setLink(close)" />
 									<div class="flex justify-end gap-1">
-										<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
+										<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 											Remove
 										</UButton>
-										<UButton size="xs" color="primary" @click="setLink(close)">
+										<Button size="xs" color="primary" @click="setLink(close)">
 											{{ editor.isActive('link') ? 'Update' : 'Add' }}
 										</UButton>
 									</div>
@@ -73,7 +73,7 @@
 					</div>
 
 					<div class="flex items-center gap-2">
-						<UButton
+						<Button
 							v-if="showCancel"
 							size="xs"
 							color="gray"
@@ -81,7 +81,7 @@
 							@click="$emit('cancel')">
 							Cancel
 						</UButton>
-						<UButton
+						<Button
 							size="xs"
 							color="primary"
 							:disabled="!canSubmit"

@@ -26,7 +26,7 @@
 			<template v-if="selectedChannelId">
 				<!-- Mobile Header with Menu Button -->
 				<div class="lg:hidden flex items-center gap-3 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-					<UButton
+					<Button
 						color="gray"
 						variant="ghost"
 						icon="i-heroicons-bars-3"
@@ -47,14 +47,14 @@
 				<div class="flex-1 flex items-center justify-center p-4">
 					<div class="text-center">
 						<!-- Mobile: Show button to open sidebar -->
-						<UButton
+						<Button
 							class="lg:hidden mb-6"
 							color="primary"
 							@click="showMobileSidebar = true">
-							<UIcon name="i-heroicons-bars-3" class="w-5 h-5 mr-2" />
+							<Icon name="i-heroicons-bars-3" class="w-5 h-5 mr-2" />
 							Browse Channels
 						</UButton>
-						<UIcon
+						<Icon
 							name="i-heroicons-chat-bubble-left-right"
 							class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
 						<h2 class="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">Welcome to Channels</h2>

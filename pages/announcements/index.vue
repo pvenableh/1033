@@ -138,7 +138,7 @@ onUnmounted(() => {
 							</div>
 							<div
 								class="flex-shrink-0 w-10 h-10 rounded-full border t-border-divider group-hover:border-gold group-hover:t-bg-accent flex items-center justify-center transition-all duration-300">
-								<UIcon
+								<Icon
 									name="i-heroicons-arrow-right"
 									class="w-5 h-5 t-text-muted group-hover:text-white transition-colors duration-300" />
 							</div>
@@ -149,7 +149,7 @@ onUnmounted(() => {
 				<!-- Empty State -->
 				<div v-else class="text-center py-16">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 t-border-divider rounded-full flex items-center justify-center">
-						<UIcon name="i-heroicons-megaphone" class="w-8 h-8 t-text-muted" />
+						<Icon name="i-heroicons-megaphone" class="w-8 h-8 t-text-muted" />
 					</div>
 					<p class="t-heading text-xl t-text-secondary mb-2">No Announcements</p>
 					<p class="text-sm t-text-tertiary">Check back later for updates</p>

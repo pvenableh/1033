@@ -188,28 +188,28 @@ function getStatusBadge(status: string) {
 	<div class="w-full">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="!mt-0 !mb-0">My Vehicles</h2>
-			<UButton v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</UButton>
+			<Button v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</UButton>
 		</div>
 
 		<div v-if="unitsPending" class="text-center py-8 text-gray-500">
-			<UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+			<Icon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
 			<p>Loading vehicles...</p>
 		</div>
 
 		<div v-else-if="errorMessage" class="text-center py-8">
-			<UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+			<Icon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
 			<p class="text-red-600 mb-2">{{ errorMessage }}</p>
-			<UButton variant="soft" size="sm" @click="refreshUnits()">Try Again</UButton>
+			<Button variant="soft" size="sm" @click="refreshUnits()">Try Again</UButton>
 		</div>
 
 		<div v-else-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
-			<UIcon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+			<Icon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
 			<p>No vehicles registered yet.</p>
-			<UButton v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</UButton>
+			<Button v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</UButton>
 		</div>
 
 		<div v-else class="grid gap-4 md:grid-cols-2">
-			<UCard v-for="vehicle in vehicles" :key="vehicle.id" class="relative">
+			<Card v-for="vehicle in vehicles" :key="vehicle.id" class="relative">
 				<div class="flex items-start gap-4">
 					<div class="flex-shrink-0">
 						<div class="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -218,14 +218,14 @@ function getStatusBadge(status: string) {
 								:src="'https://admin.1033lenox.com/assets/' + vehicle.image + '?key=small'"
 								alt="Vehicle Image"
 								class="w-full h-full object-cover" />
-							<UIcon v-else name="i-lucide-car" class="w-8 h-8 text-gray-400" />
+							<Icon v-else name="i-lucide-car" class="w-8 h-8 text-gray-400" />
 						</div>
 					</div>
 
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2 mb-1">
 							<h3 class="font-semibold">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
-							<UBadge :color="getStatusBadge(vehicle.status).color" variant="soft" size="xs">
+							<Badge :color="getStatusBadge(vehicle.status).color" variant="soft" size="xs">
 								{{ getStatusBadge(vehicle.status).label }}
 							</UBadge>
 						</div>
@@ -244,7 +244,7 @@ function getStatusBadge(status: string) {
 								{label: 'Remove', icon: 'i-heroicons-trash', click: () => deleteVehicle(vehicle)},
 							],
 						]">
-						<UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
+						<Button color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
 					</UDropdown>
 				</div>
 			</UCard>
@@ -252,42 +252,42 @@ function getStatusBadge(status: string) {
 
 		<!-- Add/Edit Modal -->
 		<UModal v-model="showModal">
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">{{ isEditing ? 'Edit Vehicle' : 'Add Vehicle' }}</h3>
-						<UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showModal = false" />
+						<Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showModal = false" />
 					</div>
 				</template>
 
 				<div class="space-y-4">
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="Make">
-							<UInput v-model="editingVehicle.make" placeholder="e.g., Toyota" />
+						<FormGroup label="Make">
+							<Input v-model="editingVehicle.make" placeholder="e.g., Toyota" />
 						</UFormGroup>
 
-						<UFormGroup label="Model">
-							<UInput v-model="editingVehicle.model" placeholder="e.g., Camry" />
+						<FormGroup label="Model">
+							<Input v-model="editingVehicle.model" placeholder="e.g., Camry" />
 						</UFormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="Year">
-							<UInput v-model="editingVehicle.year" placeholder="e.g., 2022" />
+						<FormGroup label="Year">
+							<Input v-model="editingVehicle.year" placeholder="e.g., 2022" />
 						</UFormGroup>
 
-						<UFormGroup label="Color">
+						<FormGroup label="Color">
 							<USelectMenu v-model="editingVehicle.color" :options="commonColors" placeholder="Select color" />
 						</UFormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="License Plate">
-							<UInput v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
+						<FormGroup label="License Plate">
+							<Input v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
 						</UFormGroup>
 
-						<UFormGroup label="State">
-							<UInput v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
+						<FormGroup label="State">
+							<Input v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
 						</UFormGroup>
 					</div>
 				</div>
@@ -298,8 +298,8 @@ function getStatusBadge(status: string) {
 							New vehicles and updates require admin approval before they appear as approved.
 						</p>
 						<div class="flex justify-end gap-3">
-							<UButton color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
-							<UButton :loading="loading" @click="saveVehicle">
+							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
+							<Button :loading="loading" @click="saveVehicle">
 								{{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
 							</UButton>
 						</div>

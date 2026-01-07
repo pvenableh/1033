@@ -4,26 +4,21 @@
 		<div class="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
 			<h3 class="font-semibold text-gray-900 dark:text-white">Members</h3>
 			<div class="flex items-center gap-1">
-				<UButton
+				<Button
 					v-if="canInvite"
 					size="xs"
 					color="primary"
 					variant="ghost"
 					icon="i-heroicons-user-plus"
 					@click="$emit('invite')" />
-				<UButton
-					size="xs"
-					color="gray"
-					variant="ghost"
-					icon="i-heroicons-x-mark"
-					@click="$emit('close')" />
+				<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="$emit('close')" />
 			</div>
 		</div>
 
 		<!-- Member List -->
 		<div class="flex-1 overflow-y-auto p-2">
 			<div v-if="members.length === 0" class="text-center py-8 text-gray-500">
-				<UIcon name="i-heroicons-users" class="w-8 h-8 mx-auto mb-2 opacity-50" />
+				<Icon name="i-heroicons-users" class="w-8 h-8 mx-auto mb-2 opacity-50" />
 				<p class="text-sm">No members yet</p>
 			</div>
 
@@ -33,10 +28,7 @@
 					:key="member.id"
 					class="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 group">
 					<div class="relative">
-						<UAvatar
-							:src="getMemberAvatar(member)"
-							:alt="getMemberName(member)"
-							size="sm" />
+						<Avatar :src="getMemberAvatar(member)" :alt="getMemberName(member)" size="sm" />
 						<!-- Online indicator (future feature) -->
 						<!-- <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-gray-800 rounded-full"></span> -->
 					</div>
@@ -46,13 +38,7 @@
 							<span class="text-sm font-medium text-gray-900 dark:text-white truncate">
 								{{ getMemberName(member) }}
 							</span>
-							<UBadge
-								v-if="member.role === 'moderator'"
-								size="xs"
-								color="amber"
-								variant="subtle">
-								Mod
-							</UBadge>
+							<Badge v-if="member.role === 'moderator'" size="xs" color="amber" variant="subtle">Mod</UBadge>
 						</div>
 						<p class="text-xs text-gray-500 dark:text-gray-400 truncate">
 							{{ getMemberEmail(member) }}
@@ -60,7 +46,7 @@
 					</div>
 
 					<!-- Remove button -->
-					<UButton
+					<Button
 						v-if="canRemoveMember(member)"
 						size="xs"
 						color="red"

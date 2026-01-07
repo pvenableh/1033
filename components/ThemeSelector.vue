@@ -21,7 +21,7 @@ const themes = [
 				@click="setThemeStyle(theme.id)">
 				<span class="theme-option__icon">
 					<span v-if="theme.id === 'classic'" class="icon-classic">Aa</span>
-					<UIcon v-else name="i-heroicons-square-3-stack-3d" class="w-4 h-4" />
+					<Icon v-else name="i-heroicons-square-3-stack-3d" class="w-4 h-4" />
 				</span>
 				<span class="theme-option__text">
 					<span class="theme-option__label">{{ theme.label }}</span>
@@ -35,7 +35,7 @@ const themes = [
 			<button class="mode-toggle" :class="{dark: isDark}" @click="setThemeMode(isDark ? 'light' : 'dark')">
 				<span class="mode-toggle__track">
 					<span class="mode-toggle__thumb">
-						<UIcon :name="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'" class="w-3 h-3" />
+						<Icon :name="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'" class="w-3 h-3" />
 					</span>
 				</span>
 				<span class="uppercase tracking-wider mode-toggle__label">{{ isDark ? 'Dark' : 'Light' }} Mode</span>

@@ -1,8 +1,8 @@
 <template>
 	<div class="w-full flex items-start justify-start flex-row password-request">
-		<UForm :validate="validate" :state="state" class="w-full" @submit="submit">
-			<UFormGroup label="Email" name="email" class="my-6">
-				<UInput
+		<Form :validate="validate" :state="state" class="w-full" @submit="submit">
+			<FormGroup label="Email" name="email" class="my-6">
+				<Input
 					v-model="state.email"
 					name="email"
 					type="email"
@@ -20,7 +20,7 @@
 					</span>
 				</template>
 			</UFormGroup>
-			<UButton
+			<Button
 				class="w-full mb-6"
 				type="submit"
 				size="lg"

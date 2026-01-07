@@ -8,11 +8,11 @@
 		<!-- Budget Overview Cards -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<!-- Revenue Card -->
-			<UCard class="!rounded-[4px]">
+			<Card class="!rounded-[4px]">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">ANNUAL REVENUE</h3>
-						<UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-green-600" />
+						<Icon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-green-600" />
 					</div>
 				</template>
 				<div class="space-y-4">
@@ -38,11 +38,11 @@
 			</UCard>
 
 			<!-- Expenses Card -->
-			<UCard class="!rounded-[4px]">
+			<Card class="!rounded-[4px]">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">ANNUAL EXPENSES</h3>
-						<UIcon name="i-heroicons-arrow-trending-down" class="w-6 h-6 text-red-600" />
+						<Icon name="i-heroicons-arrow-trending-down" class="w-6 h-6 text-red-600" />
 					</div>
 				</template>
 				<div class="space-y-4">
@@ -74,13 +74,13 @@
 			</UCard>
 
 			<!-- Net Operating Card -->
-			<UCard
+			<Card
 				class="!rounded-[4px]"
 				:class="budget.netOperating.yearly >= 0 ? 'border-2 border-green-300' : 'border-2 border-red-300'">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">NET OPERATING</h3>
-						<UIcon
+						<Icon
 							:name="budget.netOperating.yearly >= 0 ? 'i-heroicons-check-circle' : 'i-heroicons-exclamation-triangle'"
 							:class="budget.netOperating.yearly >= 0 ? 'w-6 h-6 text-green-600' : 'w-6 h-6 text-yellow-600'" />
 					</div>
@@ -108,7 +108,7 @@
 				<div class="space-y-6">
 					<!-- Expense Category Cards -->
 					<div v-for="(category, key) in budget.categories" :key="key">
-						<UCard class="!rounded-[4px]">
+						<Card class="!rounded-[4px]">
 							<template #header>
 								<div class="flex justify-between items-center">
 									<h3 class="text-lg font-semibold uppercase tracking-wide">{{ key }}</h3>
@@ -163,7 +163,7 @@
 
 			<!-- Revenue Breakdown Tab -->
 			<template #revenue>
-				<UCard class="!rounded-[4px]">
+				<Card class="!rounded-[4px]">
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">REVENUE SOURCES</h3>
 					</template>
@@ -233,7 +233,7 @@
 
 			<!-- Summary Tab -->
 			<template #summary>
-				<UCard class="!rounded-[4px]">
+				<Card class="!rounded-[4px]">
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">BUDGET SUMMARY</h3>
 					</template>

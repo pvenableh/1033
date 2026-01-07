@@ -6,13 +6,13 @@
 			:class="{'hidden lg:block': hideHeaderOnMobile}">
 			<div class="flex items-center justify-between">
 				<div class="flex items-center gap-3">
-					<UIcon
+					<Icon
 						:name="channelIcon"
 						class="w-6 h-6 text-gray-500 dark:text-gray-400" />
 					<div>
 						<h2 class="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
 							#{{ channel?.name }}
-							<UBadge v-if="channel?.is_private" size="xs" color="gray" variant="subtle">
+							<Badge v-if="channel?.is_private" size="xs" color="gray" variant="subtle">
 								Private
 							</UBadge>
 						</h2>
@@ -24,13 +24,13 @@
 
 				<div class="flex items-center gap-2">
 					<!-- Search toggle button -->
-					<UButton
+					<Button
 						size="sm"
 						color="gray"
 						:variant="showMessageSearch ? 'soft' : 'ghost'"
 						icon="i-heroicons-magnifying-glass"
 						@click="toggleMessageSearch" />
-					<UButton
+					<Button
 						size="sm"
 						color="gray"
 						variant="ghost"
@@ -40,7 +40,7 @@
 						<span class="sm:hidden">{{ memberCount }}</span>
 					</UButton>
 					<UDropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
-						<UButton
+						<Button
 							size="sm"
 							color="gray"
 							variant="ghost"
@@ -53,7 +53,7 @@
 			<Transition name="slide-down">
 				<div v-if="showMessageSearch" class="mt-3">
 					<div class="relative">
-						<UInput
+						<Input
 							ref="messageSearchInput"
 							v-model="messageSearchQuery"
 							placeholder="Search messages..."
@@ -65,7 +65,7 @@
 									<span v-if="messageSearchQuery && filteredMessages.length > 0" class="text-xs text-gray-500">
 										{{ filteredMessages.length }} result{{ filteredMessages.length !== 1 ? 's' : '' }}
 									</span>
-									<UButton
+									<Button
 										v-if="messageSearchQuery"
 										color="gray"
 										variant="link"
@@ -92,11 +92,11 @@
 					<!-- Centered container with max-width for better desktop readability -->
 					<div class="max-w-4xl mx-auto space-y-4">
 						<div v-if="loadingMessages" class="flex items-center justify-center py-8">
-							<UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+							<Icon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
 						</div>
 
 						<div v-else-if="messages.length === 0" class="text-center py-12">
-							<UIcon name="i-heroicons-chat-bubble-left-right" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+							<Icon name="i-heroicons-chat-bubble-left-right" class="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
 							<p class="text-gray-500 dark:text-gray-400">No messages yet</p>
 							<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
 								Be the first to send a message!
@@ -104,7 +104,7 @@
 						</div>
 
 						<div v-else-if="messageSearchQuery && filteredMessages.length === 0" class="text-center py-12">
-							<UIcon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
+							<Icon name="i-heroicons-magnifying-glass" class="w-12 h-12 mx-auto mb-4 text-gray-300 dark:text-gray-600" />
 							<p class="text-gray-500 dark:text-gray-400">No messages match your search</p>
 							<p class="text-sm text-gray-400 dark:text-gray-500 mt-1">
 								Try a different search term
@@ -166,11 +166,11 @@
 
 		<!-- Invite Member Modal -->
 		<UModal v-model="showInviteModal">
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Invite to #{{ channel?.name }}</h3>
-						<UButton
+						<Button
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-x-mark"
@@ -179,7 +179,7 @@
 				</template>
 
 				<div class="space-y-4">
-					<UFormGroup label="Select User">
+					<FormGroup label="Select User">
 						<USelectMenu
 							v-model="selectedUserToInvite"
 							:options="invitableUsers"
@@ -196,7 +196,7 @@
 							</template>
 							<template #option="{ option }">
 								<div class="flex items-center gap-2">
-									<UAvatar
+									<Avatar
 										:src="option.avatar"
 										:alt="option.label"
 										size="xs" />
@@ -209,7 +209,7 @@
 						</USelectMenu>
 					</UFormGroup>
 
-					<UFormGroup label="Role">
+					<FormGroup label="Role">
 						<USelectMenu
 							v-model="inviteRole"
 							:options="roleOptions" />
@@ -218,10 +218,10 @@
 
 				<template #footer>
 					<div class="flex justify-end gap-2">
-						<UButton color="gray" variant="ghost" @click="showInviteModal = false">
+						<Button color="gray" variant="ghost" @click="showInviteModal = false">
 							Cancel
 						</UButton>
-						<UButton
+						<Button
 							color="primary"
 							:disabled="!selectedUserToInvite"
 							:loading="inviting"

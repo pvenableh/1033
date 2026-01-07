@@ -28,7 +28,7 @@ const avatar = computed(() => {
 </script>
 <template>
 	<div class="w-full relative flex items-start justify-start flex-row pb-3 comment">
-		<UAvatar
+		<Avatar
 			class="comment__user-avatar"
 			size="xs"
 			:src="avatar"

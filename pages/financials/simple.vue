@@ -9,18 +9,18 @@
 		<!-- Executive Summary Section -->
 		<div class="mb-8">
 			<h2 class="text-2xl font-bold uppercase tracking-wide mb-6 flex items-center">
-				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-blue-600" />
+				<Icon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-blue-600" />
 				EXECUTIVE SUMMARY (YEAR-TO-DATE)
 			</h2>
 
 			<!-- Key Performance Indicators -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 				<!-- Financial Health Score -->
-				<UCard
+				<Card
 					class="text-center rounded-[4px] shadow"
 					:class="financialHealth.score < 60 ? 'border  border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon name="i-heroicons-gauge" class="w-8 h-8 mx-auto" :class="financialHealth.color" />
+						<Icon name="i-heroicons-gauge" class="w-8 h-8 mx-auto" :class="financialHealth.color" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">FINANCIAL HEALTH</p>
 						<p class="text-3xl font-bold" :class="financialHealth.color">{{ financialHealth.score }}%</p>
 						<p class="text-xs font-medium" :class="financialHealth.color">{{ financialHealth.status }}</p>
@@ -28,9 +28,9 @@
 				</UCard>
 
 				<!-- YTD Cash Decline -->
-				<UCard class="text-center rounded-[4px] shadow" :class="ytdCashChange < 0 ? 'border border-red-500' : ''">
+				<Card class="text-center rounded-[4px] shadow" :class="ytdCashChange < 0 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon
+						<Icon
 							name="i-heroicons-arrow-trending-down"
 							class="w-8 h-8 mx-auto"
 							:class="ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'" />
@@ -43,9 +43,9 @@
 				</UCard>
 
 				<!-- Monthly Burn Rate -->
-				<UCard class="text-center rounded-[4px] shadow" :class="monthlyBurnRate > 5000 ? 'border border-red-500' : ''">
+				<Card class="text-center rounded-[4px] shadow" :class="monthlyBurnRate > 5000 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon
+						<Icon
 							name="i-heroicons-fire"
 							class="w-8 h-8 mx-auto"
 							:class="monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'" />
@@ -58,9 +58,9 @@
 				</UCard>
 
 				<!-- Cash Runway -->
-				<UCard class="text-center rounded-[4px] shadow" :class="cashRunway.months < 12 ? 'border border-red-500' : ''">
+				<Card class="text-center rounded-[4px] shadow" :class="cashRunway.months < 12 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunway.color" />
+						<Icon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunway.color" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">CASH RUNWAY</p>
 						<p class="text-3xl font-bold" :class="cashRunway.color">{{ cashRunway.months }} mo</p>
 						<p class="text-xs font-medium" :class="cashRunway.color">{{ cashRunway.status }}</p>
@@ -69,7 +69,7 @@
 			</div>
 
 			<!-- YTD Trends Chart -->
-			<UCard class="mb-6">
+			<Card class="mb-6">
 				<template #header>
 					<h3 class="text-lg font-semibold uppercase tracking-wide">YTD CASH FLOW TRENDS</h3>
 				</template>
@@ -80,7 +80,7 @@
 
 			<!-- Budget Performance YTD -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">YTD BUDGET PERFORMANCE</h3>
 					</template>
@@ -110,13 +110,13 @@
 					</div>
 				</UCard>
 
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
 					</template>
 					<div class="space-y-4">
 						<div class="text-center mb-4">
-							<UIcon
+							<Icon
 								:name="complianceStatus.compliant ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
 								class="w-12 h-12 mx-auto mb-2"
 								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'" />
@@ -166,14 +166,14 @@
 		<!-- Monthly Summary Cards -->
 		<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
 			<!-- Operating Balance -->
-			<UCard :class="operatingBalance < 25000 ? 'border-2 border-red-500' : ''">
+			<Card :class="operatingBalance < 25000 ? 'border-2 border-red-500' : ''">
 				<div class="space-y-2">
 					<p class="text-sm uppercase tracking-wider text-gray-600">OPERATING BALANCE</p>
 					<p class="text-2xl font-bold" :class="operatingBalance < 25000 ? 'text-red-600' : 'text-gray-900'">
 						${{ operatingBalance.toLocaleString() }}
 					</p>
 					<div class="flex items-center text-sm" :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'">
-						<UIcon
+						<Icon
 							:name="monthlyChange >= 0 ? 'i-heroicons-arrow-up' : 'i-heroicons-arrow-down'"
 							class="w-4 h-4 mr-1" />
 						<span>${{ Math.abs(monthlyChange).toLocaleString() }} MTD</span>
@@ -182,7 +182,7 @@
 			</UCard>
 
 			<!-- Reserve Balance -->
-			<UCard>
+			<Card>
 				<div class="space-y-2">
 					<p class="text-sm uppercase tracking-wider text-gray-600">RESERVE BALANCE</p>
 					<p class="text-2xl font-bold text-gray-900">${{ reserveBalance.toLocaleString() }}</p>
@@ -191,7 +191,7 @@
 			</UCard>
 
 			<!-- Monthly Revenue -->
-			<UCard>
+			<Card>
 				<div class="space-y-2">
 					<p class="text-sm uppercase tracking-wider text-gray-600">MONTHLY REVENUE</p>
 					<p class="text-2xl font-bold text-green-600">${{ monthlyRevenue.toLocaleString() }}</p>
@@ -203,7 +203,7 @@
 			</UCard>
 
 			<!-- Monthly Expenses -->
-			<UCard>
+			<Card>
 				<div class="space-y-2">
 					<p class="text-sm uppercase tracking-wider text-gray-600">MONTHLY EXPENSES</p>
 					<p class="text-2xl font-bold text-gray-900">${{ monthlyExpenses.toLocaleString() }}</p>
@@ -226,10 +226,10 @@
 				variant="subtle"
 				class="mb-3">
 				<template #icon>
-					<UIcon name="i-heroicons-exclamation-triangle" />
+					<Icon name="i-heroicons-exclamation-triangle" />
 				</template>
 				<template #actions>
-					<UButton
+					<Button
 						color="red"
 						variant="soft"
 						size="xs"
@@ -259,7 +259,7 @@
 						:maintenance-expense="maintenanceExpense" />
 
 					<!-- Account Health Status -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">ACCOUNT HEALTH STATUS</h3>
 						</template>
@@ -267,7 +267,7 @@
 							<div v-for="account in accountHealth" :key="account.name" class="space-y-2">
 								<div class="flex items-center justify-between">
 									<span class="font-medium">{{ account.name }}</span>
-									<UBadge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
+									<Badge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
 								</div>
 								<div class="w-full bg-gray-200 rounded-full h-2">
 									<div
@@ -281,7 +281,7 @@
 					</UCard>
 
 					<!-- Monthly Cash Flow -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">MONTHLY BREAKDOWN</h3>
 						</template>
@@ -293,12 +293,12 @@
 
 				<!-- Quick Actions -->
 				<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-					<UCard
+					<Card
 						class="hover:shadow-lg transition-shadow cursor-pointer"
 						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)">
 						<div class="flex items-center space-x-3">
 							<div class="p-3 bg-blue-100 rounded-lg">
-								<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
+								<Icon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
 							</div>
 							<div>
 								<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
@@ -307,10 +307,10 @@
 						</div>
 					</UCard>
 
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
+					<Card class="hover:shadow-lg transition-shadow cursor-pointer">
 						<div class="flex items-center space-x-3">
 							<div class="p-3 bg-green-100 rounded-lg">
-								<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
+								<Icon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
 							</div>
 							<div>
 								<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
@@ -319,10 +319,10 @@
 						</div>
 					</UCard>
 
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
+					<Card class="hover:shadow-lg transition-shadow cursor-pointer">
 						<div class="flex items-center space-x-3">
 							<div class="p-3 bg-purple-100 rounded-lg">
-								<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
+								<Icon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
 							</div>
 							<div>
 								<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
@@ -335,7 +335,7 @@
 
 			<!-- Budget Analysis Tab -->
 			<template #budget>
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">BUDGET VS ACTUAL - {{ selectedMonth }}</h3>
 					</template>
@@ -373,7 +373,7 @@
 			<template #compliance>
 				<div class="space-y-6">
 					<!-- Compliance Status -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">FUND SEGREGATION COMPLIANCE</h3>
 						</template>
@@ -404,7 +404,7 @@
 								<p class="text-sm font-medium text-red-600 uppercase tracking-wide">REQUIRED ACTIONS:</p>
 								<ul class="space-y-1 text-sm">
 									<li v-for="action in requiredActions" :key="action" class="flex items-start">
-										<UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4 text-red-500 mr-2 mt-0.5" />
+										<Icon name="i-heroicons-exclamation-circle" class="w-4 h-4 text-red-500 mr-2 mt-0.5" />
 										<span>{{ action }}</span>
 									</li>
 								</ul>
@@ -413,7 +413,7 @@
 					</UCard>
 
 					<!-- 30-60-90 Day Action Plan -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">30-60-90 DAY ACTION PLAN</h3>
 						</template>
@@ -422,7 +422,7 @@
 								<h4 class="font-semibold text-lg mb-2">{{ phase.period }}</h4>
 								<ul class="space-y-1 text-sm">
 									<li v-for="item in phase.items" :key="item" class="flex items-start">
-										<UIcon name="i-heroicons-check-circle" class="w-4 h-4 mr-2 mt-0.5" :class="phase.iconClass" />
+										<Icon name="i-heroicons-check-circle" class="w-4 h-4 mr-2 mt-0.5" :class="phase.iconClass" />
 										<span>{{ item }}</span>
 									</li>
 								</ul>

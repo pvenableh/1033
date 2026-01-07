@@ -335,7 +335,7 @@ onMounted(() => {
           </p>
         </div>
         <div class="mt-4 md:mt-0">
-          <UBadge color="primary" variant="soft" size="lg">
+          <Badge color="primary" variant="soft" size="lg">
             {{ people.length }} users
           </UBadge>
         </div>
@@ -343,7 +343,7 @@ onMounted(() => {
 
       <!-- Access Denied -->
       <div v-if="!isAdmin" class="text-center py-12">
-        <UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <Icon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h2 class="text-xl font-semibold mb-2">Access Denied</h2>
         <p class="text-gray-600 dark:text-gray-400">
           You need administrator privileges to manage permissions.
@@ -353,9 +353,9 @@ onMounted(() => {
       <!-- Permissions Management -->
       <template v-else>
         <!-- Info Card -->
-        <UCard class="mb-6">
+        <Card class="mb-6">
           <div class="flex items-start gap-4">
-            <UIcon name="i-heroicons-information-circle" class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
+            <Icon name="i-heroicons-information-circle" class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
             <div>
               <h3 class="font-medium text-gray-900 dark:text-white">How Permissions Work</h3>
               <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
@@ -369,7 +369,7 @@ onMounted(() => {
 
         <!-- Search -->
         <div class="mb-6">
-          <UInput
+          <Input
             v-model="searchQuery"
             icon="i-heroicons-magnifying-glass"
             placeholder="Search by name or email..."
@@ -378,7 +378,7 @@ onMounted(() => {
         </div>
 
         <!-- People Table -->
-        <UCard>
+        <Card>
           <UTable
             :rows="filteredPeople"
             :columns="[
@@ -392,7 +392,7 @@ onMounted(() => {
           >
             <template #name-data="{ row }">
               <div class="flex items-center gap-3">
-                <UAvatar :alt="`${row.first_name} ${row.last_name}`" size="sm" />
+                <Avatar :alt="`${row.first_name} ${row.last_name}`" size="sm" />
                 <div>
                   <p class="font-medium">{{ row.first_name }} {{ row.last_name }}</p>
                   <p class="text-xs text-gray-500">{{ row.email }}</p>
@@ -401,7 +401,7 @@ onMounted(() => {
             </template>
 
             <template #category-data="{ row }">
-              <UBadge
+              <Badge
                 :color="row.category === 'Owner' ? 'green' : row.category === 'Tenant' ? 'blue' : 'gray'"
                 variant="soft"
                 size="sm"
@@ -412,7 +412,7 @@ onMounted(() => {
 
             <template #permissions-data="{ row }">
               <div v-if="hasAnyPermission(row)" class="flex items-center gap-2">
-                <UBadge color="primary" variant="soft" size="sm">
+                <Badge color="primary" variant="soft" size="sm">
                   {{ getPermissionCount(row) }} permissions
                 </UBadge>
               </div>
@@ -420,7 +420,7 @@ onMounted(() => {
             </template>
 
             <template #actions-data="{ row }">
-              <UButton
+              <Button
                 size="xs"
                 color="primary"
                 variant="soft"
@@ -436,11 +436,11 @@ onMounted(() => {
 
       <!-- Permission Modal -->
       <UModal v-model="showPermissionModal" :ui="{ width: 'sm:max-w-3xl' }">
-        <UCard v-if="selectedPerson">
+        <Card v-if="selectedPerson">
           <template #header>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <UAvatar :alt="`${selectedPerson.first_name} ${selectedPerson.last_name}`" />
+                <Avatar :alt="`${selectedPerson.first_name} ${selectedPerson.last_name}`" />
                 <div>
                   <h3 class="text-lg font-semibold">
                     {{ selectedPerson.first_name }} {{ selectedPerson.last_name }}
@@ -448,7 +448,7 @@ onMounted(() => {
                   <p class="text-sm text-gray-500">{{ selectedPerson.email }}</p>
                 </div>
               </div>
-              <UButton
+              <Button
                 color="gray"
                 variant="ghost"
                 icon="i-heroicons-x-mark"
@@ -462,7 +462,7 @@ onMounted(() => {
             <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions</span>
               <div class="flex gap-2">
-                <UButton
+                <Button
                   size="sm"
                   color="green"
                   variant="soft"
@@ -471,7 +471,7 @@ onMounted(() => {
                 >
                   Grant All
                 </UButton>
-                <UButton
+                <Button
                   size="sm"
                   color="gray"
                   variant="soft"
@@ -487,14 +487,14 @@ onMounted(() => {
             <div class="border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-blue-600" />
+                  <Icon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-blue-600" />
                   <span class="font-medium text-blue-800 dark:text-blue-200">Management Permissions</span>
                 </div>
                 <div class="flex gap-2">
-                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllManagement(true)">
+                  <Button size="xs" color="green" variant="ghost" @click="toggleAllManagement(true)">
                     All
                   </UButton>
-                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllManagement(false)">
+                  <Button size="xs" color="gray" variant="ghost" @click="toggleAllManagement(false)">
                     None
                   </UButton>
                 </div>
@@ -508,9 +508,9 @@ onMounted(() => {
                   :key="category"
                   class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
                 >
-                  <UIcon :name="MANAGEMENT_CATEGORY_META[category].icon" class="w-5 h-5 text-blue-600" />
+                  <Icon :name="MANAGEMENT_CATEGORY_META[category].icon" class="w-5 h-5 text-blue-600" />
                   <div class="flex-1">
-                    <UCheckbox
+                    <Checkbox
                       v-model="(permissionForm as any)[`${category}_approved`]"
                       :label="MANAGEMENT_CATEGORY_META[category].label"
                     />
@@ -524,14 +524,14 @@ onMounted(() => {
             <div class="border-2 border-amber-200 dark:border-amber-800 rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
+                  <Icon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
                   <span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
                 </div>
                 <div class="flex gap-2">
-                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllApprovals(true)">
+                  <Button size="xs" color="green" variant="ghost" @click="toggleAllApprovals(true)">
                     All
                   </UButton>
-                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllApprovals(false)">
+                  <Button size="xs" color="gray" variant="ghost" @click="toggleAllApprovals(false)">
                     None
                   </UButton>
                 </div>
@@ -546,8 +546,8 @@ onMounted(() => {
                   :key="category"
                   class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
                 >
-                  <UIcon :name="APPROVAL_CATEGORY_META[category].icon" class="w-5 h-5 text-amber-600" />
-                  <UCheckbox
+                  <Icon :name="APPROVAL_CATEGORY_META[category].icon" class="w-5 h-5 text-amber-600" />
+                  <Checkbox
                     v-model="(permissionForm as any)[`${category}_approve`]"
                     :label="`Approve ${APPROVAL_CATEGORY_META[category].label}`"
                   />
@@ -566,11 +566,11 @@ onMounted(() => {
             >
               <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-2">
-                  <UIcon :name="PERMISSION_CATEGORY_META[category].icon" class="w-5 h-5" />
+                  <Icon :name="PERMISSION_CATEGORY_META[category].icon" class="w-5 h-5" />
                   <span class="font-medium">{{ PERMISSION_CATEGORY_META[category].label }}</span>
                 </div>
                 <div class="flex gap-2">
-                  <UButton
+                  <Button
                     size="xs"
                     color="green"
                     variant="ghost"
@@ -578,7 +578,7 @@ onMounted(() => {
                   >
                     All
                   </UButton>
-                  <UButton
+                  <Button
                     size="xs"
                     color="gray"
                     variant="ghost"
@@ -592,7 +592,7 @@ onMounted(() => {
                 {{ PERMISSION_CATEGORY_META[category].description }}
               </p>
               <div class="grid grid-cols-4 gap-2">
-                <UCheckbox
+                <Checkbox
                   v-for="action in Object.values(CRUD_ACTIONS)"
                   :key="`${category}_${action}`"
                   v-model="(permissionForm as any)[`${category}_${action}`]"
@@ -605,7 +605,7 @@ onMounted(() => {
           <template #footer>
             <div class="flex justify-between">
               <div>
-                <UButton
+                <Button
                   v-if="existingPermissionId"
                   color="red"
                   variant="ghost"
@@ -617,10 +617,10 @@ onMounted(() => {
                 </UButton>
               </div>
               <div class="flex gap-3">
-                <UButton color="gray" variant="ghost" @click="showPermissionModal = false">
+                <Button color="gray" variant="ghost" @click="showPermissionModal = false">
                   Cancel
                 </UButton>
-                <UButton color="primary" :loading="saving" @click="savePermissions">
+                <Button color="primary" :loading="saving" @click="savePermissions">
                   Save Permissions
                 </UButton>
               </div>

@@ -1,10 +1,10 @@
 <template>
-	<UPopover
+	<Popover
 		v-model:open="isOpen"
 		:popper="{ placement: 'top' }"
 		@update:open="onPopoverOpen">
 		<slot name="trigger">
-			<UButton
+			<Button
 				size="xs"
 				color="gray"
 				variant="ghost"
@@ -40,7 +40,7 @@
 								{{ reactionType.emoji }}
 							</span>
 							<!-- Icon display with filled variant when selected -->
-							<UIcon
+							<Icon
 								v-else-if="reactionType.icon"
 								:name="getIconName(reactionType)"
 								class="w-5 h-5 transition-all duration-200"

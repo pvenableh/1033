@@ -9,18 +9,18 @@
 		<!-- Executive Summary Section -->
 		<div class="mb-8">
 			<h2 class="text-xl font-bold uppercase tracking-wide mb-6 flex items-center">
-				<UIcon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
+				<Icon name="i-heroicons-chart-bar-square" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
 				EXECUTIVE SUMMARY (YEAR-TO-DATE)
 			</h2>
 
 			<!-- Key Performance Indicators -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 				<!-- Financial Health Score -->
-				<UCard
+				<Card
 					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.financialHealthScore < 60 ? 'border border-red-500 ' : ''">
 					<div class="space-y-2">
-						<UIcon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
+						<Icon name="i-lucide-gauge" class="w-8 h-8 mx-auto" :class="financialHealthColor" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">FINANCIAL HEALTH</p>
 						<p class="text-3xl font-bold" :class="financialHealthColor">{{ realYtdData.financialHealthScore }}%</p>
 						<p class="text-xs font-medium" :class="financialHealthColor">{{ realYtdData.financialHealthStatus }}</p>
@@ -28,11 +28,11 @@
 				</UCard>
 
 				<!-- YTD Cash Decline -->
-				<UCard
+				<Card
 					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.ytdCashChange < 0 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon
+						<Icon
 							name="i-heroicons-arrow-trending-down"
 							class="w-8 h-8 mx-auto"
 							:class="realYtdData.ytdCashChange < 0 ? 'text-red-600' : 'text-green-600'" />
@@ -45,11 +45,11 @@
 				</UCard>
 
 				<!-- Monthly Burn Rate -->
-				<UCard
+				<Card
 					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.monthlyBurnRate > 5000 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon
+						<Icon
 							name="i-heroicons-fire"
 							class="w-8 h-8 mx-auto"
 							:class="realYtdData.monthlyBurnRate > 5000 ? 'text-red-600' : 'text-yellow-600'" />
@@ -64,11 +64,11 @@
 				</UCard>
 
 				<!-- Cash Runway -->
-				<UCard
+				<Card
 					class="text-center !rounded-[4px] !shadow"
 					:class="realYtdData.cashRunwayMonths < 12 ? 'border border-red-500' : ''">
 					<div class="space-y-2">
-						<UIcon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunwayColor" />
+						<Icon name="i-heroicons-clock" class="w-8 h-8 mx-auto" :class="cashRunwayColor" />
 						<p class="text-sm uppercase tracking-wider text-gray-600">CASH RUNWAY</p>
 						<p class="text-3xl font-bold" :class="cashRunwayColor">{{ realYtdData.cashRunwayMonths }} mo</p>
 						<p class="text-xs font-medium" :class="cashRunwayColor">{{ cashRunwayStatus }}</p>
@@ -77,7 +77,7 @@
 			</div>
 
 			<!-- YTD Trends Chart -->
-			<UCard class="mb-6">
+			<Card class="mb-6">
 				<template #header>
 					<h3 class="text-lg font-semibold uppercase tracking-wide">YTD CASH FLOW TRENDS</h3>
 					<p class="text-sm text-gray-600 mt-2 font-normal normal-case tracking-normal">
@@ -93,7 +93,7 @@
 
 			<!-- Budget Performance YTD -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">YTD BUDGET PERFORMANCE</h3>
 						<p class="text-xs text-gray-600 mt-2 font-normal normal-case tracking-normal">
@@ -130,13 +130,13 @@
 					</div>
 				</UCard>
 
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
 					</template>
 					<div class="space-y-4">
 						<div class="text-center mb-4">
-							<UIcon
+							<Icon
 								:name="complianceStatus.compliant ? 'i-heroicons-shield-check' : 'i-heroicons-shield-exclamation'"
 								class="w-12 h-12 mx-auto mb-2"
 								:class="complianceStatus.compliant ? 'text-green-600' : 'text-red-600'" />
@@ -174,19 +174,19 @@
 				:to="`/financials/monthly-report/${month.label.replace(' 2025', '').toLowerCase()}`"
 				class="rounded-md py-6 text-sm font-medium text-gray-900 bg-gray-50/20 hover:bg-gray-300 focus:outline-none flex flex-row items-center justify-center border border-gray-200">
 				{{ month.label }}
-				<UIcon name="i-heroicons-chevron-right" class="w-4 h-4 ml-2" />
+				<Icon name="i-heroicons-chevron-right" class="w-4 h-4 ml-2" />
 			</nuxt-link>
 		</div>
 		<!-- Month Selection and Summary Cards -->
 		<div class="w-full mt-20 mb-6 flex flex-col md:flex-row items-center justify-between">
 			<h2 class="text-xl font-bold uppercase tracking-wide mb-6 flex items-center relative">
-				<UIcon name="i-heroicons-calendar" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
+				<Icon name="i-heroicons-calendar" class="w-6 h-6 mr-3 text-[var(--cyan)]" />
 				MONTHLY REPORT [{{ selectedMonth.replace('2025', '').trim() }}]
 				<nuxt-link
 					:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`"
 					class="absolute left-0 -bottom-[35px] text-[10px] uppercase tracking-wider flex items-center text-[var(--cyan)] justify-center flex-row py-2">
 					Full Details
-					<UIcon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
+					<Icon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
 				</nuxt-link>
 			</h2>
 			<USelect v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
@@ -203,10 +203,10 @@
 				variant="subtle"
 				class="mb-3">
 				<template #icon>
-					<UIcon name="i-heroicons-exclamation-triangle" />
+					<Icon name="i-heroicons-exclamation-triangle" />
 				</template>
 				<template #actions>
-					<UButton color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</UButton>
+					<Button color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</UButton>
 				</template>
 			</UAlert>
 		</div>
@@ -230,7 +230,7 @@
 						:maintenance-expense="maintenanceExpense" />
 
 					<!-- Account Health Status -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">ACCOUNT HEALTH STATUS</h3>
 						</template>
@@ -238,7 +238,7 @@
 							<div v-for="account in accountHealth" :key="account.name" class="space-y-2">
 								<div class="flex items-center justify-between">
 									<span class="font-medium">{{ account.name }}</span>
-									<UBadge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
+									<Badge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
 								</div>
 								<div class="w-full bg-gray-200 rounded-full h-2">
 									<div
@@ -252,7 +252,7 @@
 					</UCard>
 
 					<!-- Monthly Cash Flow -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">MONTHLY BREAKDOWN</h3>
 						</template>
@@ -265,7 +265,7 @@
 
 			<!-- Budget Analysis Tab -->
 			<template #budget>
-				<UCard>
+				<Card>
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">BUDGET VS ACTUAL - {{ selectedMonth }}</h3>
 					</template>
@@ -342,7 +342,7 @@
 								</span>
 							</template>
 							<template #status-data="{row}">
-								<UBadge :color="row.statusColor" variant="soft" size="xs">
+								<Badge :color="row.statusColor" variant="soft" size="xs">
 									{{ row.status }}
 								</UBadge>
 							</template>
@@ -355,11 +355,11 @@
 			<template #violations>
 				<div class="space-y-6">
 					<!-- Compliance Status Overview -->
-					<UCard>
+					<Card>
 						<template #header>
 							<div class="flex items-center justify-between">
 								<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
-								<UBadge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="solid">
+								<Badge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="solid">
 									{{ fundSegregationStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
 								</UBadge>
 							</div>
@@ -371,7 +371,7 @@
 									class="flex items-center justify-between p-4 rounded-lg"
 									:class="fundSegregationStatus.compliant ? 'bg-green-50' : 'bg-red-50'">
 									<div class="flex items-center space-x-3">
-										<UIcon
+										<Icon
 											:name="
 												fundSegregationStatus.compliant
 													? 'i-heroicons-check-circle'
@@ -381,7 +381,7 @@
 											class="w-6 h-6" />
 										<span class="font-semibold">Fund Segregation</span>
 									</div>
-									<UBadge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="subtle">
+									<Badge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="subtle">
 										{{ fundSegregationStatus.violations }} Violations
 									</UBadge>
 								</div>
@@ -391,7 +391,7 @@
 								<h4 class="font-semibold text-gray-900">Required Actions</h4>
 								<ul class="space-y-2">
 									<li v-for="action in requiredActions" :key="action" class="flex items-start space-x-2">
-										<UIcon name="i-heroicons-arrow-right" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+										<Icon name="i-heroicons-arrow-right" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
 										<span class="text-sm text-gray-700">{{ action }}</span>
 									</li>
 								</ul>
@@ -401,16 +401,16 @@
 
 					<!-- DETAILED VIOLATION TRANSACTIONS -->
 					<div v-if="violationTransactions.length > 0" class="space-y-6">
-						<UCard>
+						<Card>
 							<template #header>
 								<div class="flex items-center justify-between">
 									<h3 class="text-lg font-semibold uppercase tracking-wide text-red-800">
-										<UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 inline mr-2" />
+										<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 inline mr-2" />
 										VIOLATION TRANSACTIONS - {{ selectedMonth }}
 									</h3>
 									<div class="flex items-center gap-3">
-										<UBadge color="red" variant="solid">{{ violationTransactions.length }} VIOLATIONS</UBadge>
-										<UBadge color="red" variant="soft">${{ violationTotalAmount.toLocaleString() }} TOTAL</UBadge>
+										<Badge color="red" variant="solid">{{ violationTransactions.length }} VIOLATIONS</UBadge>
+										<Badge color="red" variant="soft">${{ violationTotalAmount.toLocaleString() }} TOTAL</UBadge>
 									</div>
 								</div>
 							</template>
@@ -447,17 +447,17 @@
 										</div>
 									</template>
 									<template #accounts-data="{row}">
-										<UBadge color="red" variant="soft" size="xs">
+										<Badge color="red" variant="soft" size="xs">
 											{{ row.accounts || '5129 → 5872' }}
 										</UBadge>
 									</template>
 									<template #severity-data="{row}">
-										<UBadge :color="row.severity === 'CRITICAL' ? 'red' : 'orange'" variant="solid" size="xs">
+										<Badge :color="row.severity === 'CRITICAL' ? 'red' : 'orange'" variant="solid" size="xs">
 											{{ row.severity || 'HIGH' }}
 										</UBadge>
 									</template>
 									<template #category-data="{row}">
-										<UBadge color="gray" variant="soft" size="xs">
+										<Badge color="gray" variant="soft" size="xs">
 											{{ row.category || 'VIOLATION' }}
 										</UBadge>
 									</template>
@@ -481,7 +481,7 @@
 						</UCard>
 
 						<!-- YTD Violation Summary -->
-						<UCard v-if="ytdViolationSummary.length > 0">
+						<Card v-if="ytdViolationSummary.length > 0">
 							<template #header>
 								<h3 class="text-lg font-semibold uppercase tracking-wide">YTD VIOLATION SUMMARY</h3>
 							</template>
@@ -510,7 +510,7 @@
 											<span class="font-medium">{{ row.month }}</span>
 										</template>
 										<template #violations-data="{row}">
-											<UBadge :color="row.violations > 0 ? 'red' : 'green'" variant="soft">
+											<Badge :color="row.violations > 0 ? 'red' : 'green'" variant="soft">
 												{{ row.violations }}
 											</UBadge>
 										</template>
@@ -520,7 +520,7 @@
 											</span>
 										</template>
 										<template #status-data="{row}">
-											<UBadge
+											<Badge
 												:color="row.violations === 0 ? 'green' : row.violations < 5 ? 'yellow' : 'red'"
 												variant="soft">
 												{{ row.violations === 0 ? 'CLEAN' : row.violations < 5 ? 'MODERATE' : 'SEVERE' }}
@@ -535,7 +535,7 @@
 					<!-- Individual Violation Details -->
 					<div v-if="criticalViolations.length > 0" class="space-y-4">
 						<h3 class="text-xl font-semibold text-red-800 flex items-center gap-2">
-							<UIcon name="i-heroicons-exclamation-triangle" class="text-red-600" />
+							<Icon name="i-heroicons-exclamation-triangle" class="text-red-600" />
 							CRITICAL VIOLATIONS DETECTED
 						</h3>
 
@@ -548,7 +548,7 @@
 								:title="violation.title"
 								:description="violation.description">
 								<template #icon>
-									<UIcon
+									<Icon
 										:name="
 											violation.severity === 'CRITICAL'
 												? 'i-heroicons-exclamation-triangle'
@@ -559,7 +559,7 @@
 								<template #title>
 									<div class="flex justify-between items-start">
 										<span>{{ violation.title }}</span>
-										<UBadge color="white" variant="solid" size="xs">
+										<Badge color="white" variant="solid" size="xs">
 											{{ violation.statute }}
 										</UBadge>
 									</div>
@@ -575,12 +575,12 @@
 					</div>
 
 					<!-- Emergency Actions Required -->
-					<UCard v-if="emergencyActions.length > 0" class="border-2 border-red-300">
+					<Card v-if="emergencyActions.length > 0" class="border-2 border-red-300">
 						<template #header>
 							<div class="flex items-center gap-3">
-								<UIcon name="i-heroicons-fire" class="text-red-600 text-xl" />
+								<Icon name="i-heroicons-fire" class="text-red-600 text-xl" />
 								<h3 class="text-lg font-bold text-red-800">EMERGENCY ACTIONS REQUIRED</h3>
-								<UBadge color="red" variant="solid">IMMEDIATE</UBadge>
+								<Badge color="red" variant="solid">IMMEDIATE</UBadge>
 							</div>
 						</template>
 
@@ -597,10 +597,10 @@
 									<h4 class="font-bold text-red-800">{{ action.action.replace(/_/g, ' ') }}</h4>
 									<p class="text-red-700 mt-1">{{ action.description }}</p>
 									<div class="flex gap-4 mt-2">
-										<UBadge :color="action.timeframe === 'IMMEDIATE' ? 'red' : 'orange'" variant="soft" size="xs">
+										<Badge :color="action.timeframe === 'IMMEDIATE' ? 'red' : 'orange'" variant="soft" size="xs">
 											{{ action.timeframe }}
 										</UBadge>
-										<UBadge color="gray" variant="soft" size="xs">
+										<Badge color="gray" variant="soft" size="xs">
 											{{ action.responsible }}
 										</UBadge>
 									</div>
@@ -619,12 +619,12 @@
 								class="p-6 border-l-4 bg-gray-50 rounded-r-lg"
 								:class="period.borderClass">
 								<div class="flex items-center gap-3 mb-4">
-									<UIcon name="i-heroicons-clock" :class="period.iconClass" class="w-5 h-5" />
+									<Icon name="i-heroicons-clock" :class="period.iconClass" class="w-5 h-5" />
 									<h4 class="font-bold text-gray-900">{{ period.period }}</h4>
 								</div>
 								<ul class="space-y-2">
 									<li v-for="item in period.items" :key="item" class="flex items-start gap-2">
-										<UIcon name="i-heroicons-check-circle" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+										<Icon name="i-heroicons-check-circle" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
 										<span class="text-sm text-gray-700">{{ item }}</span>
 									</li>
 								</ul>
@@ -633,14 +633,14 @@
 					</div>
 
 					<!-- Compliance Checklist -->
-					<UCard>
+					<Card>
 						<template #header>
 							<h3 class="text-lg font-semibold uppercase tracking-wide">FLORIDA COMPLIANCE CHECKLIST</h3>
 						</template>
 
 						<div class="space-y-4">
 							<div v-for="item in certificationChecklist" :key="item.id" class="flex items-start space-x-3">
-								<UCheckbox
+								<Checkbox
 									v-model="item.checked"
 									:disabled="!item.compliant"
 									:color="item.compliant ? 'green' : 'red'"
@@ -650,7 +650,7 @@
 										<label class="text-sm font-medium" :class="item.compliant ? 'text-gray-900' : 'text-red-700'">
 											{{ item.requirement }}
 										</label>
-										<UBadge
+										<Badge
 											:color="item.compliant === true ? 'green' : item.compliant === false ? 'red' : 'yellow'"
 											variant="soft">
 											{{ item.compliant === true ? 'COMPLIANT' : item.compliant === false ? 'VIOLATION' : 'UNKNOWN' }}
@@ -666,12 +666,12 @@
 		</UTabs>
 		<!-- Quick Actions -->
 		<div class="w-full mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-			<UCard
+			<Card
 				class="hover:shadow-lg transition-shadow cursor-pointer"
 				@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)">
 				<div class="flex items-center space-x-3">
 					<div class="p-3 bg-gray-50 rounded-lg">
-						<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-[var(--cyan)]" />
+						<Icon name="i-heroicons-document-text" class="w-6 h-6 text-[var(--cyan)]" />
 					</div>
 					<div>
 						<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
@@ -680,10 +680,10 @@
 				</div>
 			</UCard>
 
-			<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
+			<Card class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
 				<div class="flex items-center space-x-3">
 					<div class="p-3 bg-green-100 rounded-lg">
-						<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
+						<Icon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
 					</div>
 					<div>
 						<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
@@ -692,15 +692,15 @@
 				</div>
 			</UCard>
 
-			<UCard class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
+			<Card class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
 				<div class="flex items-center space-x-3">
 					<div class="p-3 bg-purple-100 rounded-lg">
-						<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
+						<Icon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
 					</div>
 					<div>
 						<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
 						<p class="text-sm text-gray-600">Fund segregation status</p>
-						<UBadge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
+						<Badge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
 							{{ fundSegregationStatus.violations }}
 						</UBadge>
 					</div>

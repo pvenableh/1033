@@ -12,7 +12,7 @@
 						<span class="text-sm text-gray-500">40-Year Special (5872)</span>
 					</div>
 				</div>
-				<UButton color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</UButton>
+				<Button color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</UButton>
 			</div>
 		</div>
 
@@ -41,11 +41,11 @@
 		<!-- Multi-Account Summary -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<!-- Operating Account (5129) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Operating Account (5129)</h3>
-						<UBadge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
+						<Badge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
 							{{ operatingData?.endingBalance < 25000 ? 'CRITICAL' : 'HEALTHY' }}
 						</UBadge>
 					</div>
@@ -79,11 +79,11 @@
 			</UCard>
 
 			<!-- Reserve Account (7011) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Reserve Account (7011)</h3>
-						<UBadge color="red" variant="soft" size="xs">CRITICAL</UBadge>
+						<Badge color="red" variant="soft" size="xs">CRITICAL</UBadge>
 					</div>
 				</template>
 
@@ -113,11 +113,11 @@
 			</UCard>
 
 			<!-- 40-Year Special Assessment (5872) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">40-Year Special (5872)</h3>
-						<UBadge color="orange" variant="soft" size="xs">VIOLATIONS</UBadge>
+						<Badge color="orange" variant="soft" size="xs">VIOLATIONS</UBadge>
 					</div>
 				</template>
 
@@ -144,11 +144,11 @@
 		</div>
 
 		<!-- Budget vs Actual Analysis (Corrected) -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold uppercase tracking-wide">BUDGET VARIANCE ANALYSIS</h2>
-					<UBadge color="blue" variant="soft">2025 Operating Budget</UBadge>
+					<Badge color="blue" variant="soft">2025 Operating Budget</UBadge>
 				</div>
 			</template>
 
@@ -193,7 +193,7 @@
 					</span>
 				</template>
 				<template #status-data="{row}">
-					<UBadge :color="row.statusColor" variant="soft" size="xs">
+					<Badge :color="row.statusColor" variant="soft" size="xs">
 						{{ row.status }}
 					</UBadge>
 				</template>
@@ -201,7 +201,7 @@
 		</UCard>
 
 		<!-- Detailed Expense Categories -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">EXPENSE BREAKDOWN</h2>
 			</template>
@@ -306,18 +306,18 @@
 		</UCard>
 
 		<!-- Compliance Checklist -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">FLORIDA COMPLIANCE CHECKLIST</h2>
 			</template>
 
 			<div class="space-y-4">
 				<div v-for="item in certificationChecklist" :key="item.id" class="flex items-center space-x-3">
-					<UCheckbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
+					<Checkbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
 					<label class="text-sm" :class="item.compliant ? 'text-gray-700' : 'text-red-700'">
 						{{ item.label }}
 					</label>
-					<UIcon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
+					<Icon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
 				</div>
 			</div>
 
@@ -334,7 +334,7 @@
 					<p class="text-sm text-gray-600 mt-2">Date: _______________________</p>
 					<p class="text-sm text-red-600 mt-2 font-medium">⚖️ Florida Chapter 720 Compliance Required</p>
 				</div>
-				<UButton color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</UButton>
+				<Button color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</UButton>
 			</div>
 		</UCard>
 	</div>

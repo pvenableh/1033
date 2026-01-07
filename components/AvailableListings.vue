@@ -27,7 +27,7 @@
 								class="aspect-[4/3] t-bg-elevated border t-border-divider flex flex-col items-center justify-center p-6 transition-all duration-300 group-hover:t-bg-elevated group-hover:border-gold/30 group-hover:shadow-lg">
 								<div
 									class="w-12 h-12 mb-4 border t-border-divider rounded-full flex items-center justify-center transition-all duration-300 group-hover:t-border-accent group-hover:scale-110">
-									<UIcon
+									<Icon
 										:name="listing.icon"
 										class="w-5 h-5 t-text-muted group-hover:t-text-accent-tertiary transition-colors duration-300" />
 								</div>
@@ -41,7 +41,8 @@
 						</a>
 					</div>
 
-					<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+					<p
+						class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 						Your next chapter starts here.
 					</p>
 				</div>

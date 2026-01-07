@@ -16,7 +16,7 @@
 			<button
 				class="reply-preview-bubble"
 				@click="scrollToParent">
-				<UAvatar
+				<Avatar
 					:src="parentAuthorAvatar"
 					:alt="parentAuthorName"
 					size="2xs"
@@ -32,7 +32,7 @@
 			:class="{ 'is-reply': isReply }">
 			<!-- Avatar (left side) -->
 			<div class="message-avatar">
-				<UAvatar
+				<Avatar
 					:src="authorAvatar"
 					:alt="authorName"
 					:size="isReply ? 'xs' : 'sm'"
@@ -45,7 +45,7 @@
 				<div class="message-header">
 					<span class="author-name">{{ authorName }}</span>
 					<span class="message-time">{{ formatTime(message.date_created) }}</span>
-					<UBadge v-if="message.is_edited" size="xs" color="gray" variant="subtle">
+					<Badge v-if="message.is_edited" size="xs" color="gray" variant="subtle">
 						edited
 					</UBadge>
 				</div>
@@ -58,15 +58,15 @@
 
 				<!-- Edit Form -->
 				<div v-else class="space-y-2">
-					<UTextarea
+					<Textarea
 						v-model="editContent"
 						:rows="3"
 						autofocus
 						@keydown.esc="cancelEdit"
 						@keydown.enter.ctrl="saveEdit" />
 					<div class="flex gap-2">
-						<UButton size="xs" color="primary" @click="saveEdit">Save</UButton>
-						<UButton size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
+						<Button size="xs" color="primary" @click="saveEdit">Save</UButton>
+						<Button size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
 					</div>
 				</div>
 
@@ -78,7 +78,7 @@
 						:href="getFileUrl(file)"
 						target="_blank"
 						class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-						<UIcon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
+						<Icon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
 						<span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
 							{{ file.directus_files_id?.filename_download || 'File' }}
 						</span>
@@ -101,7 +101,7 @@
 					<button
 						class="text-xs text-primary dark:text-primary hover:underline flex items-center gap-1"
 						@click="$emit('reply', message)">
-						<UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+						<Icon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
 						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
 					</button>
 				</div>
@@ -110,7 +110,7 @@
 			<!-- Actions -->
 			<div class="message-actions">
 				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
-					<UButton
+					<Button
 						size="xs"
 						color="gray"
 						variant="ghost"

@@ -27,36 +27,36 @@ defineExpose({ refresh });
     <h2 class="mb-6">My Unit</h2>
 
     <div v-if="pending" class="text-center py-8 text-gray-500">
-      <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+      <Icon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
       <p>Loading unit information...</p>
     </div>
 
     <div v-else-if="errorMessage" class="text-center py-8">
-      <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+      <Icon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
       <p class="text-red-600 mb-2">{{ errorMessage }}</p>
-      <UButton variant="soft" size="sm" @click="refresh()">
+      <Button variant="soft" size="sm" @click="refresh()">
         Try Again
       </UButton>
     </div>
 
     <div v-else-if="units.length === 0" class="text-center py-8 text-gray-500">
-      <UIcon name="i-heroicons-home" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+      <Icon name="i-heroicons-home" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No units assigned to your account.</p>
       <p class="text-sm">Contact an administrator if this is incorrect.</p>
     </div>
 
     <div v-else class="space-y-6">
-      <UCard v-for="unit in units" :key="unit.id">
+      <Card v-for="unit in units" :key="unit.id">
         <template #header>
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
-              <UIcon name="i-heroicons-home" class="w-6 h-6 text-primary" />
+              <Icon name="i-heroicons-home" class="w-6 h-6 text-primary" />
               <div>
                 <h3 class="font-bold text-lg">Unit {{ unit.number }}</h3>
                 <p class="text-sm text-gray-500">{{ unit.occupant }}</p>
               </div>
             </div>
-            <UBadge v-if="unit.parking_spot" color="gray" variant="soft">
+            <Badge v-if="unit.parking_spot" color="gray" variant="soft">
               Parking: {{ unit.parking_spot }}
             </UBadge>
           </div>
@@ -67,7 +67,7 @@ defineExpose({ refresh });
             <h4 class="text-xs uppercase tracking-wide text-gray-500 mb-2">Residents</h4>
             <div v-if="unit.people?.length" class="space-y-2">
               <div v-for="person in unit.people" :key="person.people_id?.id" class="flex items-center gap-2">
-                <UAvatar size="xs" :alt="person.people_id?.first_name" />
+                <Avatar size="xs" :alt="person.people_id?.first_name" />
                 <span class="text-sm">{{ person.people_id?.first_name }} {{ person.people_id?.last_name }}</span>
               </div>
             </div>

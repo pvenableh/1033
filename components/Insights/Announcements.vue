@@ -34,7 +34,7 @@ const filteredAnnouncements = computed(() => {
 	<div class="insight announcements">
 		<h1 class="relative insight__label">
 			Announcements:
-			<UBadge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
+			<Badge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ announcements.length }}
 			</UBadge>
 		</h1>
@@ -49,7 +49,7 @@ const filteredAnnouncements = computed(() => {
 				target="_blank">
 				<h3 class="leading-4 uppercase font-bold tracking-wide">
 					{{ item.title }}
-					<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />
+					<Icon name="i-heroicons-arrow-right" class="ml-2 mb-[-2px] opacity-75" />
 				</h3>
 				<h5 class="text-xs opacity-75 mt-[2px] leading-4">{{ item.subtitle }}</h5>
 				<p class="uppercase text-xs mt-[2px] leading-4">
@@ -61,7 +61,7 @@ const filteredAnnouncements = computed(() => {
 		<div class="w-full flex items-center justify-center mt-8">
 			<nuxt-link to="/announcements/" class="insight__link">
 				View All Announcements
-				<UIcon name="i-heroicons-arrow-right" />
+				<Icon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>
 		<div v-if="error">Error</div>

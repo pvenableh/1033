@@ -10,7 +10,7 @@
 			<div class="flex items-center justify-between w-full">
 				<h2 class="font-semibold text-gray-900 dark:text-white">Notifications</h2>
 				<div class="flex items-center gap-2">
-					<UButton
+					<Button
 						v-if="totalUnreadCount > 0"
 						variant="ghost"
 						size="xs"
@@ -71,7 +71,7 @@
 				v-else-if="displayedItems.length === 0"
 				class="flex flex-col items-center justify-center py-12 px-4 text-center">
 				<div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-					<UIcon :name="emptyStateIcon" class="w-8 h-8 text-gray-400" />
+					<Icon :name="emptyStateIcon" class="w-8 h-8 text-gray-400" />
 				</div>
 				<p class="text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitle }}</p>
 				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ emptyStateMessage }}</p>
@@ -107,12 +107,12 @@
 		<!-- Footer -->
 		<template #footer>
 			<div class="p-4 flex items-center justify-between">
-				<!-- <UButton v-if="isAuthenticated" variant="ghost" size="xs" color="gray" to="/notifications" @click="closePanel">
+				<!-- <Buttonv-if="isAuthenticated" variant="ghost" size="xs" color="gray" to="/notifications" @click="closePanel">
 					View all notifications
-					<UIcon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
+					<Icon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
 				</UButton> -->
-				<UButton variant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
-					<UIcon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
+				<Buttonvariant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
+					<Icon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
 				</UButton>
 			</div>
 		</template>

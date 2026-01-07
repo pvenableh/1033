@@ -35,7 +35,7 @@ const avatar = computed(() => {
 			</client-only> -->
 			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
-				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
+				<Avatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
 			<button
 				v-if="showNavToggle"
@@ -43,7 +43,7 @@ const avatar = computed(() => {
 				class="nav-toggle-btn flex items-center justify-center w-6 h-6 rounded-full transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10"
 				:title="isSecondaryNavVisible ? 'Hide navigation' : 'Show navigation'"
 				aria-label="Toggle secondary navigation">
-				<UIcon
+				<Icon
 					name="i-heroicons-chevron-down"
 					class="w-4 h-4 transition-transform duration-300"
 					:class="{'rotate-180': !isSecondaryNavVisible}" />
@@ -63,7 +63,7 @@ const avatar = computed(() => {
 			</ClientOnly>
 			<nuxt-link to="/dashboard" class="inline-flex lg:hidden">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
-				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
+				<Avatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
 			<LayoutNavButton />
 		</div>

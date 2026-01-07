@@ -38,7 +38,7 @@
 					">
 					<!-- <div class="text-center p-8 max-w-lg hidden">
 						<div class="w-16 h-16 mx-auto mb-4 border-2 border-gray-400 rounded-full flex items-center justify-center">
-							<UIcon name="i-heroicons-photo" class="w-8 h-8 t-text-muted" />
+							<Icon name="i-heroicons-photo" class="w-8 h-8 t-text-muted" />
 						</div>
 						<p class="text-sm t-text-tertiary font-medium mb-2">HERO IMAGE</p>
 						<p class="text-xs t-text-muted leading-relaxed">
@@ -99,7 +99,7 @@
 						">
 						<div class="text-left p-6">
 							<!-- <div class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
-								<UIcon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
+								<Icon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
 							</div> -->
 							<p class="text-sm text-cream font-medium mb-2">COURTYARD VIEW</p>
 							<p class="text-xs text-cream-alt leading-relaxed">
@@ -115,7 +115,7 @@
 						">
 						<div class="text-left p-6">
 							<!-- <div class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
-								<UIcon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
+								<Icon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
 							</div> -->
 							<p class="text-sm text-cream font-medium mb-2">BALCONY LIFESTYLE</p>
 							<p class="text-xs text-cream-alt leading-relaxed">
@@ -161,7 +161,7 @@
 								<div class="w-full text-left p-6">
 									<!-- <div
 										class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
-										<UIcon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
+										<Icon name="i-heroicons-photo" class="w-6 h-6 text-cream" />
 									</div> -->
 									<p class="text-sm text-cream font-medium mb-2 uppercase">Immediate Access to air</p>
 									<p class="text-xs text-cream-alt leading-relaxed">
@@ -203,7 +203,7 @@
 							<div class="text-left p-6">
 								<!-- <div
 									class="w-12 h-12 mx-auto mb-3 border-2 border-gray-400 rounded-full flex items-center justify-center">
-									<UIcon name="i-heroicons-map" class="w-6 h-6 t-text-muted" />
+									<Icon name="i-heroicons-map" class="w-6 h-6 t-text-muted" />
 								</div> -->
 								<p class="text-sm text-cream font-medium mb-2">NEIGHBORHOOD MEET BEACH</p>
 								<p class="text-xs text-cream-alt leading-relaxed max-w-md mx-auto">
@@ -229,7 +229,7 @@
 								:key="index"
 								class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 location-image">
 								<div class="text-center p-3">
-									<UIcon :name="loc.icon" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<Icon :name="loc.icon" class="w-6 h-6 t-text-muted mx-auto mb-2" />
 									<p class="text-xs t-text-tertiary font-medium">{{ loc.title }}</p>
 									<p class="text-[10px] t-text-muted mt-1">{{ loc.desc }}</p>
 								</div>
@@ -255,7 +255,7 @@
 									class="aspect-square bg-black/30 bg-blend-darken flex items-center justify-center opacity-0 gallery-image bg-cover bg-center"
 									:style="item.image ? `background-image: url('${item.image}');` : ''">
 									<div class="text-center p-4">
-										<UIcon :name="item.icon" class="w-8 h-8 text-cream mx-auto mb-2" />
+										<Icon :name="item.icon" class="w-8 h-8 text-cream mx-auto mb-2" />
 										<p class="text-xs text-cream font-medium mb-1">{{ item.title }}</p>
 										<p class="text-[10px] text-cream-alt">{{ item.desc }}</p>
 									</div>
@@ -312,7 +312,7 @@
 									background-image: url('https://admin.1033lenox.com/assets/09f44cd5-f438-4d71-a546-7541c5fdad99?key=large');
 								">
 								<div class="text-center p-4">
-									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
+									<!-- <Icon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
 									<!-- <p class="text-xs t-text-tertiary font-medium mb-1">EXTERIOR DETAIL</p>
 									<p class="text-[10px] t-text-muted">
 										Black steel railing detail against white stucco. Clean modernist lines.
@@ -325,7 +325,7 @@
 									background-image: url('https://admin.1033lenox.com/assets/a1a81a1b-cc26-46cf-a09b-c58438498731?key=large');
 								">
 								<div class="text-center p-4">
-									<!-- <UIcon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
+									<!-- <Icon name="i-heroicons-photo" class="w-6 h-6 t-text-muted mx-auto mb-2" /> -->
 									<!-- <p class="text-xs t-text-tertiary font-medium mb-1">INTERIOR LIVING SPACE</p>
 									<p class="text-[10px] t-text-muted">
 										Bright, modern 1BR interior showing open layout, natural light flooding in from balcony doors.
@@ -341,7 +341,7 @@
 								:key="index"
 								:class="['feature-item flex gap-4 items-start opacity-0', feature.wide ? 'sm:col-span-2' : '']">
 								<div class="feature-icon w-6 h-6 flex-shrink-0 t-text-accent-tertiary">
-									<UIcon :name="feature.icon" class="w-6 h-6" />
+									<Icon :name="feature.icon" class="w-6 h-6" />
 								</div>
 								<p class="text-[0.9375rem] leading-relaxed t-text-secondary">{{ feature.text }}</p>
 							</div>
@@ -380,28 +380,28 @@
 						<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-window" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<Icon name="i-heroicons-window" class="w-6 h-6 t-text-muted mx-auto mb-2" />
 									<p class="text-[10px] t-text-tertiary font-medium">IMPACT WINDOWS</p>
 									<p class="text-[9px] t-text-muted">Hurricane-rated</p>
 								</div>
 							</div>
 							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-bolt" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<Icon name="i-heroicons-bolt" class="w-6 h-6 t-text-muted mx-auto mb-2" />
 									<p class="text-[10px] t-text-tertiary font-medium">ELECTRICAL</p>
 									<p class="text-[9px] t-text-muted">Complete upgrade</p>
 								</div>
 							</div>
 							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-home-modern" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<Icon name="i-heroicons-home-modern" class="w-6 h-6 t-text-muted mx-auto mb-2" />
 									<p class="text-[10px] t-text-tertiary font-medium">NEW ROOF</p>
 									<p class="text-[9px] t-text-muted">2024 installation</p>
 								</div>
 							</div>
 							<div class="aspect-square t-bg-subtle flex items-center justify-center opacity-0 section-image">
 								<div class="text-center p-3">
-									<UIcon name="i-heroicons-arrows-up-down" class="w-6 h-6 t-text-muted mx-auto mb-2" />
+									<Icon name="i-heroicons-arrows-up-down" class="w-6 h-6 t-text-muted mx-auto mb-2" />
 									<p class="text-[10px] t-text-tertiary font-medium">ELEVATOR</p>
 									<p class="text-[9px] t-text-muted">New cab interior</p>
 								</div>
@@ -451,7 +451,7 @@
 										:key="index"
 										class="security-item flex items-center gap-4 py-4 border-b t-border-divider opacity-0">
 										<div class="security-icon w-5 h-5 flex-shrink-0 t-text-accent-tertiary">
-											<UIcon :name="feature.icon" class="w-5 h-5" />
+											<Icon :name="feature.icon" class="w-5 h-5" />
 										</div>
 										<span class="text-[0.9375rem] t-text-secondary">{{ feature.text }}</span>
 									</div>
@@ -469,7 +469,7 @@
 								<div class="text-left p-6">
 									<!-- <div
 										class="w-12 h-12 mx-auto mb-3 border-2 border-cream rounded-full flex items-center justify-center">
-										<UIcon name="i-heroicons-finger-print" class="w-6 h-6 text-cream" />
+										<Icon name="i-heroicons-finger-print" class="w-6 h-6 text-cream" />
 									</div> -->
 									<p class="text-sm text-cream font-medium mb-2">ENTRY SYSTEM</p>
 									<p class="text-xs text-cream-alt leading-relaxed">
@@ -536,7 +536,7 @@
 							<div class="text-left p-6">
 								<!-- <div
 									class="w-12 h-12 mx-auto mb-3 border-2 border-gray-400 rounded-full flex items-center justify-center">
-									<UIcon name="i-heroicons-sun" class="w-6 h-6 t-text-muted" />
+									<Icon name="i-heroicons-sun" class="w-6 h-6 t-text-muted" />
 								</div> -->
 								<p class="text-sm text-cream font-medium mb-2">COURTYARD & GROUNDS</p>
 								<p class="text-xs text-cream-alt leading-relaxed max-w-md mx-auto">
@@ -589,7 +589,7 @@
 								class="community-space-item p-6 t-bg-subtle opacity-0">
 								<div class="flex items-start gap-4">
 									<div class="community-icon w-8 h-8 flex-shrink-0 t-text-accent-tertiary">
-										<UIcon :name="space.icon" class="w-8 h-8" />
+										<Icon :name="space.icon" class="w-8 h-8" />
 									</div>
 									<div>
 										<p class="text-sm font-medium t-text mb-2">{{ space.name }}</p>
@@ -641,7 +641,7 @@
 										background-image: url('https://admin.1033lenox.com/assets/e01de531-5ace-45e6-921b-c5edf494a810?key=medium');
 									">
 									<div class="text-center p-2">
-										<UIcon name="i-heroicons-heart" class="w-8 h-8 text-cream mx-auto mb-1" />
+										<Icon name="i-heroicons-heart" class="w-8 h-8 text-cream mx-auto mb-1" />
 										<p class="text-[9px] text-cream">Happy dog. Happy life.</p>
 									</div>
 								</div>
@@ -673,7 +673,7 @@
 				">
 				<!-- <div class="w-full h-full bg-gray-700 flex items-center justify-center">
 					<div class="text-center p-8">
-						<UIcon name="i-heroicons-photo" class="w-12 h-12 t-text-tertiary mx-auto mb-3" />
+						<Icon name="i-heroicons-photo" class="w-12 h-12 t-text-tertiary mx-auto mb-3" />
 						<p class="text-xs t-text-muted">
 							Evening/twilight exterior with warm window glow. Or: Beach sunset with building silhouette.
 						</p>

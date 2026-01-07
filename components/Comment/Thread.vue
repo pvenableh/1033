@@ -3,9 +3,9 @@
 		<!-- Header -->
 		<div v-if="showHeader" class="flex items-center justify-between mb-4">
 			<h3 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-				<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
+				<Icon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
 				Comments
-				<UBadge v-if="commentCount > 0" size="xs" color="gray">
+				<Badge v-if="commentCount > 0" size="xs" color="gray">
 					{{ commentCount }}
 				</UBadge>
 			</h3>
@@ -41,7 +41,7 @@
 
 		<!-- Empty State -->
 		<div v-else-if="comments.length === 0" class="text-center py-8">
-			<UIcon
+			<Icon
 				name="i-heroicons-chat-bubble-left-right"
 				class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
 			<p class="text-sm text-gray-500 dark:text-gray-400">
@@ -65,11 +65,11 @@
 
 		<!-- Reply Modal -->
 		<UModal v-model="showReplyModal">
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Reply to comment</h3>
-						<UButton
+						<Button
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-x-mark"

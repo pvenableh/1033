@@ -239,7 +239,7 @@ function useUpload() {
 					<span v-else class="sm:text-sm dark:text-gray-200">{{ file.filename_download }}</span>
 					<span class="flex ml-auto cursor-pointer">
 						<button @click="deleteImage(fileIdx)">
-							<UIcon
+							<Icon
 								name="i-heroicons-trash"
 								class="w-4 h-4 text-sky-500 stroke-current hover:text-red-600 flex-shrink-none" />
 						</button>

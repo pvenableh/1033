@@ -4,7 +4,7 @@
 		<div class="p-4 border-b border-gray-200 dark:border-gray-700">
 			<div class="flex items-center justify-between mb-3">
 				<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Channels</h2>
-				<UButton
+				<Button
 					v-if="canCreateChannel"
 					size="xs"
 					color="primary"
@@ -14,7 +14,7 @@
 			</div>
 			<!-- Search Input -->
 			<div class="relative">
-				<UInput
+				<Input
 					v-model="searchQuery"
 					placeholder="Search channels..."
 					icon="i-heroicons-magnifying-glass"
@@ -22,7 +22,7 @@
 					:ui="{icon: {trailing: {pointer: ''}}}"
 					class="w-full">
 					<template #trailing>
-						<UButton
+						<Button
 							v-if="searchQuery"
 							color="gray"
 							variant="link"
@@ -42,15 +42,15 @@
 			</div>
 
 			<div v-else-if="error" class="p-4 text-center text-red-500">
-				<UIcon name="i-heroicons-exclamation-circle" class="w-8 h-8 mx-auto mb-2" />
+				<Icon name="i-heroicons-exclamation-circle" class="w-8 h-8 mx-auto mb-2" />
 				<p>{{ error }}</p>
-				<UButton size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</UButton>
+				<Button size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</UButton>
 			</div>
 
 			<div v-else-if="channels.length === 0" class="p-4 text-center text-gray-500">
-				<UIcon name="i-heroicons-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+				<Icon name="i-heroicons-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-2 opacity-50" />
 				<p>No channels yet</p>
-				<UButton
+				<Button
 					v-if="canCreateChannel"
 					size="sm"
 					color="primary"
@@ -61,7 +61,7 @@
 			</div>
 
 			<div v-else-if="filteredChannels.length === 0 && searchQuery" class="p-4 text-center text-gray-500 dark:text-gray-400">
-				<UIcon name="i-heroicons-magnifying-glass" class="w-8 h-8 mx-auto mb-2 opacity-50" />
+				<Icon name="i-heroicons-magnifying-glass" class="w-8 h-8 mx-auto mb-2 opacity-50" />
 				<p class="text-sm">No channels match "{{ searchQuery }}"</p>
 			</div>
 
@@ -77,7 +77,7 @@
 					]"
 					style="width: calc(100% - 8px);"
 					@click="selectChannel(channel)">
-					<UIcon
+					<Icon
 						:name="getChannelIcon(channel)"
 						class="w-5 h-5 flex-shrink-0 transition-colors"
 						:class="selectedChannelId === channel.id
@@ -92,7 +92,7 @@
 									: 'text-gray-900 dark:text-white'">
 								{{ channel.name }}
 							</span>
-							<UBadge
+							<Badge
 								v-if="channel.is_private"
 								size="xs"
 								color="gray"
@@ -104,7 +104,7 @@
 							{{ channel.description }}
 						</p>
 					</div>
-					<UBadge
+					<Badge
 						v-if="getUnreadCount(channel.id) > 0"
 						size="xs"
 						color="primary"
@@ -117,11 +117,11 @@
 
 		<!-- Create Channel Modal -->
 		<UModal v-model="showCreateModal">
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Create Channel</h3>
-						<UButton
+						<Button
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-x-mark"
@@ -130,43 +130,43 @@
 				</template>
 
 				<form @submit.prevent="handleCreateChannel" class="space-y-4">
-					<UFormGroup label="Channel Name" required>
-						<UInput
+					<FormGroup label="Channel Name" required>
+						<Input
 							v-model="newChannel.name"
 							placeholder="e.g., General, Finance Committee"
 							:disabled="creating" />
 					</UFormGroup>
 
-					<UFormGroup label="Description">
-						<UTextarea
+					<FormGroup label="Description">
+						<Textarea
 							v-model="newChannel.description"
 							placeholder="What's this channel about?"
 							:rows="2"
 							:disabled="creating" />
 					</UFormGroup>
 
-					<UFormGroup label="Icon">
+					<FormGroup label="Icon">
 						<USelectMenu
 							v-model="newChannel.icon"
 							:options="iconOptions"
 							:disabled="creating">
 							<template #label>
 								<div class="flex items-center gap-2">
-									<UIcon :name="newChannel.icon || 'i-heroicons-chat-bubble-left-right'" class="w-4 h-4" />
+									<Icon :name="newChannel.icon || 'i-heroicons-chat-bubble-left-right'" class="w-4 h-4" />
 									<span>{{ newChannel.icon?.replace('i-heroicons-', '') || 'chat-bubble-left-right' }}</span>
 								</div>
 							</template>
 							<template #option="{ option }">
 								<div class="flex items-center gap-2">
-									<UIcon :name="option.value" class="w-4 h-4" />
+									<Icon :name="option.value" class="w-4 h-4" />
 									<span>{{ option.label }}</span>
 								</div>
 							</template>
 						</USelectMenu>
 					</UFormGroup>
 
-					<UFormGroup>
-						<UCheckbox
+					<FormGroup>
+						<Checkbox
 							v-model="newChannel.is_private"
 							label="Private channel (require explicit invitation)"
 							:disabled="creating" />
@@ -175,10 +175,10 @@
 
 				<template #footer>
 					<div class="flex justify-end gap-2">
-						<UButton color="gray" variant="ghost" @click="showCreateModal = false" :disabled="creating">
+						<Button color="gray" variant="ghost" @click="showCreateModal = false" :disabled="creating">
 							Cancel
 						</UButton>
-						<UButton color="primary" @click="handleCreateChannel" :loading="creating">
+						<Button color="primary" @click="handleCreateChannel" :loading="creating">
 							Create Channel
 						</UButton>
 					</div>

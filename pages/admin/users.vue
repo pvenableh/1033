@@ -281,7 +281,7 @@ onMounted(async () => {
         </p>
       </div>
       <div class="mt-4 md:mt-0">
-        <UBadge v-if="pendingCount > 0" color="amber" variant="soft" size="lg">
+        <Badge v-if="pendingCount > 0" color="amber" variant="soft" size="lg">
           {{ pendingCount }} pending {{ pendingCount === 1 ? 'request' : 'requests' }}
         </UBadge>
       </div>
@@ -289,7 +289,7 @@ onMounted(async () => {
 
     <!-- Access Denied -->
     <div v-if="!isAdmin" class="text-center py-12">
-      <UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+      <Icon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
       <h2 class="text-xl font-semibold mb-2">Access Denied</h2>
       <p class="text-gray-600 dark:text-gray-400">
         You do not have administrator privileges.
@@ -300,7 +300,7 @@ onMounted(async () => {
     <template v-else>
       <!-- Filters -->
       <div class="flex flex-col md:flex-row gap-4 mb-6">
-        <UInput
+        <Input
           v-model="searchQuery"
           icon="i-heroicons-magnifying-glass"
           placeholder="Search users..."
@@ -314,7 +314,7 @@ onMounted(async () => {
       </div>
 
       <!-- Users Table -->
-      <UCard>
+      <Card>
         <UTable
           :rows="filteredUsers"
           :columns="columns"
@@ -322,7 +322,7 @@ onMounted(async () => {
           :empty-state="{ icon: 'i-heroicons-users', label: 'No users found' }">
           <template #name-data="{ row }">
             <div class="flex items-center gap-3">
-              <UAvatar
+              <Avatar
                 :alt="`${row.first_name} ${row.last_name}`"
                 size="sm" />
               <div>
@@ -339,7 +339,7 @@ onMounted(async () => {
           </template>
 
           <template #role-data="{ row }">
-            <UBadge
+            <Badge
               :color="getRoleName(row) === APP_ROLES.ADMIN ? 'red' : 'gray'"
               variant="soft"
               size="sm">
@@ -348,7 +348,7 @@ onMounted(async () => {
           </template>
 
           <template #status-data="{ row }">
-            <UBadge
+            <Badge
               :color="getStatusColor(row.status)"
               variant="soft"
               size="sm">
@@ -358,7 +358,7 @@ onMounted(async () => {
 
           <template #actions-data="{ row }">
             <div class="flex items-center gap-2">
-              <UButton
+              <Button
                 v-if="row.status === 'draft'"
                 size="xs"
                 color="green"
@@ -367,7 +367,7 @@ onMounted(async () => {
                 @click="openUserModal(row)">
                 Approve
               </UButton>
-              <UButton
+              <Button
                 size="xs"
                 color="gray"
                 variant="ghost"
@@ -383,13 +383,13 @@ onMounted(async () => {
 
     <!-- User Edit Modal -->
     <UModal v-model="showUserModal">
-      <UCard v-if="selectedUser">
+      <Card v-if="selectedUser">
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">
               {{ selectedUser.status === 'draft' ? 'Approve User' : 'Edit User' }}
             </h3>
-            <UButton
+            <Button
               color="gray"
               variant="ghost"
               icon="i-heroicons-x-mark"
@@ -400,7 +400,7 @@ onMounted(async () => {
         <div class="space-y-6">
           <!-- User Info -->
           <div class="flex items-center gap-4">
-            <UAvatar
+            <Avatar
               :alt="`${selectedUser.first_name} ${selectedUser.last_name}`"
               size="lg" />
             <div>
@@ -427,13 +427,13 @@ onMounted(async () => {
           <!-- Current Status -->
           <div>
             <label class="block text-sm font-medium mb-2">Current Status</label>
-            <UBadge :color="getStatusColor(selectedUser.status)" variant="soft">
+            <Badge :color="getStatusColor(selectedUser.status)" variant="soft">
               {{ selectedUser.status }}
             </UBadge>
           </div>
 
           <!-- Role Selection -->
-          <UFormGroup label="Assign Role">
+          <FormGroup label="Assign Role">
             <USelectMenu
               v-model="selectedUser.role"
               :options="roles"
@@ -451,7 +451,7 @@ onMounted(async () => {
 
           <!-- Status Actions -->
           <div v-if="selectedUser.status !== 'draft'" class="flex gap-2">
-            <UButton
+            <Button
               v-if="selectedUser.status !== 'active'"
               size="sm"
               color="green"
@@ -460,7 +460,7 @@ onMounted(async () => {
               @click="updateUserStatus(selectedUser, 'active')">
               Activate
             </UButton>
-            <UButton
+            <Button
               v-if="selectedUser.status !== 'suspended'"
               size="sm"
               color="amber"
@@ -474,13 +474,13 @@ onMounted(async () => {
 
         <template #footer>
           <div class="flex justify-end gap-3">
-            <UButton
+            <Button
               color="gray"
               variant="ghost"
               @click="showUserModal = false">
               Cancel
             </UButton>
-            <UButton
+            <Button
               v-if="selectedUser.status === 'draft'"
               color="green"
               :loading="actionLoading"
@@ -488,7 +488,7 @@ onMounted(async () => {
               @click="approveUser(selectedUser, typeof selectedUser.role === 'object' ? selectedUser.role.id : selectedUser.role)">
               Approve & Assign Role
             </UButton>
-            <UButton
+            <Button
               v-else
               color="primary"
               :loading="actionLoading"
