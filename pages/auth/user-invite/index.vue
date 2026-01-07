@@ -54,7 +54,7 @@
 					</p>
 				</div>
 
-				<UAlert
+				<Alert
 					v-if="error"
 					class="mb-4"
 					:description="error"
@@ -62,7 +62,7 @@
 					variant="subtle"
 					icon="i-heroicons-exclamation-triangle">
 					{{ error }}
-				</UAlert>
+				</Alert>
 
 				<UForm :validate="validate" :state="state" class="grid gap-4" @submit="handleSubmit">
 					<UFormGroup label="Password" name="password" required>
@@ -73,7 +73,7 @@
 							:loading="loading"
 							icon="i-heroicons-lock-closed"
 							placeholder="Enter your password" />
-					</UFormGroup>
+					</FormGroup>
 
 					<UFormGroup label="Confirm Password" name="confirmPassword" required>
 						<UInput
@@ -83,7 +83,7 @@
 							:loading="loading"
 							icon="i-heroicons-lock-closed"
 							placeholder="Confirm your password" />
-					</UFormGroup>
+					</FormGroup>
 
 					<div class="text-xs text-gray-500 dark:text-gray-400">
 						Password must be at least 8 characters long.
@@ -97,7 +97,7 @@
 						label="Set Password"
 						trailing-icon="i-heroicons-arrow-right"
 						block />
-				</UForm>
+				</Form>
 			</div>
 		</div>
 	</div>

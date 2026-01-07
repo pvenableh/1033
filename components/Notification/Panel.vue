@@ -10,7 +10,7 @@
 			<div class="flex items-center justify-between w-full">
 				<h2 class="font-semibold text-gray-900 dark:text-white">Notifications</h2>
 				<div class="flex items-center gap-2">
-					<UButton
+					<Button
 						v-if="totalUnreadCount > 0"
 						variant="ghost"
 						size="xs"
@@ -18,7 +18,7 @@
 						@click="handleMarkAllAsRead"
 						:loading="markingAllAsRead">
 						Mark all read
-					</UButton>
+					</Button>
 				</div>
 			</div>
 		</template>
@@ -32,7 +32,7 @@
 				class="relative px-4 py-2.5 text-sm font-medium transition-colors"
 				:class="[
 					activeTab === tab.value
-						? 'text-primary-600 dark:text-primary-400'
+						? 'text-primary dark:text-primary'
 						: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
 				]">
 				{{ tab.label }}
@@ -41,7 +41,7 @@
 					class="ml-1.5 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-medium rounded-full"
 					:class="[
 						activeTab === tab.value
-							? 'bg-primary-100 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400'
+							? 'bg-primary-100 text-primary dark:bg-primary-900/30 dark:text-primary'
 							: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
 					]">
 					{{ tab.count }}
@@ -49,7 +49,7 @@
 				<!-- Active indicator -->
 				<div
 					v-if="activeTab === tab.value"
-					class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 dark:bg-primary-400" />
+					class="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-primary" />
 			</button>
 		</div>
 
@@ -58,10 +58,10 @@
 			<!-- Loading state -->
 			<div v-if="loading" class="p-4 space-y-3">
 				<div v-for="i in 5" :key="i" class="flex items-start gap-3">
-					<USkeleton class="w-9 h-9 rounded-full" />
+					<Skeleton class="w-9 h-9 rounded-full" />
 					<div class="flex-1 space-y-2">
-						<USkeleton class="h-4 w-3/4" />
-						<USkeleton class="h-3 w-1/2" />
+						<Skeleton class="h-4 w-3/4" />
+						<Skeleton class="h-3 w-1/2" />
 					</div>
 				</div>
 			</div>
@@ -71,7 +71,7 @@
 				v-else-if="displayedItems.length === 0"
 				class="flex flex-col items-center justify-center py-12 px-4 text-center">
 				<div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-4">
-					<UIcon :name="emptyStateIcon" class="w-8 h-8 text-gray-400" />
+					<Icon :name="emptyStateIcon" class="w-8 h-8 text-gray-400" />
 				</div>
 				<p class="text-sm font-medium text-gray-900 dark:text-white">{{ emptyStateTitle }}</p>
 				<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ emptyStateMessage }}</p>
@@ -107,13 +107,13 @@
 		<!-- Footer -->
 		<template #footer>
 			<div class="p-4 flex items-center justify-between">
-				<!-- <UButton v-if="isAuthenticated" variant="ghost" size="xs" color="gray" to="/notifications" @click="closePanel">
+				<!-- <Buttonv-if="isAuthenticated" variant="ghost" size="xs" color="gray" to="/notifications" @click="closePanel">
 					View all notifications
-					<UIcon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
-				</UButton> -->
-				<UButton variant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
-					<UIcon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
-				</UButton>
+					<Icon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
+				</Button> -->
+				<Button variant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
+					<Icon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
+				</Button>
 			</div>
 		</template>
 	</LayoutSidePanel>

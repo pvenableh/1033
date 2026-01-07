@@ -95,7 +95,7 @@
 		</div>
 
 		<input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
-		<UProgress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
+		<Progress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
 
 		<!-- Mentions popup portal -->
 		<div ref="mentionsPortal" class="mentions-portal" />
