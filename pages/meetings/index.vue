@@ -29,7 +29,7 @@
 				<!-- Error State -->
 				<div v-else-if="error" class="text-center py-16">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 t-border-divider rounded-full flex items-center justify-center">
-						<Icon name="i-heroicons-exclamation-triangle" class="w-8 h-8 t-text-muted" />
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 t-text-muted" />
 					</div>
 					<p class="t-heading text-xl t-text-secondary mb-2">Unable to Load Meetings</p>
 					<p class="text-sm t-text-tertiary">Please try again later</p>
@@ -45,7 +45,7 @@
 				<!-- Empty State -->
 				<div v-else class="text-center py-16">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 t-border-divider rounded-full flex items-center justify-center">
-						<Icon name="i-heroicons-calendar" class="w-8 h-8 t-text-muted" />
+						<UIcon name="i-heroicons-calendar" class="w-8 h-8 t-text-muted" />
 					</div>
 					<p class="t-heading text-xl t-text-secondary mb-2">No Meetings Found</p>
 					<p class="text-sm t-text-tertiary">Check back later for updates</p>

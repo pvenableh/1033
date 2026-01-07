@@ -136,7 +136,7 @@ function getTrendIcon(): string {
 			<span
 				class="glass-widget__icon rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700"
 				:class="compact ? 'h-6 w-6 text-xs' : 'h-8 w-8'">
-				<Icon :name="getIcon()" />
+				<UIcon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -151,37 +151,37 @@ function getTrendIcon(): string {
 			v-if="variant === 'detailed' && !compact"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-calendar" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-calendar" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">This Month</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ thisMonthCount }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-calendar-days" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-calendar-days" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">This Year</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ thisYearCount }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-chart-bar" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-chart-bar" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Monthly Avg</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ avgPerMonth }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-clock" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-clock" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Over</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalMonths }} months</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-arrow-path" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-arrow-path" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Recent Avg (3mo)</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ recentAvg }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getTrendIcon()" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getTrendIcon()" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Trend</span>
 				<span class="ml-auto font-medium text-cream uppercase capitalize">{{ trend }}</span>
 			</div>
@@ -193,7 +193,7 @@ function getTrendIcon(): string {
 		v-else
 		class="glass-widget flex-row items-center gap-2 text-cream uppercase"
 		:class="compact ? 'px-4 py-2' : 'px-8 py-4'">
-		<Icon name="i-heroicons-exclamation-triangle" class="text-lg" />
+		<UIcon name="i-heroicons-exclamation-triangle" class="text-lg" />
 		<span class="text-xs">Announcements unavailable</span>
 	</div>
 </template>

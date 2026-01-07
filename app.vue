@@ -54,7 +54,6 @@ const links = ref([
 	<UNotifications />
 </template>
 <style>
-@reference "~/assets/css/tailwind.css";
 .page-content {
 	transition: all 0.25s var(--curve);
 	overflow: hidden;

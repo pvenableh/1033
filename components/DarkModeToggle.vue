@@ -20,7 +20,7 @@ const isDark = computed({
 </script>
 <template>
 	<ClientOnly>
-		<Button
+		<UButton
 			:icon="isDark ? 'i-heroicons-moon' : 'i-heroicons-sun'"
 			variant="solid"
 			color="gray"

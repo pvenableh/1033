@@ -18,10 +18,10 @@
 								to="/dashboard"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/dashboard')}">
-								<Icon name="i-lucide-layout-dashboard" class="w-5 h-5" />
+								<UIcon name="i-lucide-layout-dashboard" class="w-5 h-5" />
 								<span class="hidden">Dashboard</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Announcements - visible to all approved users -->
@@ -31,20 +31,20 @@
 								to="/announcements"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/announcements')}">
-								<Icon name="i-heroicons-megaphone" class="w-5 h-5" />
+								<UIcon name="i-heroicons-megaphone" class="w-5 h-5" />
 								<span class="hidden">Announcements</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Meetings - visible to all approved users -->
 					<li>
 						<UTooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/meetings" class="secondary-nav__link flex" :class="{active: isActiveRoute('/meetings')}">
-								<Icon name="i-heroicons-calendar-days" class="w-5 h-5" />
+								<UIcon name="i-heroicons-calendar-days" class="w-5 h-5" />
 								<span class="hidden">Meetings</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- By-Laws - visible to all approved users -->
@@ -54,10 +54,10 @@
 								to="/documents"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/documents')}">
-								<Icon name="i-heroicons-document-text" class="w-5 h-5" />
+								<UIcon name="i-heroicons-document-text" class="w-5 h-5" />
 								<span class="hidden">By-Laws</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Rules - visible to all approved users -->
@@ -67,10 +67,10 @@
 								to="/rules-regulations"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/rules-regulations')}">
-								<Icon name="i-heroicons-clipboard-document-list" class="w-5 h-5" />
+								<UIcon name="i-heroicons-clipboard-document-list" class="w-5 h-5" />
 								<span class="hidden">Rules</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Parking - visible to all approved users -->
@@ -80,49 +80,55 @@
 								to="/parking-garage"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/parking-garage')}">
-								<Icon name="i-lucide-car" class="w-5 h-5" />
+								<UIcon name="i-lucide-car" class="w-5 h-5" />
 								<span class="hidden">Parking</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Projects - visible to all approved users -->
 					<li>
 						<UTooltip text="Projects" :popper="{placement: 'bottom'}" class="uppercase">
-							<nuxt-link to="/projects" class="secondary-nav__link flex" :class="{active: isActiveRoute('/projects')}">
-								<Icon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
+							<nuxt-link
+								to="/projects"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/projects')}">
+								<UIcon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
 								<span class="hidden">Projects</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Account - visible to all approved users -->
 					<li>
 						<UTooltip text="Account" :popper="{placement: 'bottom'}" class="uppercase">
-							<nuxt-link to="/account" class="secondary-nav__link flex" :class="{active: isActiveRoute('/account')}">
-								<Icon name="i-heroicons-user-circle" class="w-5 h-5" />
+							<nuxt-link
+								to="/account"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/account')}">
+								<UIcon name="i-heroicons-user-circle" class="w-5 h-5" />
 								<span class="hidden">Account</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Channels - visible to board_members OR users with channel membership -->
 					<li v-if="showChannels">
 						<UTooltip text="Channels" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/channels" class="secondary-nav__link flex" :class="{active: isActiveRoute('/channels')}">
-								<Icon name="i-lucide-messages-square" class="w-5 h-5" />
+								<UIcon name="i-lucide-messages-square" class="w-5 h-5" />
 								<span class="hidden">Channels</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<li v-if="showSecurity">
 						<UTooltip text="Security" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/security" class="secondary-nav__link flex" :class="{active: isActiveRoute('/security')}">
-								<Icon name="i-lucide-cctv" class="w-5 h-5" />
+								<UIcon name="i-lucide-cctv" class="w-5 h-5" />
 								<span class="hidden">Security</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Divider - only show if user has access to board member features -->
@@ -137,20 +143,20 @@
 								to="/financials"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/financials')}">
-								<Icon name="i-heroicons-currency-dollar" class="w-5 h-5" />
+								<UIcon name="i-heroicons-currency-dollar" class="w-5 h-5" />
 								<span class="hidden">Financials</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Tasks - visible to board_members only -->
 					<li v-if="isBoardMember">
 						<UTooltip text="Tasks" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/tasks" class="secondary-nav__link flex" :class="{active: isActiveRoute('/tasks')}">
-								<Icon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
+								<UIcon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
 								<span class="hidden">Tasks</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 
 					<!-- Admin - visible to board_members and admins -->
@@ -160,10 +166,10 @@
 								to="/admin"
 								class="secondary-nav__link flex admin-link"
 								:class="{active: isActiveRoute('/admin')}">
-								<Icon name="i-heroicons-shield-check" class="w-5 h-5" />
+								<UIcon name="i-heroicons-shield-check" class="w-5 h-5" />
 								<span class="hidden">Users</span>
 							</nuxt-link>
-						</Tooltip>
+						</UTooltip>
 					</li>
 				</ul>
 			</div>

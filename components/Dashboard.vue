@@ -44,7 +44,6 @@ const dashboardType = computed(() => {
 </template>
 
 <style>
-@reference "~/assets/css/tailwind.css";
 .insight {
 	@media (min-width: theme('screens.lg')) {
 		min-height: 300px;

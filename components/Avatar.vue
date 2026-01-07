@@ -48,7 +48,7 @@ watch(
 );
 </script>
 <template>
-	<Avatar
+	<UAvatar
 		v-if="chip"
 		chip-color="sky"
 		:chip-text="text"
@@ -56,7 +56,7 @@ watch(
 		:size="size"
 		:src="avatarSource"
 		:alt="user?.first_name + ' ' + user?.last_name" />
-	<Avatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
+	<UAvatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
 </template>
 
 <style></style>

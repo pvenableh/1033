@@ -4,23 +4,23 @@
 		<div class="space-y-4">
 			<p>This is being submitted by {{ user }}</p>
 			<!-- Request Category -->
-			<FormGroup label="Request Category" required>
+			<UFormGroup label="Request Category" required>
 				<USelect v-model="formData.category" :options="categories" placeholder="Select a category" required />
 			</UFormGroup>
 
 			<!-- Priority -->
-			<FormGroup label="Priority Level">
+			<UFormGroup label="Priority Level">
 				<USelect v-model="formData.priority" :options="priorities" placeholder="Select priority" />
 			</UFormGroup>
 
 			<!-- Subject -->
-			<FormGroup label="Subject" required>
-				<Input v-model="formData.subject" placeholder="Brief description of the issue" required />
+			<UFormGroup label="Subject" required>
+				<UInput v-model="formData.subject" placeholder="Brief description of the issue" required />
 			</UFormGroup>
 
 			<!-- Description -->
-			<FormGroup label="Description" required>
-				<Textarea
+			<UFormGroup label="Description" required>
+				<UTextarea
 					v-model="formData.description"
 					placeholder="Please provide detailed information about your request"
 					rows="4"
@@ -28,23 +28,23 @@
 			</UFormGroup>
 
 			<!-- Access Permission -->
-			<FormGroup>
-				<Checkbox
+			<UFormGroup>
+				<UCheckbox
 					v-model="formData.allowAccess"
 					label="I give permission for maintenance to enter my unit when I'm not present" />
 			</UFormGroup>
 
 			<!-- Preferred Contact Method -->
-			<FormGroup label="Preferred Contact Method">
+			<UFormGroup label="Preferred Contact Method">
 				<URadio v-model="formData.contactMethod" :options="contactMethods" name="contact-method" />
 			</UFormGroup>
 		</div>
 
 		<div class="flex justify-end space-x-3 pt-4">
-			<Button type="button" color="gray" variant="soft" @click="resetForm">Reset</Button>
-			<Button type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
+			<UButton type="button" color="gray" variant="soft" @click="resetForm">Reset</UButton>
+			<UButton type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 				{{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
-			</Button>
+			</UButton>
 		</div>
 	</form>
 </template>

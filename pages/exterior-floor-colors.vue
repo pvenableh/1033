@@ -156,7 +156,7 @@ function openExternalLink() {
 
 			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[450px] mx-auto">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-6 text-center">
-					<Icon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
+					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
 				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5">
@@ -198,7 +198,7 @@ function openExternalLink() {
 							<span class="font-bold block">{{ item.title }}</span>
 						</h3>
 
-						<Button
+						<UButton
 							color="gray"
 							variant="outline"
 							:ui="{rounded: 'rounded-sm'}"
@@ -206,7 +206,7 @@ function openExternalLink() {
 							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block">{{ item.title }}</span>
-						</Button>
+						</UButton>
 					</div>
 				</div>
 			</div>
@@ -220,7 +220,7 @@ function openExternalLink() {
 		</div>
 		<UModal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative">
-				<Icon
+				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
 					@click="closeVote()" />
@@ -246,7 +246,6 @@ function openExternalLink() {
 	</div>
 </template>
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__list {
 		flex-direction: column;

@@ -1,69 +1,108 @@
 <template>
-	<div class="project-timeline min-h-screen bg-cream">
-		<!-- Header -->
-		<div class="flex flex-col sm:flex-row justify-between items-start gap-4 p-6 lg:p-8">
-			<div>
-				<h1 class="font-serif text-2xl lg:text-3xl font-light text-gray-900">Project Timeline</h1>
-				<p class="text-sm text-gray-500 mt-1">{{ rootProjects.length }} projects · {{ totalEvents }} events</p>
-			</div>
+  <div class="project-timeline min-h-screen bg-cream">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 p-6 lg:p-8">
+      <div>
+        <h1 class="font-serif text-2xl lg:text-3xl font-light text-gray-900">
+          Project Timeline
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          {{ rootProjects.length }} projects · {{ totalEvents }} events
+        </p>
+      </div>
 
-			<TimelineControls
-				v-model:zoom="zoomLevel"
-				v-model:focused-project="focusedProjectId"
-				:projects="rootProjects"
-				@reset="resetView" />
-		</div>
+      <TimelineControls
+        v-model:zoom="zoomLevel"
+        v-model:focused-project="focusedProjectId"
+        :projects="rootProjects"
+        @reset="resetView"
+      />
+    </div>
 
-		<!-- Legend -->
-		<TimelineLegend
-			:projects="rootProjects"
-			:focused-id="focusedProjectId"
-			class="mx-6 lg:mx-8 mb-4"
-			@focus="focusedProjectId = $event" />
+    <!-- Legend -->
+    <TimelineLegend
+      :projects="rootProjects"
+      :focused-id="focusedProjectId"
+      class="mx-6 lg:mx-8 mb-4"
+      @focus="focusedProjectId = $event"
+    />
 
-		<!-- Loading State -->
-		<div v-if="loading" class="flex items-center justify-center py-20">
-			<Icon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-gold" />
-		</div>
+    <!-- Loading State -->
+    <div
+      v-if="loading"
+      class="flex items-center justify-center py-20"
+    >
+      <UIcon
+        name="i-heroicons-arrow-path"
+        class="w-8 h-8 animate-spin text-gold"
+      />
+    </div>
 
-		<!-- Error State -->
-		<div v-else-if="error" class="mx-6 lg:mx-8 p-6 bg-red-50 rounded-xl border border-red-200">
-			<div class="flex items-center gap-3">
-				<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-500" />
-				<p class="text-red-700">{{ error }}</p>
-			</div>
-			<button class="mt-3 text-sm text-red-600 hover:text-red-700 underline" @click="refresh">Try again</button>
-		</div>
+    <!-- Error State -->
+    <div
+      v-else-if="error"
+      class="mx-6 lg:mx-8 p-6 bg-red-50 rounded-xl border border-red-200"
+    >
+      <div class="flex items-center gap-3">
+        <UIcon
+          name="i-heroicons-exclamation-triangle"
+          class="w-5 h-5 text-red-500"
+        />
+        <p class="text-red-700">{{ error }}</p>
+      </div>
+      <button
+        class="mt-3 text-sm text-red-600 hover:text-red-700 underline"
+        @click="refresh"
+      >
+        Try again
+      </button>
+    </div>
 
-		<!-- Empty State -->
-		<div v-else-if="projects.length === 0" class="mx-6 lg:mx-8 py-20 text-center">
-			<Icon name="i-heroicons-calendar" class="w-12 h-12 text-gray-300 mx-auto mb-4" />
-			<h3 class="text-lg font-medium text-gray-700">No projects yet</h3>
-			<p class="text-gray-500 mt-1">Create your first project to get started</p>
-		</div>
+    <!-- Empty State -->
+    <div
+      v-else-if="projects.length === 0"
+      class="mx-6 lg:mx-8 py-20 text-center"
+    >
+      <UIcon
+        name="i-heroicons-calendar"
+        class="w-12 h-12 text-gray-300 mx-auto mb-4"
+      />
+      <h3 class="text-lg font-medium text-gray-700">No projects yet</h3>
+      <p class="text-gray-500 mt-1">Create your first project to get started</p>
+    </div>
 
-		<!-- Canvas -->
-		<div v-else ref="canvasContainer" class="bg-gray-900 rounded-xl border border-gray-800 mx-6 lg:mx-8 overflow-auto">
-			<TimelineCanvas
-				:projects="visibleProjects"
-				:zoom="zoomLevel"
-				:selected-event-id="selectedEventId"
-				@select-event="handleEventSelect" />
-		</div>
+    <!-- Canvas -->
+    <div
+      v-else
+      ref="canvasContainer"
+      class="bg-gray-900 rounded-xl border border-gray-800 mx-6 lg:mx-8 overflow-auto"
+    >
+      <TimelineCanvas
+        :projects="visibleProjects"
+        :zoom="zoomLevel"
+        :selected-event-id="selectedEventId"
+        @select-event="handleEventSelect"
+      />
+    </div>
 
-		<!-- Stats Footer -->
-		<TimelineStats v-if="!loading && projects.length > 0" :projects="projects" class="mt-6 mx-6 lg:mx-8 mb-8" />
+    <!-- Stats Footer -->
+    <TimelineStats
+      v-if="!loading && projects.length > 0"
+      :projects="projects"
+      class="mt-6 mx-6 lg:mx-8 mb-8"
+    />
 
-		<!-- Event Detail Panel (slide-out) -->
-		<Teleport to="body">
-			<TimelineEventDetail
-				v-if="selectedEvent"
-				:event="selectedEvent"
-				:project="selectedEventProject"
-				@close="selectedEventId = null"
-				@task-toggle="handleTaskToggle" />
-		</Teleport>
-	</div>
+    <!-- Event Detail Panel (slide-out) -->
+    <Teleport to="body">
+      <TimelineEventDetail
+        v-if="selectedEvent"
+        :event="selectedEvent"
+        :project="selectedEventProject"
+        @close="selectedEventId = null"
+        @task-toggle="handleTaskToggle"
+      />
+    </Teleport>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -229,7 +268,7 @@ onUnmounted(() => {
 
 <style scoped>
 .project-timeline {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 </style>

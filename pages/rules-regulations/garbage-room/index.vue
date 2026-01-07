@@ -24,7 +24,6 @@ const page = await rulesCollection.list({
 });
 </script>
 <style>
-@reference "~/assets/css/tailwind.css";
 .rule {
 	@media (min-width: theme('screens.lg')) {
 	}

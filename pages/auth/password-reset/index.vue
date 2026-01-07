@@ -79,9 +79,9 @@ const togglePassword = () => {
 				<h3>Reset password for {{ decoded.email }}.</h3>
 				<h5 class="uppercase italic text-xs font-bold mt-2 mb-6">Link expires in {{ getRelativeTime(expiredDate) }}</h5>
 				<form @submit.prevent="onSubmit">
-					<FormGroup label="Password" required :error="errorMessage">
+					<UFormGroup label="Password" required :error="errorMessage">
 						<div class="relative">
-							<Input
+							<UInput
 								v-model="password"
 								name="password"
 								:type="showPassword ? 'text' : 'password'"
@@ -91,20 +91,20 @@ const togglePassword = () => {
 									icon: {trailing: {pointer: 'cursor-pointer'}},
 								}">
 								<template #trailing>
-									<Button
+									<UButton
 										:icon="showPassword ? 'i-heroicons-eye-slash' : 'i-heroicons-eye'"
 										color="gray"
 										variant="ghost"
 										@click="togglePassword"
 										:padded="false" />
 								</template>
-							</Input>
+							</UInput>
 						</div>
 						<template #error>
 							<p class="text-xs text-red-500 text-right uppercase font-bold">{{ errorMessage }}</p>
 						</template>
 					</UFormGroup>
-					<Button type="submit" class="w-full my-6 text-center" label="Reset Password" />
+					<UButton type="submit" class="w-full my-6 text-center" label="Reset Password" />
 				</form>
 			</div>
 

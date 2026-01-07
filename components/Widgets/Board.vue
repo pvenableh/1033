@@ -92,7 +92,7 @@ function getIcon(): string {
 			<span class="text-cream">Board Members</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<Icon :name="getIcon()" />
+				<UIcon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -107,25 +107,25 @@ function getIcon(): string {
 			v-if="variant === 'detailed'"
 			class="grid grid-cols-1 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div v-if="president" class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-star" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-star" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">President</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ formatName(president) }}</span>
 			</div>
 
 			<div v-if="treasurer" class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-banknotes" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-banknotes" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Treasurer</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ formatName(treasurer) }}</span>
 			</div>
 
 			<div v-if="secretary" class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-document-text" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-document-text" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Secretary</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ formatName(secretary) }}</span>
 			</div>
 
 			<div v-if="directorCount > 0" class="flex items-center gap-1.5 text-[11px]">
-				<Icon name="i-heroicons-users" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon name="i-heroicons-users" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Directors</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ directorCount }}</span>
 			</div>
@@ -134,7 +134,7 @@ function getIcon(): string {
 
 	<!-- Empty State -->
 	<div v-else class="glass-widget flex flex-row items-center gap-2 text-cream uppercase px-8 py-4">
-		<Icon name="i-heroicons-user-group" class="text-lg" />
+		<UIcon name="i-heroicons-user-group" class="text-lg" />
 		<span class="text-xs">Board info unavailable</span>
 	</div>
 </template>

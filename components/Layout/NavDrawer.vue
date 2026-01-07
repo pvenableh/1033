@@ -5,11 +5,11 @@
 		class="flex items-center justify-center flex-col nav-drawer"
 		:style="{
 			backgroundColor: 'var(--theme-drawer-bg)',
-			color: 'var(--theme-text-primary)',
+			color: 'var(--theme-text-primary)'
 		}"
 		@click="closeNavDrawer">
 		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
-			<Icon
+			<UIcon
 				name="i-heroicons-x-mark"
 				class="cursor-pointer h-6 w-6 -ml-[5px] -mt-[10px] mb-[10px] heroicon-sw-1.2 close-btn" />
 			<ul tabindex="0" class="nav-drawer__menu">
@@ -20,9 +20,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/dashboard', canAccessApproved, 'Dashboard')">
-						<Icon name="i-lucide-layout-dashboard" class="w-4 h-4" />
+						<UIcon name="i-lucide-layout-dashboard" class="w-4 h-4" />
 						Dashboard
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -33,9 +33,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/announcements', canAccessApproved, 'Announcements')">
-						<Icon name="i-heroicons-megaphone" class="w-4 h-4" />
+						<UIcon name="i-heroicons-megaphone" class="w-4 h-4" />
 						Announcements
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -46,9 +46,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/meetings', canAccessApproved, 'Meetings')">
-						<Icon name="i-heroicons-calendar-days" class="w-4 h-4" />
+						<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
 						Meetings
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -59,9 +59,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/documents', canAccessApproved, 'By-Laws')">
-						<Icon name="i-heroicons-document-text" class="w-4 h-4" />
+						<UIcon name="i-heroicons-document-text" class="w-4 h-4" />
 						By-Laws
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -72,9 +72,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/rules-regulations', canAccessApproved, 'Rules')">
-						<Icon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
+						<UIcon name="i-heroicons-clipboard-document-list" class="w-4 h-4" />
 						Rules
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -85,9 +85,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/parking-garage', canAccessApproved, 'Parking')">
-						<Icon name="i-lucide-car" class="w-4 h-4" />
+						<UIcon name="i-lucide-car" class="w-4 h-4" />
 						Parking
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -98,9 +98,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
 						@click="(e) => handleNavClick(e, '/projects', canAccessApproved, 'Projects')">
-						<Icon name="i-lucide-chart-no-axes-gantt" class="w-4 h-4" />
+						<UIcon name="i-lucide-chart-no-axes-gantt" class="w-4 h-4" />
 						Projects
-						<Icon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -111,9 +111,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessChannels}"
 						@click="(e) => handleNavClick(e, '/channels', canAccessChannels, 'Channels', 'channel membership')">
-						<Icon name="i-lucide-messages-square" class="w-4 h-4" />
+						<UIcon name="i-lucide-messages-square" class="w-4 h-4" />
 						Channels
-						<Icon v-if="!canAccessChannels" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessChannels" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -124,9 +124,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessOwner}"
 						@click="(e) => handleNavClick(e, '/security', canAccessOwner, 'Security', 'owner')">
-						<Icon name="i-lucide-cctv" class="w-4 h-4" />
+						<UIcon name="i-lucide-cctv" class="w-4 h-4" />
 						Security
-						<Icon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -137,9 +137,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessOwner}"
 						@click="(e) => handleNavClick(e, '/financials', canAccessOwner, 'Financials', 'owner')">
-						<Icon name="i-heroicons-currency-dollar" class="w-4 h-4" />
+						<UIcon name="i-heroicons-currency-dollar" class="w-4 h-4" />
 						Financials
-						<Icon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -150,9 +150,9 @@
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessBoardMember}"
 						@click="(e) => handleNavClick(e, '/tasks', canAccessBoardMember, 'Tasks', 'board member')">
-						<Icon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
+						<UIcon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
 						Tasks
-						<Icon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -163,9 +163,9 @@
 						class="flex items-center gap-2 admin-link"
 						:class="{'restricted-link': !canAccessBoardMember}"
 						@click="(e) => handleNavClick(e, '/admin', canAccessBoardMember, 'Users', 'board member')">
-						<Icon name="i-heroicons-shield-check" class="w-4 h-4" />
+						<UIcon name="i-heroicons-shield-check" class="w-4 h-4" />
 						Users
-						<Icon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+						<UIcon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -177,7 +177,7 @@
 				<!-- Account - visible only when logged in -->
 				<li v-if="user">
 					<nuxt-link to="/account" class="flex items-center gap-2">
-						<Icon name="i-heroicons-user-circle" class="w-4 h-4" />
+						<UIcon name="i-heroicons-user-circle" class="w-4 h-4" />
 						Account
 					</nuxt-link>
 				</li>
@@ -188,7 +188,7 @@
 				</li>
 				<li v-else>
 					<nuxt-link to="/auth/signin" class="flex items-center gap-2">
-						<Icon name="i-heroicons-arrow-right-on-rectangle" class="w-4 h-4" />
+						<UIcon name="i-heroicons-arrow-right-on-rectangle" class="w-4 h-4" />
 						Login
 					</nuxt-link>
 				</li>
@@ -316,7 +316,6 @@ onClickOutside(navDrawerRef, () => {
 });
 </script>
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .nav-drawer {
 	min-height: 100vh;
 	max-height: 100vh;

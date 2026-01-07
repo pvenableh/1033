@@ -47,7 +47,7 @@ const {x, y} = useMouse({touch: false});
 				<p class="text-gray-600 mb-8 text-xs">
 					The page you are looking for might have been removed, had its name changed, or is temporarily unavailable.
 				</p>
-				<Button
+				<UButton
 					@click="handleError"
 					class="px-6"
 					color="primary"
@@ -55,7 +55,7 @@ const {x, y} = useMouse({touch: false});
 					variant="outline"
 					:trailing="true">
 					Back to Home
-				</Button>
+				</UButton>
 			</div>
 
 			<!-- Error Details (only shown in development) -->

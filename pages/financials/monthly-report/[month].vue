@@ -12,7 +12,7 @@
 						<span class="text-sm text-gray-500">40-Year Special (5872)</span>
 					</div>
 				</div>
-				<Button color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</Button>
+				<UButton color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</UButton>
 			</div>
 		</div>
 
@@ -41,13 +41,13 @@
 		<!-- Multi-Account Summary -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<!-- Operating Account (5129) -->
-			<Card>
+			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Operating Account (5129)</h3>
-						<Badge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
+						<UBadge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
 							{{ operatingData?.endingBalance < 25000 ? 'CRITICAL' : 'HEALTHY' }}
-						</Badge>
+						</UBadge>
 					</div>
 				</template>
 
@@ -76,14 +76,14 @@
 						⚠️ {{ operatingViolations }} fund mixing violations
 					</div>
 				</div>
-			</Card>
+			</UCard>
 
 			<!-- Reserve Account (7011) -->
-			<Card>
+			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Reserve Account (7011)</h3>
-						<Badge color="red" variant="soft" size="xs">CRITICAL</Badge>
+						<UBadge color="red" variant="soft" size="xs">CRITICAL</UBadge>
 					</div>
 				</template>
 
@@ -110,14 +110,14 @@
 						🚨 {{ Math.round(((75000 - (reserveData?.endingBalance || 0)) / 75000) * 100) }}% underfunded
 					</div>
 				</div>
-			</Card>
+			</UCard>
 
 			<!-- 40-Year Special Assessment (5872) -->
-			<Card>
+			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">40-Year Special (5872)</h3>
-						<Badge color="orange" variant="soft" size="xs">VIOLATIONS</Badge>
+						<UBadge color="orange" variant="soft" size="xs">VIOLATIONS</UBadge>
 					</div>
 				</template>
 
@@ -140,15 +140,15 @@
 
 					<div class="p-2 bg-orange-50 rounded text-orange-700 text-sm">❌ Mixed with operating funds</div>
 				</div>
-			</Card>
+			</UCard>
 		</div>
 
 		<!-- Budget vs Actual Analysis (Corrected) -->
-		<Card class="mb-8">
+		<UCard class="mb-8">
 			<template #header>
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold uppercase tracking-wide">BUDGET VARIANCE ANALYSIS</h2>
-					<Badge color="blue" variant="soft">2025 Operating Budget</Badge>
+					<UBadge color="blue" variant="soft">2025 Operating Budget</UBadge>
 				</div>
 			</template>
 
@@ -193,15 +193,15 @@
 					</span>
 				</template>
 				<template #status-data="{row}">
-					<Badge :color="row.statusColor" variant="soft" size="xs">
+					<UBadge :color="row.statusColor" variant="soft" size="xs">
 						{{ row.status }}
-					</Badge>
+					</UBadge>
 				</template>
 			</UTable>
-		</Card>
+		</UCard>
 
 		<!-- Detailed Expense Categories -->
-		<Card class="mb-8">
+		<UCard class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">EXPENSE BREAKDOWN</h2>
 			</template>
@@ -303,21 +303,21 @@
 					</div>
 				</template>
 			</UAccordion>
-		</Card>
+		</UCard>
 
 		<!-- Compliance Checklist -->
-		<Card class="mb-8">
+		<UCard class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">FLORIDA COMPLIANCE CHECKLIST</h2>
 			</template>
 
 			<div class="space-y-4">
 				<div v-for="item in certificationChecklist" :key="item.id" class="flex items-center space-x-3">
-					<Checkbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
+					<UCheckbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
 					<label class="text-sm" :class="item.compliant ? 'text-gray-700' : 'text-red-700'">
 						{{ item.label }}
 					</label>
-					<Icon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
+					<UIcon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
 				</div>
 			</div>
 
@@ -334,9 +334,9 @@
 					<p class="text-sm text-gray-600 mt-2">Date: _______________________</p>
 					<p class="text-sm text-red-600 mt-2 font-medium">⚖️ Florida Chapter 720 Compliance Required</p>
 				</div>
-				<Button color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</Button>
+				<UButton color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</UButton>
 			</div>
-		</Card>
+		</UCard>
 	</div>
 </template>
 
