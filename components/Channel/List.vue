@@ -31,7 +31,7 @@
 							:padded="false"
 							@click="searchQuery = ''" />
 					</template>
-				</UInput>
+				</Input>
 			</div>
 		</div>
 
@@ -44,7 +44,7 @@
 			<div v-else-if="error" class="p-4 text-center text-red-500">
 				<Icon name="i-heroicons-exclamation-circle" class="w-8 h-8 mx-auto mb-2" />
 				<p>{{ error }}</p>
-				<Button size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</UButton>
+				<Button size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</Button>
 			</div>
 
 			<div v-else-if="channels.length === 0" class="p-4 text-center text-gray-500">
@@ -57,7 +57,7 @@
 					class="mt-3"
 					@click="showCreateModal = true">
 					Create your first channel
-				</UButton>
+				</Button>
 			</div>
 
 			<div v-else-if="filteredChannels.length === 0 && searchQuery" class="p-4 text-center text-gray-500 dark:text-gray-400">
@@ -98,7 +98,7 @@
 								color="gray"
 								variant="subtle">
 								Private
-							</UBadge>
+							</Badge>
 						</div>
 						<p v-if="channel.description" class="text-xs text-gray-500 dark:text-gray-400 truncate">
 							{{ channel.description }}
@@ -110,7 +110,7 @@
 						color="primary"
 						class="animate-pulse">
 						{{ getUnreadCount(channel.id) }}
-					</UBadge>
+					</Badge>
 				</button>
 			</nav>
 		</div>
@@ -177,13 +177,13 @@
 					<div class="flex justify-end gap-2">
 						<Button color="gray" variant="ghost" @click="showCreateModal = false" :disabled="creating">
 							Cancel
-						</UButton>
+						</Button>
 						<Button color="primary" @click="handleCreateChannel" :loading="creating">
 							Create Channel
-						</UButton>
+						</Button>
 					</div>
 				</template>
-			</UCard>
+			</Card>
 		</UModal>
 	</div>
 </template>

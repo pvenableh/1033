@@ -383,12 +383,12 @@ onMounted(async () => {
 				</div>
 				<div class="mt-4 md:mt-0 flex items-center gap-3">
 					<div class="flex gap-2">
-						<Badge color="green" variant="soft" size="sm">{{ projectStats.active }} active</UBadge>
-						<Badge color="blue" variant="soft" size="sm">{{ projectStats.completed }} completed</UBadge>
+						<Badge color="green" variant="soft" size="sm">{{ projectStats.active }} active</Badge>
+						<Badge color="blue" variant="soft" size="sm">{{ projectStats.completed }} completed</Badge>
 					</div>
 					<Button v-if="canCreateProjects" color="primary" icon="i-heroicons-plus" @click="openCreateModal">
 						New Project
-					</UButton>
+					</Button>
 				</div>
 			</div>
 
@@ -408,25 +408,25 @@ onMounted(async () => {
 							<p class="text-2xl font-bold">{{ projectStats.total }}</p>
 							<p class="text-sm text-gray-600 dark:text-gray-400">Total Projects</p>
 						</div>
-					</UCard>
+					</Card>
 					<Card>
 						<div class="text-center">
 							<p class="text-2xl font-bold text-green-600">{{ projectStats.active }}</p>
 							<p class="text-sm text-gray-600 dark:text-gray-400">Active</p>
 						</div>
-					</UCard>
+					</Card>
 					<Card>
 						<div class="text-center">
 							<p class="text-2xl font-bold text-blue-600">{{ projectStats.completed }}</p>
 							<p class="text-sm text-gray-600 dark:text-gray-400">Completed</p>
 						</div>
-					</UCard>
+					</Card>
 					<Card>
 						<div class="text-center">
 							<p class="text-2xl font-bold text-gray-600">{{ projectStats.draft }}</p>
 							<p class="text-sm text-gray-600 dark:text-gray-400">Draft</p>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 
 				<!-- Filters -->
@@ -471,10 +471,10 @@ onMounted(async () => {
 										<p class="font-medium">{{ row.name }}</p>
 										<UTooltip v-if="row.member_visible" text="Visible to members" :popper="{placement: 'top'}">
 											<Icon name="i-heroicons-eye" class="w-4 h-4 text-green-500" />
-										</UTooltip>
+										</Tooltip>
 										<UTooltip v-else text="Hidden from members" :popper="{placement: 'top'}">
 											<Icon name="i-heroicons-eye-slash" class="w-4 h-4 text-gray-400" />
-										</UTooltip>
+										</Tooltip>
 									</div>
 									<p
 										v-if="row.description"
@@ -494,7 +494,7 @@ onMounted(async () => {
 								variant="soft"
 								size="sm">
 								{{ getCategoryName(row) }}
-							</UBadge>
+							</Badge>
 							<span v-else class="text-sm text-gray-500">-</span>
 						</template>
 
@@ -512,11 +512,11 @@ onMounted(async () => {
 								<Badge :color="getStatusColor(row.status)" variant="soft" size="sm" class="cursor-pointer">
 									{{ row.status }}
 									<Icon name="i-heroicons-chevron-down" class="w-3 h-3 ml-1" />
-								</UBadge>
+								</Badge>
 							</UDropdown>
 							<Badge v-else :color="getStatusColor(row.status)" variant="soft" size="sm">
 								{{ row.status }}
-							</UBadge>
+							</Badge>
 						</template>
 
 						<template #dates-data="{row}">
@@ -530,7 +530,7 @@ onMounted(async () => {
 							<div class="flex items-center gap-2">
 								<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-eye" :to="`/projects/${row.id}`">
 									View
-								</UButton>
+								</Button>
 								<Button
 									v-if="canUpdateProjects"
 									size="xs"
@@ -539,7 +539,7 @@ onMounted(async () => {
 									icon="i-heroicons-pencil"
 									@click="openEditModal(row)">
 									Edit
-								</UButton>
+								</Button>
 								<Button
 									v-if="canDeleteProjects"
 									size="xs"
@@ -550,7 +550,7 @@ onMounted(async () => {
 							</div>
 						</template>
 					</UTable>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Create/Edit Project Modal -->
@@ -646,13 +646,13 @@ onMounted(async () => {
 
 					<template #footer>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showProjectModal = false">Cancel</UButton>
+							<Button color="gray" variant="ghost" @click="showProjectModal = false">Cancel</Button>
 							<Button color="primary" :loading="saving" @click="saveProject">
 								{{ isEditing ? 'Save Changes' : 'Create Project' }}
-							</UButton>
+							</Button>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</UModal>
 
 			<!-- Delete Confirmation Modal -->
@@ -675,11 +675,11 @@ onMounted(async () => {
 
 					<template #footer>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showDeleteModal = false">Cancel</UButton>
-							<Button color="red" :loading="saving" @click="deleteProject">Delete Project</UButton>
+							<Button color="gray" variant="ghost" @click="showDeleteModal = false">Cancel</Button>
+							<Button color="red" :loading="saving" @click="deleteProject">Delete Project</Button>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</UModal>
 		</div>
 	</div>

@@ -151,7 +151,7 @@ const mailtoLink = computed(() => {
 				</ul>
 				<!-- <Button color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
 					Vote for {{ item.title }}
-				</UButton> -->
+				</Button> -->
 			</div>
 		</div>
 		<!-- <UModal v-model="isVoteOpen">
@@ -193,7 +193,7 @@ const mailtoLink = computed(() => {
 				<p class="text-sm mb-4">Click the button below to send your vote by email to the board.</p>
 				<Button :to="mailtoLink" color="sky" class="tracking-wide">
 					Send Email Vote for {{ selectedItem.title }}
-				</UButton>
+				</Button>
 			</div>
 		</UModal> -->
 	</div>

@@ -288,7 +288,7 @@ onMounted(() => {
 				<div class="mt-4 md:mt-0 flex gap-3">
 					<Button v-if="canCreate" icon="i-heroicons-plus" color="primary" @click="openCreateModal">
 						New Notice
-					</UButton>
+					</Button>
 				</div>
 			</div>
 
@@ -348,21 +348,21 @@ onMounted(() => {
 						<template #type-data="{row}">
 							<Badge :color="getTypeColor(row.type)" variant="soft" size="sm">
 								{{ row.type }}
-							</UBadge>
+							</Badge>
 						</template>
 
 						<template #visibility-data="{row}">
 							<div class="flex flex-wrap gap-1">
 								<Badge v-for="v in row.visibility || []" :key="v" color="gray" variant="soft" size="xs">
 									{{ v }}
-								</UBadge>
+								</Badge>
 							</div>
 						</template>
 
 						<template #status-data="{row}">
 							<Badge :color="getStatusColor(row.status)" variant="soft" size="sm">
 								{{ row.status }}
-							</UBadge>
+							</Badge>
 						</template>
 
 						<template #date_created-data="{row}">
@@ -404,7 +404,7 @@ onMounted(() => {
 							</div>
 						</template>
 					</UTable>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Create/Edit Modal -->
@@ -485,13 +485,13 @@ onMounted(() => {
 
 					<template #footer>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
+							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</Button>
 							<Button color="primary" :loading="saving" @click="saveNotice">
 								{{ selectedNotice ? 'Update' : 'Create' }}
-							</UButton>
+							</Button>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</UModal>
 		</div>
 	</div>

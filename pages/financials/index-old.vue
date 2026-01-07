@@ -25,7 +25,7 @@
 						<p class="text-3xl font-bold" :class="financialHealthColor">{{ realYtdData.financialHealthScore }}%</p>
 						<p class="text-xs font-medium" :class="financialHealthColor">{{ realYtdData.financialHealthStatus }}</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- YTD Cash Decline -->
 				<Card
@@ -42,7 +42,7 @@
 						</p>
 						<p class="text-xs text-gray-500">JAN - {{ selectedMonth.replace(' 2025', '').toUpperCase() }}</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Monthly Burn Rate -->
 				<Card
@@ -61,7 +61,7 @@
 						</p>
 						<p class="text-xs text-gray-500">6-MONTH AVERAGE</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Cash Runway -->
 				<Card
@@ -73,7 +73,7 @@
 						<p class="text-3xl font-bold" :class="cashRunwayColor">{{ realYtdData.cashRunwayMonths }} mo</p>
 						<p class="text-xs font-medium" :class="cashRunwayColor">{{ cashRunwayStatus }}</p>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 
 			<!-- YTD Trends Chart -->
@@ -89,7 +89,7 @@
 				<div class="h-80">
 					<Line :data="realYtdCashFlowData" :options="ytdChartOptions" />
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Budget Performance YTD -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -128,7 +128,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 
 				<Card>
 					<template #header>
@@ -165,7 +165,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 		</div>
 		<div class="w-full grid grid-cols-3 md:grid-cols-6 gap-4 mb-20">
@@ -206,7 +206,7 @@
 					<Icon name="i-heroicons-exclamation-triangle" />
 				</template>
 				<template #actions>
-					<Button color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</UButton>
+					<Button color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</Button>
 				</template>
 			</UAlert>
 		</div>
@@ -238,7 +238,7 @@
 							<div v-for="account in accountHealth" :key="account.name" class="space-y-2">
 								<div class="flex items-center justify-between">
 									<span class="font-medium">{{ account.name }}</span>
-									<Badge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
+									<Badge :color="account.color" variant="subtle">{{ account.status }}</Badge>
 								</div>
 								<div class="w-full bg-gray-200 rounded-full h-2">
 									<div
@@ -249,7 +249,7 @@
 								<p class="text-xs text-gray-600">{{ account.note }}</p>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Monthly Cash Flow -->
 					<Card>
@@ -259,7 +259,7 @@
 						<div class="h-64">
 							<Bar :data="monthlyBreakdownData" :options="chartOptions" />
 						</div>
-					</UCard>
+					</Card>
 				</div>
 			</template>
 
@@ -344,11 +344,11 @@
 							<template #status-data="{row}">
 								<Badge :color="row.statusColor" variant="soft" size="xs">
 									{{ row.status }}
-								</UBadge>
+								</Badge>
 							</template>
 						</UTable>
 					</div>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Violations Tab -->
@@ -361,7 +361,7 @@
 								<h3 class="text-lg font-semibold uppercase tracking-wide">COMPLIANCE STATUS</h3>
 								<Badge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="solid">
 									{{ fundSegregationStatus.compliant ? 'COMPLIANT' : 'VIOLATIONS DETECTED' }}
-								</UBadge>
+								</Badge>
 							</div>
 						</template>
 
@@ -383,7 +383,7 @@
 									</div>
 									<Badge :color="fundSegregationStatus.compliant ? 'green' : 'red'" variant="subtle">
 										{{ fundSegregationStatus.violations }} Violations
-									</UBadge>
+									</Badge>
 								</div>
 							</div>
 
@@ -397,7 +397,7 @@
 								</ul>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- DETAILED VIOLATION TRANSACTIONS -->
 					<div v-if="violationTransactions.length > 0" class="space-y-6">
@@ -409,8 +409,8 @@
 										VIOLATION TRANSACTIONS - {{ selectedMonth }}
 									</h3>
 									<div class="flex items-center gap-3">
-										<Badge color="red" variant="solid">{{ violationTransactions.length }} VIOLATIONS</UBadge>
-										<Badge color="red" variant="soft">${{ violationTotalAmount.toLocaleString() }} TOTAL</UBadge>
+										<Badge color="red" variant="solid">{{ violationTransactions.length }} VIOLATIONS</Badge>
+										<Badge color="red" variant="soft">${{ violationTotalAmount.toLocaleString() }} TOTAL</Badge>
 									</div>
 								</div>
 							</template>
@@ -449,17 +449,17 @@
 									<template #accounts-data="{row}">
 										<Badge color="red" variant="soft" size="xs">
 											{{ row.accounts || '5129 → 5872' }}
-										</UBadge>
+										</Badge>
 									</template>
 									<template #severity-data="{row}">
 										<Badge :color="row.severity === 'CRITICAL' ? 'red' : 'orange'" variant="solid" size="xs">
 											{{ row.severity || 'HIGH' }}
-										</UBadge>
+										</Badge>
 									</template>
 									<template #category-data="{row}">
 										<Badge color="gray" variant="soft" size="xs">
 											{{ row.category || 'VIOLATION' }}
-										</UBadge>
+										</Badge>
 									</template>
 								</UTable>
 							</div>
@@ -478,7 +478,7 @@
 									</div>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 
 						<!-- YTD Violation Summary -->
 						<Card v-if="ytdViolationSummary.length > 0">
@@ -512,7 +512,7 @@
 										<template #violations-data="{row}">
 											<Badge :color="row.violations > 0 ? 'red' : 'green'" variant="soft">
 												{{ row.violations }}
-											</UBadge>
+											</Badge>
 										</template>
 										<template #amount-data="{row}">
 											<span class="font-semibold" :class="row.amount > 0 ? 'text-red-600' : 'text-green-600'">
@@ -524,12 +524,12 @@
 												:color="row.violations === 0 ? 'green' : row.violations < 5 ? 'yellow' : 'red'"
 												variant="soft">
 												{{ row.violations === 0 ? 'CLEAN' : row.violations < 5 ? 'MODERATE' : 'SEVERE' }}
-											</UBadge>
+											</Badge>
 										</template>
 									</UTable>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 
 					<!-- Individual Violation Details -->
@@ -561,7 +561,7 @@
 										<span>{{ violation.title }}</span>
 										<Badge color="white" variant="solid" size="xs">
 											{{ violation.statute }}
-										</UBadge>
+										</Badge>
 									</div>
 								</template>
 
@@ -580,7 +580,7 @@
 							<div class="flex items-center gap-3">
 								<Icon name="i-heroicons-fire" class="text-red-600 text-xl" />
 								<h3 class="text-lg font-bold text-red-800">EMERGENCY ACTIONS REQUIRED</h3>
-								<Badge color="red" variant="solid">IMMEDIATE</UBadge>
+								<Badge color="red" variant="solid">IMMEDIATE</Badge>
 							</div>
 						</template>
 
@@ -599,15 +599,15 @@
 									<div class="flex gap-4 mt-2">
 										<Badge :color="action.timeframe === 'IMMEDIATE' ? 'red' : 'orange'" variant="soft" size="xs">
 											{{ action.timeframe }}
-										</UBadge>
+										</Badge>
 										<Badge color="gray" variant="soft" size="xs">
 											{{ action.responsible }}
-										</UBadge>
+										</Badge>
 									</div>
 								</div>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Action Plan Timeline -->
 					<div class="space-y-6">
@@ -654,13 +654,13 @@
 											:color="item.compliant === true ? 'green' : item.compliant === false ? 'red' : 'yellow'"
 											variant="soft">
 											{{ item.compliant === true ? 'COMPLIANT' : item.compliant === false ? 'VIOLATION' : 'UNKNOWN' }}
-										</UBadge>
+										</Badge>
 									</div>
 									<p v-if="item.action" class="text-xs text-gray-600 mt-1">{{ item.action }}</p>
 								</div>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 			</template>
 		</UTabs>
@@ -678,7 +678,7 @@
 						<p class="text-sm text-gray-600">View detailed transactions</p>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<Card class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 1">
 				<div class="flex items-center space-x-3">
@@ -690,7 +690,7 @@
 						<p class="text-sm text-gray-600">Compare budget vs actual</p>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<Card class="hover:shadow-lg transition-shadow cursor-pointer" @click="activeTab = 2">
 				<div class="flex items-center space-x-3">
@@ -702,10 +702,10 @@
 						<p class="text-sm text-gray-600">Fund segregation status</p>
 						<Badge v-if="fundSegregationStatus.violations > 0" color="red" variant="solid" size="xs" class="ml-2">
 							{{ fundSegregationStatus.violations }}
-						</UBadge>
+						</Badge>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 	</div>
 </template>

@@ -170,7 +170,7 @@ onMounted(() => {
 				<div class="mt-4 md:mt-0 flex items-center gap-3">
 					<Badge v-if="totalPending > 0" color="amber" variant="soft" size="lg">
 						{{ totalPending }} pending {{ totalPending === 1 ? 'item' : 'items' }}
-					</UBadge>
+					</Badge>
 					<Button
 						icon="i-heroicons-arrow-path"
 						color="gray"
@@ -178,7 +178,7 @@ onMounted(() => {
 						:loading="loading"
 						@click="fetchPendingItems">
 						Refresh
-					</UButton>
+					</Button>
 				</div>
 			</div>
 
@@ -212,7 +212,7 @@ onMounted(() => {
 								<span>{{ item.label }}</span>
 								<Badge v-if="item.badge > 0" color="amber" variant="soft" size="xs">
 									{{ item.badge }}
-								</UBadge>
+								</Badge>
 							</div>
 						</template>
 					</UTabs>
@@ -221,7 +221,7 @@ onMounted(() => {
 					<div v-if="activeTab === 'pets' && pendingItems.permissions.pets">
 						<Card v-if="pendingItems.pets.length === 0">
 							<div class="text-center py-8 text-gray-500">No pending pet registrations</div>
-						</UCard>
+						</Card>
 
 						<div v-else class="space-y-4">
 							<Card v-for="pet in pendingItems.pets" :key="pet.id">
@@ -250,7 +250,7 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('pets', pet.id, 'published')">
 											Approve
-										</UButton>
+										</Button>
 										<Button
 											color="red"
 											variant="soft"
@@ -259,10 +259,10 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('pets', pet.id, 'archived')">
 											Reject
-										</UButton>
+										</Button>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 					</div>
 
@@ -270,7 +270,7 @@ onMounted(() => {
 					<div v-if="activeTab === 'vehicles' && pendingItems.permissions.vehicles">
 						<Card v-if="pendingItems.vehicles.length === 0">
 							<div class="text-center py-8 text-gray-500">No pending vehicle registrations</div>
-						</UCard>
+						</Card>
 
 						<div v-else class="space-y-4">
 							<Card v-for="vehicle in pendingItems.vehicles" :key="vehicle.id">
@@ -298,7 +298,7 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('vehicles', vehicle.id, 'published')">
 											Approve
-										</UButton>
+										</Button>
 										<Button
 											color="red"
 											variant="soft"
@@ -307,10 +307,10 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('vehicles', vehicle.id, 'archived')">
 											Reject
-										</UButton>
+										</Button>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 					</div>
 
@@ -318,7 +318,7 @@ onMounted(() => {
 					<div v-if="activeTab === 'leases' && pendingItems.permissions.leases">
 						<Card v-if="pendingItems.leases.length === 0">
 							<div class="text-center py-8 text-gray-500">No pending lease submissions</div>
-						</UCard>
+						</Card>
 
 						<div v-else class="space-y-4">
 							<Card v-for="lease in pendingItems.leases" :key="lease.id">
@@ -343,7 +343,7 @@ onMounted(() => {
 											icon="i-heroicons-document-arrow-down"
 											size="sm">
 											View File
-										</UButton>
+										</Button>
 										<Button
 											color="green"
 											variant="soft"
@@ -352,7 +352,7 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('leases', lease.id, 'published')">
 											Approve
-										</UButton>
+										</Button>
 										<Button
 											color="red"
 											variant="soft"
@@ -361,10 +361,10 @@ onMounted(() => {
 											:disabled="actionLoading !== null"
 											@click="updateStatus('leases', lease.id, 'archived')">
 											Reject
-										</UButton>
+										</Button>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 					</div>
 				</template>

@@ -781,11 +781,11 @@ async function handlePasswordReset() {
 
 					<UAlert v-if="error" color="red" :title="error" />
 
-					<Button type="submit" block :loading="loading">Sign In</UButton>
+					<Button type="submit" block :loading="loading">Sign In</Button>
 				</UForm>
 
 				<template #footer>
-					<Button variant="link" @click="view = 'reset'">Forgot password?</UButton>
+					<Button variant="link" @click="view = 'reset'">Forgot password?</Button>
 				</template>
 			</template>
 
@@ -802,14 +802,14 @@ async function handlePasswordReset() {
 
 					<UAlert v-if="error" color="red" :title="error" />
 
-					<Button type="submit" block :loading="loading">Send Reset Link</UButton>
+					<Button type="submit" block :loading="loading">Send Reset Link</Button>
 				</UForm>
 
 				<template #footer>
-					<Button variant="link" @click="view = 'login'">Back to sign in</UButton>
+					<Button variant="link" @click="view = 'login'">Back to sign in</Button>
 				</template>
 			</template>
-		</UCard>
+		</Card>
 	</div>
 </template>
 ```
@@ -871,7 +871,7 @@ async function handleReset() {
 
 			<div v-if="!token" class="text-center">
 				<UAlert color="red" title="Invalid or missing reset token" />
-				<Button class="mt-4" to="/auth/signin">Back to Sign In</UButton>
+				<Button class="mt-4" to="/auth/signin">Back to Sign In</Button>
 			</div>
 
 			<div v-else-if="success" class="text-center">
@@ -890,9 +890,9 @@ async function handleReset() {
 
 				<UAlert v-if="error" color="red" :title="error" />
 
-				<Button type="submit" block :loading="loading">Reset Password</UButton>
+				<Button type="submit" block :loading="loading">Reset Password</Button>
 			</UForm>
-		</UCard>
+		</Card>
 	</div>
 </template>
 ```
@@ -919,7 +919,7 @@ onMounted(async () => {
 				<Icon name="i-heroicons-arrow-right-on-rectangle" class="w-12 h-12 mx-auto mb-4" />
 				<p>Signing out...</p>
 			</div>
-		</UCard>
+		</Card>
 	</div>
 </template>
 ```

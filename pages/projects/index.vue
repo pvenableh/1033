@@ -9,8 +9,8 @@
 				</div>
 				<div class="mt-4 md:mt-0 flex items-center gap-3">
 					<div class="flex gap-2">
-						<Badge color="green" variant="soft" size="sm">{{ activeCount }} active</UBadge>
-						<Badge color="blue" variant="soft" size="sm">{{ completedCount }} completed</UBadge>
+						<Badge color="green" variant="soft" size="sm">{{ activeCount }} active</Badge>
+						<Badge color="blue" variant="soft" size="sm">{{ completedCount }} completed</Badge>
 					</div>
 				</div>
 			</div>
@@ -33,7 +33,7 @@
 								<h3 class="font-semibold truncate">{{ project.name }}</h3>
 								<Badge :color="getStatusColor(project.status)" variant="soft" size="xs" class="mt-1">
 									{{ project.status }}
-								</UBadge>
+								</Badge>
 							</div>
 						</div>
 					</template>
@@ -58,7 +58,7 @@
 								variant="soft"
 								size="xs">
 								{{ typeof project.category_id === 'object' ? project.category_id.name : 'Category' }}
-							</UBadge>
+							</Badge>
 						</div>
 
 						<!-- Timeline -->
@@ -77,7 +77,7 @@
 							<span v-else>-</span>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</div>
 
 			<!-- Empty State -->

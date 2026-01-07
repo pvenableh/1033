@@ -23,7 +23,7 @@
 						:class="{'scale-110': reaction.hasReacted}" />
 					<span>{{ reaction.count }}</span>
 				</button>
-			</UTooltip>
+			</Tooltip>
 		</TransitionGroup>
 
 		<!-- Add reaction button (only if logged in) -->

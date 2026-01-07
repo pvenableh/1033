@@ -56,7 +56,7 @@
 							to="https://ui.com/physical-security/door-access/intercoms"
 							target="_blank">
 							UniFi G3 Intercom
-						</UButton>
+						</Button>
 						<Button
 							color="purple"
 							variant="solid"
@@ -64,9 +64,9 @@
 							to="https://admin.1033lenox.com/assets/4d3b8941-86ce-4e66-b363-814369ecf7f5"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Swiftlane -->
 				<Card class="text-center border border-gray-300 rounded-sm bg-white">
@@ -89,7 +89,7 @@
 							to="https://swiftlane.com/video-intercom/"
 							target="_blank">
 							Swiftreader X INTERCOM
-						</UButton>
+						</Button>
 						<Button
 							color="blue"
 							variant="solid"
@@ -97,9 +97,9 @@
 							to="https://admin.1033lenox.com/assets/1ac95363-f78a-442f-b76b-719242771aef"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Amazon Key -->
 				<Card class="text-center border border-gray-300 rounded-sm bg-white">
@@ -123,7 +123,7 @@
 							to="https://www.amazon.com/b/node=207294570011"
 							target="_blank">
 							VIEW AMAZON KEY
-						</UButton>
+						</Button>
 						<Button
 							color="orange"
 							variant="solid"
@@ -131,9 +131,9 @@
 							to="https://admin.1033lenox.com/assets/bfe9fc3a-2a1e-4aa9-851c-dda04b15d39e"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 			<UModal v-model="isOpen" fullscreen>
 				<div class="p-1 !rounded-none flex items-center justify-center relative h-full w-full">
@@ -199,7 +199,7 @@
 						</ul>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Requirements Matrix -->
 			<Card class="mb-12 border border-gray-300 rounded-sm bg-white">
@@ -224,57 +224,57 @@
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Mobile App for Tenants</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="yellow" variant="solid" class="font-bold uppercase">Basic UniFi Identity</UBadge>
+									<Badge color="yellow" variant="solid" class="font-bold uppercase">Basic UniFi Identity</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="green" variant="solid" class="font-bold uppercase">Comprehensive</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Comprehensive</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="orange" variant="solid" class="font-bold uppercase">Ring App Only</UBadge>
+									<Badge color="orange" variant="solid" class="font-bold uppercase">Ring App Only</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Facial Recognition</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="red" variant="solid" class="font-bold uppercase">None</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">None</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
 									<Badge color="green" variant="solid" class="font-bold uppercase">
 										Available - $21.99/year per user
-									</UBadge>
+									</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="red" variant="solid" class="font-bold uppercase">None</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">None</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Cloud Management</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="green" variant="solid" class="font-bold uppercase">Professional</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Professional</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="yellow" variant="solid" class="font-bold uppercase">Ring Dashboard</UBadge>
+									<Badge color="yellow" variant="solid" class="font-bold uppercase">Ring Dashboard</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Security Concerns</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<Badge color="red" variant="solid" class="font-bold uppercase">Documented Vulnerabilities</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">Documented Vulnerabilities</Badge>
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Cost Analysis -->
 			<Card class="mb-12 border border-gray-300 rounded-sm bg-white">
@@ -329,7 +329,7 @@
 							</span>
 						</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<div class="grid lg:grid-cols-3 gap-8 mt-8">
 					<!-- UniFi System -->
@@ -337,7 +337,7 @@
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide">UNIFI SYSTEM</h3>
-								<Badge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</UBadge>
+								<Badge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</Badge>
 							</div>
 						</template>
 
@@ -379,7 +379,7 @@
 								No ongoing costs, but system may become outdated and require updates in 1-2 years
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Swiftlane System -->
 					<Card class="border border-blue-200 rounded-sm bg-white">
@@ -388,7 +388,7 @@
 								<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide">SWIFTLANE</h3>
 								<Badge color="blue" variant="solid" class="font-bold uppercase text-center">
 									FACIAL RECOGNITION AVAILABLE
-								</UBadge>
+								</Badge>
 							</div>
 						</template>
 
@@ -458,16 +458,14 @@
 								<span class="font-bold text-green-600">${{ swiftlaneTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Amazon Key System -->
 					<Card class="border border-orange-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide">AMAZON KEY</h3>
-								<Badge color="orange" variant="solid" class="font-bold uppercase text-center">
-									LINEAR INTEGRATION
-								</UBadge>
+								<Badge color="orange" variant="solid" class="font-bold uppercase text-center">LINEAR INTEGRATION</Badge>
 							</div>
 						</template>
 
@@ -524,7 +522,7 @@
 								<span class="font-bold text-green-600">${{ amazonTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6 hidden">
 					<UAlert
@@ -575,7 +573,7 @@
 						title="SECURITY WARNING"
 						description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control." />
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Detailed Feature Comparison -->
 			<UAccordion :items="accordionItems" multiple class="space-y-6" default-open>
@@ -763,7 +761,7 @@
 								</tbody>
 							</table>
 						</div>
-					</UCard>
+					</Card>
 				</template>
 
 				<!-- Decision Matrix -->
@@ -843,7 +841,7 @@
 									</div>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 
 						<div class="grid md:grid-cols-3 gap-8 mt-8 hidden">
 							<Card class="border border-purple-300 rounded-sm bg-white">
@@ -877,7 +875,7 @@
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card class="border border-orange-300 rounded-sm bg-white">
 								<template #header>
@@ -918,7 +916,7 @@
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card class="border border-green-300 rounded-sm bg-white">
 								<template #header>
@@ -946,7 +944,7 @@
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 
 						<Card class="mt-8 border border-gray-300 rounded-sm bg-white">
@@ -1032,7 +1030,7 @@
 									</ul>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 						<!-- Security & Service Quality Concerns -->
 						<Card class="mb-12 border border-red-300 rounded-sm bg-white">
 							<template #header>
@@ -1094,7 +1092,7 @@
 									</ul>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 				</template>
 			</UAccordion>

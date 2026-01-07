@@ -40,14 +40,14 @@
 							<div class="flex justify-end space-x-2">
 								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 									Remove
-								</UButton>
+								</Button>
 								<Button size="xs" color="primary" @click="setLink(close)">
 									{{ editor.isActive('link') ? 'Update' : 'Add' }}
-								</UButton>
+								</Button>
 							</div>
 						</div>
 					</template>
-				</UPopover>
+				</Popover>
 			</div>
 
 			<div class="flex items-center gap-2">

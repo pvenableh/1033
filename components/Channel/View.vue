@@ -14,7 +14,7 @@
 							#{{ channel?.name }}
 							<Badge v-if="channel?.is_private" size="xs" color="gray" variant="subtle">
 								Private
-							</UBadge>
+							</Badge>
 						</h2>
 						<p v-if="channel?.description" class="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
 							{{ channel.description }}
@@ -38,7 +38,7 @@
 						@click="showMembersPanel = !showMembersPanel">
 						<span class="hidden sm:inline">{{ memberCount }}</span>
 						<span class="sm:hidden">{{ memberCount }}</span>
-					</UButton>
+					</Button>
 					<UDropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
 						<Button
 							size="sm"
@@ -75,7 +75,7 @@
 										@click="messageSearchQuery = ''" />
 								</div>
 							</template>
-						</UInput>
+						</Input>
 					</div>
 				</div>
 			</Transition>
@@ -220,17 +220,17 @@
 					<div class="flex justify-end gap-2">
 						<Button color="gray" variant="ghost" @click="showInviteModal = false">
 							Cancel
-						</UButton>
+						</Button>
 						<Button
 							color="primary"
 							:disabled="!selectedUserToInvite"
 							:loading="inviting"
 							@click="confirmInvite">
 							Invite
-						</UButton>
+						</Button>
 					</div>
 				</template>
-			</UCard>
+			</Card>
 		</UModal>
 	</div>
 </template>

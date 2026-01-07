@@ -22,7 +22,7 @@
 					<USelect v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
 				</div>
 			</div>
-		</UCard>
+		</Card>
 
 		<!-- Transfer Audit Alert -->
 		<UAlert
@@ -49,7 +49,7 @@
 					</h2>
 					<Badge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
 						{{ monthlyReconciliation.isReconciled ? 'RECONCILED ✓' : 'NOT RECONCILED ✗' }}
-					</UBadge>
+					</Badge>
 				</div>
 			</template>
 
@@ -168,7 +168,7 @@
 					</div>
 				</div>
 			</div>
-		</UCard>
+		</Card>
 
 		<!-- YTD Reconciliation -->
 		<Card v-if="ytdReconciliation">
@@ -271,7 +271,7 @@
 					</div>
 				</div>
 			</div>
-		</UCard>
+		</Card>
 	</div>
 </template>
 

@@ -35,7 +35,7 @@
 						</div>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Expenses Card -->
 			<Card class="!rounded-[4px]">
@@ -71,7 +71,7 @@
 						</div>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Net Operating Card -->
 			<Card
@@ -98,7 +98,7 @@
 						</p>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Main Content Tabs -->
@@ -156,7 +156,7 @@
 									</tfoot>
 								</table>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 				</div>
 			</template>
@@ -228,7 +228,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Summary Tab -->
@@ -342,7 +342,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 			</template>
 		</UTabs>
 

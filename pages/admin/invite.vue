@@ -198,11 +198,11 @@ function resetForm() {
 							. They will receive instructions to complete their registration.
 						</p>
 						<div class="flex gap-3 justify-center">
-							<Button variant="soft" @click="resetForm">Send Another Invite</UButton>
-							<Button to="/admin/users">View All Users</UButton>
+							<Button variant="soft" @click="resetForm">Send Another Invite</Button>
+							<Button to="/admin/users">View All Users</Button>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Invite Form -->
 				<Card v-else>
@@ -266,9 +266,9 @@ function resetForm() {
 							block
 							size="lg">
 							Send Invitation
-						</UButton>
+						</Button>
 					</UForm>
-				</UCard>
+				</Card>
 			</div>
 		</div>
 	</div>

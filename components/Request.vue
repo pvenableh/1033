@@ -41,10 +41,10 @@
 		</div>
 
 		<div class="flex justify-end space-x-3 pt-4">
-			<Button type="button" color="gray" variant="soft" @click="resetForm">Reset</UButton>
+			<Button type="button" color="gray" variant="soft" @click="resetForm">Reset</Button>
 			<Button type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 				{{ isSubmitting ? 'Submitting...' : 'Submit Request' }}
-			</UButton>
+			</Button>
 		</div>
 	</form>
 </template>

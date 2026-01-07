@@ -208,7 +208,7 @@ function openExternalLink() {
 							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block">{{ item.title }} Credit</span>
-						</UButton>
+						</Button>
 					</div>
 				</div>
 			</div>

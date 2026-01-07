@@ -55,7 +55,7 @@ const {x, y} = useMouse({touch: false});
 					variant="outline"
 					:trailing="true">
 					Back to Home
-				</UButton>
+				</Button>
 			</div>
 
 			<!-- Error Details (only shown in development) -->

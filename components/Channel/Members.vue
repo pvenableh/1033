@@ -38,7 +38,7 @@
 							<span class="text-sm font-medium text-gray-900 dark:text-white truncate">
 								{{ getMemberName(member) }}
 							</span>
-							<Badge v-if="member.role === 'moderator'" size="xs" color="amber" variant="subtle">Mod</UBadge>
+							<Badge v-if="member.role === 'moderator'" size="xs" color="amber" variant="subtle">Mod</Badge>
 						</div>
 						<p class="text-xs text-gray-500 dark:text-gray-400 truncate">
 							{{ getMemberEmail(member) }}

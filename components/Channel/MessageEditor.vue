@@ -8,7 +8,9 @@
 				<div class="flex-1 flex items-center gap-2 min-w-0">
 					<Icon name="i-heroicons-arrow-uturn-left" class="w-4 h-4 text-primary rotate-180 flex-shrink-0" />
 					<span class="text-sm text-primary-700 dark:text-primary-300 flex-shrink-0">Replying to</span>
-					<span class="font-medium text-sm text-primary-800 dark:text-primary-200 flex-shrink-0">{{ replyToAuthorName }}</span>
+					<span class="font-medium text-sm text-primary-800 dark:text-primary-200 flex-shrink-0">
+						{{ replyToAuthorName }}
+					</span>
 					<span class="text-sm text-primary dark:text-primary truncate">{{ replyToPreview }}</span>
 				</div>
 				<Button
@@ -30,7 +32,8 @@
 				height,
 			]" />
 
-		<div class="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-b-lg border-x border-b border-gray-300 dark:border-gray-600">
+		<div
+			class="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-b-lg border-x border-b border-gray-300 dark:border-gray-600">
 			<div class="flex items-center gap-1">
 				<!-- Formatting buttons -->
 				<Button
@@ -44,12 +47,7 @@
 					@click="button.action" />
 
 				<!-- Mention button -->
-				<Button
-					size="xs"
-					variant="ghost"
-					color="gray"
-					icon="i-heroicons-at-symbol"
-					@click="insertMentionTrigger" />
+				<Button size="xs" variant="ghost" color="gray" icon="i-heroicons-at-symbol" @click="insertMentionTrigger" />
 
 				<!-- File upload button -->
 				<Button
@@ -63,7 +61,8 @@
 
 			<div class="flex items-center gap-2">
 				<!-- Enter-to-send toggle -->
-				<UTooltip :text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
+				<UTooltip
+					:text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
 					<Button
 						size="xs"
 						:variant="enterToSend ? 'solid' : 'ghost'"
@@ -74,8 +73,8 @@
 							<Icon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
 							<span class="hidden sm:inline text-[10px]">Enter</span>
 						</span>
-					</UButton>
-				</UTooltip>
+					</Button>
+				</Tooltip>
 
 				<!-- Character count -->
 				<span
@@ -89,14 +88,9 @@
 				</span>
 
 				<!-- Send button -->
-				<Button
-					size="xs"
-					color="primary"
-					:icon="'i-heroicons-paper-airplane'"
-					:disabled="!canSend"
-					@click="handleSend">
+				<Button size="xs" color="primary" :icon="'i-heroicons-paper-airplane'" :disabled="!canSend" @click="handleSend">
 					Send
-				</UButton>
+				</Button>
 			</div>
 		</div>
 
@@ -203,8 +197,16 @@ const toast = useToast();
 const toolbarButtons = [
 	{icon: 'i-heroicons-bold', command: 'bold', action: () => editor.value?.chain().focus().toggleBold().run()},
 	{icon: 'i-heroicons-italic', command: 'italic', action: () => editor.value?.chain().focus().toggleItalic().run()},
-	{icon: 'i-heroicons-strikethrough', command: 'strike', action: () => editor.value?.chain().focus().toggleStrike().run()},
-	{icon: 'i-heroicons-list-bullet', command: 'bulletList', action: () => editor.value?.chain().focus().toggleBulletList().run()},
+	{
+		icon: 'i-heroicons-strikethrough',
+		command: 'strike',
+		action: () => editor.value?.chain().focus().toggleStrike().run(),
+	},
+	{
+		icon: 'i-heroicons-list-bullet',
+		command: 'bulletList',
+		action: () => editor.value?.chain().focus().toggleBulletList().run(),
+	},
 ];
 
 const characterCount = computed(() => {
@@ -234,7 +236,7 @@ const handleSend = () => {
 	if (!canSend.value) return;
 
 	const content = editor.value?.getHTML() ?? '';
-	const mentionIds = mentionedUsers.value.map(u => u.id);
+	const mentionIds = mentionedUsers.value.map((u) => u.id);
 
 	emit('send', {
 		content,
@@ -296,10 +298,14 @@ const handleFiles = async (files: File[]) => {
 			const processedFile = processedFiles.find((pf: any) => pf.sanitizedName === file.filename_download);
 
 			if (processedFile?.type.startsWith('image/')) {
-				editor.value?.chain().focus().setImage({
-					src: fileUrl,
-					alt: processedFile.originalName,
-				}).run();
+				editor.value
+					?.chain()
+					.focus()
+					.setImage({
+						src: fileUrl,
+						alt: processedFile.originalName,
+					})
+					.run();
 			} else {
 				const displayText = file.filename_download;
 				editor.value?.chain().focus().setLink({href: fileUrl}).insertContent(displayText).run();
@@ -440,7 +446,9 @@ const CustomMention = Mention.configure({
 
 				popup.innerHTML = `
 					<div class="max-h-48 overflow-y-auto py-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-						${items.map((item, index) => `
+						${items
+							.map(
+								(item, index) => `
 							<div class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
 								index === selectedIndex ? 'bg-gray-100 dark:bg-gray-700' : ''
 							}" data-index="${index}">
@@ -455,7 +463,9 @@ const CustomMention = Mention.configure({
 									<div class="text-xs text-gray-500 dark:text-gray-400">${item.email || ''}</div>
 								</div>
 							</div>
-						`).join('')}
+						`
+							)
+							.join('')}
 					</div>
 				`;
 
@@ -468,7 +478,7 @@ const CustomMention = Mention.configure({
 				if (!editor.value || !mentionRange) return;
 
 				// Track mentioned user
-				if (!mentionedUsers.value.find(u => u.id === item.id)) {
+				if (!mentionedUsers.value.find((u) => u.id === item.id)) {
 					mentionedUsers.value.push(item);
 				}
 
@@ -702,7 +712,8 @@ onBeforeUnmount(() => {
 }
 
 @keyframes pulse-border {
-	0%, 100% {
+	0%,
+	100% {
 		border-color: rgb(var(--color-primary-200));
 	}
 	50% {

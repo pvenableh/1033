@@ -404,10 +404,10 @@ onMounted(() => {
 				<div class="mt-4 md:mt-0 flex gap-3">
 					<Button variant="soft" color="gray" icon="i-heroicons-chart-bar" to="/admin/email-activity">
 						View Activity
-					</UButton>
+					</Button>
 					<Button v-if="canCreate" icon="i-heroicons-plus" color="primary" to="/admin/email/compose">
 						New Announcement
-					</UButton>
+					</Button>
 				</div>
 			</div>
 
@@ -451,7 +451,7 @@ onMounted(() => {
 							<div class="max-w-md">
 								<div class="flex items-center gap-2">
 									<p class="font-medium truncate">{{ row.title }}</p>
-									<Badge v-if="row.urgent" color="red" variant="soft" size="xs">Urgent</UBadge>
+									<Badge v-if="row.urgent" color="red" variant="soft" size="xs">Urgent</Badge>
 								</div>
 								<p v-if="row.subtitle" class="text-xs text-gray-500 truncate">{{ row.subtitle }}</p>
 							</div>
@@ -460,7 +460,7 @@ onMounted(() => {
 						<template #status-data="{row}">
 							<Badge :color="getStatusColor(row.status)" variant="soft" size="sm">
 								{{ row.status }}
-							</UBadge>
+							</Badge>
 						</template>
 
 						<template #recipients-data="{row}">
@@ -482,7 +482,7 @@ onMounted(() => {
 									@click="openSendModal(row)"
 									title="Send">
 									Send
-								</UButton>
+								</Button>
 								<Button
 									size="xs"
 									color="gray"
@@ -508,7 +508,7 @@ onMounted(() => {
 							</div>
 						</template>
 					</UTable>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Create/Edit Modal -->
@@ -573,13 +573,13 @@ onMounted(() => {
 
 					<template #footer>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
+							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</Button>
 							<Button color="primary" :loading="saving" @click="saveAnnouncement">
 								{{ selectedAnnouncement ? 'Update' : 'Create' }}
-							</UButton>
+							</Button>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</UModal>
 
 			<!-- Send Modal -->
@@ -605,25 +605,25 @@ onMounted(() => {
 									size="sm"
 									@click="recipientFilter = 'all'">
 									All ({{ allPeople.length }})
-								</UButton>
+								</Button>
 								<Button
 									:color="recipientFilter === 'owners' ? 'primary' : 'gray'"
 									:variant="recipientFilter === 'owners' ? 'soft' : 'ghost'"
 									size="sm"
 									@click="recipientFilter = 'owners'">
 									Owners ({{ allPeople.filter((p) => p.is_owner).length }})
-								</UButton>
+								</Button>
 								<Button
 									:color="recipientFilter === 'tenants' ? 'primary' : 'gray'"
 									:variant="recipientFilter === 'tenants' ? 'soft' : 'ghost'"
 									size="sm"
 									@click="recipientFilter = 'tenants'">
 									Tenants ({{ allPeople.filter((p) => p.is_resident && !p.is_owner).length }})
-								</UButton>
+								</Button>
 							</div>
 							<div class="flex gap-2">
-								<Button size="xs" variant="ghost" @click="selectAllRecipients">Select All</UButton>
-								<Button size="xs" variant="ghost" @click="clearRecipients">Clear</UButton>
+								<Button size="xs" variant="ghost" @click="selectAllRecipients">Select All</Button>
+								<Button size="xs" variant="ghost" @click="clearRecipients">Clear</Button>
 							</div>
 						</div>
 
@@ -651,7 +651,7 @@ onMounted(() => {
 										<p class="text-xs text-gray-500 truncate">{{ person.email }}</p>
 									</div>
 									<div class="flex gap-1">
-										<Badge v-if="person.is_owner" color="green" variant="soft" size="xs">Owner</UBadge>
+										<Badge v-if="person.is_owner" color="green" variant="soft" size="xs">Owner</Badge>
 									</div>
 								</label>
 							</div>
@@ -668,7 +668,7 @@ onMounted(() => {
 
 					<template #footer>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showSendModal = false">Cancel</UButton>
+							<Button color="gray" variant="ghost" @click="showSendModal = false">Cancel</Button>
 							<Button
 								color="green"
 								:loading="sending"
@@ -676,10 +676,10 @@ onMounted(() => {
 								icon="i-heroicons-paper-airplane"
 								@click="sendAnnouncement">
 								Send to {{ selectedRecipients.length }} recipients
-							</UButton>
+							</Button>
 						</div>
 					</template>
-				</UCard>
+				</Card>
 			</UModal>
 		</div>
 	</div>

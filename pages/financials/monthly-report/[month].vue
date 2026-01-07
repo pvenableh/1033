@@ -12,7 +12,7 @@
 						<span class="text-sm text-gray-500">40-Year Special (5872)</span>
 					</div>
 				</div>
-				<Button color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</UButton>
+				<Button color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</Button>
 			</div>
 		</div>
 
@@ -47,7 +47,7 @@
 						<h3 class="font-semibold">Operating Account (5129)</h3>
 						<Badge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
 							{{ operatingData?.endingBalance < 25000 ? 'CRITICAL' : 'HEALTHY' }}
-						</UBadge>
+						</Badge>
 					</div>
 				</template>
 
@@ -76,14 +76,14 @@
 						⚠️ {{ operatingViolations }} fund mixing violations
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Reserve Account (7011) -->
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Reserve Account (7011)</h3>
-						<Badge color="red" variant="soft" size="xs">CRITICAL</UBadge>
+						<Badge color="red" variant="soft" size="xs">CRITICAL</Badge>
 					</div>
 				</template>
 
@@ -110,14 +110,14 @@
 						🚨 {{ Math.round(((75000 - (reserveData?.endingBalance || 0)) / 75000) * 100) }}% underfunded
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- 40-Year Special Assessment (5872) -->
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">40-Year Special (5872)</h3>
-						<Badge color="orange" variant="soft" size="xs">VIOLATIONS</UBadge>
+						<Badge color="orange" variant="soft" size="xs">VIOLATIONS</Badge>
 					</div>
 				</template>
 
@@ -140,7 +140,7 @@
 
 					<div class="p-2 bg-orange-50 rounded text-orange-700 text-sm">❌ Mixed with operating funds</div>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Budget vs Actual Analysis (Corrected) -->
@@ -148,7 +148,7 @@
 			<template #header>
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold uppercase tracking-wide">BUDGET VARIANCE ANALYSIS</h2>
-					<Badge color="blue" variant="soft">2025 Operating Budget</UBadge>
+					<Badge color="blue" variant="soft">2025 Operating Budget</Badge>
 				</div>
 			</template>
 
@@ -195,10 +195,10 @@
 				<template #status-data="{row}">
 					<Badge :color="row.statusColor" variant="soft" size="xs">
 						{{ row.status }}
-					</UBadge>
+					</Badge>
 				</template>
 			</UTable>
-		</UCard>
+		</Card>
 
 		<!-- Detailed Expense Categories -->
 		<Card class="mb-8">
@@ -303,7 +303,7 @@
 					</div>
 				</template>
 			</UAccordion>
-		</UCard>
+		</Card>
 
 		<!-- Compliance Checklist -->
 		<Card class="mb-8">
@@ -334,9 +334,9 @@
 					<p class="text-sm text-gray-600 mt-2">Date: _______________________</p>
 					<p class="text-sm text-red-600 mt-2 font-medium">⚖️ Florida Chapter 720 Compliance Required</p>
 				</div>
-				<Button color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</UButton>
+				<Button color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</Button>
 			</div>
-		</UCard>
+		</Card>
 	</div>
 </template>
 

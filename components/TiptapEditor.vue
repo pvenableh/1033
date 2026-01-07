@@ -65,7 +65,7 @@
 							</button>
 						</div>
 					</template>
-				</UPopover>
+				</Popover>
 			</div>
 
 			<!-- Lists Group -->
@@ -127,14 +127,14 @@
 							<div class="flex justify-end gap-2">
 								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 									Remove
-								</UButton>
+								</Button>
 								<Button size="xs" color="primary" @click="setLink(close)">
 									{{ editor.isActive('link') ? 'Update' : 'Add' }}
-								</UButton>
+								</Button>
 							</div>
 						</div>
 					</template>
-				</UPopover>
+				</Popover>
 			</div>
 
 			<!-- Table (full mode only) -->
@@ -221,7 +221,7 @@
 							</template>
 						</div>
 					</template>
-				</UPopover>
+				</Popover>
 			</div>
 
 			<!-- Media (full mode only) -->
@@ -263,7 +263,7 @@
 							</button>
 						</div>
 					</template>
-				</UPopover>
+				</Popover>
 				<input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
 			</div>
 
@@ -317,11 +317,11 @@
 				</div>
 				<template #footer>
 					<div class="flex justify-end gap-2">
-						<Button color="gray" variant="ghost" @click="showImageUrlInput = false">Cancel</UButton>
-						<Button color="primary" @click="insertImageFromUrl" :disabled="!imageUrl">Insert</UButton>
+						<Button color="gray" variant="ghost" @click="showImageUrlInput = false">Cancel</Button>
+						<Button color="primary" @click="insertImageFromUrl" :disabled="!imageUrl">Insert</Button>
 					</div>
 				</template>
-			</UCard>
+			</Card>
 		</UModal>
 
 		<!-- File Browser Modal -->
@@ -398,7 +398,7 @@
 						</button>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 		</UModal>
 
 		<!-- Image Lightbox -->

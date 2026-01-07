@@ -104,7 +104,7 @@
 									:ui="{option: {disabled: 'cursor-not-allowed opacity-50'}}" />
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 
 				<!-- OVERVIEW SECTION (Always Visible) -->
@@ -124,7 +124,7 @@
 								</p>
 								<p class="text-xs text-gray-500">FROM {{ formatCurrency(currentAccountBalance.previous) }}</p>
 							</div>
-						</UCard>
+						</Card>
 
 						<Card class="text-center">
 							<div class="space-y-2">
@@ -137,7 +137,7 @@
 								</p>
 								<p class="text-xs text-gray-500">{{ accountMetrics?.monthsCount || 0 }} MONTHS</p>
 							</div>
-						</UCard>
+						</Card>
 
 						<Card class="text-center">
 							<div class="space-y-2">
@@ -150,7 +150,7 @@
 								</p>
 								<p class="text-xs text-gray-500">EXCLUDING TRANSFERS</p>
 							</div>
-						</UCard>
+						</Card>
 
 						<Card class="text-center">
 							<div class="space-y-2">
@@ -167,7 +167,7 @@
 								</p>
 								<p class="text-xs text-gray-500">REVENUE - EXPENSES</p>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 
 					<!-- Monthly Chart -->
@@ -181,7 +181,7 @@
 						<div class="h-80">
 							<Line :data="monthlyChartData" :options="chartOptions" />
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Top Categories & Vendors Grid -->
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -207,7 +207,7 @@
 									</div>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 
 						<Card>
 							<template #header>
@@ -225,7 +225,7 @@
 									</div>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 				</div>
 
@@ -247,7 +247,7 @@
 										</p>
 										<p class="text-xs text-gray-500">{{ budgetSummary.monthsSelected }} MONTHS</p>
 									</div>
-								</UCard>
+								</Card>
 
 								<Card class="text-center">
 									<div class="space-y-2">
@@ -258,7 +258,7 @@
 										</p>
 										<p class="text-xs text-gray-500">EXCLUDING TRANSFERS</p>
 									</div>
-								</UCard>
+								</Card>
 
 								<Card class="text-center">
 									<div class="space-y-2">
@@ -279,7 +279,7 @@
 											{{ budgetSummary.percentVariance >= 0 ? '+' : '' }}{{ budgetSummary.percentVariance }}%
 										</p>
 									</div>
-								</UCard>
+								</Card>
 
 								<Card class="text-center">
 									<div class="space-y-2">
@@ -290,12 +290,12 @@
 										<p class="text-sm uppercase tracking-wider text-gray-600">STATUS</p>
 										<Badge :color="budgetSummary.statusColor" variant="soft" size="lg" class="text-sm px-3 py-1">
 											{{ budgetSummary.overallStatus }}
-										</UBadge>
+										</Badge>
 										<p class="text-xs text-gray-500">
 											AVG: {{ formatCurrency(budgetSummary.averageMonthlyActual) }}/MONTH
 										</p>
 									</div>
-								</UCard>
+								</Card>
 							</div>
 
 							<!-- Budget vs Actual Table -->
@@ -307,7 +307,7 @@
 										</h3>
 										<Badge color="primary" variant="soft">
 											{{ budgetSummary.monthsSelected }} MONTH{{ budgetSummary.monthsSelected !== 1 ? 'S' : '' }}
-										</UBadge>
+										</Badge>
 									</div>
 								</template>
 
@@ -340,13 +340,13 @@
 									<template #status-data="{row}">
 										<Badge :color="row.statusColor" variant="soft" size="xs">
 											{{ row.status }}
-										</UBadge>
+										</Badge>
 									</template>
 									<template #transactionCount-data="{row}">
 										<span class="text-xs text-gray-500">{{ row.transactionCount }}</span>
 									</template>
 								</UTable>
-							</UCard>
+							</Card>
 
 							<!-- Budget Chart -->
 							<Card>
@@ -357,7 +357,7 @@
 								<div class="h-80">
 									<Line :data="budgetComparisonChartData" :options="budgetChartOptions" />
 								</div>
-							</UCard>
+							</Card>
 
 							<!-- Detailed Category Analysis -->
 							<Card>
@@ -381,7 +381,7 @@
 											<h4 class="font-semibold text-lg uppercase tracking-wide">{{ category.category }}</h4>
 											<Badge :color="category.statusColor" variant="soft" class="uppercase font-semibold">
 												{{ category.status }}
-											</UBadge>
+											</Badge>
 										</div>
 
 										<div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm uppercase tracking-wide mb-5">
@@ -501,7 +501,7 @@
 										</UAccordion>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 						<div v-else class="text-center py-20">
 							<p class="text-gray-600">
@@ -523,9 +523,9 @@
 										<label class="text-sm font-medium text-gray-700">Vendor:</label>
 										<USelect v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-48" />
 									</div>
-									<Button @click="selectedVendor = 'all'" size="sm" variant="outline">Clear Filter</UButton>
+									<Button @click="selectedVendor = 'all'" size="sm" variant="outline">Clear Filter</Button>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card>
 								<template #header>
@@ -579,7 +579,7 @@
 															color: getCategoryColor(transaction.category_id),
 														}">
 														{{ getCategoryName(transaction.category_id) }}
-													</UBadge>
+													</Badge>
 												</div>
 												<div class="text-right">
 													<span class="font-bold text-red-600">{{ formatCurrency(transaction.amount) }}</span>
@@ -594,7 +594,7 @@
 										</p>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card v-if="selectedVendor !== 'all'">
 								<template #header>
@@ -602,7 +602,7 @@
 										<h3 class="text-lg font-semibold uppercase tracking-wide">
 											{{ getVendorDisplayName(selectedVendor) }} TRANSACTIONS
 										</h3>
-										<Badge color="primary" variant="soft">{{ accountTransactions.length }} TRANSACTIONS</UBadge>
+										<Badge color="primary" variant="soft">{{ accountTransactions.length }} TRANSACTIONS</Badge>
 									</div>
 								</template>
 								<UTable :rows="accountTransactions.slice(0, 50)" :columns="transactionColumns">
@@ -612,7 +612,7 @@
 									<template #transaction_type-data="{row}">
 										<Badge :color="getTransactionTypeColor(row.transaction_type)" variant="soft" size="xs">
 											{{ (row.transaction_type || 'unknown').toUpperCase() }}
-										</UBadge>
+										</Badge>
 									</template>
 									<template #amount-data="{row}">
 										<span class="font-bold" :class="getAmountColor(row.transaction_type, row.amount)">
@@ -623,7 +623,7 @@
 										<span class="text-sm">{{ row.description }}</span>
 									</template>
 								</UTable>
-							</UCard>
+							</Card>
 						</div>
 					</template>
 
@@ -649,9 +649,9 @@
 										<label class="text-sm font-medium text-gray-700 uppercase">Vendor:</label>
 										<USelect v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-40" />
 									</div>
-									<Button @click="clearAllFilters" size="sm" variant="outline">Clear All Filters</UButton>
+									<Button @click="clearAllFilters" size="sm" variant="outline">Clear All Filters</Button>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card v-if="selectedCategory !== 'all' || selectedVendor !== 'all'">
 								<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -668,7 +668,7 @@
 										<p class="text-sm text-gray-500">Total Revenue</p>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
 							<Card>
 								<template #header>
@@ -676,7 +676,7 @@
 										<h3 class="text-lg font-semibold uppercase tracking-wide">ALL TRANSACTIONS</h3>
 										<Badge color="primary" variant="soft">
 											{{ accountTransactions.length }} OF {{ allAccountTransactions.length }} TOTAL
-										</UBadge>
+										</Badge>
 									</div>
 								</template>
 								<UTable :rows="displayTransactions" :columns="transactionColumnsDetailed">
@@ -686,7 +686,7 @@
 									<template #transaction_type-data="{row}">
 										<Badge :color="getTransactionTypeColor(row.transaction_type)" variant="soft" size="xs">
 											{{ (row.transaction_type || 'unknown').toUpperCase() }}
-										</UBadge>
+										</Badge>
 									</template>
 									<template #amount-data="{row}">
 										<span class="font-bold" :class="getAmountColor(row.transaction_type, row.amount)">
@@ -703,14 +703,12 @@
 										<span v-else class="text-xs text-gray-400">Uncategorized</span>
 									</template>
 									<template #is_violation-data="{row}">
-										<Badge v-if="row.is_violation" color="red" variant="solid" size="xs">VIOLATION</UBadge>
-										<Badge v-else-if="isTransferTransaction(row)" color="blue" variant="soft" size="xs">
-											TRANSFER
-										</UBadge>
-										<Badge v-else color="green" variant="soft" size="xs">NORMAL</UBadge>
+										<Badge v-if="row.is_violation" color="red" variant="solid" size="xs">VIOLATION</Badge>
+										<Badge v-else-if="isTransferTransaction(row)" color="blue" variant="soft" size="xs">TRANSFER</Badge>
+										<Badge v-else color="green" variant="soft" size="xs">NORMAL</Badge>
 									</template>
 								</UTable>
-							</UCard>
+							</Card>
 						</div>
 					</template>
 
@@ -727,8 +725,8 @@
 										Transfer Reconciliation
 										<Badge v-if="transferActivity.unmatchedCount > 0" color="red" class="ml-2">
 											{{ transferActivity.unmatchedCount }}
-										</UBadge>
-									</UButton>
+										</Badge>
+									</Button>
 									<Button
 										@click="complianceView = 'clumped'"
 										:variant="complianceView === 'clumped' ? 'solid' : 'outline'"
@@ -737,10 +735,10 @@
 										Fund Mixing Issues
 										<Badge v-if="clumpedPayments.length > 0" color="red" class="ml-2">
 											{{ clumpedPayments.length }}
-										</UBadge>
-									</UButton>
+										</Badge>
+									</Button>
 								</div>
-							</UCard>
+							</Card>
 
 							<!-- Transfers View -->
 							<div v-show="complianceView === 'transfers'" class="space-y-6">
@@ -782,7 +780,7 @@
 											<p class="text-sm uppercase tracking-wider text-gray-600">TOTAL TRANSFERS</p>
 											<p class="text-2xl font-bold text-purple-600">{{ transferActivity.totalTransfers }}</p>
 										</div>
-									</UCard>
+									</Card>
 
 									<Card class="text-center">
 										<div class="space-y-2">
@@ -792,7 +790,7 @@
 												{{ formatCurrency(transferActivity.transfersIn) }}
 											</p>
 										</div>
-									</UCard>
+									</Card>
 
 									<Card class="text-center">
 										<div class="space-y-2">
@@ -800,7 +798,7 @@
 											<p class="text-sm uppercase tracking-wider text-gray-600">TRANSFERS OUT</p>
 											<p class="text-2xl font-bold text-red-600">{{ formatCurrency(transferActivity.transfersOut) }}</p>
 										</div>
-									</UCard>
+									</Card>
 
 									<Card class="text-center">
 										<div class="space-y-2">
@@ -808,7 +806,7 @@
 											<p class="text-sm uppercase tracking-wider text-gray-600">LINKED</p>
 											<p class="text-2xl font-bold text-blue-600">{{ transferActivity.linkedCount }}</p>
 										</div>
-									</UCard>
+									</Card>
 
 									<Card
 										class="text-center"
@@ -827,7 +825,7 @@
 												{{ transferActivity.unmatchedCount }}
 											</p>
 										</div>
-									</UCard>
+									</Card>
 								</div>
 
 								<Card v-if="unmatchedTransfers.length > 0" class="border-2 border-red-500">
@@ -844,7 +842,7 @@
 													</p>
 												</div>
 											</div>
-											<Badge color="red" variant="solid" size="lg">{{ unmatchedTransfers.length }}</UBadge>
+											<Badge color="red" variant="solid" size="lg">{{ unmatchedTransfers.length }}</Badge>
 										</div>
 									</template>
 
@@ -860,12 +858,9 @@
 											<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
 										</template>
 										<template #transaction_type-data="{row}">
-											<Badge
-												:color="row.transaction_type === 'withdrawal' ? 'red' : 'green'"
-												variant="solid"
-												size="sm">
+											<Badge :color="row.transaction_type === 'withdrawal' ? 'red' : 'green'" variant="solid" size="sm">
 												{{ row.transaction_type === 'withdrawal' ? 'OUT' : 'IN' }}
-											</UBadge>
+											</Badge>
 										</template>
 										<template #amount-data="{row}">
 											<span
@@ -875,7 +870,7 @@
 											</span>
 										</template>
 									</UTable>
-								</UCard>
+								</Card>
 
 								<Card v-if="transferPairs.length > 0">
 									<template #header>
@@ -894,7 +889,7 @@
 													<span class="font-mono text-sm text-gray-600">{{ formatDate(pair.date) }}</span>
 													<span class="font-bold text-lg text-green-700">{{ formatCurrency(pair.amount) }}</span>
 												</div>
-												<Badge color="green" variant="soft">RECONCILED</UBadge>
+												<Badge color="green" variant="soft">RECONCILED</Badge>
 											</div>
 
 											<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -920,7 +915,7 @@
 											</div>
 										</div>
 									</div>
-								</UCard>
+								</Card>
 							</div>
 
 							<!-- Clumped Payments View -->
@@ -977,7 +972,7 @@
 											<span class="text-sm">{{ getAccountById(row.account_id)?.account_name || 'Unknown' }}</span>
 										</template>
 									</UTable>
-								</UCard>
+								</Card>
 							</div>
 						</div>
 					</template>

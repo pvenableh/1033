@@ -1,8 +1,5 @@
 <template>
-	<Popover
-		v-model:open="isOpen"
-		:popper="{ placement: 'top' }"
-		@update:open="onPopoverOpen">
+	<Popover v-model:open="isOpen" :popper="{placement: 'top'}" @update:open="onPopoverOpen">
 		<slot name="trigger">
 			<Button
 				size="xs"
@@ -32,7 +29,7 @@
 							:key="reactionType.id"
 							class="reaction-item"
 							:class="getButtonClass(reactionType)"
-							:style="{ '--delay': `${index * 30}ms` }"
+							:style="{'--delay': `${index * 30}ms`}"
 							:title="reactionType.name"
 							@click="handleSelect(reactionType)">
 							<!-- Emoji display -->
@@ -47,9 +44,7 @@
 								:class="getIconClass(reactionType)" />
 
 							<!-- Selected indicator with bounce -->
-							<span
-								v-if="isSelected(reactionType)"
-								class="selected-indicator" />
+							<span v-if="isSelected(reactionType)" class="selected-indicator" />
 
 							<!-- Hover ripple effect -->
 							<span class="ripple-bg" />
@@ -64,12 +59,12 @@
 				</div>
 			</div>
 		</template>
-	</UPopover>
+	</Popover>
 </template>
 
 <script setup lang="ts">
-import type { ReactionTypeRecord } from '~/types/reactions';
-import { getReactionIcon, getReactionIconFilled } from '~/types/reactions';
+import type {ReactionTypeRecord} from '~/types/reactions';
+import {getReactionIcon, getReactionIconFilled} from '~/types/reactions';
 
 const props = defineProps<{
 	selectedTypeIds?: number[];
@@ -80,7 +75,7 @@ const emit = defineEmits<{
 	(e: 'select', reactionType: ReactionTypeRecord): void;
 }>();
 
-const { getReactionTypes } = useReactions();
+const {getReactionTypes} = useReactions();
 
 const types = ref<ReactionTypeRecord[]>([]);
 const loading = ref(false);
@@ -138,7 +133,7 @@ const handleSelect = (reactionType: ReactionTypeRecord) => {
 
 <style scoped>
 .reaction-picker-panel {
-	background: linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(249,250,251,1) 100%);
+	background: linear-gradient(180deg, rgba(255, 255, 255, 1) 0%, rgba(249, 250, 251, 1) 100%);
 	border-radius: 1rem;
 	box-shadow:
 		0 10px 40px -10px rgba(0, 0, 0, 0.15),
@@ -146,7 +141,7 @@ const handleSelect = (reactionType: ReactionTypeRecord) => {
 }
 
 :root.dark .reaction-picker-panel {
-	background: linear-gradient(180deg, rgba(31,41,55,1) 0%, rgba(17,24,39,1) 100%);
+	background: linear-gradient(180deg, rgba(31, 41, 55, 1) 0%, rgba(17, 24, 39, 1) 100%);
 	box-shadow:
 		0 10px 40px -10px rgba(0, 0, 0, 0.5),
 		0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -172,7 +167,8 @@ const handleSelect = (reactionType: ReactionTypeRecord) => {
 }
 
 @keyframes bounce-emoji {
-	0%, 100% {
+	0%,
+	100% {
 		transform: translateY(0) scale(1);
 	}
 	50% {
@@ -251,7 +247,8 @@ const handleSelect = (reactionType: ReactionTypeRecord) => {
 }
 
 @keyframes pulse-indicator {
-	0%, 100% {
+	0%,
+	100% {
 		transform: translateX(-50%) scale(1);
 		opacity: 1;
 	}
@@ -319,7 +316,8 @@ const handleSelect = (reactionType: ReactionTypeRecord) => {
 }
 
 @keyframes jiggle {
-	0%, 100% {
+	0%,
+	100% {
 		transform: rotate(0deg) scale(1.1);
 	}
 	25% {

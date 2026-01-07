@@ -202,7 +202,7 @@ function getStatusBadge(status: string) {
         size="sm"
         @click="openAddModal">
         Add Pet
-      </UButton>
+      </Button>
     </div>
 
     <div v-if="unitsPending" class="text-center py-8 text-gray-500">
@@ -215,7 +215,7 @@ function getStatusBadge(status: string) {
       <p class="text-red-600 mb-2">{{ errorMessage }}</p>
       <Button variant="soft" size="sm" @click="refreshUnits()">
         Try Again
-      </UButton>
+      </Button>
     </div>
 
     <div v-else-if="pets.length === 0" class="text-center py-8 text-gray-500">
@@ -227,7 +227,7 @@ function getStatusBadge(status: string) {
         class="mt-4"
         @click="openAddModal">
         Add Your First Pet
-      </UButton>
+      </Button>
     </div>
 
     <div v-else class="grid gap-4 md:grid-cols-2">
@@ -254,7 +254,7 @@ function getStatusBadge(status: string) {
                 variant="soft"
                 size="xs">
                 {{ getStatusBadge(pet.status).label }}
-              </UBadge>
+              </Badge>
             </div>
             <p class="text-sm text-gray-500">{{ pet.category }} {{ pet.breed ? `- ${pet.breed}` : '' }}</p>
             <p v-if="pet.weight" class="text-xs text-gray-400">{{ pet.weight }}</p>
@@ -275,7 +275,7 @@ function getStatusBadge(status: string) {
               size="xs" />
           </UDropdown>
         </div>
-      </UCard>
+      </Card>
     </div>
 
     <!-- Add/Edit Modal -->
@@ -318,14 +318,14 @@ function getStatusBadge(status: string) {
             <div class="flex justify-end gap-3">
               <Button color="gray" variant="ghost" @click="showModal = false">
                 Cancel
-              </UButton>
+              </Button>
               <Button :loading="loading" @click="savePet">
                 {{ isEditing ? 'Save Changes' : 'Add Pet' }}
-              </UButton>
+              </Button>
             </div>
           </div>
         </template>
-      </UCard>
+      </Card>
     </UModal>
   </div>
 </template>

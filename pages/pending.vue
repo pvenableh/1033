@@ -44,7 +44,7 @@ async function handleLogout() {
 
 			<div class="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
 				<p class="text-xs text-gray-500 mb-4">Registered as: {{ user?.email }}</p>
-				<Button variant="ghost" color="gray" size="sm" @click="handleLogout">Sign out</UButton>
+				<Button variant="ghost" color="gray" size="sm" @click="handleLogout">Sign out</Button>
 			</div>
 		</div>
 	</div>

@@ -639,7 +639,7 @@ onMounted(async () => {
         <Button variant="ghost" size="sm" @click="handleCancel" class="mb-4">
           <Icon name="i-heroicons-arrow-left" class="w-4 h-4 mr-2" />
           Back to Announcements
-        </UButton>
+        </Button>
         <h1 class="text-2xl font-bold">
           {{ isEditing ? 'Edit Announcement' : 'Compose Announcement' }}
         </h1>
@@ -688,7 +688,7 @@ onMounted(async () => {
                 {{ option.label }}
               </button>
             </div>
-          </UCard>
+          </Card>
 
           <!-- Subject & Content -->
           <Card>
@@ -735,7 +735,7 @@ onMounted(async () => {
 
               <Checkbox v-model="form.urgent" label="Mark as urgent" />
             </div>
-          </UCard>
+          </Card>
 
           <!-- Attachments -->
           <Card>
@@ -750,11 +750,11 @@ onMounted(async () => {
                 <Button variant="outline" size="sm" @click="openAttachmentBrowser">
                   <Icon name="i-lucide-folder-open" class="w-4 h-4 mr-2" />
                   Browse Files
-                </UButton>
+                </Button>
                 <Button variant="outline" size="sm" :loading="isUploadingAttachment" @click="attachmentFileInput?.click()">
                   <Icon name="i-lucide-upload" class="w-4 h-4 mr-2" />
                   Upload New
-                </UButton>
+                </Button>
                 <input
                   ref="attachmentFileInput"
                   type="file"
@@ -778,7 +778,7 @@ onMounted(async () => {
                   </div>
                   <Button variant="ghost" size="xs" @click="removeAttachment(attachment.id)">
                     <Icon name="i-heroicons-x-mark" class="w-4 h-4" />
-                  </UButton>
+                  </Button>
                 </div>
               </div>
 
@@ -786,7 +786,7 @@ onMounted(async () => {
                 No attachments added
               </p>
             </div>
-          </UCard>
+          </Card>
         </div>
 
         <!-- Recipients & Actions (Right) -->
@@ -844,8 +844,8 @@ onMounted(async () => {
                     {{ selectedRecipients.length }} selected
                   </span>
                   <div class="flex gap-2">
-                    <Button variant="ghost" size="xs" @click="selectAll">All</UButton>
-                    <Button variant="ghost" size="xs" @click="deselectAll">None</UButton>
+                    <Button variant="ghost" size="xs" @click="selectAll">All</Button>
+                    <Button variant="ghost" size="xs" @click="deselectAll">None</Button>
                   </div>
                 </div>
                 <div v-if="loadingRecipients" class="p-4 text-center">
@@ -883,25 +883,25 @@ onMounted(async () => {
                 >
                   <Icon name="i-heroicons-paper-airplane" class="w-5 h-5 mr-2" />
                   Send to {{ recipientCount }} recipient{{ recipientCount !== 1 ? 's' : '' }}
-                </UButton>
+                </Button>
 
                 <div class="grid grid-cols-2 gap-2">
                   <Button variant="outline" :loading="previewLoading" @click="generatePreview">
                     <Icon name="i-heroicons-eye" class="w-4 h-4 mr-2" />
                     Preview
-                  </UButton>
+                  </Button>
                   <Button variant="outline" :loading="saving" @click="saveAnnouncement('draft')">
                     <Icon name="i-heroicons-bookmark" class="w-4 h-4 mr-2" />
                     Save Draft
-                  </UButton>
+                  </Button>
                 </div>
 
                 <Button variant="ghost" class="w-full" @click="handleCancel">
                   Cancel
-                </UButton>
+                </Button>
               </div>
             </template>
-          </UCard>
+          </Card>
 
           <!-- Test Email Card -->
           <Card>
@@ -935,7 +935,7 @@ onMounted(async () => {
                   class="flex-1"
                   @keyup.enter="addTestEmail"
                 />
-                <Button size="sm" @click="addTestEmail">Add</UButton>
+                <Button size="sm" @click="addTestEmail">Add</Button>
               </div>
 
               <!-- Email Tags -->
@@ -979,9 +979,9 @@ onMounted(async () => {
               >
                 <Icon name="i-heroicons-paper-airplane" class="w-4 h-4 mr-2" />
                 Send Test Email{{ testEmails.length > 1 ? 's' : '' }}
-              </UButton>
+              </Button>
             </div>
-          </UCard>
+          </Card>
         </div>
       </div>
 
@@ -1003,7 +1003,7 @@ onMounted(async () => {
               <span>{{ selectedAttachments.length }} attachment{{ selectedAttachments.length !== 1 ? 's' : '' }}</span>
             </div>
           </template>
-        </UCard>
+        </Card>
       </UModal>
 
       <!-- Attachment Browser Modal -->
@@ -1085,7 +1085,7 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-        </UCard>
+        </Card>
       </UModal>
     </div>
   </div>

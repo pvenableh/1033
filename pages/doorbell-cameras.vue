@@ -278,7 +278,7 @@ function openExternalLink() {
 								@click="toggleVote(item)">
 								<span class="opacity-65 block">Vote for:</span>
 								<span class="font-bold block">{{ item.label }}</span>
-							</UButton>
+							</Button>
 
 							<p v-if="item.note" class="w-full mt-2 mb-6 text-[12px] leading-5 text-red-500">
 								<span class="font-bold">{{ item.note }}</span>

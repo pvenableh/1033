@@ -18,7 +18,7 @@
 						@click="handleMarkAllAsRead"
 						:loading="markingAllAsRead">
 						Mark all read
-					</UButton>
+					</Button>
 				</div>
 			</div>
 		</template>
@@ -110,10 +110,10 @@
 				<!-- <Buttonv-if="isAuthenticated" variant="ghost" size="xs" color="gray" to="/notifications" @click="closePanel">
 					View all notifications
 					<Icon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
-				</UButton> -->
+				</Button> -->
 				<Buttonvariant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
 					<Icon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
-				</UButton>
+				</Button>
 			</div>
 		</template>
 	</LayoutSidePanel>

@@ -26,7 +26,7 @@
 				size="lg"
 				label="Send Email"
 				trailing-icon="i-heroicons-arrow-right"
-				block></UButton>
+				block></Button>
 		</UForm>
 	</div>
 </template>

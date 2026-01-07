@@ -138,7 +138,7 @@
 										label="image"
 										color="primary"
 										:ui="{rounded: 'rounded-full'}"
-										@click.prevent="showVehicleImage(vehicle.image)"></UButton>
+										@click.prevent="showVehicleImage(vehicle.image)"></Button>
 								</div>
 							</div>
 						</div>

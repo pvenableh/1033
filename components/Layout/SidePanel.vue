@@ -2,9 +2,9 @@
 	<div>
 		<!-- Trigger slot -->
 		<!-- <slot name="trigger" :toggle="togglePanel" :is-open="isOpen">
-			<UButton variant="ghost" @click="togglePanel">
+			<Button variant="ghost" @click="togglePanel">
 				Open Panel
-			</UButton>
+			</Button>
 		</slot> -->
 
 		<!-- Teleport the panel to body -->
@@ -42,7 +42,7 @@
 							@click="closePanel"
 							class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
 							aria-label="Close panel">
-							<UIcon name="i-heroicons-x-mark" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
+							<Icon name="i-heroicons-x-mark" class="w-5 h-5 text-gray-500 dark:text-gray-400" />
 						</button>
 					</div>
 

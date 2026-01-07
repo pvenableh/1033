@@ -25,7 +25,7 @@
 						<p class="text-3xl font-bold" :class="financialHealth.color">{{ financialHealth.score }}%</p>
 						<p class="text-xs font-medium" :class="financialHealth.color">{{ financialHealth.status }}</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- YTD Cash Decline -->
 				<Card class="text-center rounded-[4px] shadow" :class="ytdCashChange < 0 ? 'border border-red-500' : ''">
@@ -40,7 +40,7 @@
 						</p>
 						<p class="text-xs text-gray-500">JAN - {{ selectedMonth.replace(' 2025', '').toUpperCase() }}</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Monthly Burn Rate -->
 				<Card class="text-center rounded-[4px] shadow" :class="monthlyBurnRate > 5000 ? 'border border-red-500' : ''">
@@ -55,7 +55,7 @@
 						</p>
 						<p class="text-xs text-gray-500">6-MONTH AVERAGE</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Cash Runway -->
 				<Card class="text-center rounded-[4px] shadow" :class="cashRunway.months < 12 ? 'border border-red-500' : ''">
@@ -65,7 +65,7 @@
 						<p class="text-3xl font-bold" :class="cashRunway.color">{{ cashRunway.months }} mo</p>
 						<p class="text-xs font-medium" :class="cashRunway.color">{{ cashRunway.status }}</p>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 
 			<!-- YTD Trends Chart -->
@@ -76,7 +76,7 @@
 				<div class="h-80">
 					<Line :data="ytdCashFlowData" :options="ytdChartOptions" />
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Budget Performance YTD -->
 			<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -108,7 +108,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 
 				<Card>
 					<template #header>
@@ -145,7 +145,7 @@
 							</div>
 						</div>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 		</div>
 
@@ -173,13 +173,11 @@
 						${{ operatingBalance.toLocaleString() }}
 					</p>
 					<div class="flex items-center text-sm" :class="monthlyChange >= 0 ? 'text-green-600' : 'text-red-600'">
-						<Icon
-							:name="monthlyChange >= 0 ? 'i-heroicons-arrow-up' : 'i-heroicons-arrow-down'"
-							class="w-4 h-4 mr-1" />
+						<Icon :name="monthlyChange >= 0 ? 'i-heroicons-arrow-up' : 'i-heroicons-arrow-down'" class="w-4 h-4 mr-1" />
 						<span>${{ Math.abs(monthlyChange).toLocaleString() }} MTD</span>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Reserve Balance -->
 			<Card>
@@ -188,7 +186,7 @@
 					<p class="text-2xl font-bold text-gray-900">${{ reserveBalance.toLocaleString() }}</p>
 					<p class="text-xs text-gray-500">40-YEAR RECERT FUND</p>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Monthly Revenue -->
 			<Card>
@@ -200,7 +198,7 @@
 						COLLECTION RATE
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Monthly Expenses -->
 			<Card>
@@ -212,7 +210,7 @@
 						{{ expenseVariance > 0 ? 'OVER' : 'UNDER' }} BUDGET
 					</div>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Critical Alerts -->
@@ -235,7 +233,7 @@
 						size="xs"
 						:to="`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`">
 						VIEW DETAILS
-					</UButton>
+					</Button>
 				</template>
 			</UAlert>
 		</div>
@@ -267,7 +265,7 @@
 							<div v-for="account in accountHealth" :key="account.name" class="space-y-2">
 								<div class="flex items-center justify-between">
 									<span class="font-medium">{{ account.name }}</span>
-									<Badge :color="account.color" variant="subtle">{{ account.status }}</UBadge>
+									<Badge :color="account.color" variant="subtle">{{ account.status }}</Badge>
 								</div>
 								<div class="w-full bg-gray-200 rounded-full h-2">
 									<div
@@ -278,7 +276,7 @@
 								<p class="text-xs text-gray-600">{{ account.note }}</p>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Monthly Cash Flow -->
 					<Card>
@@ -288,7 +286,7 @@
 						<div class="h-64">
 							<Bar :data="monthlyBreakdownData" :options="chartOptions" />
 						</div>
-					</UCard>
+					</Card>
 				</div>
 
 				<!-- Quick Actions -->
@@ -305,7 +303,7 @@
 								<p class="text-sm text-gray-600">View detailed transactions</p>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<Card class="hover:shadow-lg transition-shadow cursor-pointer">
 						<div class="flex items-center space-x-3">
@@ -317,7 +315,7 @@
 								<p class="text-sm text-gray-600">Compare budget vs actual</p>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<Card class="hover:shadow-lg transition-shadow cursor-pointer">
 						<div class="flex items-center space-x-3">
@@ -329,7 +327,7 @@
 								<p class="text-sm text-gray-600">Fund segregation status</p>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 			</template>
 
@@ -366,7 +364,7 @@
 						<!-- Variance Table -->
 						<UTable :rows="budgetVariances" :columns="budgetColumns" />
 					</div>
-				</UCard>
+				</Card>
 			</template>
 
 			<!-- Compliance Tab -->
@@ -410,7 +408,7 @@
 								</ul>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- 30-60-90 Day Action Plan -->
 					<Card>
@@ -428,7 +426,7 @@
 								</ul>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 			</template>
 		</UTabs>

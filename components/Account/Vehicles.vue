@@ -188,7 +188,7 @@ function getStatusBadge(status: string) {
 	<div class="w-full">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="!mt-0 !mb-0">My Vehicles</h2>
-			<Button v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</UButton>
+			<Button v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</Button>
 		</div>
 
 		<div v-if="unitsPending" class="text-center py-8 text-gray-500">
@@ -199,13 +199,13 @@ function getStatusBadge(status: string) {
 		<div v-else-if="errorMessage" class="text-center py-8">
 			<Icon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
 			<p class="text-red-600 mb-2">{{ errorMessage }}</p>
-			<Button variant="soft" size="sm" @click="refreshUnits()">Try Again</UButton>
+			<Button variant="soft" size="sm" @click="refreshUnits()">Try Again</Button>
 		</div>
 
 		<div v-else-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
 			<Icon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
 			<p>No vehicles registered yet.</p>
-			<Button v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</UButton>
+			<Button v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</Button>
 		</div>
 
 		<div v-else class="grid gap-4 md:grid-cols-2">
@@ -227,7 +227,7 @@ function getStatusBadge(status: string) {
 							<h3 class="font-semibold">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
 							<Badge :color="getStatusBadge(vehicle.status).color" variant="soft" size="xs">
 								{{ getStatusBadge(vehicle.status).label }}
-							</UBadge>
+							</Badge>
 						</div>
 						<p v-if="vehicle.color" class="text-sm text-gray-500">{{ vehicle.color }}</p>
 						<p v-if="vehicle.license_plate" class="text-sm font-mono text-gray-600 dark:text-gray-400">
@@ -247,7 +247,7 @@ function getStatusBadge(status: string) {
 						<Button color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
 					</UDropdown>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Add/Edit Modal -->
@@ -298,14 +298,14 @@ function getStatusBadge(status: string) {
 							New vehicles and updates require admin approval before they appear as approved.
 						</p>
 						<div class="flex justify-end gap-3">
-							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
+							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</Button>
 							<Button :loading="loading" @click="saveVehicle">
 								{{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
-							</UButton>
+							</Button>
 						</div>
 					</div>
 				</template>
-			</UCard>
+			</Card>
 		</UModal>
 	</div>
 </template>

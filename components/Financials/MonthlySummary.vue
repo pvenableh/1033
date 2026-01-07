@@ -6,10 +6,10 @@
 				<div class="flex gap-2">
 					<Badge v-if="complianceRisk.riskLevel === 'CRITICAL'" color="red" variant="solid" size="xs">
 						FL VIOLATION
-					</UBadge>
+					</Badge>
 					<Button size="xs" color="gray" variant="ghost" :to="`/financials/monthly-report/${month.toLowerCase()}`">
 						VIEW DETAILS →
-					</UButton>
+					</Button>
 				</div>
 			</div>
 		</template>
@@ -105,7 +105,7 @@
 						<UTooltip
 							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`">
 							<div class="absolute inset-0" />
-						</UTooltip>
+						</Tooltip>
 					</div>
 				</div>
 				<div class="flex justify-between mt-1 text-xs text-gray-500">
@@ -127,7 +127,7 @@
 						variant="soft"
 						size="xs">
 						{{ complianceRisk.riskLevel }}
-					</UBadge>
+					</Badge>
 				</div>
 
 				<div
@@ -142,7 +142,7 @@
 				</div>
 			</div>
 		</div>
-	</UCard>
+	</Card>
 </template>
 
 <script lang="ts" setup>

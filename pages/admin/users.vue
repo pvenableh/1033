@@ -283,7 +283,7 @@ onMounted(async () => {
       <div class="mt-4 md:mt-0">
         <Badge v-if="pendingCount > 0" color="amber" variant="soft" size="lg">
           {{ pendingCount }} pending {{ pendingCount === 1 ? 'request' : 'requests' }}
-        </UBadge>
+        </Badge>
       </div>
     </div>
 
@@ -344,7 +344,7 @@ onMounted(async () => {
               variant="soft"
               size="sm">
               {{ getRoleName(row) }}
-            </UBadge>
+            </Badge>
           </template>
 
           <template #status-data="{ row }">
@@ -353,7 +353,7 @@ onMounted(async () => {
               variant="soft"
               size="sm">
               {{ row.status }}
-            </UBadge>
+            </Badge>
           </template>
 
           <template #actions-data="{ row }">
@@ -366,7 +366,7 @@ onMounted(async () => {
                 icon="i-heroicons-check"
                 @click="openUserModal(row)">
                 Approve
-              </UButton>
+              </Button>
               <Button
                 size="xs"
                 color="gray"
@@ -374,11 +374,11 @@ onMounted(async () => {
                 icon="i-heroicons-pencil"
                 @click="openUserModal(row)">
                 Edit
-              </UButton>
+              </Button>
             </div>
           </template>
         </UTable>
-      </UCard>
+      </Card>
     </template>
 
     <!-- User Edit Modal -->
@@ -429,7 +429,7 @@ onMounted(async () => {
             <label class="block text-sm font-medium mb-2">Current Status</label>
             <Badge :color="getStatusColor(selectedUser.status)" variant="soft">
               {{ selectedUser.status }}
-            </UBadge>
+            </Badge>
           </div>
 
           <!-- Role Selection -->
@@ -459,7 +459,7 @@ onMounted(async () => {
               :loading="actionLoading"
               @click="updateUserStatus(selectedUser, 'active')">
               Activate
-            </UButton>
+            </Button>
             <Button
               v-if="selectedUser.status !== 'suspended'"
               size="sm"
@@ -468,7 +468,7 @@ onMounted(async () => {
               :loading="actionLoading"
               @click="updateUserStatus(selectedUser, 'suspended')">
               Suspend
-            </UButton>
+            </Button>
           </div>
         </div>
 
@@ -479,7 +479,7 @@ onMounted(async () => {
               variant="ghost"
               @click="showUserModal = false">
               Cancel
-            </UButton>
+            </Button>
             <Button
               v-if="selectedUser.status === 'draft'"
               color="green"
@@ -487,7 +487,7 @@ onMounted(async () => {
               :disabled="!selectedUser.role"
               @click="approveUser(selectedUser, typeof selectedUser.role === 'object' ? selectedUser.role.id : selectedUser.role)">
               Approve & Assign Role
-            </UButton>
+            </Button>
             <Button
               v-else
               color="primary"
@@ -495,10 +495,10 @@ onMounted(async () => {
               :disabled="!selectedUser.role"
               @click="updateUserRole(selectedUser, typeof selectedUser.role === 'object' ? selectedUser.role.id : selectedUser.role)">
               Update Role
-            </UButton>
+            </Button>
           </div>
         </template>
-      </UCard>
+      </Card>
     </UModal>
   </div>
   </div>

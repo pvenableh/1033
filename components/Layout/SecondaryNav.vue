@@ -21,7 +21,7 @@
 								<Icon name="i-lucide-layout-dashboard" class="w-5 h-5" />
 								<span class="hidden">Dashboard</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Announcements - visible to all approved users -->
@@ -34,7 +34,7 @@
 								<Icon name="i-heroicons-megaphone" class="w-5 h-5" />
 								<span class="hidden">Announcements</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Meetings - visible to all approved users -->
@@ -44,7 +44,7 @@
 								<Icon name="i-heroicons-calendar-days" class="w-5 h-5" />
 								<span class="hidden">Meetings</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- By-Laws - visible to all approved users -->
@@ -57,7 +57,7 @@
 								<Icon name="i-heroicons-document-text" class="w-5 h-5" />
 								<span class="hidden">By-Laws</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Rules - visible to all approved users -->
@@ -70,7 +70,7 @@
 								<Icon name="i-heroicons-clipboard-document-list" class="w-5 h-5" />
 								<span class="hidden">Rules</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Parking - visible to all approved users -->
@@ -83,7 +83,7 @@
 								<Icon name="i-lucide-car" class="w-5 h-5" />
 								<span class="hidden">Parking</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Projects - visible to all approved users -->
@@ -93,7 +93,7 @@
 								<Icon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
 								<span class="hidden">Projects</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Account - visible to all approved users -->
@@ -103,7 +103,7 @@
 								<Icon name="i-heroicons-user-circle" class="w-5 h-5" />
 								<span class="hidden">Account</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Channels - visible to board_members OR users with channel membership -->
@@ -113,7 +113,7 @@
 								<Icon name="i-lucide-messages-square" class="w-5 h-5" />
 								<span class="hidden">Channels</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<li v-if="showSecurity">
@@ -122,7 +122,7 @@
 								<Icon name="i-lucide-cctv" class="w-5 h-5" />
 								<span class="hidden">Security</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Divider - only show if user has access to board member features -->
@@ -140,7 +140,7 @@
 								<Icon name="i-heroicons-currency-dollar" class="w-5 h-5" />
 								<span class="hidden">Financials</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Tasks - visible to board_members only -->
@@ -150,7 +150,7 @@
 								<Icon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
 								<span class="hidden">Tasks</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 
 					<!-- Admin - visible to board_members and admins -->
@@ -163,7 +163,7 @@
 								<Icon name="i-heroicons-shield-check" class="w-5 h-5" />
 								<span class="hidden">Users</span>
 							</nuxt-link>
-						</UTooltip>
+						</Tooltip>
 					</li>
 				</ul>
 			</div>

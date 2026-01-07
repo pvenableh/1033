@@ -14,11 +14,11 @@
 					<span class="text-xs text-gray-500 dark:text-gray-400">
 						{{ formatTime(comment.date_created) }}
 					</span>
-					<Badge v-if="comment.is_edited" size="xs" color="gray" variant="subtle">edited</UBadge>
+					<Badge v-if="comment.is_edited" size="xs" color="gray" variant="subtle">edited</Badge>
 					<Badge v-if="comment.is_resolved" size="xs" color="green" variant="subtle">
 						<Icon name="i-heroicons-check" class="w-3 h-3 mr-0.5" />
 						Resolved
-					</UBadge>
+					</Badge>
 				</div>
 
 				<!-- Comment Content -->

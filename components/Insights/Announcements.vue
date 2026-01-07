@@ -36,7 +36,7 @@ const filteredAnnouncements = computed(() => {
 			Announcements:
 			<Badge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ announcements.length }}
-			</UBadge>
+			</Badge>
 		</h1>
 
 		<div v-if="pending">Loading</div>

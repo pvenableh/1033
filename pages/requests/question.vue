@@ -178,13 +178,13 @@ const onSubmit = handleSubmit(async (values) => {
 					</UFormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
-						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
+						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</Button>
 						<Button type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 							{{ isSubmitting ? 'Submitting...' : 'Submit' }}
-						</UButton>
+						</Button>
 					</div>
 				</form>
-				<!-- <Button @click="handleNext" color="primary">Next</UButton> -->
+				<!-- <Button @click="handleNext" color="primary">Next</Button> -->
 			</div>
 			<div v-else class="w-full min-h-[500px] max-h-[calc(100vh-120px)] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
@@ -197,7 +197,7 @@ const onSubmit = handleSubmit(async (values) => {
 					<span class="font-bold text-[var(--cyan)]" v-if="subject">{{ subject.toLowerCase() }} {{ category }}</span>
 					was submitted successfully.
 				</p>
-				<Button @click="handleReset" color="primary">Reset Form</UButton>
+				<Button @click="handleReset" color="primary">Reset Form</Button>
 			</div>
 		</TransitionGroup>
 	</div>

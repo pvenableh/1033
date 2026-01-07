@@ -98,7 +98,7 @@ const togglePassword = () => {
 										@click="togglePassword"
 										:padded="false" />
 								</template>
-							</UInput>
+							</Input>
 						</div>
 						<template #error>
 							<p class="text-xs text-red-500 text-right uppercase font-bold">{{ errorMessage }}</p>

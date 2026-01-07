@@ -19,7 +19,7 @@
 					<p class="text-sm font-medium text-gray-900 dark:text-white truncate">
 						{{ announcement.title }}
 					</p>
-					<Badge v-if="!isRead" size="xs" color="yellow" variant="soft" class="flex-shrink-0">New</UBadge>
+					<Badge v-if="!isRead" size="xs" color="yellow" variant="soft" class="flex-shrink-0">New</Badge>
 				</div>
 				<p v-if="announcement.subtitle" class="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
 					{{ announcement.subtitle }}

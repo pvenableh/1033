@@ -327,10 +327,10 @@ onMounted(() => {
 				<div class="mt-4 md:mt-0 flex gap-3">
 					<Button variant="soft" color="gray" icon="i-heroicons-arrow-path" :loading="loading" @click="refreshData">
 						Refresh
-					</UButton>
+					</Button>
 					<Button variant="soft" color="gray" icon="i-heroicons-megaphone" to="/admin/announcements">
 						Announcements
-					</UButton>
+					</Button>
 				</div>
 			</div>
 
@@ -359,7 +359,7 @@ onMounted(() => {
 							v-if="totalCounts.total > 0"
 							class="absolute bottom-0 left-0 h-1 bg-gray-200 dark:bg-gray-700 transition-all duration-500"
 							:style="{width: `${getPercentage(activities.length, totalCounts.total)}%`}"></div>
-					</UCard>
+					</Card>
 
 					<Card class="text-center relative overflow-hidden">
 						<div class="relative z-10">
@@ -377,7 +377,7 @@ onMounted(() => {
 							v-if="totalCounts.total > 0"
 							class="absolute bottom-0 left-0 h-1 bg-green-500 transition-all duration-500"
 							:style="{width: `${getPercentage(totalCounts.delivered, totalCounts.total)}%`}"></div>
-					</UCard>
+					</Card>
 
 					<Card class="text-center relative overflow-hidden">
 						<div class="relative z-10">
@@ -393,7 +393,7 @@ onMounted(() => {
 							v-if="totalCounts.total > 0"
 							class="absolute bottom-0 left-0 h-1 bg-blue-500 transition-all duration-500"
 							:style="{width: `${getPercentage(totalCounts.open, totalCounts.total)}%`}"></div>
-					</UCard>
+					</Card>
 
 					<Card class="text-center relative overflow-hidden">
 						<div class="relative z-10">
@@ -409,7 +409,7 @@ onMounted(() => {
 							v-if="totalCounts.total > 0"
 							class="absolute bottom-0 left-0 h-1 bg-purple-500 transition-all duration-500"
 							:style="{width: `${getPercentage(totalCounts.click, totalCounts.total)}%`}"></div>
-					</UCard>
+					</Card>
 
 					<Card class="text-center relative overflow-hidden">
 						<div class="relative z-10">
@@ -425,7 +425,7 @@ onMounted(() => {
 							v-if="totalCounts.total > 0"
 							class="absolute bottom-0 left-0 h-1 bg-red-500 transition-all duration-500"
 							:style="{width: `${getPercentage(totalCounts.bounce, totalCounts.total)}%`}"></div>
-					</UCard>
+					</Card>
 				</div>
 
 				<!-- Filters -->
@@ -471,7 +471,7 @@ onMounted(() => {
 										class="w-5 h-5" />
 									<Badge :color="getEventColor(row.event)" variant="soft" size="sm">
 										{{ row.event }}
-									</UBadge>
+									</Badge>
 								</div>
 							</template>
 
@@ -513,7 +513,7 @@ onMounted(() => {
 							All {{ activities.length.toLocaleString() }} events loaded
 						</div>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Pagination Info -->
 				<div class="mt-4 flex items-center justify-between text-sm text-gray-500">
@@ -529,7 +529,7 @@ onMounted(() => {
 							:loading="loadingMore"
 							@click="fetchActivities(false)">
 							Load More
-						</UButton>
+						</Button>
 					</div>
 				</div>
 
