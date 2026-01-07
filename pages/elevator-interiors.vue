@@ -172,7 +172,7 @@ function openExternalLink() {
 
 			<div class="w-full flex items-center justify-start flex-col mt-2 px-4 max-w-[600px] mx-auto">
 				<h3 class="uppercase tracking-wide font-bold text-[16px]sm:text-[20px] leading-6 mb-6 text-center">
-					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
+					<Icon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
 				<ul class="w-full list-disc list-inside text-left text-[14px] leading-5 max-w-[400px]">
@@ -215,7 +215,7 @@ function openExternalLink() {
 								v-for="(bullet, index) in item.bullets"
 								:key="index"
 								class="w-full flex items-center justify-center mx-auto">
-								<!-- <UIcon name="i-heroicons-check" class="h-3 w-3 inline-block mr-1 -mb-1" /> -->
+								<!-- <Icon name="i-heroicons-check" class="h-3 w-3 inline-block mr-1 -mb-1" /> -->
 								<h5
 									class="uppercase text-[10px] tracking-wide rounded-full border font-bold px-3 py-1 text-center w-auto opacity-60"
 									style="border-color: #999999">
@@ -235,7 +235,7 @@ function openExternalLink() {
 							class="w-full" />
 					</div>
 					<div class="w-full flex items-center justify-center flex-col py-8 renderings__item-caption">
-						<UButton
+						<Button
 							color="gray"
 							variant="outline"
 							:ui="{rounded: 'rounded-sm'}"
@@ -243,14 +243,14 @@ function openExternalLink() {
 							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block" style="font-weight: 600 !important">{{ item.title }}</span>
-						</UButton>
+						</Button>
 					</div>
 				</div>
 			</div>
 		</div>
 		<UModal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
-				<UIcon
+				<Icon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
 					@click="closeVote()" />
@@ -274,6 +274,7 @@ function openExternalLink() {
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__list {
 		flex-direction: column;

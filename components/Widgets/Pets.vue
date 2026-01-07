@@ -88,7 +88,7 @@ function getIcon(): string {
 			<span class="text-cream">Registered Pets</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<UIcon :name="getIcon()" />
+				<Icon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -103,25 +103,25 @@ function getIcon(): string {
 			v-if="variant === 'detailed'"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-heart" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-heart" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Dogs</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ dogCount }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-heart" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-heart" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Cats</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ catCount }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-home" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-home" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Pet Density</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ petRatio }}%</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-check-badge" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-check-badge" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Policy</span>
 				<span class="ml-auto font-medium text-cream uppercase">Allowed</span>
 			</div>
@@ -134,7 +134,7 @@ function getIcon(): string {
 			<span class="font-semibold">Pet-Friendly</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<UIcon :name="getIcon()" />
+				<Icon :name="getIcon()" />
 			</span>
 		</div>
 		<span class="text-[10px] text-cream/70">Dogs and cats welcome</span>

@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import type { People, UserPermission } from '~/types/directus';
+import type {People, UserPermission} from '~/types/directus';
 import {
-  PERMISSION_CATEGORIES,
-  PERMISSION_CATEGORY_META,
-  CRUD_ACTIONS,
-  APPROVAL_CATEGORIES,
-  APPROVAL_CATEGORY_META,
-  MANAGEMENT_CATEGORIES,
-  MANAGEMENT_CATEGORY_META,
+	PERMISSION_CATEGORIES,
+	PERMISSION_CATEGORY_META,
+	CRUD_ACTIONS,
+	APPROVAL_CATEGORIES,
+	APPROVAL_CATEGORY_META,
+	MANAGEMENT_CATEGORIES,
+	MANAGEMENT_CATEGORY_META,
 } from '~/composables/useUserPermissions';
 
 definePageMeta({
-  layout: 'default',
-  middleware: ['auth', 'role'],
+	layout: 'default',
+	middleware: ['auth', 'role'],
 });
 
 const toast = useToast();
-const { isAdmin } = useRoles();
+const {isAdmin} = useRoles();
 
 // State
 const people = ref<People[]>([]);
@@ -32,602 +32,546 @@ const existingPermissionId = ref<number | null>(null);
 
 // Computed
 const filteredPeople = computed(() => {
-  if (!searchQuery.value) return people.value;
+	if (!searchQuery.value) return people.value;
 
-  const query = searchQuery.value.toLowerCase();
-  return people.value.filter(
-    (p) =>
-      p.first_name?.toLowerCase().includes(query) ||
-      p.last_name?.toLowerCase().includes(query) ||
-      p.email?.toLowerCase().includes(query)
-  );
+	const query = searchQuery.value.toLowerCase();
+	return people.value.filter(
+		(p) =>
+			p.first_name?.toLowerCase().includes(query) ||
+			p.last_name?.toLowerCase().includes(query) ||
+			p.email?.toLowerCase().includes(query)
+	);
 });
 
 // Methods
 async function fetchPeople() {
-  loading.value = true;
-  try {
-    const response = await $fetch<People[]>('/api/directus/items', {
-      method: 'POST',
-      body: {
-        collection: 'people',
-        operation: 'list',
-        query: {
-          fields: ['id', 'first_name', 'last_name', 'email', 'category', 'is_owner', 'is_resident', 'permissions.*'],
-          filter: {
-            status: { _eq: 'published' },
-          },
-          sort: ['last_name', 'first_name'],
-          limit: -1,
-        },
-      },
-    });
-    people.value = response || [];
-  } catch (error) {
-    console.error('Failed to fetch people:', error);
-    toast.add({
-      title: 'Error',
-      description: 'Failed to load people',
-      color: 'red',
-    });
-  } finally {
-    loading.value = false;
-  }
+	loading.value = true;
+	try {
+		const response = await $fetch<People[]>('/api/directus/items', {
+			method: 'POST',
+			body: {
+				collection: 'people',
+				operation: 'list',
+				query: {
+					fields: ['id', 'first_name', 'last_name', 'email', 'category', 'is_owner', 'is_resident', 'permissions.*'],
+					filter: {
+						status: {_eq: 'published'},
+					},
+					sort: ['last_name', 'first_name'],
+					limit: -1,
+				},
+			},
+		});
+		people.value = response || [];
+	} catch (error) {
+		console.error('Failed to fetch people:', error);
+		toast.add({
+			title: 'Error',
+			description: 'Failed to load people',
+			color: 'red',
+		});
+	} finally {
+		loading.value = false;
+	}
 }
 
 function openPermissionModal(person: People) {
-  selectedPerson.value = person;
+	selectedPerson.value = person;
 
-  // Load existing permissions if available
-  const existingPermission = person.permissions?.[0] as UserPermission | undefined;
-  if (existingPermission && typeof existingPermission === 'object') {
-    existingPermissionId.value = existingPermission.id;
-    permissionForm.value = { ...existingPermission };
-  } else {
-    existingPermissionId.value = null;
-    // Initialize with all false
-    permissionForm.value = {
-      person_id: person.id,
-      status: 'published',
-    };
-    // Initialize CRUD permissions
-    for (const category of Object.values(PERMISSION_CATEGORIES)) {
-      for (const action of Object.values(CRUD_ACTIONS)) {
-        (permissionForm.value as any)[`${category}_${action}`] = false;
-      }
-    }
-    // Initialize approval permissions
-    for (const category of Object.values(APPROVAL_CATEGORIES)) {
-      (permissionForm.value as any)[`${category}_approve`] = false;
-    }
-    // Initialize management permissions
-    for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-      (permissionForm.value as any)[`${category}_approved`] = false;
-    }
-  }
+	// Load existing permissions if available
+	const existingPermission = person.permissions?.[0] as UserPermission | undefined;
+	if (existingPermission && typeof existingPermission === 'object') {
+		existingPermissionId.value = existingPermission.id;
+		permissionForm.value = {...existingPermission};
+	} else {
+		existingPermissionId.value = null;
+		// Initialize with all false
+		permissionForm.value = {
+			person_id: person.id,
+			status: 'published',
+		};
+		// Initialize CRUD permissions
+		for (const category of Object.values(PERMISSION_CATEGORIES)) {
+			for (const action of Object.values(CRUD_ACTIONS)) {
+				(permissionForm.value as any)[`${category}_${action}`] = false;
+			}
+		}
+		// Initialize approval permissions
+		for (const category of Object.values(APPROVAL_CATEGORIES)) {
+			(permissionForm.value as any)[`${category}_approve`] = false;
+		}
+		// Initialize management permissions
+		for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+			(permissionForm.value as any)[`${category}_approved`] = false;
+		}
+	}
 
-  showPermissionModal.value = true;
+	showPermissionModal.value = true;
 }
 
 async function savePermissions() {
-  if (!selectedPerson.value) return;
+	if (!selectedPerson.value) return;
 
-  saving.value = true;
-  try {
-    if (existingPermissionId.value) {
-      // Update existing permission
-      await $fetch('/api/directus/items', {
-        method: 'POST',
-        body: {
-          collection: 'user_permissions',
-          operation: 'update',
-          id: existingPermissionId.value,
-          data: permissionForm.value,
-        },
-      });
-    } else {
-      // Create new permission
-      await $fetch('/api/directus/items', {
-        method: 'POST',
-        body: {
-          collection: 'user_permissions',
-          operation: 'create',
-          data: {
-            ...permissionForm.value,
-            person_id: selectedPerson.value.id,
-            status: 'published',
-          },
-        },
-      });
-    }
+	saving.value = true;
+	try {
+		if (existingPermissionId.value) {
+			// Update existing permission
+			await $fetch('/api/directus/items', {
+				method: 'POST',
+				body: {
+					collection: 'user_permissions',
+					operation: 'update',
+					id: existingPermissionId.value,
+					data: permissionForm.value,
+				},
+			});
+		} else {
+			// Create new permission
+			await $fetch('/api/directus/items', {
+				method: 'POST',
+				body: {
+					collection: 'user_permissions',
+					operation: 'create',
+					data: {
+						...permissionForm.value,
+						person_id: selectedPerson.value.id,
+						status: 'published',
+					},
+				},
+			});
+		}
 
-    toast.add({
-      title: 'Permissions Saved',
-      description: `Permissions updated for ${selectedPerson.value.first_name} ${selectedPerson.value.last_name}`,
-      color: 'green',
-    });
+		toast.add({
+			title: 'Permissions Saved',
+			description: `Permissions updated for ${selectedPerson.value.first_name} ${selectedPerson.value.last_name}`,
+			color: 'green',
+		});
 
-    showPermissionModal.value = false;
-    await fetchPeople();
-  } catch (error: any) {
-    console.error('Failed to save permissions:', error);
-    toast.add({
-      title: 'Error',
-      description: error?.data?.message || 'Failed to save permissions',
-      color: 'red',
-    });
-  } finally {
-    saving.value = false;
-  }
+		showPermissionModal.value = false;
+		await fetchPeople();
+	} catch (error: any) {
+		console.error('Failed to save permissions:', error);
+		toast.add({
+			title: 'Error',
+			description: error?.data?.message || 'Failed to save permissions',
+			color: 'red',
+		});
+	} finally {
+		saving.value = false;
+	}
 }
 
 async function deletePermissions() {
-  if (!existingPermissionId.value) return;
+	if (!existingPermissionId.value) return;
 
-  saving.value = true;
-  try {
-    await $fetch('/api/directus/items', {
-      method: 'POST',
-      body: {
-        collection: 'user_permissions',
-        operation: 'delete',
-        id: existingPermissionId.value,
-      },
-    });
+	saving.value = true;
+	try {
+		await $fetch('/api/directus/items', {
+			method: 'POST',
+			body: {
+				collection: 'user_permissions',
+				operation: 'delete',
+				id: existingPermissionId.value,
+			},
+		});
 
-    toast.add({
-      title: 'Permissions Deleted',
-      description: `Permissions removed for ${selectedPerson.value?.first_name} ${selectedPerson.value?.last_name}`,
-      color: 'green',
-    });
+		toast.add({
+			title: 'Permissions Deleted',
+			description: `Permissions removed for ${selectedPerson.value?.first_name} ${selectedPerson.value?.last_name}`,
+			color: 'green',
+		});
 
-    showPermissionModal.value = false;
-    await fetchPeople();
-  } catch (error: any) {
-    console.error('Failed to delete permissions:', error);
-    toast.add({
-      title: 'Error',
-      description: error?.data?.message || 'Failed to delete permissions',
-      color: 'red',
-    });
-  } finally {
-    saving.value = false;
-  }
+		showPermissionModal.value = false;
+		await fetchPeople();
+	} catch (error: any) {
+		console.error('Failed to delete permissions:', error);
+		toast.add({
+			title: 'Error',
+			description: error?.data?.message || 'Failed to delete permissions',
+			color: 'red',
+		});
+	} finally {
+		saving.value = false;
+	}
 }
 
 function toggleAllCategory(category: string, value: boolean) {
-  for (const action of Object.values(CRUD_ACTIONS)) {
-    (permissionForm.value as any)[`${category}_${action}`] = value;
-  }
+	for (const action of Object.values(CRUD_ACTIONS)) {
+		(permissionForm.value as any)[`${category}_${action}`] = value;
+	}
 }
 
 function toggleAllApprovals(value: boolean) {
-  for (const category of Object.values(APPROVAL_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approve`] = value;
-  }
+	for (const category of Object.values(APPROVAL_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approve`] = value;
+	}
 }
 
 function toggleAllManagement(value: boolean) {
-  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approved`] = value;
-  }
+	for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approved`] = value;
+	}
 }
 
 function grantAllPermissions() {
-  // Grant all CRUD permissions
-  for (const category of Object.values(PERMISSION_CATEGORIES)) {
-    for (const action of Object.values(CRUD_ACTIONS)) {
-      (permissionForm.value as any)[`${category}_${action}`] = true;
-    }
-  }
-  // Grant all approval permissions
-  for (const category of Object.values(APPROVAL_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approve`] = true;
-  }
-  // Grant all management permissions
-  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approved`] = true;
-  }
+	// Grant all CRUD permissions
+	for (const category of Object.values(PERMISSION_CATEGORIES)) {
+		for (const action of Object.values(CRUD_ACTIONS)) {
+			(permissionForm.value as any)[`${category}_${action}`] = true;
+		}
+	}
+	// Grant all approval permissions
+	for (const category of Object.values(APPROVAL_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approve`] = true;
+	}
+	// Grant all management permissions
+	for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approved`] = true;
+	}
 }
 
 function clearAllPermissions() {
-  // Clear all CRUD permissions
-  for (const category of Object.values(PERMISSION_CATEGORIES)) {
-    for (const action of Object.values(CRUD_ACTIONS)) {
-      (permissionForm.value as any)[`${category}_${action}`] = false;
-    }
-  }
-  // Clear all approval permissions
-  for (const category of Object.values(APPROVAL_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approve`] = false;
-  }
-  // Clear all management permissions
-  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-    (permissionForm.value as any)[`${category}_approved`] = false;
-  }
+	// Clear all CRUD permissions
+	for (const category of Object.values(PERMISSION_CATEGORIES)) {
+		for (const action of Object.values(CRUD_ACTIONS)) {
+			(permissionForm.value as any)[`${category}_${action}`] = false;
+		}
+	}
+	// Clear all approval permissions
+	for (const category of Object.values(APPROVAL_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approve`] = false;
+	}
+	// Clear all management permissions
+	for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+		(permissionForm.value as any)[`${category}_approved`] = false;
+	}
 }
 
 function hasAnyPermission(person: People): boolean {
-  const perm = person.permissions?.[0] as UserPermission | undefined;
-  if (!perm || typeof perm !== 'object') return false;
+	const perm = person.permissions?.[0] as UserPermission | undefined;
+	if (!perm || typeof perm !== 'object') return false;
 
-  // Check CRUD permissions
-  for (const category of Object.values(PERMISSION_CATEGORIES)) {
-    for (const action of Object.values(CRUD_ACTIONS)) {
-      if ((perm as any)[`${category}_${action}`] === true) {
-        return true;
-      }
-    }
-  }
-  // Check approval permissions
-  for (const category of Object.values(APPROVAL_CATEGORIES)) {
-    if ((perm as any)[`${category}_approve`] === true) {
-      return true;
-    }
-  }
-  // Check management permissions
-  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-    if ((perm as any)[`${category}_approved`] === true) {
-      return true;
-    }
-  }
-  return false;
+	// Check CRUD permissions
+	for (const category of Object.values(PERMISSION_CATEGORIES)) {
+		for (const action of Object.values(CRUD_ACTIONS)) {
+			if ((perm as any)[`${category}_${action}`] === true) {
+				return true;
+			}
+		}
+	}
+	// Check approval permissions
+	for (const category of Object.values(APPROVAL_CATEGORIES)) {
+		if ((perm as any)[`${category}_approve`] === true) {
+			return true;
+		}
+	}
+	// Check management permissions
+	for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+		if ((perm as any)[`${category}_approved`] === true) {
+			return true;
+		}
+	}
+	return false;
 }
 
 function getPermissionCount(person: People): number {
-  const perm = person.permissions?.[0] as UserPermission | undefined;
-  if (!perm || typeof perm !== 'object') return 0;
+	const perm = person.permissions?.[0] as UserPermission | undefined;
+	if (!perm || typeof perm !== 'object') return 0;
 
-  let count = 0;
-  // Count CRUD permissions
-  for (const category of Object.values(PERMISSION_CATEGORIES)) {
-    for (const action of Object.values(CRUD_ACTIONS)) {
-      if ((perm as any)[`${category}_${action}`] === true) {
-        count++;
-      }
-    }
-  }
-  // Count approval permissions
-  for (const category of Object.values(APPROVAL_CATEGORIES)) {
-    if ((perm as any)[`${category}_approve`] === true) {
-      count++;
-    }
-  }
-  // Count management permissions
-  for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
-    if ((perm as any)[`${category}_approved`] === true) {
-      count++;
-    }
-  }
-  return count;
+	let count = 0;
+	// Count CRUD permissions
+	for (const category of Object.values(PERMISSION_CATEGORIES)) {
+		for (const action of Object.values(CRUD_ACTIONS)) {
+			if ((perm as any)[`${category}_${action}`] === true) {
+				count++;
+			}
+		}
+	}
+	// Count approval permissions
+	for (const category of Object.values(APPROVAL_CATEGORIES)) {
+		if ((perm as any)[`${category}_approve`] === true) {
+			count++;
+		}
+	}
+	// Count management permissions
+	for (const category of Object.values(MANAGEMENT_CATEGORIES)) {
+		if ((perm as any)[`${category}_approved`] === true) {
+			count++;
+		}
+	}
+	return count;
 }
 
 function getCategoryColor(category: string): string {
-  const colors: Record<string, string> = {
-    projects: 'blue',
-    channels: 'purple',
-    financials: 'green',
-    announcements: 'orange',
-    meetings: 'cyan',
-    documents: 'gray',
-    units: 'amber',
-    requests: 'rose',
-    vendors: 'emerald',
-  };
-  return colors[category] || 'gray';
+	const colors: Record<string, string> = {
+		projects: 'blue',
+		channels: 'purple',
+		financials: 'green',
+		announcements: 'orange',
+		meetings: 'cyan',
+		documents: 'gray',
+		units: 'amber',
+		requests: 'rose',
+		vendors: 'emerald',
+	};
+	return colors[category] || 'gray';
 }
 
 // Initialize
 onMounted(() => {
-  fetchPeople();
+	fetchPeople();
 });
 </script>
 
 <template>
-  <div class="admin-page bg-white dark:bg-gray-900 min-h-full">
-    <div class="container mx-auto px-6 py-8">
-      <!-- Header -->
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <div>
-          <h1 class="text-2xl font-bold">User Permissions</h1>
-          <p class="text-gray-600 dark:text-gray-400 mt-1">
-            Manage granular CRUD permissions for individual users
-          </p>
-        </div>
-        <div class="mt-4 md:mt-0">
-          <UBadge color="primary" variant="soft" size="lg">
-            {{ people.length }} users
-          </UBadge>
-        </div>
-      </div>
+	<div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+		<div class="container mx-auto px-6 py-8">
+			<!-- Header -->
+			<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+				<div>
+					<h1 class="text-2xl font-bold">User Permissions</h1>
+					<p class="text-gray-600 dark:text-gray-400 mt-1">Manage granular CRUD permissions for individual users</p>
+				</div>
+				<div class="mt-4 md:mt-0">
+					<Badge color="primary" variant="soft" size="lg">{{ people.length }} users</Badge>
+				</div>
+			</div>
 
-      <!-- Access Denied -->
-      <div v-if="!isAdmin" class="text-center py-12">
-        <UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
-        <h2 class="text-xl font-semibold mb-2">Access Denied</h2>
-        <p class="text-gray-600 dark:text-gray-400">
-          You need administrator privileges to manage permissions.
-        </p>
-      </div>
+			<!-- Access Denied -->
+			<div v-if="!isAdmin" class="text-center py-12">
+				<Icon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+				<h2 class="text-xl font-semibold mb-2">Access Denied</h2>
+				<p class="text-gray-600 dark:text-gray-400">You need administrator privileges to manage permissions.</p>
+			</div>
 
-      <!-- Permissions Management -->
-      <template v-else>
-        <!-- Info Card -->
-        <UCard class="mb-6">
-          <div class="flex items-start gap-4">
-            <UIcon name="i-heroicons-information-circle" class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
-            <div>
-              <h3 class="font-medium text-gray-900 dark:text-white">How Permissions Work</h3>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                <strong>Administrators</strong> always have full access to everything.
-                <strong>Board Members</strong> have full access by default.
-                <strong>Members</strong> need explicit permissions granted here for actions beyond their role defaults.
-              </p>
-            </div>
-          </div>
-        </UCard>
+			<!-- Permissions Management -->
+			<template v-else>
+				<!-- Info Card -->
+				<Card class="mb-6">
+					<div class="flex items-start gap-4">
+						<Icon name="i-heroicons-information-circle" class="w-6 h-6 text-blue-500 flex-shrink-0 mt-0.5" />
+						<div>
+							<h3 class="font-medium text-gray-900 dark:text-white">How Permissions Work</h3>
+							<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+								<strong>Administrators</strong>
+								always have full access to everything.
+								<strong>Board Members</strong>
+								have full access by default.
+								<strong>Members</strong>
+								need explicit permissions granted here for actions beyond their role defaults.
+							</p>
+						</div>
+					</div>
+				</Card>
 
-        <!-- Search -->
-        <div class="mb-6">
-          <UInput
-            v-model="searchQuery"
-            icon="i-heroicons-magnifying-glass"
-            placeholder="Search by name or email..."
-            class="max-w-md"
-          />
-        </div>
+				<!-- Search -->
+				<div class="mb-6">
+					<Input
+						v-model="searchQuery"
+						icon="i-heroicons-magnifying-glass"
+						placeholder="Search by name or email..."
+						class="max-w-md" />
+				</div>
 
-        <!-- People Table -->
-        <UCard>
-          <UTable
-            :rows="filteredPeople"
-            :columns="[
-              { key: 'name', label: 'Person' },
-              { key: 'category', label: 'Category' },
-              { key: 'permissions', label: 'Permissions' },
-              { key: 'actions', label: 'Actions' },
-            ]"
-            :loading="loading"
-            :empty-state="{ icon: 'i-heroicons-users', label: 'No people found' }"
-          >
-            <template #name-data="{ row }">
-              <div class="flex items-center gap-3">
-                <UAvatar :alt="`${row.first_name} ${row.last_name}`" size="sm" />
-                <div>
-                  <p class="font-medium">{{ row.first_name }} {{ row.last_name }}</p>
-                  <p class="text-xs text-gray-500">{{ row.email }}</p>
-                </div>
-              </div>
-            </template>
+				<!-- People Table -->
+				<Card>
+					<UTable
+						:rows="filteredPeople"
+						:columns="[
+							{key: 'name', label: 'Person'},
+							{key: 'category', label: 'Category'},
+							{key: 'permissions', label: 'Permissions'},
+							{key: 'actions', label: 'Actions'},
+						]"
+						:loading="loading"
+						:empty-state="{icon: 'i-heroicons-users', label: 'No people found'}">
+						<template #name-data="{row}">
+							<div class="flex items-center gap-3">
+								<Avatar :alt="`${row.first_name} ${row.last_name}`" size="sm" />
+								<div>
+									<p class="font-medium">{{ row.first_name }} {{ row.last_name }}</p>
+									<p class="text-xs text-gray-500">{{ row.email }}</p>
+								</div>
+							</div>
+						</template>
 
-            <template #category-data="{ row }">
-              <UBadge
-                :color="row.category === 'Owner' ? 'green' : row.category === 'Tenant' ? 'blue' : 'gray'"
-                variant="soft"
-                size="sm"
-              >
-                {{ row.category || 'Unknown' }}
-              </UBadge>
-            </template>
+						<template #category-data="{row}">
+							<Badge
+								:color="row.category === 'Owner' ? 'green' : row.category === 'Tenant' ? 'blue' : 'gray'"
+								variant="soft"
+								size="sm">
+								{{ row.category || 'Unknown' }}
+							</Badge>
+						</template>
 
-            <template #permissions-data="{ row }">
-              <div v-if="hasAnyPermission(row)" class="flex items-center gap-2">
-                <UBadge color="primary" variant="soft" size="sm">
-                  {{ getPermissionCount(row) }} permissions
-                </UBadge>
-              </div>
-              <span v-else class="text-sm text-gray-500">Role defaults only</span>
-            </template>
+						<template #permissions-data="{row}">
+							<div v-if="hasAnyPermission(row)" class="flex items-center gap-2">
+								<Badge color="primary" variant="soft" size="sm">{{ getPermissionCount(row) }} permissions</Badge>
+							</div>
+							<span v-else class="text-sm text-gray-500">Role defaults only</span>
+						</template>
 
-            <template #actions-data="{ row }">
-              <UButton
-                size="xs"
-                color="primary"
-                variant="soft"
-                icon="i-heroicons-key"
-                @click="openPermissionModal(row)"
-              >
-                Configure
-              </UButton>
-            </template>
-          </UTable>
-        </UCard>
-      </template>
+						<template #actions-data="{row}">
+							<Button size="xs" color="primary" variant="soft" icon="i-heroicons-key" @click="openPermissionModal(row)">
+								Configure
+							</Button>
+						</template>
+					</UTable>
+				</Card>
+			</template>
 
-      <!-- Permission Modal -->
-      <UModal v-model="showPermissionModal" :ui="{ width: 'sm:max-w-3xl' }">
-        <UCard v-if="selectedPerson">
-          <template #header>
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <UAvatar :alt="`${selectedPerson.first_name} ${selectedPerson.last_name}`" />
-                <div>
-                  <h3 class="text-lg font-semibold">
-                    {{ selectedPerson.first_name }} {{ selectedPerson.last_name }}
-                  </h3>
-                  <p class="text-sm text-gray-500">{{ selectedPerson.email }}</p>
-                </div>
-              </div>
-              <UButton
-                color="gray"
-                variant="ghost"
-                icon="i-heroicons-x-mark"
-                @click="showPermissionModal = false"
-              />
-            </div>
-          </template>
+			<!-- Permission Modal -->
+			<UModal v-model="showPermissionModal" :ui="{width: 'sm:max-w-3xl'}">
+				<Card v-if="selectedPerson">
+					<template #header>
+						<div class="flex items-center justify-between">
+							<div class="flex items-center gap-3">
+								<Avatar :alt="`${selectedPerson.first_name} ${selectedPerson.last_name}`" />
+								<div>
+									<h3 class="text-lg font-semibold">{{ selectedPerson.first_name }} {{ selectedPerson.last_name }}</h3>
+									<p class="text-sm text-gray-500">{{ selectedPerson.email }}</p>
+								</div>
+							</div>
+							<Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showPermissionModal = false" />
+						</div>
+					</template>
 
-          <div class="space-y-6 max-h-[60vh] overflow-y-auto">
-            <!-- Quick Actions -->
-            <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions</span>
-              <div class="flex gap-2">
-                <UButton
-                  size="sm"
-                  color="green"
-                  variant="soft"
-                  icon="i-heroicons-check-circle"
-                  @click="grantAllPermissions"
-                >
-                  Grant All
-                </UButton>
-                <UButton
-                  size="sm"
-                  color="gray"
-                  variant="soft"
-                  icon="i-heroicons-x-circle"
-                  @click="clearAllPermissions"
-                >
-                  Clear All
-                </UButton>
-              </div>
-            </div>
+					<div class="space-y-6 max-h-[60vh] overflow-y-auto">
+						<!-- Quick Actions -->
+						<div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+							<span class="text-sm font-medium text-gray-700 dark:text-gray-300">Quick Actions</span>
+							<div class="flex gap-2">
+								<Button
+									size="sm"
+									color="green"
+									variant="soft"
+									icon="i-heroicons-check-circle"
+									@click="grantAllPermissions">
+									Grant All
+								</Button>
+								<Button size="sm" color="gray" variant="soft" icon="i-heroicons-x-circle" @click="clearAllPermissions">
+									Clear All
+								</Button>
+							</div>
+						</div>
 
-            <!-- Management Permissions Section -->
-            <div class="border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-blue-600" />
-                  <span class="font-medium text-blue-800 dark:text-blue-200">Management Permissions</span>
-                </div>
-                <div class="flex gap-2">
-                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllManagement(true)">
-                    All
-                  </UButton>
-                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllManagement(false)">
-                    None
-                  </UButton>
-                </div>
-              </div>
-              <p class="text-xs text-blue-700 dark:text-blue-300 mb-4">
-                Allow this user to create and manage notices or email announcements.
-              </p>
-              <div class="grid grid-cols-2 gap-4">
-                <div
-                  v-for="category in Object.values(MANAGEMENT_CATEGORIES)"
-                  :key="category"
-                  class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
-                >
-                  <UIcon :name="MANAGEMENT_CATEGORY_META[category].icon" class="w-5 h-5 text-blue-600" />
-                  <div class="flex-1">
-                    <UCheckbox
-                      v-model="(permissionForm as any)[`${category}_approved`]"
-                      :label="MANAGEMENT_CATEGORY_META[category].label"
-                    />
-                    <p class="text-xs text-gray-500 ml-6">{{ MANAGEMENT_CATEGORY_META[category].description }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+						<!-- Management Permissions Section -->
+						<div class="border-2 border-blue-200 dark:border-blue-800 rounded-lg p-4 bg-blue-50 dark:bg-blue-900/20">
+							<div class="flex items-center justify-between mb-3">
+								<div class="flex items-center gap-2">
+									<Icon name="i-heroicons-cog-6-tooth" class="w-5 h-5 text-blue-600" />
+									<span class="font-medium text-blue-800 dark:text-blue-200">Management Permissions</span>
+								</div>
+								<div class="flex gap-2">
+									<Button size="xs" color="green" variant="ghost" @click="toggleAllManagement(true)">All</Button>
+									<Button size="xs" color="gray" variant="ghost" @click="toggleAllManagement(false)">None</Button>
+								</div>
+							</div>
+							<p class="text-xs text-blue-700 dark:text-blue-300 mb-4">
+								Allow this user to create and manage notices or email announcements.
+							</p>
+							<div class="grid grid-cols-2 gap-4">
+								<div
+									v-for="category in Object.values(MANAGEMENT_CATEGORIES)"
+									:key="category"
+									class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+									<Icon :name="MANAGEMENT_CATEGORY_META[category].icon" class="w-5 h-5 text-blue-600" />
+									<div class="flex-1">
+										<Checkbox
+											v-model="(permissionForm as any)[`${category}_approved`]"
+											:label="MANAGEMENT_CATEGORY_META[category].label" />
+										<p class="text-xs text-gray-500 ml-6">{{ MANAGEMENT_CATEGORY_META[category].description }}</p>
+									</div>
+								</div>
+							</div>
+						</div>
 
-            <!-- Approval Permissions Section -->
-            <div class="border-2 border-amber-200 dark:border-amber-800 rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
-                  <span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
-                </div>
-                <div class="flex gap-2">
-                  <UButton size="xs" color="green" variant="ghost" @click="toggleAllApprovals(true)">
-                    All
-                  </UButton>
-                  <UButton size="xs" color="gray" variant="ghost" @click="toggleAllApprovals(false)">
-                    None
-                  </UButton>
-                </div>
-              </div>
-              <p class="text-xs text-amber-700 dark:text-amber-300 mb-4">
-                Allow this user to approve member submissions (pets, vehicles, leases).
-                Board members have these permissions by default.
-              </p>
-              <div class="grid grid-cols-3 gap-4">
-                <div
-                  v-for="category in Object.values(APPROVAL_CATEGORIES)"
-                  :key="category"
-                  class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg"
-                >
-                  <UIcon :name="APPROVAL_CATEGORY_META[category].icon" class="w-5 h-5 text-amber-600" />
-                  <UCheckbox
-                    v-model="(permissionForm as any)[`${category}_approve`]"
-                    :label="`Approve ${APPROVAL_CATEGORY_META[category].label}`"
-                  />
-                </div>
-              </div>
-            </div>
+						<!-- Approval Permissions Section -->
+						<div
+							class="border-2 border-amber-200 dark:border-amber-800 rounded-lg p-4 bg-amber-50 dark:bg-amber-900/20">
+							<div class="flex items-center justify-between mb-3">
+								<div class="flex items-center gap-2">
+									<Icon name="i-heroicons-check-badge" class="w-5 h-5 text-amber-600" />
+									<span class="font-medium text-amber-800 dark:text-amber-200">Approval Permissions</span>
+								</div>
+								<div class="flex gap-2">
+									<Button size="xs" color="green" variant="ghost" @click="toggleAllApprovals(true)">All</Button>
+									<Button size="xs" color="gray" variant="ghost" @click="toggleAllApprovals(false)">None</Button>
+								</div>
+							</div>
+							<p class="text-xs text-amber-700 dark:text-amber-300 mb-4">
+								Allow this user to approve member submissions (pets, vehicles, leases). Board members have these
+								permissions by default.
+							</p>
+							<div class="grid grid-cols-3 gap-4">
+								<div
+									v-for="category in Object.values(APPROVAL_CATEGORIES)"
+									:key="category"
+									class="flex items-center gap-3 p-3 bg-white dark:bg-gray-800 rounded-lg">
+									<Icon :name="APPROVAL_CATEGORY_META[category].icon" class="w-5 h-5 text-amber-600" />
+									<Checkbox
+										v-model="(permissionForm as any)[`${category}_approve`]"
+										:label="`Approve ${APPROVAL_CATEGORY_META[category].label}`" />
+								</div>
+							</div>
+						</div>
 
-            <!-- CRUD Permission Categories -->
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-6">
-              <h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Content Permissions (CRUD)</h4>
-            </div>
-            <div
-              v-for="category in Object.values(PERMISSION_CATEGORIES)"
-              :key="category"
-              class="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
-            >
-              <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                  <UIcon :name="PERMISSION_CATEGORY_META[category].icon" class="w-5 h-5" />
-                  <span class="font-medium">{{ PERMISSION_CATEGORY_META[category].label }}</span>
-                </div>
-                <div class="flex gap-2">
-                  <UButton
-                    size="xs"
-                    color="green"
-                    variant="ghost"
-                    @click="toggleAllCategory(category, true)"
-                  >
-                    All
-                  </UButton>
-                  <UButton
-                    size="xs"
-                    color="gray"
-                    variant="ghost"
-                    @click="toggleAllCategory(category, false)"
-                  >
-                    None
-                  </UButton>
-                </div>
-              </div>
-              <p class="text-xs text-gray-500 mb-3">
-                {{ PERMISSION_CATEGORY_META[category].description }}
-              </p>
-              <div class="grid grid-cols-4 gap-2">
-                <UCheckbox
-                  v-for="action in Object.values(CRUD_ACTIONS)"
-                  :key="`${category}_${action}`"
-                  v-model="(permissionForm as any)[`${category}_${action}`]"
-                  :label="action.charAt(0).toUpperCase() + action.slice(1)"
-                />
-              </div>
-            </div>
-          </div>
+						<!-- CRUD Permission Categories -->
+						<div class="border-t border-gray-200 dark:border-gray-700 pt-6">
+							<h4 class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-4">Content Permissions (CRUD)</h4>
+						</div>
+						<div
+							v-for="category in Object.values(PERMISSION_CATEGORIES)"
+							:key="category"
+							class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+							<div class="flex items-center justify-between mb-3">
+								<div class="flex items-center gap-2">
+									<Icon :name="PERMISSION_CATEGORY_META[category].icon" class="w-5 h-5" />
+									<span class="font-medium">{{ PERMISSION_CATEGORY_META[category].label }}</span>
+								</div>
+								<div class="flex gap-2">
+									<Button size="xs" color="green" variant="ghost" @click="toggleAllCategory(category, true)">
+										All
+									</Button>
+									<Button size="xs" color="gray" variant="ghost" @click="toggleAllCategory(category, false)">
+										None
+									</Button>
+								</div>
+							</div>
+							<p class="text-xs text-gray-500 mb-3">
+								{{ PERMISSION_CATEGORY_META[category].description }}
+							</p>
+							<div class="grid grid-cols-4 gap-2">
+								<Checkbox
+									v-for="action in Object.values(CRUD_ACTIONS)"
+									:key="`${category}_${action}`"
+									v-model="(permissionForm as any)[`${category}_${action}`]"
+									:label="action.charAt(0).toUpperCase() + action.slice(1)" />
+							</div>
+						</div>
+					</div>
 
-          <template #footer>
-            <div class="flex justify-between">
-              <div>
-                <UButton
-                  v-if="existingPermissionId"
-                  color="red"
-                  variant="ghost"
-                  icon="i-heroicons-trash"
-                  :loading="saving"
-                  @click="deletePermissions"
-                >
-                  Delete Permissions
-                </UButton>
-              </div>
-              <div class="flex gap-3">
-                <UButton color="gray" variant="ghost" @click="showPermissionModal = false">
-                  Cancel
-                </UButton>
-                <UButton color="primary" :loading="saving" @click="savePermissions">
-                  Save Permissions
-                </UButton>
-              </div>
-            </div>
-          </template>
-        </UCard>
-      </UModal>
-    </div>
-  </div>
+					<template #footer>
+						<div class="flex justify-between">
+							<div>
+								<Button
+									v-if="existingPermissionId"
+									color="red"
+									variant="ghost"
+									icon="i-heroicons-trash"
+									:loading="saving"
+									@click="deletePermissions">
+									Delete Permissions
+								</Button>
+							</div>
+							<div class="flex gap-3">
+								<Button color="gray" variant="ghost" @click="showPermissionModal = false">Cancel</Button>
+								<Button color="primary" :loading="saving" @click="savePermissions">Save Permissions</Button>
+							</div>
+						</div>
+					</template>
+				</Card>
+			</UModal>
+		</div>
+	</div>
 </template>

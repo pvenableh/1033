@@ -32,7 +32,7 @@ const avatar = computed(() => {
 </script>
 <template>
 	<div v-if="user" class="flex items-center justify-center mr-2 border rounded-full border-gray-300">
-		<UAvatar
+		<Avatar
 			v-if="chip"
 			chip-color="sky"
 			:chip-text="text"
@@ -40,10 +40,10 @@ const avatar = computed(() => {
 			:size="size"
 			:src="avatar"
 			:alt="user?.first_name + ' ' + user?.last_name" />
-		<UAvatar v-else :size="size" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
+		<Avatar v-else :size="size" :src="avatar" :alt="user?.first_name + ' ' + user?.last_name" />
 	</div>
 	<div v-else class="scale-75 sm:scale-100 absolute inline-block right-[10px] sm:pr-1 md:px-6">
-		<UAvatar icon="i-heroicons-user" :size="size" />
+		<Avatar icon="i-heroicons-user" :size="size" />
 	</div>
 </template>
 

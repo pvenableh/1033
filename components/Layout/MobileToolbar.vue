@@ -14,7 +14,7 @@ const props = defineProps({
 		class="mobile-toolbar flex flex-row items-center justify-center bg-cream dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden relative pb-safe"
 		:class="{retracted: isScrollingDown}">
 		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
-			<UIcon :name="link.icon" />
+			<Icon :name="link.icon" />
 			<h5>{{ link.name }}</h5>
 		</nuxt-link>
 
@@ -26,6 +26,7 @@ const props = defineProps({
 </template>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .mobile-toolbar {
 	position: fixed;
 	bottom: 0px;

@@ -83,6 +83,7 @@ function formatOptionLabel(option) {
 }
 </script>
 <style>
+@reference "~/assets/css/tailwind.css";
 .input-container {
 	.select {
 		option {

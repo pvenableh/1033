@@ -2,9 +2,7 @@
 	<div
 		class="channel-message group relative"
 		:data-message-id="message.id"
-		:class="[
-			isHighlighted ? 'bg-primary-50/50 dark:bg-primary-900/10' : '',
-		]">
+		:class="[isHighlighted ? 'bg-primary-50/50 dark:bg-primary-900/10' : '']">
 		<!-- Reply connector - iOS style threading -->
 		<div v-if="isReply && parentMessage" class="reply-thread-container mb-1">
 			<!-- Vertical connector line -->
@@ -13,41 +11,27 @@
 			</div>
 
 			<!-- Parent message preview bubble -->
-			<button
-				class="reply-preview-bubble"
-				@click="scrollToParent">
-				<UAvatar
-					:src="parentAuthorAvatar"
-					:alt="parentAuthorName"
-					size="2xs"
-					class="flex-shrink-0" />
+			<button class="reply-preview-bubble" @click="scrollToParent">
+				<Avatar :src="parentAuthorAvatar" :alt="parentAuthorName" size="2xs" class="flex-shrink-0" />
 				<span class="reply-author">{{ parentAuthorName }}</span>
 				<span class="reply-text">{{ parentMessagePreview }}</span>
 			</button>
 		</div>
 
 		<!-- Main message bubble -->
-		<div
-			class="message-bubble-wrapper"
-			:class="{ 'is-reply': isReply }">
+		<div class="message-bubble-wrapper" :class="{'is-reply': isReply}">
 			<!-- Avatar (left side) -->
 			<div class="message-avatar">
-				<UAvatar
-					:src="authorAvatar"
-					:alt="authorName"
-					:size="isReply ? 'xs' : 'sm'"
-					class="flex-shrink-0" />
+				<Avatar :src="authorAvatar" :alt="authorName" :size="isReply ? 'xs' : 'sm'" class="flex-shrink-0" />
 			</div>
 
 			<!-- Message content bubble -->
-			<div class="message-bubble" :class="{ 'is-own': isOwnMessage }">
+			<div class="message-bubble" :class="{'is-own': isOwnMessage}">
 				<!-- Header -->
 				<div class="message-header">
 					<span class="author-name">{{ authorName }}</span>
 					<span class="message-time">{{ formatTime(message.date_created) }}</span>
-					<UBadge v-if="message.is_edited" size="xs" color="gray" variant="subtle">
-						edited
-					</UBadge>
+					<Badge v-if="message.is_edited" size="xs" color="gray" variant="subtle">edited</Badge>
 				</div>
 
 				<!-- Message Content -->
@@ -58,15 +42,15 @@
 
 				<!-- Edit Form -->
 				<div v-else class="space-y-2">
-					<UTextarea
+					<Textarea
 						v-model="editContent"
 						:rows="3"
 						autofocus
 						@keydown.esc="cancelEdit"
 						@keydown.enter.ctrl="saveEdit" />
 					<div class="flex gap-2">
-						<UButton size="xs" color="primary" @click="saveEdit">Save</UButton>
-						<UButton size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
+						<Button size="xs" color="primary" @click="saveEdit">Save</Button>
+						<Button size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</Button>
 					</div>
 				</div>
 
@@ -78,7 +62,7 @@
 						:href="getFileUrl(file)"
 						target="_blank"
 						class="inline-flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-						<UIcon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
+						<Icon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
 						<span class="text-sm text-gray-700 dark:text-gray-300 truncate max-w-[200px]">
 							{{ file.directus_files_id?.filename_download || 'File' }}
 						</span>
@@ -92,16 +76,16 @@
 					collection="channel_messages"
 					:item-id="message.id"
 					:owner-user-id="messageOwnerUserId"
-					:item-context="{ channelName: channelName }"
+					:item-context="{channelName: channelName}"
 					:show-picker="true"
 					:compact="true" />
 
 				<!-- Thread indicator -->
 				<div v-if="replyCount > 0" class="mt-2">
 					<button
-						class="text-xs text-primary-600 dark:text-primary-400 hover:underline flex items-center gap-1"
+						class="text-xs text-primary dark:text-primary hover:underline flex items-center gap-1"
 						@click="$emit('reply', message)">
-						<UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+						<Icon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
 						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
 					</button>
 				</div>
@@ -110,11 +94,7 @@
 			<!-- Actions -->
 			<div class="message-actions">
 				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
-					<UButton
-						size="xs"
-						color="gray"
-						variant="ghost"
-						icon="i-heroicons-ellipsis-horizontal" />
+					<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
 				</UDropdown>
 			</div>
 		</div>
@@ -153,9 +133,7 @@ const parentAuthorAvatar = computed(() => {
 	if (!props.parentMessage) return null;
 	const author = props.parentMessage.user_created;
 	if (!author || typeof author === 'string') return null;
-	return author.avatar
-		? `${config.public.directusUrl}/assets/${author.avatar}?key=small`
-		: null;
+	return author.avatar ? `${config.public.directusUrl}/assets/${author.avatar}?key=small` : null;
 });
 
 const parentAuthorName = computed(() => {
@@ -175,9 +153,7 @@ const parentMessagePreview = computed(() => {
 const authorAvatar = computed(() => {
 	const author = props.message.user_created;
 	if (!author || typeof author === 'string') return null;
-	return author.avatar
-		? `${config.public.directusUrl}/assets/${author.avatar}?key=small`
-		: null;
+	return author.avatar ? `${config.public.directusUrl}/assets/${author.avatar}?key=small` : null;
 });
 
 const authorName = computed(() => {
@@ -323,7 +299,7 @@ const scrollToParent = () => {
 	if (props.parentMessage) {
 		const parentElement = document.querySelector(`[data-message-id="${props.parentMessage.id}"]`);
 		if (parentElement) {
-			parentElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+			parentElement.scrollIntoView({behavior: 'smooth', block: 'center'});
 			parentElement.classList.add('highlight-flash');
 			setTimeout(() => parentElement.classList.remove('highlight-flash'), 1500);
 		}
@@ -451,7 +427,9 @@ const scrollToParent = () => {
 }
 
 .message-bubble-wrapper:hover .message-bubble {
-	box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.1), 0 1px 3px -1px rgba(0, 0, 0, 0.06);
+	box-shadow:
+		0 2px 8px -2px rgba(0, 0, 0, 0.1),
+		0 1px 3px -1px rgba(0, 0, 0, 0.06);
 }
 
 :root.dark .message-bubble {
@@ -460,7 +438,9 @@ const scrollToParent = () => {
 }
 
 :root.dark .message-bubble-wrapper:hover .message-bubble {
-	box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4), 0 1px 3px -1px rgba(0, 0, 0, 0.2);
+	box-shadow:
+		0 2px 8px -2px rgba(0, 0, 0, 0.4),
+		0 1px 3px -1px rgba(0, 0, 0, 0.2);
 }
 
 .message-bubble.is-own {
@@ -550,7 +530,8 @@ const scrollToParent = () => {
 }
 
 @keyframes flash {
-	0%, 50% {
+	0%,
+	50% {
 		background-color: rgb(var(--color-primary-100));
 	}
 	100% {
@@ -563,7 +544,8 @@ const scrollToParent = () => {
 }
 
 @keyframes flash-dark {
-	0%, 50% {
+	0%,
+	50% {
 		background-color: rgb(var(--color-primary-900) / 0.3);
 	}
 	100% {

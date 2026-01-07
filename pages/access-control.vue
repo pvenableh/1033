@@ -36,7 +36,7 @@
 			<!-- Product Information Cards -->
 			<div class="grid lg:grid-cols-3 gap-8 mb-12">
 				<!-- UniFi -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+				<Card class="text-center border border-gray-300 rounded-sm bg-white">
 					<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide mb-4">UNIFI</h3>
 					<div
 						@click="showSelectedImage('0fc7187b-6e83-48e0-b3e3-45fdcf1bfca6')"
@@ -49,27 +49,27 @@
 						<NuxtImg src="ef8d28d1-7ad6-47ec-9e7a-4373ad9cb9d7" class="object-cover h-48 w-auto dark:brightness-90" />
 					</div>
 					<div class="space-y-3">
-						<UButton
+						<Button
 							color="purple"
 							variant="outline"
 							class="w-full mb-4"
 							to="https://ui.com/physical-security/door-access/intercoms"
 							target="_blank">
 							UniFi G3 Intercom
-						</UButton>
-						<UButton
+						</Button>
+						<Button
 							color="purple"
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/4d3b8941-86ce-4e66-b363-814369ecf7f5"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Swiftlane -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+				<Card class="text-center border border-gray-300 rounded-sm bg-white">
 					<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide mb-4">SWIFTLANE</h3>
 					<div
 						@click="showSelectedImage('aefbb2a4-cc01-460d-a79b-2a627e80df38')"
@@ -82,27 +82,27 @@
 						<NuxtImg src="9e63d591-d814-439a-b68f-a9de7945c979" class="object-cover h-48 w-full dark:brightness-90" />
 					</div>
 					<div class="space-y-3">
-						<UButton
+						<Button
 							color="blue"
 							variant="outline"
 							class="w-full mb-4"
 							to="https://swiftlane.com/video-intercom/"
 							target="_blank">
 							Swiftreader X INTERCOM
-						</UButton>
-						<UButton
+						</Button>
+						<Button
 							color="blue"
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/1ac95363-f78a-442f-b76b-719242771aef"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 
 				<!-- Amazon Key -->
-				<UCard class="text-center border border-gray-300 rounded-sm bg-white">
+				<Card class="text-center border border-gray-300 rounded-sm bg-white">
 					<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide mb-4">AMAZON KEY</h3>
 					<div
 						@click="showSelectedImage('f2db37c1-82cb-48c7-b3cd-162fcfbc120b')"
@@ -116,28 +116,28 @@
 					</div>
 
 					<div class="space-y-3">
-						<UButton
+						<Button
 							color="orange"
 							variant="outline"
 							class="w-full mb-4"
 							to="https://www.amazon.com/b/node=207294570011"
 							target="_blank">
 							VIEW AMAZON KEY
-						</UButton>
-						<UButton
+						</Button>
+						<Button
 							color="orange"
 							variant="solid"
 							class="w-full font-bold uppercase"
 							to="https://admin.1033lenox.com/assets/bfe9fc3a-2a1e-4aa9-851c-dda04b15d39e"
 							target="_blank">
 							📄 VIEW PROPOSAL PDF
-						</UButton>
+						</Button>
 					</div>
-				</UCard>
+				</Card>
 			</div>
 			<UModal v-model="isOpen" fullscreen>
 				<div class="p-1 !rounded-none flex items-center justify-center relative h-full w-full">
-					<UIcon
+					<Icon
 						@click="isOpen = false"
 						name="i-heroicons-x-circle"
 						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full" />
@@ -145,10 +145,10 @@
 				</div>
 			</UModal>
 			<!-- Executive Summary -->
-			<UCard class="mb-12 border border-gray-900 border-l-8 border-l-gray-900 rounded-sm bg-white">
+			<Card class="mb-12 border border-gray-900 border-l-8 border-l-gray-900 rounded-sm bg-white">
 				<template #header>
 					<div class="flex items-center gap-3">
-						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-gray-900" />
+						<Icon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-gray-900" />
 						<h2 class="text-2xl font-bold uppercase tracking-wide">EXECUTIVE SUMMARY</h2>
 					</div>
 				</template>
@@ -199,13 +199,13 @@
 						</ul>
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Requirements Matrix -->
-			<UCard class="mb-12 border border-gray-300 rounded-sm bg-white">
+			<Card class="mb-12 border border-gray-300 rounded-sm bg-white">
 				<template #header>
 					<div class="flex items-center gap-3">
-						<UIcon name="i-heroicons-check-badge" class="w-8 h-8 text-gray-900" />
+						<Icon name="i-heroicons-check-badge" class="w-8 h-8 text-gray-900" />
 						<h2 class="text-2xl font-bold uppercase tracking-wide">REQUIREMENTS COMPLIANCE</h2>
 					</div>
 				</template>
@@ -224,63 +224,63 @@
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Mobile App for Tenants</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="yellow" variant="solid" class="font-bold uppercase">Basic UniFi Identity</UBadge>
+									<Badge color="yellow" variant="solid" class="font-bold uppercase">Basic UniFi Identity</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">Comprehensive</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Comprehensive</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="orange" variant="solid" class="font-bold uppercase">Ring App Only</UBadge>
+									<Badge color="orange" variant="solid" class="font-bold uppercase">Ring App Only</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Facial Recognition</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="red" variant="solid" class="font-bold uppercase">None</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">None</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">
+									<Badge color="green" variant="solid" class="font-bold uppercase">
 										Available - $21.99/year per user
-									</UBadge>
+									</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="red" variant="solid" class="font-bold uppercase">None</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">None</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Cloud Management</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">Professional</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Professional</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">Enterprise</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="yellow" variant="solid" class="font-bold uppercase">Ring Dashboard</UBadge>
+									<Badge color="yellow" variant="solid" class="font-bold uppercase">Ring Dashboard</Badge>
 								</td>
 							</tr>
 							<tr class="border-b border-gray-200">
 								<td class="py-4 px-6 font-semibold text-gray-900">Security Concerns</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</UBadge>
+									<Badge color="green" variant="solid" class="font-bold uppercase">Enterprise Grade</Badge>
 								</td>
 								<td class="text-center py-4 px-6">
-									<UBadge color="red" variant="solid" class="font-bold uppercase">Documented Vulnerabilities</UBadge>
+									<Badge color="red" variant="solid" class="font-bold uppercase">Documented Vulnerabilities</Badge>
 								</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Cost Analysis -->
-			<UCard class="mb-12 border border-gray-300 rounded-sm bg-white">
+			<Card class="mb-12 border border-gray-300 rounded-sm bg-white">
 				<template #header>
 					<div class="flex items-center gap-3">
-						<UIcon name="i-heroicons-currency-dollar" class="w-8 h-8 text-gray-900" />
+						<Icon name="i-heroicons-currency-dollar" class="w-8 h-8 text-gray-900" />
 						<h2 class="text-2xl font-bold uppercase tracking-wide">COST BREAKDOWN ANALYSIS</h2>
 					</div>
 				</template>
@@ -293,7 +293,7 @@
 				</div>
 
 				<!-- Cumulative Cost Chart -->
-				<UCard class="mb-8 bg-white">
+				<Card class="mb-8 bg-white">
 					<template #header>
 						<h3 class="text-lg font-bold text-gray-900 uppercase tracking-wide text-center">
 							{{ timeframePeriodLabel }} CUMULATIVE COST COMPARISON
@@ -329,15 +329,15 @@
 							</span>
 						</p>
 					</div>
-				</UCard>
+				</Card>
 
 				<div class="grid lg:grid-cols-3 gap-8 mt-8">
 					<!-- UniFi System -->
-					<UCard class="border border-purple-200 rounded-sm bg-white">
+					<Card class="border border-purple-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-purple-800 uppercase tracking-wide">UNIFI SYSTEM</h3>
-								<UBadge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</UBadge>
+								<Badge color="purple" variant="solid" class="font-bold uppercase text-center">ONE-TIME ONLY</Badge>
 							</div>
 						</template>
 
@@ -379,16 +379,16 @@
 								No ongoing costs, but system may become outdated and require updates in 1-2 years
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Swiftlane System -->
-					<UCard class="border border-blue-200 rounded-sm bg-white">
+					<Card class="border border-blue-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-blue-500 uppercase tracking-wide">SWIFTLANE</h3>
-								<UBadge color="blue" variant="solid" class="font-bold uppercase text-center">
+								<Badge color="blue" variant="solid" class="font-bold uppercase text-center">
 									FACIAL RECOGNITION AVAILABLE
-								</UBadge>
+								</Badge>
 							</div>
 						</template>
 
@@ -458,16 +458,14 @@
 								<span class="font-bold text-green-600">${{ swiftlaneTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 
 					<!-- Amazon Key System -->
-					<UCard class="border border-orange-200 rounded-sm bg-white">
+					<Card class="border border-orange-200 rounded-sm bg-white">
 						<template #header>
 							<div class="flex items-start justify-between flex-col xl:flex-row">
 								<h3 class="text-lg font-bold text-orange-800 uppercase tracking-wide">AMAZON KEY</h3>
-								<UBadge color="orange" variant="solid" class="font-bold uppercase text-center">
-									LINEAR INTEGRATION
-								</UBadge>
+								<Badge color="orange" variant="solid" class="font-bold uppercase text-center">LINEAR INTEGRATION</Badge>
 							</div>
 						</template>
 
@@ -524,7 +522,7 @@
 								<span class="font-bold text-green-600">${{ amazonTotalSavings.toLocaleString() }}</span>
 							</div>
 						</div>
-					</UCard>
+					</Card>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6 hidden">
 					<UAlert
@@ -575,13 +573,13 @@
 						title="SECURITY WARNING"
 						description="Amazon Key has documented security vulnerabilities including AWS cloud service exploits and data privacy concerns. Consider security implications for building access control." />
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Detailed Feature Comparison -->
 			<UAccordion :items="accordionItems" multiple class="space-y-6" default-open>
 				<!-- Feature Comparison -->
 				<template #features>
-					<UCard class="border border-gray-300 rounded-sm bg-white">
+					<Card class="border border-gray-300 rounded-sm bg-white">
 						<div class="overflow-x-auto">
 							<table class="w-full">
 								<thead>
@@ -596,15 +594,15 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Real-Time Monitoring</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Basic activity logs</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Full real-time monitoring & alerts</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Ring app notifications only</div>
 										</td>
 									</tr>
@@ -612,17 +610,17 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Delivery Management</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Manual access only</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
 												UPS/FedEx/Amazon PIN generation + photo logging
 											</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Amazon deliveries only</div>
 										</td>
 									</tr>
@@ -630,15 +628,15 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Facial Recognition</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Not available</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">$21.99/year per user</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-x-circle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Not available</div>
 										</td>
 									</tr>
@@ -646,17 +644,17 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Security Features</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Standard security</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
 												IK10 vandal resistance + insurance, cellular fallback + loiter monitoring
 											</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Known vulnerabilities</div>
 										</td>
 									</tr>
@@ -664,15 +662,15 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Access Methods</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Mobile app, cards</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Face, Mobile, PIN, Voice, Landline</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Ring app, codes</div>
 										</td>
 									</tr>
@@ -680,15 +678,15 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Installation Type</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-wifi" class="w-6 h-6 text-blue-500 mx-auto" />
+											<Icon name="i-heroicons-wifi" class="w-6 h-6 text-blue-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Wired (PoE)</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-signal" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-signal" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Wireless/Wired + cellular backup</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-puzzle-piece" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Relies on Linear</div>
 										</td>
 									</tr>
@@ -696,63 +694,63 @@
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Monthly Costs</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">No ongoing fees</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-currency-dollar" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
 												${{ Math.round(swiftlaneProposal.subscription.monthly * discountMultiplier) }}/month (with
 												discount)
 											</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-currency-dollar" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-currency-dollar" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">$120/month (includes phone line)</div>
 										</td>
 									</tr>
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Equipment</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">100% Ownership</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-check-circle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">100% Ownership</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Amazon retains owndership</div>
 										</td>
 									</tr>
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">Data Safety</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-yellow-500 mx-auto" />
+											<Icon name="i-heroicons-shield-check" class="w-6 h-6 text-yellow-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Encrypted transmission</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-shield-check" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Enterprise-grade security</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Amazon owns all user data</div>
 										</td>
 									</tr>
 									<tr class="border-b border-gray-200">
 										<td class="py-4 px-6 font-semibold text-gray-900">3rd Party Access</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Control all access</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
+											<Icon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-green-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">Control all access</div>
 										</td>
 										<td class="text-center py-4 px-6">
-											<UIcon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-red-500 mx-auto" />
+											<Icon name="i-heroicons-arrow-right-start-on-rectangle" class="w-6 h-6 text-red-500 mx-auto" />
 											<div class="text-xs text-gray-700 mt-1 font-medium">
 												Amazon can authorize access
 												<br />
@@ -763,13 +761,13 @@
 								</tbody>
 							</table>
 						</div>
-					</UCard>
+					</Card>
 				</template>
 
 				<!-- Decision Matrix -->
 				<template #decision-matrix>
 					<div class="grid md:grid-cols-1 gap-8">
-						<UCard class="border border-blue-300 rounded-sm bg-white">
+						<Card class="border border-blue-300 rounded-sm bg-white">
 							<template #header>
 								<h3 class="text-xl font-bold text-blue-500 uppercase tracking-wide">
 									SWIFTLANE: FACIAL RECOGNITION & SECURITY LEADER
@@ -785,7 +783,7 @@
 								<div class="grid md:grid-cols-3 gap-6 mt-6">
 									<div>
 										<h4 class="font-bold text-gray-900 mb-2 uppercase tracking-wide flex items-center gap-0.5">
-											<UIcon name="i-heroicons-bolt-solid" class="w-5 h-5 text-blue-500" />
+											<Icon name="i-heroicons-bolt-solid" class="w-5 h-5 text-blue-500" />
 											SWIFTLANE ADVANTAGES
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
@@ -793,7 +791,7 @@
 												•
 
 												<span><strong>Only facial recognition option</strong></span>
-												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-yellow-400 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• IK10 vandal-resistant rating</li>
 											<li>• Loiter monitoring with AI alerts</li>
@@ -802,7 +800,7 @@
 												•
 
 												<span>No phone line required (saves $40/month)</span>
-												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-300 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-300 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• 15% discount for 5-year commitment</li>
 										</ul>
@@ -827,7 +825,7 @@
 											</li>
 											<li class="flex items-start gap-0.5">
 												• Phone line savings: $2,400 over 5 years
-												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 											</li>
 										</ul>
 									</div>
@@ -843,10 +841,10 @@
 									</div>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 
 						<div class="grid md:grid-cols-3 gap-8 mt-8 hidden">
-							<UCard class="border border-purple-300 rounded-sm bg-white">
+							<Card class="border border-purple-300 rounded-sm bg-white">
 								<template #header>
 									<h3 class="text-xl font-bold text-purple-800 uppercase tracking-wide">BUDGET CHOICE: UNIFI G3</h3>
 								</template>
@@ -858,28 +856,28 @@
 
 									<div>
 										<h4 class="font-bold text-gray-900 mb-2 uppercase tracking-wide flex items-center gap-0.5">
-											<UIcon name="i-heroicons-check-circle" class="w-5 h-5 text-green-500" />
+											<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-500" />
 											ADVANTAGES
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 											<li class="flex items-start gap-0.5">
 												• Lowest total cost ($4,875)
-												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• No monthly fees</li>
 											<li>• No phone line required</li>
 											<li class="flex items-start gap-0.5">
 												• Saves $40/month vs Amazon Key
-												<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-bolt-solid" class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
 											</li>
 											<li>• Enterprise-grade security</li>
 											<li>• Installation included</li>
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
-							<UCard class="border border-orange-300 rounded-sm bg-white">
+							<Card class="border border-orange-300 rounded-sm bg-white">
 								<template #header>
 									<h3 class="text-xl font-bold text-orange-800 uppercase tracking-wide">
 										LINEAR INTEGRATION: AMAZON KEY
@@ -893,7 +891,7 @@
 
 									<div>
 										<h4 class="font-bold text-gray-900 mb-2 uppercase tracking-wide flex items-center gap-0.5">
-											<UIcon name="i-heroicons-check-circle" class="w-5 h-5 text-green-500" />
+											<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-500" />
 											ADVANTAGES
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
@@ -903,7 +901,7 @@
 											<li>• Ring app convenience</li>
 										</ul>
 										<h4 class="font-bold text-gray-900 mb-2 mt-4 uppercase tracking-wide flex items-center gap-0.5">
-											<UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-500" />
+											<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-500" />
 											ONGOING COSTS
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
@@ -911,16 +909,16 @@
 											<li>• $40/month phone line</li>
 											<li class="flex items-start gap-0.5">
 												• Total: $120/month
-												<UIcon
+												<Icon
 													name="i-heroicons-exclamation-triangle-solid"
 													class="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
 											</li>
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 
-							<UCard class="border border-green-300 rounded-sm bg-white">
+							<Card class="border border-green-300 rounded-sm bg-white">
 								<template #header>
 									<h3 class="text-xl font-bold text-green-800 uppercase tracking-wide">MONTHLY SAVINGS</h3>
 								</template>
@@ -932,7 +930,7 @@
 
 									<div>
 										<h4 class="font-bold text-gray-900 mb-2 uppercase tracking-wide flex items-center gap-0.5">
-											<UIcon name="i-heroicons-currency-dollar" class="w-5 h-5 text-green-500" />
+											<Icon name="i-heroicons-currency-dollar" class="w-5 h-5 text-green-500" />
 											PHONE LINE SAVINGS
 										</h4>
 										<ul class="space-y-1 text-sm text-gray-900 font-semibold">
@@ -941,15 +939,15 @@
 											<li>• Amazon Key: $40/month phone line</li>
 											<li class="flex items-start gap-0.5">
 												• 5-year savings: $2,400
-												<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
+												<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
 											</li>
 										</ul>
 									</div>
 								</div>
-							</UCard>
+							</Card>
 						</div>
 
-						<UCard class="mt-8 border border-gray-300 rounded-sm bg-white">
+						<Card class="mt-8 border border-gray-300 rounded-sm bg-white">
 							<template #header>
 								<h4 class="font-bold text-gray-900 uppercase tracking-wide">RECOMMENDATION MATRIX:</h4>
 							</template>
@@ -959,23 +957,23 @@
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li class="flex items-start gap-0.5">
 											• Facial recognition is important to you
-											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-bolt-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• You want the highest security features
-											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• You want the lowest subscription plan
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li class="flex items-start gap-0.5">
 											• You want to eliminate phone line costs
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Advanced video monitoring is needed
-											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
 										</li>
 									</ul>
 								</div>
@@ -984,23 +982,23 @@
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li class="flex items-start gap-0.5">
 											• Budget is the primary concern
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• You prefer one-time payment
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Basic intercom features are sufficient
-											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• You want enterprise-grade security
-											<UIcon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-shield-check-solid" class="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• No ongoing monthly fees preferred
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-green-400 mt-0.5 flex-shrink-0" />
 										</li>
 									</ul>
 								</div>
@@ -1009,35 +1007,35 @@
 									<ul class="space-y-1 text-sm text-gray-900 font-semibold">
 										<li>
 											• You want to keep anitquated Linear system
-											<UIcon name="i-heroicons-cog-solid" class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-cog-solid" class="w-4 h-4 text-yellow-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Budget allows for higher monthly costs
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Ring app convenience appeals to residents
-											<UIcon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-bolt-solid" class="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• You can accept ongoing phone line costs
-											<UIcon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
+											<Icon name="i-heroicons-star-solid" class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
 										</li>
 										<li>
 											• Security/privacy trade-offs are acceptable
-											<UIcon
+											<Icon
 												name="i-heroicons-shield-exclamation-solid"
 												class="w-4 h-4 text-red-400 mt-0.5 flex-shrink-0" />
 										</li>
 									</ul>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 						<!-- Security & Service Quality Concerns -->
-						<UCard class="mb-12 border border-red-300 rounded-sm bg-white">
+						<Card class="mb-12 border border-red-300 rounded-sm bg-white">
 							<template #header>
 								<div class="flex items-center gap-3">
-									<UIcon name="i-heroicons-shield-exclamation" class="w-8 h-8 text-red-600" />
+									<Icon name="i-heroicons-shield-exclamation" class="w-8 h-8 text-red-600" />
 									<h2 class="text-2xl font-bold uppercase tracking-wide text-red-800">AMAZON KEY SECURITY CONCERNS</h2>
 								</div>
 							</template>
@@ -1094,7 +1092,7 @@
 									</ul>
 								</div>
 							</div>
-						</UCard>
+						</Card>
 					</div>
 				</template>
 			</UAccordion>

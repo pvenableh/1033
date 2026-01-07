@@ -9,7 +9,7 @@
 					:class="{
 						occupied: getSpotInfo(n)?.vehicles.length > 0,
 						'user-spot': isUserSpot(n),
-						restricted: !canViewSpotDetails(n)
+						restricted: !canViewSpotDetails(n),
 					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
@@ -17,8 +17,8 @@
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
-					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
-					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
+					<Icon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<Icon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -29,7 +29,7 @@
 					:class="{
 						occupied: getSpotInfo(n)?.vehicles.length > 0,
 						'user-spot': isUserSpot(n),
-						restricted: !canViewSpotDetails(n)
+						restricted: !canViewSpotDetails(n),
 					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
@@ -37,8 +37,8 @@
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
-					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
-					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
+					<Icon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<Icon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -49,7 +49,7 @@
 					:class="{
 						occupied: getSpotInfo(n)?.vehicles.length > 0,
 						'user-spot': isUserSpot(n),
-						restricted: !canViewSpotDetails(n)
+						restricted: !canViewSpotDetails(n),
 					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
@@ -57,8 +57,8 @@
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
-					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
-					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
+					<Icon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<Icon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="column">
@@ -69,7 +69,7 @@
 					:class="{
 						occupied: getSpotInfo(n)?.vehicles.length > 0,
 						'user-spot': isUserSpot(n),
-						restricted: !canViewSpotDetails(n)
+						restricted: !canViewSpotDetails(n),
 					}"
 					@click="showSpotDetails(n)">
 					<span class="spot__number">{{ n }}</span>
@@ -77,8 +77,8 @@
 						<span v-if="getSpotInfo(n)" class="spot__label">Unit {{ getSpotInfo(n)?.unit }}</span>
 						<span class="spot__vehicles">{{ getSpotInfo(n)?.vehicles.length }} Vehicles</span>
 					</div>
-					<UIcon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
-					<UIcon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
+					<Icon v-if="!canViewSpotDetails(n)" name="i-heroicons-lock-closed" class="spot__lock" />
+					<Icon v-else-if="isUserSpot(n)" name="i-heroicons-star" class="spot__user-indicator" />
 				</div>
 			</div>
 			<div class="center-area">
@@ -94,7 +94,7 @@
 			v-if="isSpotDetailsVisible"
 			class="spot-details transition-transform duration-300 ease-out uppercase">
 			<div class="spot-details__inner">
-				<UButton
+				<Button
 					icon="heroicons:x-mark"
 					@click="closeSpotDetails"
 					variant="ghost"
@@ -131,14 +131,14 @@
 										class="absolute left-[16px] -top-[13px] text-[9px] leading-[9px] font-bold uppercase border-b border-gray-600 pr-4 py-0.5">
 										{{ vehicle.category }}
 									</span>
-									<UButton
+									<Button
 										size="xs"
 										class="block padding-0 scale-75"
 										variant="outline"
 										label="image"
 										color="primary"
 										:ui="{rounded: 'rounded-full'}"
-										@click.prevent="showVehicleImage(vehicle.image)"></UButton>
+										@click.prevent="showVehicleImage(vehicle.image)"></Button>
 								</div>
 							</div>
 						</div>
@@ -159,7 +159,7 @@
 							</span>
 							<p class="mr-1 leading-4">{{ resident.first_name }} {{ resident.last_name }}</p>
 
-							<UButton
+							<Button
 								v-if="resident.email"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center mr-1"
@@ -168,7 +168,7 @@
 								target="_blank"
 								icon="heroicons:envelope"
 								size="xs" />
-							<UButton
+							<Button
 								v-if="resident.phone"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center"
@@ -177,7 +177,7 @@
 								target="_blank"
 								icon="heroicons:phone"
 								size="xs" />
-							<UButton
+							<Button
 								v-if="resident.phone"
 								variant="ghost"
 								class="h-5 w-5 flex items-center justify-center"
@@ -355,6 +355,7 @@ onClickOutside(spotDetailsRef, () => {
 </script>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .parking-lot-container {
 	display: flex;
 	justify-content: center;

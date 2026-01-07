@@ -1,8 +1,8 @@
 <template>
 	<div class="w-full flex items-start justify-start flex-row password-request">
-		<UForm :validate="validate" :state="state" class="w-full" @submit="submit">
-			<UFormGroup label="Email" name="email" class="my-6">
-				<UInput
+		<Form :validate="validate" :state="state" class="w-full" @submit="submit">
+			<FormGroup label="Email" name="email" class="my-6">
+				<Input
 					v-model="state.email"
 					name="email"
 					type="email"
@@ -15,18 +15,18 @@
 				<template #error="{error}">
 					<span
 						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']">
+						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary dark:text-primary']">
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
 			</UFormGroup>
-			<UButton
+			<Button
 				class="w-full mb-6"
 				type="submit"
 				size="lg"
 				label="Send Email"
 				trailing-icon="i-heroicons-arrow-right"
-				block></UButton>
+				block></Button>
 		</UForm>
 	</div>
 </template>

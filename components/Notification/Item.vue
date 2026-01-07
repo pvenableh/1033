@@ -3,16 +3,12 @@
 		class="notification-item group relative px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
 		:class="{'bg-blue-50/50 dark:bg-blue-900/10': !isRead}">
 		<!-- Unread indicator -->
-		<div
-			v-if="!isRead"
-			class="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
+		<div v-if="!isRead" class="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
 
 		<div class="flex items-start gap-3">
 			<!-- Icon based on notification type -->
-			<div
-				class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center"
-				:class="iconBgClass">
-				<UIcon :name="iconName" class="w-4 h-4" :class="iconColorClass" />
+			<div class="flex-shrink-0 w-9 h-9 rounded-full flex items-center justify-center" :class="iconBgClass">
+				<Icon :name="iconName" class="w-4 h-4" :class="iconColorClass" />
 			</div>
 
 			<!-- Content -->
@@ -20,9 +16,7 @@
 				<p class="text-sm font-medium text-gray-900 dark:text-white truncate">
 					{{ notification.subject }}
 				</p>
-				<p
-					v-if="notification.message"
-					class="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
+				<p v-if="notification.message" class="text-xs text-gray-600 dark:text-gray-400 mt-0.5 line-clamp-2">
 					{{ notification.message }}
 				</p>
 				<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">
@@ -37,35 +31,31 @@
 					@click.stop="$emit('markAsRead', notification.id)"
 					class="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
 					title="Mark as read">
-					<UIcon name="i-heroicons-check" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+					<Icon name="i-heroicons-check" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 				</button>
 				<button
 					v-else
 					@click.stop="$emit('markAsUnread', notification.id)"
 					class="p-1.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
 					title="Mark as unread">
-					<UIcon name="i-heroicons-envelope" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
+					<Icon name="i-heroicons-envelope" class="w-4 h-4 text-gray-500 dark:text-gray-400" />
 				</button>
 				<button
 					@click.stop="$emit('delete', notification.id)"
 					class="p-1.5 rounded-full hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
 					title="Delete">
-					<UIcon name="i-heroicons-trash" class="w-4 h-4 text-gray-500 hover:text-red-500 dark:text-gray-400" />
+					<Icon name="i-heroicons-trash" class="w-4 h-4 text-gray-500 hover:text-red-500 dark:text-gray-400" />
 				</button>
 			</div>
 		</div>
 
 		<!-- Click target for navigation -->
-		<nuxt-link
-			v-if="linkTo"
-			:to="linkTo"
-			class="absolute inset-0"
-			@click="handleClick" />
+		<nuxt-link v-if="linkTo" :to="linkTo" class="absolute inset-0" @click="handleClick" />
 	</div>
 </template>
 
 <script setup lang="ts">
-import type { DirectusNotification } from '~/composables/useDirectusNotifications';
+import type {DirectusNotification} from '~/composables/useDirectusNotifications';
 
 const props = defineProps<{
 	notification: DirectusNotification;
@@ -167,7 +157,7 @@ const iconColorClass = computed(() => {
 
 // Computed: link destination based on collection and item
 const linkTo = computed(() => {
-	const { collection, item } = props.notification;
+	const {collection, item} = props.notification;
 
 	if (!collection || !item) return null;
 

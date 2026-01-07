@@ -14,32 +14,22 @@
 			class="w-full max-w-md">
 			<!-- Success State -->
 			<div v-if="success" class="text-center">
-				<UIcon name="i-heroicons-check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4" />
+				<Icon name="i-heroicons-check-circle" class="w-16 h-16 text-green-500 mx-auto mb-4" />
 				<h2 class="text-2xl font-bold mb-2">Welcome to 1033 Lenox!</h2>
 				<p class="text-gray-600 dark:text-gray-400 mb-6">
 					Your account has been set up successfully. You can now sign in with your new password.
 				</p>
-				<UButton
-					to="/auth/signin"
-					size="lg"
-					label="Sign In"
-					trailing-icon="i-heroicons-arrow-right"
-					block />
+				<Button to="/auth/signin" size="lg" label="Sign In" trailing-icon="i-heroicons-arrow-right" block />
 			</div>
 
 			<!-- Expired Token State -->
 			<div v-else-if="!isValid" class="text-center">
-				<UIcon name="i-heroicons-exclamation-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4" />
+				<Icon name="i-heroicons-exclamation-triangle" class="w-16 h-16 text-amber-500 mx-auto mb-4" />
 				<h2 class="text-2xl font-bold mb-2">Link Expired</h2>
 				<p class="text-gray-600 dark:text-gray-400 mb-6">
 					This invitation link has expired. Please contact an administrator to request a new invitation.
 				</p>
-				<UButton
-					to="/auth/signin"
-					size="lg"
-					variant="outline"
-					label="Go to Sign In"
-					block />
+				<Button to="/auth/signin" size="lg" variant="outline" label="Go to Sign In" block />
 			</div>
 
 			<!-- Form State -->
@@ -47,11 +37,11 @@
 				<div class="text-center mb-8">
 					<h2 class="text-2xl font-bold mb-2">Set Your Password</h2>
 					<p class="text-gray-600 dark:text-gray-400">
-						Welcome, <span class="font-medium">{{ decodedEmail }}</span>!
+						Welcome,
+						<span class="font-medium">{{ decodedEmail }}</span>
+						!
 					</p>
-					<p class="text-xs text-gray-500 dark:text-gray-500 mt-1">
-						Link expires {{ getRelativeTime(expiresAt) }}
-					</p>
+					<p class="text-xs text-gray-500 dark:text-gray-500 mt-1">Link expires {{ getRelativeTime(expiresAt) }}</p>
 				</div>
 
 				<UAlert
@@ -64,9 +54,9 @@
 					{{ error }}
 				</UAlert>
 
-				<UForm :validate="validate" :state="state" class="grid gap-4" @submit="handleSubmit">
-					<UFormGroup label="Password" name="password" required>
-						<UInput
+				<Form :validate="validate" :state="state" class="grid gap-4" @submit="handleSubmit">
+					<FormGroup label="Password" name="password" required>
+						<Input
 							v-model="state.password"
 							type="password"
 							size="lg"
@@ -75,8 +65,8 @@
 							placeholder="Enter your password" />
 					</UFormGroup>
 
-					<UFormGroup label="Confirm Password" name="confirmPassword" required>
-						<UInput
+					<FormGroup label="Confirm Password" name="confirmPassword" required>
+						<Input
 							v-model="state.confirmPassword"
 							type="password"
 							size="lg"
@@ -85,11 +75,9 @@
 							placeholder="Confirm your password" />
 					</UFormGroup>
 
-					<div class="text-xs text-gray-500 dark:text-gray-400">
-						Password must be at least 8 characters long.
-					</div>
+					<div class="text-xs text-gray-500 dark:text-gray-400">Password must be at least 8 characters long.</div>
 
-					<UButton
+					<Button
 						type="submit"
 						:loading="loading"
 						:disabled="!state.password || !state.confirmPassword"
@@ -104,8 +92,8 @@
 </template>
 
 <script setup lang="ts">
-import { jwtDecode } from 'jwt-decode';
-import type { FormError } from '#ui/types';
+import {jwtDecode} from 'jwt-decode';
+import type {FormError} from '#ui/types';
 
 definePageMeta({
 	layout: 'auth',
@@ -128,7 +116,7 @@ const token = computed(() => (route.query.token as string) || '');
 const decodedToken = computed(() => {
 	if (!token.value) return null;
 	try {
-		return jwtDecode<{ email: string; exp: number }>(token.value);
+		return jwtDecode<{email: string; exp: number}>(token.value);
 	} catch {
 		return null;
 	}
@@ -150,15 +138,15 @@ const validate = (state: any): FormError[] => {
 	const errors: FormError[] = [];
 
 	if (!state.password) {
-		errors.push({ path: 'password', message: 'Password is required' });
+		errors.push({path: 'password', message: 'Password is required'});
 	} else if (state.password.length < 8) {
-		errors.push({ path: 'password', message: 'Password must be at least 8 characters' });
+		errors.push({path: 'password', message: 'Password must be at least 8 characters'});
 	}
 
 	if (!state.confirmPassword) {
-		errors.push({ path: 'confirmPassword', message: 'Please confirm your password' });
+		errors.push({path: 'confirmPassword', message: 'Please confirm your password'});
 	} else if (state.password !== state.confirmPassword) {
-		errors.push({ path: 'confirmPassword', message: 'Passwords do not match' });
+		errors.push({path: 'confirmPassword', message: 'Passwords do not match'});
 	}
 
 	return errors;

@@ -476,7 +476,7 @@ function getUtilityIcon(type: string): string {
 			<span class="weather__divider">/</span>
 			<span class="weather__condition">{{ weather!.weather[0].main }}</span>
 			<span class="weather__icon">
-				<UIcon :name="generateIconClass(weather!)" />
+				<Icon :name="generateIconClass(weather!)" />
 			</span>
 		</div>
 
@@ -489,13 +489,13 @@ function getUtilityIcon(type: string): string {
 		<!-- Detailed variant: adds all weather data -->
 		<div v-if="variant === 'detailed'" class="weather__details text-cream uppercase">
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('humidity')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('humidity')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Humidity</span>
 				<span class="weather__detail-value">{{ weather!.main.humidity }}%</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('wind')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('wind')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Wind</span>
 				<span class="weather__detail-value">
 					{{ roundTo(weather!.wind.speed, 0) }} {{ unitSymbols.speed }}
@@ -504,25 +504,25 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div v-if="weather!.wind.gust" class="weather__detail">
-				<UIcon :name="getUtilityIcon('gust')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('gust')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Gusts</span>
 				<span class="weather__detail-value">{{ roundTo(weather!.wind.gust, 0) }} {{ unitSymbols.speed }}</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('pressure')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('pressure')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Pressure</span>
 				<span class="weather__detail-value">{{ weather!.main.pressure }} hPa</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('visibility')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('visibility')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Visibility</span>
 				<span class="weather__detail-value">{{ formatVisibility(weather!.visibility) }}</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('thermometer')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('thermometer')" class="weather__detail-icon" />
 				<span class="weather__detail-label">High / Low</span>
 				<span class="weather__detail-value">
 					{{ formatTemp(weather!.main.temp_max) }} / {{ formatTemp(weather!.main.temp_min) }}
@@ -530,32 +530,32 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('sunrise')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('sunrise')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Sunrise</span>
 				<span class="weather__detail-value">{{ formatTime(weather!.sys.sunrise, weather!.timezone) }}</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('sunset')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('sunset')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Sunset</span>
 				<span class="weather__detail-value">{{ formatTime(weather!.sys.sunset, weather!.timezone) }}</span>
 			</div>
 
 			<div class="weather__detail">
-				<UIcon :name="getUtilityIcon('cloud')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('cloud')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Cloud Cover</span>
 				<span class="weather__detail-value">{{ weather!.clouds.all }}%</span>
 			</div>
 
 			<!-- Precipitation (if any) -->
 			<div v-if="weather!.rain?.['1h']" class="weather__detail">
-				<UIcon :name="getUtilityIcon('rain')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('rain')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Rain (1h)</span>
 				<span class="weather__detail-value">{{ weather!.rain['1h'] }} mm</span>
 			</div>
 
 			<div v-if="weather!.snow?.['1h']" class="weather__detail">
-				<UIcon :name="getUtilityIcon('snow')" class="weather__detail-icon" />
+				<Icon :name="getUtilityIcon('snow')" class="weather__detail-icon" />
 				<span class="weather__detail-label">Snow (1h)</span>
 				<span class="weather__detail-value">{{ weather!.snow['1h'] }} mm</span>
 			</div>
@@ -569,12 +569,13 @@ function getUtilityIcon(type: string): string {
 
 	<!-- Error State -->
 	<div v-else class="weather weather--error">
-		<UIcon :name="animated ? 'i-meteocons-not-available-fill' : 'i-wi-na'" class="weather__error-icon" />
+		<Icon :name="animated ? 'i-meteocons-not-available-fill' : 'i-wi-na'" class="weather__error-icon" />
 		<span class="weather__error-text">Weather unavailable</span>
 	</div>
 </template>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .weather {
 	--weather-accent: hwb(39 26% 38%);
 	--weather-icon-size: 1.25rem;

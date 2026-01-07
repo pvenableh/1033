@@ -28,7 +28,7 @@ const avatar = computed(() => {
 </script>
 <template>
 	<div class="w-full relative flex items-start justify-start flex-row pb-3 comment">
-		<UAvatar
+		<Avatar
 			class="comment__user-avatar"
 			size="xs"
 			:src="avatar"
@@ -49,6 +49,7 @@ const avatar = computed(() => {
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .comment {
 	&__user-avatar {
 		@apply mr-2;

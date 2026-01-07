@@ -80,7 +80,7 @@ const mailtoLink = computed(() => {
 		</div>
 		<UModal v-model="isOpen" fullscreen>
 			<div class="w-full h-full flex items-center justify-center flex-col p-2 lg:p-12 relative" @click="isOpen = false">
-				<UIcon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
+				<Icon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 				<h5 class="w-full uppercase font-bold mt-3 leading-4 max-w-[1200px]">
 					<span class="opacity-50">DESIGN:</span>
 					{{ selectedImage.title }}
@@ -116,7 +116,7 @@ const mailtoLink = computed(() => {
 					:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 					:alt="item.title"
 					class="w-full" />
-				<UIcon
+				<Icon
 					name="i-heroicons-magnifying-glass-plus"
 					class="text-white cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 			</div>
@@ -149,14 +149,14 @@ const mailtoLink = computed(() => {
 						<span class="">per unit</span>
 					</li>
 				</ul>
-				<!-- <UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
+				<!-- <Button color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
 					Vote for {{ item.title }}
-				</UButton> -->
+				</Button> -->
 			</div>
 		</div>
 		<!-- <UModal v-model="isVoteOpen">
 			<div class="py-8 px-6 relative">
-				<UIcon
+				<Icon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
 					@click="toggleVote()"
@@ -191,14 +191,15 @@ const mailtoLink = computed(() => {
 					<span class="text-red-500">{{ selectedItem.extra_cost }}.</span>
 				</p>
 				<p class="text-sm mb-4">Click the button below to send your vote by email to the board.</p>
-				<UButton :to="mailtoLink" color="sky" class="tracking-wide">
+				<Button :to="mailtoLink" color="sky" class="tracking-wide">
 					Send Email Vote for {{ selectedItem.title }}
-				</UButton>
+				</Button>
 			</div>
 		</UModal> -->
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__item {
 		@apply px-4;

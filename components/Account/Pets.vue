@@ -196,42 +196,42 @@ function getStatusBadge(status: string) {
   <div class="w-full">
     <div class="flex items-center justify-between mb-6">
       <h2 class="!mt-0 !mb-0">My Pets</h2>
-      <UButton
+      <Button
         v-if="defaultUnitId"
         icon="i-heroicons-plus"
         size="sm"
         @click="openAddModal">
         Add Pet
-      </UButton>
+      </Button>
     </div>
 
     <div v-if="unitsPending" class="text-center py-8 text-gray-500">
-      <UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+      <Icon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
       <p>Loading pets...</p>
     </div>
 
     <div v-else-if="errorMessage" class="text-center py-8">
-      <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+      <Icon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
       <p class="text-red-600 mb-2">{{ errorMessage }}</p>
-      <UButton variant="soft" size="sm" @click="refreshUnits()">
+      <Button variant="soft" size="sm" @click="refreshUnits()">
         Try Again
-      </UButton>
+      </Button>
     </div>
 
     <div v-else-if="pets.length === 0" class="text-center py-8 text-gray-500">
-      <UIcon name="i-heroicons-heart" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+      <Icon name="i-heroicons-heart" class="w-12 h-12 mx-auto mb-4 opacity-50" />
       <p>No pets registered yet.</p>
-      <UButton
+      <Button
         v-if="defaultUnitId"
         variant="soft"
         class="mt-4"
         @click="openAddModal">
         Add Your First Pet
-      </UButton>
+      </Button>
     </div>
 
     <div v-else class="grid gap-4 md:grid-cols-2">
-      <UCard v-for="pet in pets" :key="pet.id" class="relative">
+      <Card v-for="pet in pets" :key="pet.id" class="relative">
         <div class="flex items-start gap-4">
           <div class="flex-shrink-0">
             <NuxtImg
@@ -242,19 +242,19 @@ function getStatusBadge(status: string) {
               height="80"
               class="w-20 h-20 rounded-lg object-cover" />
             <div v-else class="w-20 h-20 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-              <UIcon :name="getPetIcon(pet.category)" class="w-8 h-8 text-gray-400" />
+              <Icon :name="getPetIcon(pet.category)" class="w-8 h-8 text-gray-400" />
             </div>
           </div>
 
           <div class="flex-1 min-w-0">
             <div class="flex items-center gap-2 mb-1">
               <h3 class="font-semibold">{{ pet.name || 'Unnamed Pet' }}</h3>
-              <UBadge
+              <Badge
                 :color="getStatusBadge(pet.status).color"
                 variant="soft"
                 size="xs">
                 {{ getStatusBadge(pet.status).label }}
-              </UBadge>
+              </Badge>
             </div>
             <p class="text-sm text-gray-500">{{ pet.category }} {{ pet.breed ? `- ${pet.breed}` : '' }}</p>
             <p v-if="pet.weight" class="text-xs text-gray-400">{{ pet.weight }}</p>
@@ -268,23 +268,23 @@ function getStatusBadge(status: string) {
                 { label: 'Remove', icon: 'i-heroicons-trash', click: () => deletePet(pet) },
               ],
             ]">
-            <UButton
+            <Button
               color="gray"
               variant="ghost"
               icon="i-heroicons-ellipsis-vertical"
               size="xs" />
           </UDropdown>
         </div>
-      </UCard>
+      </Card>
     </div>
 
     <!-- Add/Edit Modal -->
     <UModal v-model="showModal">
-      <UCard>
+      <Card>
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="font-semibold">{{ isEditing ? 'Edit Pet' : 'Add Pet' }}</h3>
-            <UButton
+            <Button
               color="gray"
               variant="ghost"
               icon="i-heroicons-x-mark"
@@ -293,20 +293,20 @@ function getStatusBadge(status: string) {
         </template>
 
         <div class="space-y-4">
-          <UFormGroup label="Name">
-            <UInput v-model="editingPet.name" placeholder="Pet's name" />
+          <FormGroup label="Name">
+            <Input v-model="editingPet.name" placeholder="Pet's name" />
           </UFormGroup>
 
-          <UFormGroup label="Category">
+          <FormGroup label="Category">
             <USelectMenu v-model="editingPet.category" :options="petCategories" />
           </UFormGroup>
 
-          <UFormGroup label="Breed">
-            <UInput v-model="editingPet.breed" placeholder="e.g., Golden Retriever" />
+          <FormGroup label="Breed">
+            <Input v-model="editingPet.breed" placeholder="e.g., Golden Retriever" />
           </UFormGroup>
 
-          <UFormGroup label="Weight">
-            <UInput v-model="editingPet.weight" placeholder="e.g., 25 lbs" />
+          <FormGroup label="Weight">
+            <Input v-model="editingPet.weight" placeholder="e.g., 25 lbs" />
           </UFormGroup>
         </div>
 
@@ -316,16 +316,16 @@ function getStatusBadge(status: string) {
               New pets and updates require admin approval before they appear as approved.
             </p>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showModal = false">
+              <Button color="gray" variant="ghost" @click="showModal = false">
                 Cancel
-              </UButton>
-              <UButton :loading="loading" @click="savePet">
+              </Button>
+              <Button :loading="loading" @click="savePet">
                 {{ isEditing ? 'Save Changes' : 'Add Pet' }}
-              </UButton>
+              </Button>
             </div>
           </div>
         </template>
-      </UCard>
+      </Card>
     </UModal>
   </div>
 </template>

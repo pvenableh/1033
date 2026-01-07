@@ -91,7 +91,7 @@ function getIcon(): string {
 			<span class="text-cream">Board Meetings Yearly</span>
 			<span
 				class="glass-widget__icon h-8 w-8 rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700">
-				<UIcon :name="getIcon()" />
+				<Icon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -106,25 +106,25 @@ function getIcon(): string {
 			v-if="variant === 'detailed'"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-calendar" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-calendar" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">This Year</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ thisYearCount }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-chart-bar" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-chart-bar" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Total</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ totalMeetings }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-clock" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-clock" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Avg Per Year</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ meetingsPerYear }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<UIcon name="i-heroicons-check-badge" class="glass-widget__detail-icon text-sm shrink-0" />
+				<Icon name="i-heroicons-check-badge" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Governance</span>
 				<span class="ml-auto font-medium text-cream uppercase">Active</span>
 			</div>
@@ -133,7 +133,7 @@ function getIcon(): string {
 
 	<!-- Error/Empty State -->
 	<div v-else class="glass-widget flex flex-row items-center gap-2 text-cream uppercase px-8 py-4">
-		<UIcon name="i-heroicons-calendar-days" class="text-lg" />
+		<Icon name="i-heroicons-calendar-days" class="text-lg" />
 		<span class="text-xs">Meeting data unavailable</span>
 	</div>
 </template>

@@ -22,9 +22,9 @@
 			Error: {{ login_error }}
 		</UAlert>
 
-		<UForm :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
-			<UFormGroup label="Email" name="email">
-				<UInput
+		<Form :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
+			<FormGroup label="Email" name="email">
+				<Input
 					v-model="state.email"
 					name="email"
 					label="Email"
@@ -37,13 +37,13 @@
 				<template #error="{error}">
 					<span
 						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']">
+						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary dark:text-primary']">
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
 			</UFormGroup>
-			<UFormGroup label="Password" required>
-				<UInput
+			<FormGroup label="Password" required>
+				<Input
 					v-model="state.password"
 					type="password"
 					size="lg"
@@ -53,7 +53,7 @@
 					label="Password"
 					placeholder="********" />
 			</UFormGroup>
-			<UButton
+			<Button
 				type="submit"
 				:loading="loading"
 				:disabled="!state.email"
@@ -116,7 +116,7 @@ async function attemptLogin() {
 
 	try {
 		// Pass email and password as an object
-		await login({ email: state.email, password: state.password });
+		await login({email: state.email, password: state.password});
 
 		if (route.query.redirect) {
 			const path = decodeURIComponent(route.query.redirect as string);
