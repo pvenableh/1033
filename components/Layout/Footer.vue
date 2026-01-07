@@ -59,7 +59,6 @@
 const {user, logout} = useDirectusAuth();
 </script>
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .footer {
 	position: relative;
 	z-index: 10;

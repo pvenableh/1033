@@ -405,7 +405,7 @@ function getUtilityIcon(type: string): string {
 			<span
 				class="glass-widget__icon rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700"
 				:class="compact ? 'h-6 w-6 text-xs' : 'h-8 w-8'">
-				<Icon :name="generateIconClass(weather!)" />
+				<UIcon :name="generateIconClass(weather!)" />
 			</span>
 		</div>
 
@@ -426,13 +426,13 @@ function getUtilityIcon(type: string): string {
 			v-if="variant === 'detailed' && !compact"
 			class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('humidity')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('humidity')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Humidity</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ weather!.main.humidity }}%</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('wind')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('wind')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Wind</span>
 				<span class="ml-auto font-medium text-cream uppercase">
 					{{ roundTo(weather!.wind.speed, 0) }} {{ unitSymbols.speed }} {{ getWindDirection(weather!.wind.deg) }}
@@ -440,7 +440,7 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div v-if="weather!.wind.gust" class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('gust')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('gust')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Gusts</span>
 				<span class="ml-auto font-medium text-cream uppercase">
 					{{ roundTo(weather!.wind.gust, 0) }} {{ unitSymbols.speed }}
@@ -448,19 +448,19 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('pressure')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('pressure')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Pressure</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ weather!.main.pressure }} hPa</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('visibility')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('visibility')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Visibility</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ formatVisibility(weather!.visibility) }}</span>
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('thermometer')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('thermometer')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">High / Low</span>
 				<span class="ml-auto font-medium text-cream uppercase">
 					{{ formatTemp(weather!.main.temp_max) }} / {{ formatTemp(weather!.main.temp_min) }}
@@ -468,7 +468,7 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('sunrise')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('sunrise')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Sunrise</span>
 				<span class="ml-auto font-medium text-cream uppercase">
 					{{ formatTime(weather!.sys.sunrise, weather!.timezone) }}
@@ -476,7 +476,7 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('sunset')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('sunset')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Sunset</span>
 				<span class="ml-auto font-medium text-cream uppercase">
 					{{ formatTime(weather!.sys.sunset, weather!.timezone) }}
@@ -484,20 +484,20 @@ function getUtilityIcon(type: string): string {
 			</div>
 
 			<div class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('cloud')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('cloud')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Cloud Cover</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ weather!.clouds.all }}%</span>
 			</div>
 
 			<!-- Precipitation (if any) -->
 			<div v-if="weather!.rain?.['1h']" class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('rain')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('rain')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Rain (1h)</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ weather!.rain['1h'] }} mm</span>
 			</div>
 
 			<div v-if="weather!.snow?.['1h']" class="flex items-center gap-1.5 text-[11px]">
-				<Icon :name="getUtilityIcon('snow')" class="glass-widget__detail-icon text-sm shrink-0" />
+				<UIcon :name="getUtilityIcon('snow')" class="glass-widget__detail-icon text-sm shrink-0" />
 				<span class="text-cream uppercase">Snow (1h)</span>
 				<span class="ml-auto font-medium text-cream uppercase">{{ weather!.snow['1h'] }} mm</span>
 			</div>
@@ -509,7 +509,7 @@ function getUtilityIcon(type: string): string {
 		v-else
 		class="glass-widget flex-row items-center gap-2 text-cream uppercase"
 		:class="compact ? 'px-4 py-2' : 'px-6 py-3'">
-		<Icon :name="animated ? 'i-meteocons-not-available-fill' : 'i-wi-na'" class="text-lg" />
+		<UIcon :name="animated ? 'i-meteocons-not-available-fill' : 'i-wi-na'" class="text-lg" />
 		<span class="text-xs">Weather unavailable</span>
 	</div>
 </template>

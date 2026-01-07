@@ -30,7 +30,7 @@
 						<div class="flex items-start gap-4">
 							<div
 								class="flex-shrink-0 w-12 h-12 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
-								<Icon
+								<UIcon
 									name="i-heroicons-document-arrow-down"
 									class="w-6 h-6 text-gray-400 group-hover:text-white transition-colors duration-300" />
 							</div>
@@ -50,7 +50,7 @@
 				<!-- Empty State -->
 				<div v-else class="text-center py-16">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 border-divider rounded-full flex items-center justify-center">
-						<Icon name="i-heroicons-document" class="w-8 h-8 text-gray-400" />
+						<UIcon name="i-heroicons-document" class="w-8 h-8 text-gray-400" />
 					</div>
 					<p class="font-serif text-xl text-gray-600 mb-2">No Documents Available</p>
 					<p class="text-sm text-gray-500">Check back later for updates</p>

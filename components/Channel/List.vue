@@ -4,7 +4,7 @@
 		<div class="p-4 border-b border-gray-200 dark:border-gray-700">
 			<div class="flex items-center justify-between mb-3">
 				<h2 class="text-lg font-semibold text-gray-900 dark:text-white">Channels</h2>
-				<Button
+				<UButton
 					v-if="canCreateChannel"
 					size="xs"
 					color="primary"
@@ -14,7 +14,7 @@
 			</div>
 			<!-- Search Input -->
 			<div class="relative">
-				<Input
+				<UInput
 					v-model="searchQuery"
 					placeholder="Search channels..."
 					icon="i-heroicons-magnifying-glass"
@@ -22,7 +22,7 @@
 					:ui="{icon: {trailing: {pointer: ''}}}"
 					class="w-full">
 					<template #trailing>
-						<Button
+						<UButton
 							v-if="searchQuery"
 							color="gray"
 							variant="link"
@@ -31,7 +31,7 @@
 							:padded="false"
 							@click="searchQuery = ''" />
 					</template>
-				</Input>
+				</UInput>
 			</div>
 		</div>
 
@@ -42,26 +42,26 @@
 			</div>
 
 			<div v-else-if="error" class="p-4 text-center text-red-500">
-				<Icon name="i-heroicons-exclamation-circle" class="w-8 h-8 mx-auto mb-2" />
+				<UIcon name="i-heroicons-exclamation-circle" class="w-8 h-8 mx-auto mb-2" />
 				<p>{{ error }}</p>
-				<Button size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</Button>
+				<UButton size="xs" color="gray" class="mt-2" @click="loadChannels">Retry</UButton>
 			</div>
 
 			<div v-else-if="channels.length === 0" class="p-4 text-center text-gray-500">
-				<Icon name="i-heroicons-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-2 opacity-50" />
+				<UIcon name="i-heroicons-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-2 opacity-50" />
 				<p>No channels yet</p>
-				<Button
+				<UButton
 					v-if="canCreateChannel"
 					size="sm"
 					color="primary"
 					class="mt-3"
 					@click="showCreateModal = true">
 					Create your first channel
-				</Button>
+				</UButton>
 			</div>
 
 			<div v-else-if="filteredChannels.length === 0 && searchQuery" class="p-4 text-center text-gray-500 dark:text-gray-400">
-				<Icon name="i-heroicons-magnifying-glass" class="w-8 h-8 mx-auto mb-2 opacity-50" />
+				<UIcon name="i-heroicons-magnifying-glass" class="w-8 h-8 mx-auto mb-2 opacity-50" />
 				<p class="text-sm">No channels match "{{ searchQuery }}"</p>
 			</div>
 
@@ -72,16 +72,16 @@
 					class="channel-item w-full px-4 py-2.5 flex items-center gap-3 transition-all duration-200 text-left rounded-lg mx-auto"
 					:class="[
 						selectedChannelId === channel.id
-							? 'channel-active bg-primary-100 dark:bg-primary-900/40 border-l-4 border-primary shadow-sm'
+							? 'channel-active bg-primary-100 dark:bg-primary-900/40 border-l-4 border-primary-500 shadow-sm'
 							: 'hover:bg-gray-100 dark:hover:bg-gray-800 border-l-4 border-transparent'
 					]"
 					style="width: calc(100% - 8px);"
 					@click="selectChannel(channel)">
-					<Icon
+					<UIcon
 						:name="getChannelIcon(channel)"
 						class="w-5 h-5 flex-shrink-0 transition-colors"
 						:class="selectedChannelId === channel.id
-							? 'text-primary dark:text-primary'
+							? 'text-primary-600 dark:text-primary-400'
 							: 'text-gray-500 dark:text-gray-400'" />
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2">
@@ -92,36 +92,36 @@
 									: 'text-gray-900 dark:text-white'">
 								{{ channel.name }}
 							</span>
-							<Badge
+							<UBadge
 								v-if="channel.is_private"
 								size="xs"
 								color="gray"
 								variant="subtle">
 								Private
-							</Badge>
+							</UBadge>
 						</div>
 						<p v-if="channel.description" class="text-xs text-gray-500 dark:text-gray-400 truncate">
 							{{ channel.description }}
 						</p>
 					</div>
-					<Badge
+					<UBadge
 						v-if="getUnreadCount(channel.id) > 0"
 						size="xs"
 						color="primary"
 						class="animate-pulse">
 						{{ getUnreadCount(channel.id) }}
-					</Badge>
+					</UBadge>
 				</button>
 			</nav>
 		</div>
 
 		<!-- Create Channel Modal -->
 		<UModal v-model="showCreateModal">
-			<Card>
+			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Create Channel</h3>
-						<Button
+						<UButton
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-x-mark"
@@ -130,43 +130,43 @@
 				</template>
 
 				<form @submit.prevent="handleCreateChannel" class="space-y-4">
-					<FormGroup label="Channel Name" required>
-						<Input
+					<UFormGroup label="Channel Name" required>
+						<UInput
 							v-model="newChannel.name"
 							placeholder="e.g., General, Finance Committee"
 							:disabled="creating" />
 					</UFormGroup>
 
-					<FormGroup label="Description">
-						<Textarea
+					<UFormGroup label="Description">
+						<UTextarea
 							v-model="newChannel.description"
 							placeholder="What's this channel about?"
 							:rows="2"
 							:disabled="creating" />
 					</UFormGroup>
 
-					<FormGroup label="Icon">
+					<UFormGroup label="Icon">
 						<USelectMenu
 							v-model="newChannel.icon"
 							:options="iconOptions"
 							:disabled="creating">
 							<template #label>
 								<div class="flex items-center gap-2">
-									<Icon :name="newChannel.icon || 'i-heroicons-chat-bubble-left-right'" class="w-4 h-4" />
+									<UIcon :name="newChannel.icon || 'i-heroicons-chat-bubble-left-right'" class="w-4 h-4" />
 									<span>{{ newChannel.icon?.replace('i-heroicons-', '') || 'chat-bubble-left-right' }}</span>
 								</div>
 							</template>
 							<template #option="{ option }">
 								<div class="flex items-center gap-2">
-									<Icon :name="option.value" class="w-4 h-4" />
+									<UIcon :name="option.value" class="w-4 h-4" />
 									<span>{{ option.label }}</span>
 								</div>
 							</template>
 						</USelectMenu>
 					</UFormGroup>
 
-					<FormGroup>
-						<Checkbox
+					<UFormGroup>
+						<UCheckbox
 							v-model="newChannel.is_private"
 							label="Private channel (require explicit invitation)"
 							:disabled="creating" />
@@ -175,15 +175,15 @@
 
 				<template #footer>
 					<div class="flex justify-end gap-2">
-						<Button color="gray" variant="ghost" @click="showCreateModal = false" :disabled="creating">
+						<UButton color="gray" variant="ghost" @click="showCreateModal = false" :disabled="creating">
 							Cancel
-						</Button>
-						<Button color="primary" @click="handleCreateChannel" :loading="creating">
+						</UButton>
+						<UButton color="primary" @click="handleCreateChannel" :loading="creating">
 							Create Channel
-						</Button>
+						</UButton>
 					</div>
 				</template>
-			</Card>
+			</UCard>
 		</UModal>
 	</div>
 </template>

@@ -281,15 +281,15 @@ onMounted(async () => {
         </p>
       </div>
       <div class="mt-4 md:mt-0">
-        <Badge v-if="pendingCount > 0" color="amber" variant="soft" size="lg">
+        <UBadge v-if="pendingCount > 0" color="amber" variant="soft" size="lg">
           {{ pendingCount }} pending {{ pendingCount === 1 ? 'request' : 'requests' }}
-        </Badge>
+        </UBadge>
       </div>
     </div>
 
     <!-- Access Denied -->
     <div v-if="!isAdmin" class="text-center py-12">
-      <Icon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+      <UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
       <h2 class="text-xl font-semibold mb-2">Access Denied</h2>
       <p class="text-gray-600 dark:text-gray-400">
         You do not have administrator privileges.
@@ -300,7 +300,7 @@ onMounted(async () => {
     <template v-else>
       <!-- Filters -->
       <div class="flex flex-col md:flex-row gap-4 mb-6">
-        <Input
+        <UInput
           v-model="searchQuery"
           icon="i-heroicons-magnifying-glass"
           placeholder="Search users..."
@@ -314,7 +314,7 @@ onMounted(async () => {
       </div>
 
       <!-- Users Table -->
-      <Card>
+      <UCard>
         <UTable
           :rows="filteredUsers"
           :columns="columns"
@@ -322,7 +322,7 @@ onMounted(async () => {
           :empty-state="{ icon: 'i-heroicons-users', label: 'No users found' }">
           <template #name-data="{ row }">
             <div class="flex items-center gap-3">
-              <Avatar
+              <UAvatar
                 :alt="`${row.first_name} ${row.last_name}`"
                 size="sm" />
               <div>
@@ -339,26 +339,26 @@ onMounted(async () => {
           </template>
 
           <template #role-data="{ row }">
-            <Badge
+            <UBadge
               :color="getRoleName(row) === APP_ROLES.ADMIN ? 'red' : 'gray'"
               variant="soft"
               size="sm">
               {{ getRoleName(row) }}
-            </Badge>
+            </UBadge>
           </template>
 
           <template #status-data="{ row }">
-            <Badge
+            <UBadge
               :color="getStatusColor(row.status)"
               variant="soft"
               size="sm">
               {{ row.status }}
-            </Badge>
+            </UBadge>
           </template>
 
           <template #actions-data="{ row }">
             <div class="flex items-center gap-2">
-              <Button
+              <UButton
                 v-if="row.status === 'draft'"
                 size="xs"
                 color="green"
@@ -366,30 +366,30 @@ onMounted(async () => {
                 icon="i-heroicons-check"
                 @click="openUserModal(row)">
                 Approve
-              </Button>
-              <Button
+              </UButton>
+              <UButton
                 size="xs"
                 color="gray"
                 variant="ghost"
                 icon="i-heroicons-pencil"
                 @click="openUserModal(row)">
                 Edit
-              </Button>
+              </UButton>
             </div>
           </template>
         </UTable>
-      </Card>
+      </UCard>
     </template>
 
     <!-- User Edit Modal -->
     <UModal v-model="showUserModal">
-      <Card v-if="selectedUser">
+      <UCard v-if="selectedUser">
         <template #header>
           <div class="flex items-center justify-between">
             <h3 class="text-lg font-semibold">
               {{ selectedUser.status === 'draft' ? 'Approve User' : 'Edit User' }}
             </h3>
-            <Button
+            <UButton
               color="gray"
               variant="ghost"
               icon="i-heroicons-x-mark"
@@ -400,7 +400,7 @@ onMounted(async () => {
         <div class="space-y-6">
           <!-- User Info -->
           <div class="flex items-center gap-4">
-            <Avatar
+            <UAvatar
               :alt="`${selectedUser.first_name} ${selectedUser.last_name}`"
               size="lg" />
             <div>
@@ -427,13 +427,13 @@ onMounted(async () => {
           <!-- Current Status -->
           <div>
             <label class="block text-sm font-medium mb-2">Current Status</label>
-            <Badge :color="getStatusColor(selectedUser.status)" variant="soft">
+            <UBadge :color="getStatusColor(selectedUser.status)" variant="soft">
               {{ selectedUser.status }}
-            </Badge>
+            </UBadge>
           </div>
 
           <!-- Role Selection -->
-          <FormGroup label="Assign Role">
+          <UFormGroup label="Assign Role">
             <USelectMenu
               v-model="selectedUser.role"
               :options="roles"
@@ -451,7 +451,7 @@ onMounted(async () => {
 
           <!-- Status Actions -->
           <div v-if="selectedUser.status !== 'draft'" class="flex gap-2">
-            <Button
+            <UButton
               v-if="selectedUser.status !== 'active'"
               size="sm"
               color="green"
@@ -459,8 +459,8 @@ onMounted(async () => {
               :loading="actionLoading"
               @click="updateUserStatus(selectedUser, 'active')">
               Activate
-            </Button>
-            <Button
+            </UButton>
+            <UButton
               v-if="selectedUser.status !== 'suspended'"
               size="sm"
               color="amber"
@@ -468,37 +468,37 @@ onMounted(async () => {
               :loading="actionLoading"
               @click="updateUserStatus(selectedUser, 'suspended')">
               Suspend
-            </Button>
+            </UButton>
           </div>
         </div>
 
         <template #footer>
           <div class="flex justify-end gap-3">
-            <Button
+            <UButton
               color="gray"
               variant="ghost"
               @click="showUserModal = false">
               Cancel
-            </Button>
-            <Button
+            </UButton>
+            <UButton
               v-if="selectedUser.status === 'draft'"
               color="green"
               :loading="actionLoading"
               :disabled="!selectedUser.role"
               @click="approveUser(selectedUser, typeof selectedUser.role === 'object' ? selectedUser.role.id : selectedUser.role)">
               Approve & Assign Role
-            </Button>
-            <Button
+            </UButton>
+            <UButton
               v-else
               color="primary"
               :loading="actionLoading"
               :disabled="!selectedUser.role"
               @click="updateUserRole(selectedUser, typeof selectedUser.role === 'object' ? selectedUser.role.id : selectedUser.role)">
               Update Role
-            </Button>
+            </UButton>
           </div>
         </template>
-      </Card>
+      </UCard>
     </UModal>
   </div>
   </div>

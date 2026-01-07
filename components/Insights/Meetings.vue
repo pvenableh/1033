@@ -88,9 +88,9 @@ function minutes(files) {
 	<div class="insight meetings">
 		<h1 class="relative insight__label">
 			Board Meetings:
-			<Badge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
+			<UBadge size="xs" color="sky" :ui="{rounded: 'rounded-full'}" class="absolute top-[-10px] scale-90">
 				{{ pastMeetings.length }}
-			</Badge>
+			</UBadge>
 		</h1>
 
 		<div v-if="pending">Loading</div>
@@ -137,14 +137,13 @@ function minutes(files) {
 		<div class="w-full flex items-center justify-center mt-8">
 			<nuxt-link to="/meetings/" class="insight__link">
 				View All Meetings
-				<Icon name="i-heroicons-arrow-right" />
+				<UIcon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>
 		<div v-if="error">Error</div>
 	</div>
 </template>
 <style>
-@reference "~/assets/css/tailwind.css";
 .next-meeting {
 	background: #159957;
 	/* fallback for old browsers */

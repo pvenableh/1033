@@ -21,13 +21,12 @@ const newsletters = await newslettersCollection.list({
 			</h3>
 			<span class="absolute bottom-[10px] right-[10px] newsletter__link">
 				Read Newsletter
-				<Icon name="i-heroicons-arrow-right" class="ml-2 mb-[-3px] opacity-75" />
+				<UIcon name="i-heroicons-arrow-right" class="ml-2 mb-[-3px] opacity-75" />
 			</span>
 		</a>
 	</div>
 </template>
 <style>
-@reference "~/assets/css/tailwind.css";
 .newsletter {
 	&__cover {
 		@apply bg-no-repeat bg-center bg-cover h-full;

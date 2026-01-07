@@ -7,7 +7,7 @@
 			aria-label="Notifications"
 			:title="user ? `${totalUnreadCount} unread notifications` : 'Sign in to view notifications'">
 			<!-- Bell icon -->
-			<Icon
+			<UIcon
 				name="i-heroicons-bell"
 				class="w-5 h-5 text-gray-600 dark:text-gray-300 transition-transform"
 				:class="{'animate-ring': hasNewNotification}" />
@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-const {user} = useDirectusAuth();
+const { user } = useDirectusAuth();
 const toast = useToast();
 
 const {

@@ -11,7 +11,7 @@
 		<div class="w-full flex items-center justify-center mt-8">
 			<nuxt-link to="/financials/" class="insight__link">
 				View All Financials
-				<Icon name="i-heroicons-arrow-right" />
+				<UIcon name="i-heroicons-arrow-right" />
 			</nuxt-link>
 		</div>
 		<div v-if="error">Error</div>

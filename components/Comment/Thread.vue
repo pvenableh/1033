@@ -3,21 +3,29 @@
 		<!-- Header -->
 		<div v-if="showHeader" class="flex items-center justify-between mb-4">
 			<h3 class="text-sm font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-				<Icon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
+				<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
 				Comments
-				<Badge v-if="commentCount > 0" size="xs" color="gray">
+				<UBadge v-if="commentCount > 0" size="xs" color="gray">
 					{{ commentCount }}
-				</Badge>
+				</UBadge>
 			</h3>
 
 			<div v-if="showFilters" class="flex items-center gap-2">
-				<USelectMenu v-model="sortOrder" :options="sortOptions" size="xs" class="w-32" />
+				<USelectMenu
+					v-model="sortOrder"
+					:options="sortOptions"
+					size="xs"
+					class="w-32" />
 			</div>
 		</div>
 
 		<!-- Comment Editor -->
 		<div v-if="showEditor" class="mb-6">
-			<CommentEditor ref="editorRef" :folder-id="folderId" :submitting="submitting" @submit="handleSubmit" />
+			<CommentEditor
+				ref="editorRef"
+				:folder-id="folderId"
+				:submitting="submitting"
+				@submit="handleSubmit" />
 		</div>
 
 		<!-- Loading State -->
@@ -33,7 +41,9 @@
 
 		<!-- Empty State -->
 		<div v-else-if="comments.length === 0" class="text-center py-8">
-			<Icon name="i-heroicons-chat-bubble-left-right" class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
+			<UIcon
+				name="i-heroicons-chat-bubble-left-right"
+				class="w-12 h-12 mx-auto mb-3 text-gray-300 dark:text-gray-600" />
 			<p class="text-sm text-gray-500 dark:text-gray-400">
 				{{ emptyMessage }}
 			</p>
@@ -55,11 +65,15 @@
 
 		<!-- Reply Modal -->
 		<UModal v-model="showReplyModal">
-			<Card>
+			<UCard>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Reply to comment</h3>
-						<Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showReplyModal = false" />
+						<UButton
+							color="gray"
+							variant="ghost"
+							icon="i-heroicons-x-mark"
+							@click="showReplyModal = false" />
 					</div>
 				</template>
 
@@ -72,7 +86,9 @@
 							{{ formatTime(replyingTo.date_created) }}
 						</span>
 					</div>
-					<div class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2" v-html="replyingTo.content" />
+					<div
+						class="text-sm text-gray-600 dark:text-gray-400 line-clamp-2"
+						v-html="replyingTo.content" />
 				</div>
 
 				<CommentEditor
@@ -81,7 +97,7 @@
 					submit-label="Reply"
 					:submitting="submittingReply"
 					@submit="submitReply" />
-			</Card>
+			</UCard>
 		</UModal>
 	</div>
 </template>
@@ -241,7 +257,7 @@ const submitReply = async (payload: {content: string; mentionedUserIds: string[]
 		});
 
 		// Add reply to parent
-		const parentIndex = comments.value.findIndex((c) => c.id === replyingTo.value?.id);
+		const parentIndex = comments.value.findIndex(c => c.id === replyingTo.value?.id);
 		if (parentIndex !== -1) {
 			if (!comments.value[parentIndex].replies) {
 				comments.value[parentIndex].replies = [];
@@ -270,7 +286,7 @@ const handleEdit = async (comment: CommentWithRelations, newContent: string) => 
 		await updateComment(comment.id, {content: newContent});
 
 		// Update in list
-		const index = comments.value.findIndex((c) => c.id === comment.id);
+		const index = comments.value.findIndex(c => c.id === comment.id);
 		if (index !== -1) {
 			comments.value[index].content = newContent;
 			comments.value[index].is_edited = true;
@@ -291,7 +307,7 @@ const handleDelete = async (comment: CommentWithRelations) => {
 		await deleteComment(comment.id);
 
 		// Remove from list
-		comments.value = comments.value.filter((c) => c.id !== comment.id);
+		comments.value = comments.value.filter(c => c.id !== comment.id);
 
 		emit('comment-deleted', comment);
 
@@ -310,7 +326,7 @@ const handleToggleResolved = async (comment: CommentWithRelations) => {
 		await toggleResolved(comment.id, !comment.is_resolved);
 
 		// Update in list
-		const index = comments.value.findIndex((c) => c.id === comment.id);
+		const index = comments.value.findIndex(c => c.id === comment.id);
 		if (index !== -1) {
 			comments.value[index].is_resolved = !comment.is_resolved;
 		}
@@ -345,11 +361,7 @@ watch(realtimeComments, (newComments) => {
 });
 
 // Watch for prop changes
-watch(
-	[() => props.targetCollection, () => props.targetId],
-	() => {
-		loadComments();
-	},
-	{immediate: true}
-);
+watch([() => props.targetCollection, () => props.targetId], () => {
+	loadComments();
+}, {immediate: true});
 </script>

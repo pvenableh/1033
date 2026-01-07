@@ -165,7 +165,7 @@ function openExternalLink() {
 
 			<div class="w-full flex items-center justify-start flex-col mt-6 px-4 max-w-[650px] mx-auto">
 				<h3 class="uppercase tracking-wide font-bold text-[20px] leading-6 mb-6 text-center">
-					<Icon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
+					<UIcon name="i-material-symbols-how-to-vote-sharp" class="h-6 w-6 -mb-1" />
 					Submit Your Vote:
 				</h3>
 				<p class="w-full mt-6 mb-2 text-[14px] leading-5">
@@ -200,7 +200,7 @@ function openExternalLink() {
 						</h3>
 						<p>{{ item.description }}</p>
 
-						<Button
+						<UButton
 							color="gray"
 							variant="outline"
 							:ui="{rounded: 'rounded-sm'}"
@@ -208,14 +208,14 @@ function openExternalLink() {
 							@click="toggleVote(item)">
 							Vote for
 							<span class="font-bold block">{{ item.title }} Credit</span>
-						</Button>
+						</UButton>
 					</div>
 				</div>
 			</div>
 		</div>
 		<UModal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative">
-				<Icon
+				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
 					@click="closeVote()" />
@@ -238,7 +238,6 @@ function openExternalLink() {
 	</div>
 </template>
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .options {
 	&__list {
 		flex-direction: column;
