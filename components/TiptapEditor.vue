@@ -472,6 +472,7 @@
 </template>
 
 <script setup lang="ts">
+import { defineComponent, h } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import { Extension } from '@tiptap/core';
 import { Plugin } from '@tiptap/pm/state';
