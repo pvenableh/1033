@@ -26,7 +26,7 @@
 				<!-- Error State -->
 				<div v-else-if="error" class="text-center py-16 unit-content opacity-0">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 border-divider rounded-full flex items-center justify-center">
-						<Icon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-gray-400" />
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-8 h-8 text-gray-400" />
 					</div>
 					<p class="font-serif text-xl text-gray-600 mb-2">Unable to Load Unit</p>
 					<p class="text-sm text-gray-500">Please try again later</p>
@@ -54,7 +54,7 @@
 									class="flex items-center gap-4 p-4 bg-cream-alt border border-divider">
 									<div
 										class="w-12 h-12 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0">
-										<Icon name="i-heroicons-user" class="w-6 h-6 text-gold-dark" />
+										<UIcon name="i-heroicons-user" class="w-6 h-6 text-gold-dark" />
 									</div>
 									<div class="flex-1">
 										<p class="font-serif text-lg text-gray-800">
@@ -78,7 +78,7 @@
 						<NuxtLink
 							to="/"
 							class="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gold-dark transition-colors duration-300">
-							<Icon name="i-heroicons-arrow-left" class="w-4 h-4" />
+							<UIcon name="i-heroicons-arrow-left" class="w-4 h-4" />
 							<span class="tracking-wide uppercase">Back to Home</span>
 						</NuxtLink>
 					</div>
@@ -87,7 +87,7 @@
 				<!-- Not Found State -->
 				<div v-else class="text-center py-16 unit-content opacity-0">
 					<div class="w-16 h-16 mx-auto mb-6 border-2 border-divider rounded-full flex items-center justify-center">
-						<Icon name="i-heroicons-home" class="w-8 h-8 text-gray-400" />
+						<UIcon name="i-heroicons-home" class="w-8 h-8 text-gray-400" />
 					</div>
 					<p class="font-serif text-xl text-gray-600 mb-2">Unit Not Found</p>
 					<p class="text-sm text-gray-500">The requested unit could not be found</p>

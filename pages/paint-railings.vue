@@ -80,7 +80,7 @@ const mailtoLink = computed(() => {
 		</div>
 		<Modal v-model="isOpen" fullscreen>
 			<div class="w-full h-full flex items-center justify-center flex-col p-2 lg:p-12 relative" @click="isOpen = false">
-				<Icon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
+				<UIcon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 				<h5 class="w-full uppercase font-bold mt-3 leading-4 max-w-[1200px]">
 					<span class="opacity-50">DESIGN:</span>
 					{{ selectedImage.title }}
@@ -116,7 +116,7 @@ const mailtoLink = computed(() => {
 					:src="'https://admin.1033lenox.com/assets/' + item.image + '?key=medium'"
 					:alt="item.title"
 					class="w-full" />
-				<Icon
+				<UIcon
 					name="i-heroicons-magnifying-glass-plus"
 					class="text-white cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 			</div>
@@ -149,14 +149,14 @@ const mailtoLink = computed(() => {
 						<span class="">per unit</span>
 					</li>
 				</ul>
-				<!-- <Button color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
+				<!-- <UButton color="sky" class="mt-2 lg:mt-5 tracking-wide" @click="toggleVote(item)">
 					Vote for {{ item.title }}
-				</Button> -->
+				</UButton> -->
 			</div>
 		</div>
 		<!-- <Modal v-model="isVoteOpen">
 			<div class="py-8 px-6 relative">
-				<Icon
+				<UIcon
 					name="i-heroicons-x-circle"
 					class="cursor-pointer h-6 w-6 absolute right-[10px] top-[10px]"
 					@click="toggleVote()"
@@ -191,15 +191,14 @@ const mailtoLink = computed(() => {
 					<span class="text-red-500">{{ selectedItem.extra_cost }}.</span>
 				</p>
 				<p class="text-sm mb-4">Click the button below to send your vote by email to the board.</p>
-				<Button :to="mailtoLink" color="sky" class="tracking-wide">
+				<UButton :to="mailtoLink" color="sky" class="tracking-wide">
 					Send Email Vote for {{ selectedItem.title }}
-				</Button>
+				</UButton>
 			</div>
 		</Modal> -->
 	</div>
 </template>
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__item {
 		@apply px-4;

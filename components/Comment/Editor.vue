@@ -1,18 +1,23 @@
 <template>
 	<div v-if="editor" class="comment-editor relative">
 		<div class="flex gap-3">
-			<Avatar v-if="showAvatar" :src="currentUserAvatar" :alt="currentUserName" size="sm" class="flex-shrink-0 mt-1" />
+			<UAvatar
+				v-if="showAvatar"
+				:src="currentUserAvatar"
+				:alt="currentUserName"
+				size="sm"
+				class="flex-shrink-0 mt-1" />
 
 			<div class="flex-1">
 				<editor-content
 					:editor="editor"
-					class="border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white text-sm transition-all duration-200 overflow-y-auto focus-within:ring-2 focus-within:ring-primary focus-within:border-primary"
+					class="border border-gray-300 dark:border-gray-600 rounded-lg dark:text-white text-sm transition-all duration-200 overflow-y-auto focus-within:ring-2 focus-within:ring-primary-500 focus-within:border-primary-500"
 					:class="[height]" />
 
 				<div class="flex items-center justify-between mt-2">
 					<div class="flex items-center gap-1">
 						<!-- Formatting buttons -->
-						<Button
+						<UButton
 							v-for="(button, index) in toolbarButtons"
 							:key="index"
 							size="xs"
@@ -23,10 +28,15 @@
 							@click="button.action" />
 
 						<!-- Mention button -->
-						<Button size="xs" variant="ghost" color="gray" icon="i-heroicons-at-symbol" @click="insertMentionTrigger" />
+						<UButton
+							size="xs"
+							variant="ghost"
+							color="gray"
+							icon="i-heroicons-at-symbol"
+							@click="insertMentionTrigger" />
 
 						<!-- File upload button -->
-						<Button
+						<UButton
 							v-if="allowUploads"
 							size="xs"
 							variant="ghost"
@@ -35,8 +45,8 @@
 							@click="$refs.fileInput.click()" />
 
 						<!-- Link button -->
-						<Popover :popper="{placement: 'top'}" mode="click">
-							<Button
+						<UPopover :popper="{placement: 'top'}" mode="click">
+							<UButton
 								size="xs"
 								variant="ghost"
 								color="gray"
@@ -44,30 +54,41 @@
 								:class="{'bg-gray-200 dark:bg-gray-700': editor.isActive('link')}" />
 							<template #panel="{close}">
 								<div class="p-2 w-64 space-y-2">
-									<Input v-model="linkUrl" placeholder="https://example.com" size="sm" @keyup.enter="setLink(close)" />
+									<UInput
+										v-model="linkUrl"
+										placeholder="https://example.com"
+										size="sm"
+										@keyup.enter="setLink(close)" />
 									<div class="flex justify-end gap-1">
-										<Button
-											v-if="editor.isActive('link')"
-											size="xs"
-											color="red"
-											variant="soft"
-											@click="removeLink(close)">
+										<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 											Remove
-										</Button>
-										<Button size="xs" color="primary" @click="setLink(close)">
+										</UButton>
+										<UButton size="xs" color="primary" @click="setLink(close)">
 											{{ editor.isActive('link') ? 'Update' : 'Add' }}
-										</Button>
+										</UButton>
 									</div>
 								</div>
 							</template>
-						</Popover>
+						</UPopover>
 					</div>
 
 					<div class="flex items-center gap-2">
-						<Button v-if="showCancel" size="xs" color="gray" variant="ghost" @click="$emit('cancel')">Cancel</Button>
-						<Button size="xs" color="primary" :disabled="!canSubmit" :loading="submitting" @click="handleSubmit">
+						<UButton
+							v-if="showCancel"
+							size="xs"
+							color="gray"
+							variant="ghost"
+							@click="$emit('cancel')">
+							Cancel
+						</UButton>
+						<UButton
+							size="xs"
+							color="primary"
+							:disabled="!canSubmit"
+							:loading="submitting"
+							@click="handleSubmit">
 							{{ submitLabel }}
-						</Button>
+						</UButton>
 					</div>
 				</div>
 			</div>
@@ -167,11 +188,7 @@ const currentUserName = computed(() => {
 const toolbarButtons = [
 	{icon: 'i-heroicons-bold', command: 'bold', action: () => editor.value?.chain().focus().toggleBold().run()},
 	{icon: 'i-heroicons-italic', command: 'italic', action: () => editor.value?.chain().focus().toggleItalic().run()},
-	{
-		icon: 'i-heroicons-list-bullet',
-		command: 'bulletList',
-		action: () => editor.value?.chain().focus().toggleBulletList().run(),
-	},
+	{icon: 'i-heroicons-list-bullet', command: 'bulletList', action: () => editor.value?.chain().focus().toggleBulletList().run()},
 ];
 
 const canSubmit = computed(() => {
@@ -202,7 +219,7 @@ const handleSubmit = () => {
 	if (!canSubmit.value) return;
 
 	const content = editor.value?.getHTML() ?? '';
-	const mentionIds = mentionedUsers.value.map((u) => u.id);
+	const mentionIds = mentionedUsers.value.map(u => u.id);
 
 	emit('submit', {
 		content,
@@ -216,7 +233,7 @@ const clearEditor = () => {
 };
 
 // Expose clear method for parent components
-defineExpose({clearEditor});
+defineExpose({ clearEditor });
 
 // Handle file uploads
 const handleFileUpload = async (event: Event) => {
@@ -264,14 +281,10 @@ const handleFiles = async (files: File[]) => {
 			const processedFile = processedFiles.find((pf: any) => pf.sanitizedName === file.filename_download);
 
 			if (processedFile?.type.startsWith('image/')) {
-				editor.value
-					?.chain()
-					.focus()
-					.setImage({
-						src: fileUrl,
-						alt: processedFile.originalName,
-					})
-					.run();
+				editor.value?.chain().focus().setImage({
+					src: fileUrl,
+					alt: processedFile.originalName,
+				}).run();
 			} else {
 				editor.value?.chain().focus().setLink({href: fileUrl}).insertContent(file.filename_download).run();
 			}
@@ -373,9 +386,7 @@ const CustomMention = Mention.configure({
 
 				popup.innerHTML = `
 					<div class="max-h-48 overflow-y-auto py-1 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
-						${items
-							.map(
-								(item, index) => `
+						${items.map((item, index) => `
 							<div class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex items-center gap-2 ${
 								index === selectedIndex ? 'bg-gray-100 dark:bg-gray-700' : ''
 							}" data-index="${index}">
@@ -390,9 +401,7 @@ const CustomMention = Mention.configure({
 									<div class="text-xs text-gray-500">${item.email || ''}</div>
 								</div>
 							</div>
-						`
-							)
-							.join('')}
+						`).join('')}
 					</div>
 				`;
 
@@ -402,7 +411,7 @@ const CustomMention = Mention.configure({
 			const selectItem = (item: MentionData) => {
 				if (!editor.value || !mentionRange) return;
 
-				if (!mentionedUsers.value.find((u) => u.id === item.id)) {
+				if (!mentionedUsers.value.find(u => u.id === item.id)) {
 					mentionedUsers.value.push(item);
 				}
 

@@ -11,7 +11,7 @@
 				v-for="(person, index) in boardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title">
-				<Avatar
+				<UAvatar
 					size="xs"
 					chip-color="primary"
 					:src="
@@ -23,13 +23,13 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</Tooltip>
+			</UTooltip>
 
 			<Tooltip
 				v-for="(person, index) in nonBoardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name">
-				<Avatar
+				<UAvatar
 					size="xs"
 					:src="
 						'https://ui-avatars.com/api/?name=' +
@@ -40,7 +40,7 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</Tooltip>
+			</UTooltip>
 		</div>
 	</div>
 </template>

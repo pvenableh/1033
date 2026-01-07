@@ -7,7 +7,7 @@
 		</div>
 
 		<!-- Filters -->
-		<Card>
+		<UCard>
 			<div class="flex flex-wrap gap-4 items-center">
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 uppercase">Account:</label>
@@ -22,7 +22,7 @@
 					<Select v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
 				</div>
 			</div>
-		</Card>
+		</UCard>
 
 		<!-- Transfer Audit Alert -->
 		<Alert
@@ -41,15 +41,15 @@
 		</Alert>
 
 		<!-- Monthly Reconciliation -->
-		<Card v-if="monthlyReconciliation">
+		<UCard v-if="monthlyReconciliation">
 			<template #header>
 				<div class="flex items-center justify-between">
 					<h2 class="text-xl font-semibold uppercase tracking-wide">
 						MONTHLY RECONCILIATION - {{ getAccountName(selectedAccount) }}
 					</h2>
-					<Badge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
+					<UBadge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
 						{{ monthlyReconciliation.isReconciled ? 'RECONCILED ✓' : 'NOT RECONCILED ✗' }}
-					</Badge>
+					</UBadge>
 				</div>
 			</template>
 
@@ -168,10 +168,10 @@
 					</div>
 				</div>
 			</div>
-		</Card>
+		</UCard>
 
 		<!-- YTD Reconciliation -->
-		<Card v-if="ytdReconciliation">
+		<UCard v-if="ytdReconciliation">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">
 					YEAR-TO-DATE RECONCILIATION - {{ getAccountName(selectedAccount) }}
@@ -271,7 +271,7 @@
 					</div>
 				</div>
 			</div>
-		</Card>
+		</UCard>
 	</div>
 </template>
 

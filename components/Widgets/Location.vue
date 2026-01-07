@@ -111,7 +111,7 @@ function getIcon(): string {
 			<span
 				class="glass-widget__icon rounded-full border border-cream/20 inline-flex items-center justify-center bg-cream/10 dark:bg-gray-700"
 				:class="compact ? 'h-6 w-6 text-xs' : 'h-6 w-6 text-xs'">
-				<Icon :name="getIcon()" />
+				<UIcon :name="getIcon()" />
 			</span>
 		</div>
 
@@ -124,7 +124,7 @@ function getIcon(): string {
 		<!-- Narrow variant - single column layout for sidebar use -->
 		<div v-if="variant === 'narrow' && !compact" class="flex flex-col gap-0.5 text-[10px] text-cream uppercase">
 			<div v-for="landmark in visibleLandmarks" :key="landmark.name" class="flex items-center">
-				<!-- <Icon :name="landmark.icon" class="glass-widget__detail-icon text-xs shrink-0" /> -->
+				<!-- <UIcon :name="landmark.icon" class="glass-widget__detail-icon text-xs shrink-0" /> -->
 				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
 				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
 			</div>
@@ -133,19 +133,19 @@ function getIcon(): string {
 		<!-- Detailed variant - two column layout (hide on compact mobile) -->
 		<div v-if="variant === 'detailed' && !compact" class="grid grid-cols-2 gap-2 mt-2 pt-2">
 			<div v-for="landmark in visibleLandmarks" :key="landmark.name" class="flex items-center gap-1.5 text-[11px]">
-				<!-- <Icon :name="landmark.icon" class="glass-widget__detail-icon text-sm shrink-0" /> -->
+				<!-- <UIcon :name="landmark.icon" class="glass-widget__detail-icon text-sm shrink-0" /> -->
 				<span class="text-cream uppercase truncate">{{ landmark.name }}</span>
 				<span class="ml-auto font-medium text-cream uppercase shrink-0">{{ landmark.walkTime }}</span>
 			</div>
 
 			<div class="col-span-2 flex items-center gap-4 mt-1 pt-2 border-t border-cream/10">
 				<div class="flex items-center gap-1.5 text-[11px]">
-					<Icon name="i-heroicons-map" class="glass-widget__detail-icon text-sm shrink-0" />
+					<UIcon name="i-heroicons-map" class="glass-widget__detail-icon text-sm shrink-0" />
 					<span class="text-cream uppercase">Walk Score</span>
 					<span class="ml-1 font-medium text-cream uppercase">{{ walkScore }}</span>
 				</div>
 				<div class="flex items-center gap-1.5 text-[11px]">
-					<Icon name="i-heroicons-truck" class="glass-widget__detail-icon text-sm shrink-0" />
+					<UIcon name="i-heroicons-truck" class="glass-widget__detail-icon text-sm shrink-0" />
 					<span class="text-cream uppercase">Bike Score</span>
 					<span class="ml-1 font-medium text-cream uppercase">{{ bikeScore }}</span>
 				</div>

@@ -1,6 +1,6 @@
 <!-- components/ExpenseTable.vue -->
 <template>
-	<Card class="!rounded-[4px]">
+	<UCard class="!rounded-[4px]">
 		<template #header>
 			<h3 class="text-lg font-semibold uppercase tracking-wide">{{ title }}</h3>
 		</template>
@@ -25,7 +25,7 @@
 								{{ formatCurrency(item.variance) }}
 							</td>
 							<td class="text-center py-3 px-4">
-								<Icon
+								<UIcon
 									:name="getStatusIcon(item.variance, item.budgeted)"
 									:class="getStatusIconClass(item.variance, item.budgeted)" />
 							</td>
@@ -48,7 +48,7 @@
 				</tbody>
 			</table>
 		</div>
-	</Card>
+	</UCard>
 </template>
 
 <script setup>

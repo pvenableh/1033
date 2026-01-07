@@ -135,7 +135,6 @@ useSeoMeta({
 });
 </script>
 <style>
-@reference "~/assets/css/tailwind.css";
 .email {
 	max-width: 600px;
 	line-height: 1.4em;

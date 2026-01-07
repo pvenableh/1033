@@ -121,7 +121,6 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@reference "~/assets/css/tailwind.css";
 .rules-page {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;

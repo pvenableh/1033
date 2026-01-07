@@ -9,11 +9,11 @@
 		<!-- Budget Overview Cards -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<!-- Revenue Card -->
-			<Card class="!rounded-[4px]">
+			<UCard class="!rounded-[4px]">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">ANNUAL REVENUE</h3>
-						<Icon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-green-600" />
+						<UIcon name="i-heroicons-arrow-trending-up" class="w-6 h-6 text-green-600" />
 					</div>
 				</template>
 				<div class="space-y-4">
@@ -36,14 +36,14 @@
 						</div>
 					</div>
 				</div>
-			</Card>
+			</UCard>
 
 			<!-- Expenses Card -->
-			<Card class="!rounded-[4px]">
+			<UCard class="!rounded-[4px]">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">ANNUAL EXPENSES</h3>
-						<Icon name="i-heroicons-arrow-trending-down" class="w-6 h-6 text-red-600" />
+						<UIcon name="i-heroicons-arrow-trending-down" class="w-6 h-6 text-red-600" />
 					</div>
 				</template>
 				<div class="space-y-4">
@@ -72,16 +72,16 @@
 						</div>
 					</div>
 				</div>
-			</Card>
+			</UCard>
 
 			<!-- Net Operating Card -->
-			<Card
+			<UCard
 				class="!rounded-[4px]"
 				:class="budget.netOperating.yearly >= 0 ? 'border-2 border-green-300' : 'border-2 border-red-300'">
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold uppercase tracking-wide">NET OPERATING</h3>
-						<Icon
+						<UIcon
 							:name="budget.netOperating.yearly >= 0 ? 'i-heroicons-check-circle' : 'i-heroicons-exclamation-triangle'"
 							:class="budget.netOperating.yearly >= 0 ? 'w-6 h-6 text-green-600' : 'w-6 h-6 text-yellow-600'" />
 					</div>
@@ -99,7 +99,7 @@
 						</p>
 					</div>
 				</div>
-			</Card>
+			</UCard>
 		</div>
 
 		<!-- Main Content Tabs -->
@@ -109,7 +109,7 @@
 				<div class="space-y-6">
 					<!-- Expense Category Cards -->
 					<div v-for="(category, key) in budget.categories" :key="key">
-						<Card class="!rounded-[4px]">
+						<UCard class="!rounded-[4px]">
 							<template #header>
 								<div class="flex justify-between items-center">
 									<h3 class="text-lg font-semibold uppercase tracking-wide">{{ key }}</h3>
@@ -157,14 +157,14 @@
 									</tfoot>
 								</table>
 							</div>
-						</Card>
+						</UCard>
 					</div>
 				</div>
 			</template>
 
 			<!-- Revenue Breakdown Tab -->
 			<template #revenue>
-				<Card class="!rounded-[4px]">
+				<UCard class="!rounded-[4px]">
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">REVENUE SOURCES</h3>
 					</template>
@@ -229,12 +229,12 @@
 							</div>
 						</div>
 					</div>
-				</Card>
+				</UCard>
 			</template>
 
 			<!-- Summary Tab -->
 			<template #summary>
-				<Card class="!rounded-[4px]">
+				<UCard class="!rounded-[4px]">
 					<template #header>
 						<h3 class="text-lg font-semibold uppercase tracking-wide">BUDGET SUMMARY</h3>
 					</template>
@@ -343,7 +343,7 @@
 							</div>
 						</div>
 					</div>
-				</Card>
+				</UCard>
 			</template>
 		</Tabs>
 
