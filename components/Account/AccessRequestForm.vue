@@ -5,7 +5,7 @@
 			enter: {y: 0, opacity: 1},
 		}"
 		class="w-full">
-		<UAlert
+		<Alert
 			v-if="submitError"
 			type="error"
 			class="my-4"
@@ -14,7 +14,7 @@
 			variant="subtle"
 			icon="i-heroicons-exclamation-triangle" />
 
-		<UAlert
+		<Alert
 			v-if="submitSuccess"
 			class="my-4"
 			color="green"
@@ -33,10 +33,10 @@
 						:loading="loading"
 						icon="i-heroicons-user"
 						placeholder="John" />
-				</UFormGroup>
+				</FormGroup>
 				<FormGroup label="Last Name" name="last_name" required>
 					<Input v-model="state.last_name" name="last_name" size="lg" :loading="loading" placeholder="Doe" />
-				</UFormGroup>
+				</FormGroup>
 			</div>
 
 			<FormGroup label="Email" name="email" required>
@@ -48,7 +48,7 @@
 					:loading="loading"
 					icon="i-heroicons-envelope"
 					placeholder="name@domain.com" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Phone" name="phone">
 				<Input
@@ -59,10 +59,10 @@
 					:loading="loading"
 					icon="i-heroicons-phone"
 					placeholder="(555) 555-5555" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Unit" name="unit_id" required hint="Your unit at 1033 Lenox">
-				<USelectMenu
+				<SelectMenu
 					v-model="state.unit_id"
 					:options="unitOptions"
 					value-attribute="id"
@@ -75,16 +75,16 @@
 					<template #leading>
 						<Icon name="i-heroicons-home" class="w-5 h-5 text-gray-400" />
 					</template>
-				</USelectMenu>
-			</UFormGroup>
+				</SelectMenu>
+			</FormGroup>
 
 			<FormGroup label="Residency Type" name="residency_type" required>
-				<USelectMenu
+				<SelectMenu
 					v-model="state.residency_type"
 					:options="residencyTypes"
 					size="lg"
 					placeholder="Select your residency type" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Password" name="password" required>
 				<Input
@@ -94,7 +94,7 @@
 					:loading="loading"
 					icon="i-heroicons-lock-closed"
 					placeholder="Create a password" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Confirm Password" name="confirm_password" required>
 				<Input
@@ -104,14 +104,14 @@
 					:loading="loading"
 					icon="i-heroicons-lock-closed"
 					placeholder="Confirm your password" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup name="agreement">
 				<Checkbox
 					v-model="state.agreement"
 					name="agreement"
 					label="I confirm that I am a resident or owner at 1033 Lenox" />
-			</UFormGroup>
+			</FormGroup>
 
 			<Button
 				type="submit"
@@ -121,7 +121,7 @@
 				label="Request Access"
 				trailing-icon="i-heroicons-arrow-right"
 				block />
-		</UForm>
+		</Form>
 	</div>
 </template>
 

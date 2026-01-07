@@ -38,7 +38,7 @@
 		<!-- Channel List -->
 		<div class="flex-1 overflow-y-auto">
 			<div v-if="loading" class="p-4 space-y-2">
-				<USkeleton class="h-10 w-full" v-for="i in 5" :key="i" />
+				<Skeleton class="h-10 w-full" v-for="i in 5" :key="i" />
 			</div>
 
 			<div v-else-if="error" class="p-4 text-center text-red-500">
@@ -116,7 +116,7 @@
 		</div>
 
 		<!-- Create Channel Modal -->
-		<UModal v-model="showCreateModal">
+		<Modal v-model="showCreateModal">
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -135,7 +135,7 @@
 							v-model="newChannel.name"
 							placeholder="e.g., General, Finance Committee"
 							:disabled="creating" />
-					</UFormGroup>
+					</FormGroup>
 
 					<FormGroup label="Description">
 						<Textarea
@@ -143,10 +143,10 @@
 							placeholder="What's this channel about?"
 							:rows="2"
 							:disabled="creating" />
-					</UFormGroup>
+					</FormGroup>
 
 					<FormGroup label="Icon">
-						<USelectMenu
+						<SelectMenu
 							v-model="newChannel.icon"
 							:options="iconOptions"
 							:disabled="creating">
@@ -162,15 +162,15 @@
 									<span>{{ option.label }}</span>
 								</div>
 							</template>
-						</USelectMenu>
-					</UFormGroup>
+						</SelectMenu>
+					</FormGroup>
 
 					<FormGroup>
 						<Checkbox
 							v-model="newChannel.is_private"
 							label="Private channel (require explicit invitation)"
 							:disabled="creating" />
-					</UFormGroup>
+					</FormGroup>
 				</form>
 
 				<template #footer>
@@ -184,7 +184,7 @@
 					</div>
 				</template>
 			</Card>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

@@ -36,7 +36,7 @@
 						<div class="p-2 w-72 space-y-4">
 							<FormGroup label="URL">
 								<Input v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
-							</UFormGroup>
+							</FormGroup>
 							<div class="flex justify-end space-x-2">
 								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 									Remove
@@ -73,9 +73,9 @@
 			<input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
 		</div>
 
-		<UProgress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
+		<Progress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
 		<div ref="mentionsPortal" class="mentions-portal" />
-		<UModal v-model="isModalOpen" fullscreen>
+		<Modal v-model="isModalOpen" fullscreen>
 			<div class="relative">
 				<Button
 					class="absolute top-2 right-2 z-10"
@@ -92,7 +92,7 @@
 						class="w-full h-auto max-h-screenrounded-none object-contain" />
 				</transition>
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

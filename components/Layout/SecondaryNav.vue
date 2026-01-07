@@ -13,7 +13,7 @@
 					class="secondary-nav__list w-full flex items-center justify-center gap-1 sm:gap-2 overflow-x-auto pt-3 pb-1 scrollbar-hide">
 					<!-- Dashboard - visible to all approved users -->
 					<li>
-						<UTooltip text="Dashboard" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Dashboard" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/dashboard"
 								class="secondary-nav__link flex"
@@ -26,7 +26,7 @@
 
 					<!-- Announcements - visible to all approved users -->
 					<li>
-						<UTooltip text="Announcements" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Announcements" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/announcements"
 								class="secondary-nav__link flex"
@@ -39,7 +39,7 @@
 
 					<!-- Meetings - visible to all approved users -->
 					<li>
-						<UTooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/meetings" class="secondary-nav__link flex" :class="{active: isActiveRoute('/meetings')}">
 								<Icon name="i-heroicons-calendar-days" class="w-5 h-5" />
 								<span class="hidden">Meetings</span>
@@ -49,7 +49,7 @@
 
 					<!-- By-Laws - visible to all approved users -->
 					<li>
-						<UTooltip text="By-Laws" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="By-Laws" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/documents"
 								class="secondary-nav__link flex"
@@ -62,7 +62,7 @@
 
 					<!-- Rules - visible to all approved users -->
 					<li>
-						<UTooltip text="Rules" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Rules" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/rules-regulations"
 								class="secondary-nav__link flex"
@@ -75,7 +75,7 @@
 
 					<!-- Parking - visible to all approved users -->
 					<li>
-						<UTooltip text="Parking" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Parking" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/parking-garage"
 								class="secondary-nav__link flex"
@@ -88,7 +88,7 @@
 
 					<!-- Projects - visible to all approved users -->
 					<li>
-						<UTooltip text="Projects" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Projects" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/projects" class="secondary-nav__link flex" :class="{active: isActiveRoute('/projects')}">
 								<Icon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
 								<span class="hidden">Projects</span>
@@ -98,7 +98,7 @@
 
 					<!-- Account - visible to all approved users -->
 					<li>
-						<UTooltip text="Account" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Account" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/account" class="secondary-nav__link flex" :class="{active: isActiveRoute('/account')}">
 								<Icon name="i-heroicons-user-circle" class="w-5 h-5" />
 								<span class="hidden">Account</span>
@@ -108,7 +108,7 @@
 
 					<!-- Channels - visible to board_members OR users with channel membership -->
 					<li v-if="showChannels">
-						<UTooltip text="Channels" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Channels" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/channels" class="secondary-nav__link flex" :class="{active: isActiveRoute('/channels')}">
 								<Icon name="i-lucide-messages-square" class="w-5 h-5" />
 								<span class="hidden">Channels</span>
@@ -117,7 +117,7 @@
 					</li>
 
 					<li v-if="showSecurity">
-						<UTooltip text="Security" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Security" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/security" class="secondary-nav__link flex" :class="{active: isActiveRoute('/security')}">
 								<Icon name="i-lucide-cctv" class="w-5 h-5" />
 								<span class="hidden">Security</span>
@@ -132,7 +132,7 @@
 
 					<!-- Financials - visible to board_members and owners -->
 					<li v-if="showFinancials">
-						<UTooltip text="Financials" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Financials" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/financials"
 								class="secondary-nav__link flex"
@@ -145,7 +145,7 @@
 
 					<!-- Tasks - visible to board_members only -->
 					<li v-if="isBoardMember">
-						<UTooltip text="Tasks" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Tasks" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/tasks" class="secondary-nav__link flex" :class="{active: isActiveRoute('/tasks')}">
 								<Icon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
 								<span class="hidden">Tasks</span>
@@ -155,7 +155,7 @@
 
 					<!-- Admin - visible to board_members and admins -->
 					<li v-if="isBoardMember">
-						<UTooltip text="Users" :popper="{placement: 'bottom'}" class="uppercase">
+						<Tooltip text="Users" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link
 								to="/admin"
 								class="secondary-nav__link flex admin-link"

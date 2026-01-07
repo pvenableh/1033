@@ -18,7 +18,7 @@
 
 		<!-- 🚨 FLORIDA COMPLIANCE ALERTS -->
 		<div v-if="complianceViolations.length > 0" class="mb-8">
-			<UAlert
+			<Alert
 				icon="i-heroicons-exclamation-triangle"
 				color="red"
 				variant="solid"
@@ -27,7 +27,7 @@
 				class="mb-4" />
 
 			<div class="grid gap-3">
-				<UAlert
+				<Alert
 					v-for="violation in complianceViolations.slice(0, 3)"
 					:key="violation.date"
 					icon="i-heroicons-exclamation-circle"
@@ -177,7 +177,7 @@
 			</div>
 
 			<!-- Category Breakdown with Correct Budget Numbers -->
-			<UTable :rows="varianceAnalysis" :columns="budgetColumns">
+			<Table :rows="varianceAnalysis" :columns="budgetColumns">
 				<template #category-data="{row}">
 					<span class="font-medium">{{ row.category }}</span>
 				</template>
@@ -197,7 +197,7 @@
 						{{ row.status }}
 					</Badge>
 				</template>
-			</UTable>
+			</Table>
 		</Card>
 
 		<!-- Detailed Expense Categories -->
@@ -206,7 +206,7 @@
 				<h2 class="text-xl font-semibold uppercase tracking-wide">EXPENSE BREAKDOWN</h2>
 			</template>
 
-			<UAccordion :items="expenseCategories" variant="soft" size="sm">
+			<Accordion :items="expenseCategories" variant="soft" size="sm">
 				<template #insurance="{item, index, open}">
 					<div class="space-y-2">
 						<div
@@ -302,7 +302,7 @@
 						</div>
 					</div>
 				</template>
-			</UAccordion>
+			</Accordion>
 		</Card>
 
 		<!-- Compliance Checklist -->

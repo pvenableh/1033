@@ -426,7 +426,7 @@ onMounted(() => {
 						icon="i-heroicons-magnifying-glass"
 						placeholder="Search announcements..."
 						class="flex-1 max-w-md" />
-					<USelectMenu
+					<SelectMenu
 						v-model="statusFilter"
 						:options="[{label: 'All Status', value: 'all'}, ...statusOptions]"
 						value-attribute="value"
@@ -436,7 +436,7 @@ onMounted(() => {
 
 				<!-- Announcements Table -->
 				<Card>
-					<UTable
+					<Table
 						:rows="filteredAnnouncements"
 						:columns="[
 							{key: 'title', label: 'Title'},
@@ -507,12 +507,12 @@ onMounted(() => {
 									@click="deleteAnnouncement(row)" />
 							</div>
 						</template>
-					</UTable>
+					</Table>
 				</Card>
 			</template>
 
 			<!-- Create/Edit Modal -->
-			<UModal v-model="showModal" :ui="{width: 'sm:max-w-2xl'}">
+			<Modal v-model="showModal" :ui="{width: 'sm:max-w-2xl'}">
 				<Card>
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -526,28 +526,28 @@ onMounted(() => {
 					<div class="space-y-4">
 						<FormGroup label="Title" required>
 							<Input v-model="form.title" placeholder="Announcement title" />
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="Subtitle">
 							<Input v-model="form.subtitle" placeholder="Brief summary" />
-						</UFormGroup>
+						</FormGroup>
 
 						<div class="grid grid-cols-2 gap-4">
 							<FormGroup label="Template">
-								<USelectMenu
+								<SelectMenu
 									v-model="form.template"
 									:options="templateOptions"
 									value-attribute="value"
 									option-attribute="label" />
-							</UFormGroup>
+							</FormGroup>
 
 							<FormGroup label="Status">
-								<USelectMenu
+								<SelectMenu
 									v-model="form.status"
 									:options="statusOptions"
 									value-attribute="value"
 									option-attribute="label" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<FormGroup label="Content">
@@ -566,7 +566,7 @@ onMounted(() => {
 									</div>
 								</template>
 							</ClientOnly>
-						</UFormGroup>
+						</FormGroup>
 
 						<Checkbox v-model="form.urgent" label="Mark as urgent" />
 					</div>
@@ -580,10 +580,10 @@ onMounted(() => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 
 			<!-- Send Modal -->
-			<UModal v-model="showSendModal" :ui="{width: 'sm:max-w-3xl'}">
+			<Modal v-model="showSendModal" :ui="{width: 'sm:max-w-3xl'}">
 				<Card v-if="selectedAnnouncement">
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -680,7 +680,7 @@ onMounted(() => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 		</div>
 	</div>
 </template>

@@ -11,7 +11,7 @@
 			},
 		}"
 		class="w-full">
-		<UAlert
+		<Alert
 			v-if="login_error"
 			type="error"
 			class="my-4"
@@ -20,7 +20,7 @@
 			variant="subtle"
 			icon="i-heroicons-exclamation-triangle">
 			Error: {{ login_error }}
-		</UAlert>
+		</Alert>
 
 		<Form :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
 			<FormGroup label="Email" name="email">
@@ -41,7 +41,7 @@
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
-			</UFormGroup>
+			</FormGroup>
 			<FormGroup label="Password" required>
 				<Input
 					v-model="state.password"
@@ -52,7 +52,7 @@
 					name="password"
 					label="Password"
 					placeholder="********" />
-			</UFormGroup>
+			</FormGroup>
 			<Button
 				type="submit"
 				:loading="loading"
@@ -61,7 +61,7 @@
 				label="Sign In"
 				trailing-icon="i-heroicons-arrow-right"
 				block />
-		</UForm>
+		</Form>
 	</div>
 </template>
 

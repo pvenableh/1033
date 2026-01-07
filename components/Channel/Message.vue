@@ -93,9 +93,9 @@
 
 			<!-- Actions -->
 			<div class="message-actions">
-				<UDropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
+				<Dropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
 					<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
-				</UDropdown>
+				</Dropdown>
 			</div>
 		</div>
 	</div>

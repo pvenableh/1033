@@ -261,7 +261,7 @@ function getStatusBadge(status: string) {
             <p class="text-xs text-gray-400 mt-1">Unit {{ pet.unit_number }}</p>
           </div>
 
-          <UDropdown
+          <Dropdown
             :items="[
               [
                 { label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditModal(pet) },
@@ -273,13 +273,13 @@ function getStatusBadge(status: string) {
               variant="ghost"
               icon="i-heroicons-ellipsis-vertical"
               size="xs" />
-          </UDropdown>
+          </Dropdown>
         </div>
       </Card>
     </div>
 
     <!-- Add/Edit Modal -->
-    <UModal v-model="showModal">
+    <Modal v-model="showModal">
       <Card>
         <template #header>
           <div class="flex items-center justify-between">
@@ -295,19 +295,19 @@ function getStatusBadge(status: string) {
         <div class="space-y-4">
           <FormGroup label="Name">
             <Input v-model="editingPet.name" placeholder="Pet's name" />
-          </UFormGroup>
+          </FormGroup>
 
           <FormGroup label="Category">
-            <USelectMenu v-model="editingPet.category" :options="petCategories" />
-          </UFormGroup>
+            <SelectMenu v-model="editingPet.category" :options="petCategories" />
+          </FormGroup>
 
           <FormGroup label="Breed">
             <Input v-model="editingPet.breed" placeholder="e.g., Golden Retriever" />
-          </UFormGroup>
+          </FormGroup>
 
           <FormGroup label="Weight">
             <Input v-model="editingPet.weight" placeholder="e.g., 25 lbs" />
-          </UFormGroup>
+          </FormGroup>
         </div>
 
         <template #footer>
@@ -326,6 +326,6 @@ function getStatusBadge(status: string) {
           </div>
         </template>
       </Card>
-    </UModal>
+    </Modal>
   </div>
 </template>

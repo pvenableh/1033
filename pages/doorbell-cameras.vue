@@ -316,7 +316,7 @@ function openExternalLink() {
 			</p>
 		</div>
 
-		<UModal v-model="isVoteOpen">
+		<Modal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative">
 				<Icon
 					name="i-heroicons-x-circle"
@@ -337,7 +337,7 @@ function openExternalLink() {
 					Send Email Vote for {{ selectedItem.label }}
 				</nuxt-link>
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 <style scoped>

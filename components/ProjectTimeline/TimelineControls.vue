@@ -20,7 +20,7 @@
 		</div>
 
 		<!-- Project focus dropdown -->
-		<USelectMenu
+		<SelectMenu
 			:model-value="selectedProject"
 			:options="projectOptions"
 			option-attribute="name"
@@ -35,7 +35,7 @@
 					:style="{backgroundColor: selectedProject.color}" />
 				<Icon v-else name="i-heroicons-funnel" class="w-4 h-4 text-gray-400" />
 			</template>
-		</USelectMenu>
+		</SelectMenu>
 
 		<!-- Reset button -->
 		<button

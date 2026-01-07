@@ -435,13 +435,13 @@ onMounted(() => {
 						icon="i-heroicons-magnifying-glass"
 						placeholder="Search by email or name..."
 						class="flex-1 max-w-md" />
-					<USelectMenu
+					<SelectMenu
 						v-model="eventFilter"
 						:options="eventOptions"
 						value-attribute="value"
 						option-attribute="label"
 						class="w-40" />
-					<USelectMenu
+					<SelectMenu
 						v-model="announcementFilter"
 						:options="announcementOptions"
 						value-attribute="value"
@@ -452,7 +452,7 @@ onMounted(() => {
 				<!-- Activity Table with Infinite Scroll -->
 				<Card>
 					<div ref="scrollContainer" class="max-h-[60vh] overflow-y-auto" @scroll="handleScroll">
-						<UTable
+						<Table
 							:rows="filteredActivities"
 							:columns="[
 								{key: 'event', label: 'Event'},
@@ -500,7 +500,7 @@ onMounted(() => {
 							<template #date_created-data="{row}">
 								<span class="text-sm text-gray-500">{{ formatDate(row.date_created) }}</span>
 							</template>
-						</UTable>
+						</Table>
 
 						<!-- Load More Indicator -->
 						<div v-if="loadingMore" class="flex items-center justify-center py-4">

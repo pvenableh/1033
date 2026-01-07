@@ -39,13 +39,13 @@
 						<span class="hidden sm:inline">{{ memberCount }}</span>
 						<span class="sm:hidden">{{ memberCount }}</span>
 					</Button>
-					<UDropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
+					<Dropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
 						<Button
 							size="sm"
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-ellipsis-vertical" />
-					</UDropdown>
+					</Dropdown>
 				</div>
 			</div>
 
@@ -165,7 +165,7 @@
 		</div>
 
 		<!-- Invite Member Modal -->
-		<UModal v-model="showInviteModal">
+		<Modal v-model="showInviteModal">
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -180,7 +180,7 @@
 
 				<div class="space-y-4">
 					<FormGroup label="Select User">
-						<USelectMenu
+						<SelectMenu
 							v-model="selectedUserToInvite"
 							:options="invitableUsers"
 							option-attribute="label"
@@ -206,14 +206,14 @@
 									</div>
 								</div>
 							</template>
-						</USelectMenu>
-					</UFormGroup>
+						</SelectMenu>
+					</FormGroup>
 
 					<FormGroup label="Role">
-						<USelectMenu
+						<SelectMenu
 							v-model="inviteRole"
 							:options="roleOptions" />
-					</UFormGroup>
+					</FormGroup>
 				</div>
 
 				<template #footer>
@@ -231,7 +231,7 @@
 					</div>
 				</template>
 			</Card>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

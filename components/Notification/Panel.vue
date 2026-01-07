@@ -58,10 +58,10 @@
 			<!-- Loading state -->
 			<div v-if="loading" class="p-4 space-y-3">
 				<div v-for="i in 5" :key="i" class="flex items-start gap-3">
-					<USkeleton class="w-9 h-9 rounded-full" />
+					<Skeleton class="w-9 h-9 rounded-full" />
 					<div class="flex-1 space-y-2">
-						<USkeleton class="h-4 w-3/4" />
-						<USkeleton class="h-3 w-1/2" />
+						<Skeleton class="h-4 w-3/4" />
+						<Skeleton class="h-3 w-1/2" />
 					</div>
 				</div>
 			</div>
@@ -111,7 +111,7 @@
 					View all notifications
 					<Icon name="i-heroicons-arrow-right" class="w-3 h-3 ml-1" />
 				</Button> -->
-				<Buttonvariant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
+				<Button variant="ghost" size="xs" color="gray" @click="refresh" :loading="loading">
 					<Icon name="i-heroicons-arrow-path" class="w-3 h-3" :class="{'animate-spin': loading}" />
 				</Button>
 			</div>

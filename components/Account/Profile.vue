@@ -4,15 +4,15 @@
 		<form class="grid gap-4" @submit.prevent="updatePerson()">
 			<FormGroup label="First Name" name="first_name">
 				<Input v-model="formState.first_name" name="first_name" type="text" placeholder="First Name" size="lg" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Last Name" name="last_name">
 				<Input v-model="formState.last_name" name="last_name" type="text" placeholder="Last Name" size="lg" />
-			</UFormGroup>
+			</FormGroup>
 
 			<FormGroup label="Email" name="email">
 				<Input v-model="formState.email" name="email" type="email" placeholder="Email" size="lg" disabled />
-			</UFormGroup>
+			</FormGroup>
 
 			<Button class="w-full mt-4" type="submit" size="lg" label="Update Profile" :loading="loading" block />
 		</form>

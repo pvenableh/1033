@@ -375,7 +375,7 @@ onMounted(() => {
 
 				<!-- People Table -->
 				<Card>
-					<UTable
+					<Table
 						:rows="filteredPeople"
 						:columns="[
 							{key: 'name', label: 'Person'},
@@ -416,12 +416,12 @@ onMounted(() => {
 								Configure
 							</Button>
 						</template>
-					</UTable>
+					</Table>
 				</Card>
 			</template>
 
 			<!-- Permission Modal -->
-			<UModal v-model="showPermissionModal" :ui="{width: 'sm:max-w-3xl'}">
+			<Modal v-model="showPermissionModal" :ui="{width: 'sm:max-w-3xl'}">
 				<Card v-if="selectedPerson">
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -571,7 +571,7 @@ onMounted(() => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 		</div>
 	</div>
 </template>

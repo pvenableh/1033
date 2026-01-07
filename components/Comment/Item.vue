@@ -76,13 +76,13 @@
 					</span>
 
 					<!-- More actions dropdown -->
-					<UDropdown
+					<Dropdown
 						v-if="canEdit"
 						:items="actionItems"
 						:popper="{placement: 'bottom-end'}"
 						class="opacity-0 group-hover:opacity-100 transition-opacity">
 						<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" class="ml-auto" />
-					</UDropdown>
+					</Dropdown>
 				</div>
 
 				<!-- Replies -->

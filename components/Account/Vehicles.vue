@@ -237,7 +237,7 @@ function getStatusBadge(status: string) {
 						<p class="text-xs text-gray-400 mt-1">Unit {{ vehicle.unit_number }}</p>
 					</div>
 
-					<UDropdown
+					<Dropdown
 						:items="[
 							[
 								{label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditModal(vehicle)},
@@ -245,13 +245,13 @@ function getStatusBadge(status: string) {
 							],
 						]">
 						<Button color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
-					</UDropdown>
+					</Dropdown>
 				</div>
 			</Card>
 		</div>
 
 		<!-- Add/Edit Modal -->
-		<UModal v-model="showModal">
+		<Modal v-model="showModal">
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -264,31 +264,31 @@ function getStatusBadge(status: string) {
 					<div class="grid grid-cols-2 gap-4">
 						<FormGroup label="Make">
 							<Input v-model="editingVehicle.make" placeholder="e.g., Toyota" />
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="Model">
 							<Input v-model="editingVehicle.model" placeholder="e.g., Camry" />
-						</UFormGroup>
+						</FormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
 						<FormGroup label="Year">
 							<Input v-model="editingVehicle.year" placeholder="e.g., 2022" />
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="Color">
-							<USelectMenu v-model="editingVehicle.color" :options="commonColors" placeholder="Select color" />
-						</UFormGroup>
+							<SelectMenu v-model="editingVehicle.color" :options="commonColors" placeholder="Select color" />
+						</FormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
 						<FormGroup label="License Plate">
 							<Input v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="State">
 							<Input v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
-						</UFormGroup>
+						</FormGroup>
 					</div>
 				</div>
 
@@ -306,6 +306,6 @@ function getStatusBadge(status: string) {
 					</div>
 				</template>
 			</Card>
-		</UModal>
+		</Modal>
 	</div>
 </template>

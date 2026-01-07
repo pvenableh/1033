@@ -210,39 +210,39 @@ const onSubmit = handleSubmit(async (values) => {
 									</button>
 								</div>
 							</div>
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<div class="grid grid-cols-2 gap-2 sm:gap-4 w-full">
 						<FormGroup label="Name" required :error="nameError">
 							<Input v-model="name" />
-						</UFormGroup>
+						</FormGroup>
 						<FormGroup label="Email" required :error="emailError">
 							<Input v-model="email" type="email" placeholder="name@domain.com" />
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 w-full">
 						<FormGroup label="Unit" :error="unitError">
-							<USelect v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
-						</UFormGroup>
+							<Select v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
+						</FormGroup>
 						<FormGroup label="Phone">
 							<Input v-model="phone" type="text" placeholder="(555) 555-5555" />
-						</UFormGroup>
+						</FormGroup>
 						<FormGroup label="Contact by:" required :error="preferenceError">
-							<USelect
+							<Select
 								v-model="contact_preference"
 								:options="availablePreferenceOptions"
 								:disabled="availablePreferenceOptions.length === 1" />
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<!-- <div class="grid grid-cols-2 gap-2 sm:gap-4">
 						<FormGroup label="Subject" required :error="subjectError">
-							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
-						</UFormGroup> 
+							<Select v-model="subject" :options="categories" placeholder="Select a subject" />
+						</FormGroup> 
 					</div>-->
 					<!-- Description -->
 					<FormGroup label="Comments">
 						<TipTap v-model="description" :allow-uploads="false" rows="4" />
-					</UFormGroup>
+					</FormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
 						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</Button>

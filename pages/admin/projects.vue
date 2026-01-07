@@ -436,13 +436,13 @@ onMounted(async () => {
 						icon="i-heroicons-magnifying-glass"
 						placeholder="Search projects..."
 						class="md:w-64" />
-					<USelectMenu
+					<SelectMenu
 						v-model="statusFilter"
 						:options="statusOptions"
 						value-attribute="value"
 						option-attribute="label"
 						class="md:w-48" />
-					<USelectMenu
+					<SelectMenu
 						v-model="categoryFilter"
 						:options="categoryOptions"
 						value-attribute="value"
@@ -452,7 +452,7 @@ onMounted(async () => {
 
 				<!-- Projects Table -->
 				<Card>
-					<UTable
+					<Table
 						:rows="filteredProjects"
 						:columns="[
 							{key: 'name', label: 'Project'},
@@ -469,10 +469,10 @@ onMounted(async () => {
 								<div>
 									<div class="flex items-center gap-2">
 										<p class="font-medium">{{ row.name }}</p>
-										<UTooltip v-if="row.member_visible" text="Visible to members" :popper="{placement: 'top'}">
+										<Tooltip v-if="row.member_visible" text="Visible to members" :popper="{placement: 'top'}">
 											<Icon name="i-heroicons-eye" class="w-4 h-4 text-green-500" />
 										</Tooltip>
-										<UTooltip v-else text="Hidden from members" :popper="{placement: 'top'}">
+										<Tooltip v-else text="Hidden from members" :popper="{placement: 'top'}">
 											<Icon name="i-heroicons-eye-slash" class="w-4 h-4 text-gray-400" />
 										</Tooltip>
 									</div>
@@ -499,7 +499,7 @@ onMounted(async () => {
 						</template>
 
 						<template #status-data="{row}">
-							<UDropdown
+							<Dropdown
 								v-if="canUpdateProjects"
 								:items="[
 									[
@@ -513,7 +513,7 @@ onMounted(async () => {
 									{{ row.status }}
 									<Icon name="i-heroicons-chevron-down" class="w-3 h-3 ml-1" />
 								</Badge>
-							</UDropdown>
+							</Dropdown>
 							<Badge v-else :color="getStatusColor(row.status)" variant="soft" size="sm">
 								{{ row.status }}
 							</Badge>
@@ -549,12 +549,12 @@ onMounted(async () => {
 									@click="openDeleteModal(row)" />
 							</div>
 						</template>
-					</UTable>
+					</Table>
 				</Card>
 			</template>
 
 			<!-- Create/Edit Project Modal -->
-			<UModal v-model="showProjectModal" :ui="{width: 'sm:max-w-xl'}">
+			<Modal v-model="showProjectModal" :ui="{width: 'sm:max-w-xl'}">
 				<Card>
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -569,17 +569,17 @@ onMounted(async () => {
 						<!-- Name -->
 						<FormGroup label="Project Name" required>
 							<Input v-model="projectForm.name" placeholder="Enter project name" />
-						</UFormGroup>
+						</FormGroup>
 
 						<!-- Description -->
 						<FormGroup label="Description">
 							<Textarea v-model="projectForm.description" placeholder="Enter project description" :rows="3" />
-						</UFormGroup>
+						</FormGroup>
 
 						<div class="grid grid-cols-2 gap-4">
 							<!-- Status -->
 							<FormGroup label="Status">
-								<USelectMenu
+								<SelectMenu
 									v-model="projectForm.status"
 									:options="[
 										{label: 'Draft', value: 'draft'},
@@ -589,29 +589,29 @@ onMounted(async () => {
 									]"
 									value-attribute="value"
 									option-attribute="label" />
-							</UFormGroup>
+							</FormGroup>
 
 							<!-- Category -->
 							<FormGroup label="Category">
-								<USelectMenu
+								<SelectMenu
 									v-model="projectForm.category_id"
 									:options="categorySelectOptions"
 									value-attribute="value"
 									option-attribute="label"
 									placeholder="Select category" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<div class="grid grid-cols-2 gap-4">
 							<!-- Start Date -->
 							<FormGroup label="Start Date" required>
 								<Input v-model="projectForm.start_date" type="date" />
-							</UFormGroup>
+							</FormGroup>
 
 							<!-- Target End Date -->
 							<FormGroup label="Target End Date">
 								<Input v-model="projectForm.target_end_date" type="date" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<div class="grid grid-cols-2 gap-4">
@@ -624,12 +624,12 @@ onMounted(async () => {
 										class="w-10 h-10 rounded border border-gray-300 dark:border-gray-600 cursor-pointer" />
 									<Input v-model="projectForm.color" placeholder="#C4A052" class="flex-1" />
 								</div>
-							</UFormGroup>
+							</FormGroup>
 
 							<!-- Icon -->
 							<FormGroup label="Icon">
 								<Input v-model="projectForm.icon" placeholder="i-heroicons-folder" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<!-- Member Visibility -->
@@ -640,7 +640,7 @@ onMounted(async () => {
 									When enabled, all approved members can view this project
 								</p>
 							</div>
-							<UToggle v-model="projectForm.member_visible" />
+							<Toggle v-model="projectForm.member_visible" />
 						</div>
 					</div>
 
@@ -653,10 +653,10 @@ onMounted(async () => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 
 			<!-- Delete Confirmation Modal -->
-			<UModal v-model="showDeleteModal">
+			<Modal v-model="showDeleteModal">
 				<Card>
 					<template #header>
 						<div class="flex items-center gap-3">
@@ -680,7 +680,7 @@ onMounted(async () => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 		</div>
 	</div>
 </template>

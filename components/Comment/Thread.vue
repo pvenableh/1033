@@ -11,7 +11,7 @@
 			</h3>
 
 			<div v-if="showFilters" class="flex items-center gap-2">
-				<USelectMenu v-model="sortOrder" :options="sortOptions" size="xs" class="w-32" />
+				<SelectMenu v-model="sortOrder" :options="sortOptions" size="xs" class="w-32" />
 			</div>
 		</div>
 
@@ -23,10 +23,10 @@
 		<!-- Loading State -->
 		<div v-if="loading" class="space-y-4">
 			<div v-for="i in 3" :key="i" class="flex gap-3">
-				<USkeleton class="w-8 h-8 rounded-full" />
+				<Skeleton class="w-8 h-8 rounded-full" />
 				<div class="flex-1 space-y-2">
-					<USkeleton class="h-4 w-1/4" />
-					<USkeleton class="h-12 w-full" />
+					<Skeleton class="h-4 w-1/4" />
+					<Skeleton class="h-12 w-full" />
 				</div>
 			</div>
 		</div>
@@ -54,7 +54,7 @@
 		</div>
 
 		<!-- Reply Modal -->
-		<UModal v-model="showReplyModal">
+		<Modal v-model="showReplyModal">
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -82,7 +82,7 @@
 					:submitting="submittingReply"
 					@submit="submitReply" />
 			</Card>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

@@ -34,7 +34,7 @@ async function handleLogout() {
 			</p>
 
 			<div class="space-y-4">
-				<UAlert
+				<Alert
 					icon="i-heroicons-information-circle"
 					color="blue"
 					variant="soft"

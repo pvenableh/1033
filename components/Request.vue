@@ -5,18 +5,18 @@
 			<p>This is being submitted by {{ user }}</p>
 			<!-- Request Category -->
 			<FormGroup label="Request Category" required>
-				<USelect v-model="formData.category" :options="categories" placeholder="Select a category" required />
-			</UFormGroup>
+				<Select v-model="formData.category" :options="categories" placeholder="Select a category" required />
+			</FormGroup>
 
 			<!-- Priority -->
 			<FormGroup label="Priority Level">
-				<USelect v-model="formData.priority" :options="priorities" placeholder="Select priority" />
-			</UFormGroup>
+				<Select v-model="formData.priority" :options="priorities" placeholder="Select priority" />
+			</FormGroup>
 
 			<!-- Subject -->
 			<FormGroup label="Subject" required>
 				<Input v-model="formData.subject" placeholder="Brief description of the issue" required />
-			</UFormGroup>
+			</FormGroup>
 
 			<!-- Description -->
 			<FormGroup label="Description" required>
@@ -25,19 +25,19 @@
 					placeholder="Please provide detailed information about your request"
 					rows="4"
 					required />
-			</UFormGroup>
+			</FormGroup>
 
 			<!-- Access Permission -->
 			<FormGroup>
 				<Checkbox
 					v-model="formData.allowAccess"
 					label="I give permission for maintenance to enter my unit when I'm not present" />
-			</UFormGroup>
+			</FormGroup>
 
 			<!-- Preferred Contact Method -->
 			<FormGroup label="Preferred Contact Method">
-				<URadio v-model="formData.contactMethod" :options="contactMethods" name="contact-method" />
-			</UFormGroup>
+				<Radio v-model="formData.contactMethod" :options="contactMethods" name="contact-method" />
+			</FormGroup>
 		</div>
 
 		<div class="flex justify-end space-x-3 pt-4">

@@ -19,7 +19,7 @@
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
-			</UFormGroup>
+			</FormGroup>
 			<Button
 				class="w-full mb-6"
 				type="submit"
@@ -27,7 +27,7 @@
 				label="Send Email"
 				trailing-icon="i-heroicons-arrow-right"
 				block></Button>
-		</UForm>
+		</Form>
 	</div>
 </template>
 

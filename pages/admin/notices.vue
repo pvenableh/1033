@@ -307,7 +307,7 @@ onMounted(() => {
 						icon="i-heroicons-magnifying-glass"
 						placeholder="Search notices..."
 						class="flex-1 max-w-md" />
-					<USelectMenu
+					<SelectMenu
 						v-model="statusFilter"
 						:options="[{label: 'All Status', value: 'all'}, ...statusOptions]"
 						value-attribute="value"
@@ -317,7 +317,7 @@ onMounted(() => {
 
 				<!-- Notices Table -->
 				<Card>
-					<UTable
+					<Table
 						:rows="filteredNotices"
 						:columns="[
 							{key: 'pinned', label: ''},
@@ -403,12 +403,12 @@ onMounted(() => {
 									@click="deleteNotice(row)" />
 							</div>
 						</template>
-					</UTable>
+					</Table>
 				</Card>
 			</template>
 
 			<!-- Create/Edit Modal -->
-			<UModal v-model="showModal" :ui="{width: 'sm:max-w-2xl'}">
+			<Modal v-model="showModal" :ui="{width: 'sm:max-w-2xl'}">
 				<Card>
 					<template #header>
 						<div class="flex items-center justify-between">
@@ -422,24 +422,24 @@ onMounted(() => {
 					<div class="space-y-4">
 						<FormGroup label="Title" required>
 							<Input v-model="form.title" placeholder="Notice title" />
-						</UFormGroup>
+						</FormGroup>
 
 						<div class="grid grid-cols-2 gap-4">
 							<FormGroup label="Type">
-								<USelectMenu
+								<SelectMenu
 									v-model="form.type"
 									:options="typeOptions"
 									value-attribute="value"
 									option-attribute="label" />
-							</UFormGroup>
+							</FormGroup>
 
 							<FormGroup label="Status">
-								<USelectMenu
+								<SelectMenu
 									v-model="form.status"
 									:options="statusOptions"
 									value-attribute="value"
 									option-attribute="label" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<FormGroup label="Visibility" hint="Who can see this notice">
@@ -451,7 +451,7 @@ onMounted(() => {
 									:value="option.value"
 									:label="option.label" />
 							</div>
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="Content">
 							<ClientOnly>
@@ -468,16 +468,16 @@ onMounted(() => {
 									</div>
 								</template>
 							</ClientOnly>
-						</UFormGroup>
+						</FormGroup>
 
 						<div class="grid grid-cols-2 gap-4">
 							<FormGroup label="Publish At">
 								<Input v-model="form.published_at" type="datetime-local" />
-							</UFormGroup>
+							</FormGroup>
 
 							<FormGroup label="Expires At">
 								<Input v-model="form.expires_at" type="datetime-local" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<Checkbox v-model="form.pinned" label="Pin to top" />
@@ -492,7 +492,7 @@ onMounted(() => {
 						</div>
 					</template>
 				</Card>
-			</UModal>
+			</Modal>
 		</div>
 	</div>
 </template>

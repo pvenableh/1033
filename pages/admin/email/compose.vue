@@ -698,18 +698,18 @@ onMounted(async () => {
             <div class="space-y-4">
               <FormGroup label="Title" required>
                 <Input v-model="form.title" placeholder="Enter announcement title..." size="lg" />
-              </UFormGroup>
+              </FormGroup>
 
               <FormGroup label="Subtitle">
                 <Input v-model="form.subtitle" placeholder="Brief summary (optional)" />
-              </UFormGroup>
+              </FormGroup>
 
               <FormGroup label="Greeting">
                 <Input v-model="form.greeting" placeholder="Dear {{first_name}}," />
                 <template #hint>
                   Use <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{{first_name}}</code> for personalization
                 </template>
-              </UFormGroup>
+              </FormGroup>
 
               <FormGroup label="Message" required>
                 <ClientOnly>
@@ -727,11 +727,11 @@ onMounted(async () => {
                     </div>
                   </template>
                 </ClientOnly>
-              </UFormGroup>
+              </FormGroup>
 
               <FormGroup label="Closing">
                 <Input v-model="form.closing" placeholder="Best regards,\nThe Board" />
-              </UFormGroup>
+              </FormGroup>
 
               <Checkbox v-model="form.urgent" label="Mark as urgent" />
             </div>
@@ -986,7 +986,7 @@ onMounted(async () => {
       </div>
 
       <!-- Preview Modal -->
-      <UModal v-model="showPreview" :ui="{ width: 'sm:max-w-4xl' }">
+      <Modal v-model="showPreview" :ui="{ width: 'sm:max-w-4xl' }">
         <Card>
           <template #header>
             <div class="flex items-center justify-between">
@@ -1004,10 +1004,10 @@ onMounted(async () => {
             </div>
           </template>
         </Card>
-      </UModal>
+      </Modal>
 
       <!-- Attachment Browser Modal -->
-      <UModal v-model="showAttachmentBrowser" :ui="{ width: 'sm:max-w-3xl' }">
+      <Modal v-model="showAttachmentBrowser" :ui="{ width: 'sm:max-w-3xl' }">
         <Card class="max-h-[80vh] flex flex-col">
           <template #header>
             <div class="flex items-center justify-between">
@@ -1086,7 +1086,7 @@ onMounted(async () => {
             </div>
           </div>
         </Card>
-      </UModal>
+      </Modal>
     </div>
   </div>
 </template>

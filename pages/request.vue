@@ -156,7 +156,7 @@ const onSubmit = handleSubmit(async (values) => {
 									{{ nameError }}
 								</p>
 							</template>
-						</UFormGroup>
+						</FormGroup>
 						<FormGroup label="Email" required :error="emailError">
 							<Input v-model="email" type="email" placeholder="name@domain.com" />
 							<template #error>
@@ -164,25 +164,25 @@ const onSubmit = handleSubmit(async (values) => {
 									{{ emailError }}
 								</p>
 							</template>
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<div class="grid sm:grid-cols-2 gap-4">
 						<FormGroup label="Subject" required :error="subjectError">
-							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
+							<Select v-model="subject" :options="categories" placeholder="Select a subject" />
 							<template #error>
 								<p class="error-class">
 									{{ subjectError }}
 								</p>
 							</template>
-						</UFormGroup>
+						</FormGroup>
 						<FormGroup label="Unit" required :error="unitError">
-							<USelect v-model="unit" :options="formattedOptions" placeholder="Select your unit" />
+							<Select v-model="unit" :options="formattedOptions" placeholder="Select your unit" />
 							<template #error>
 								<p class="error-class">
 									{{ unitError }}
 								</p>
 							</template>
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<!-- Description -->
 					<FormGroup label="Description" required :error="descriptionError">
@@ -198,7 +198,7 @@ const onSubmit = handleSubmit(async (values) => {
 								{{ descriptionError }}
 							</p>
 						</template>
-					</UFormGroup>
+					</FormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full">
 						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</Button>

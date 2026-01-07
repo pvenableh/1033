@@ -210,10 +210,10 @@ function resetForm() {
 						<div class="grid grid-cols-2 gap-4">
 							<FormGroup label="First Name" name="first_name">
 								<Input v-model="state.first_name" placeholder="John" icon="i-heroicons-user" />
-							</UFormGroup>
+							</FormGroup>
 							<FormGroup label="Last Name" name="last_name">
 								<Input v-model="state.last_name" placeholder="Doe" />
-							</UFormGroup>
+							</FormGroup>
 						</div>
 
 						<FormGroup label="Email" name="email" required :error="emailError">
@@ -224,10 +224,10 @@ function resetForm() {
 								icon="i-heroicons-envelope"
 								:loading="checkingEmail"
 								@blur="checkEmailExists(state.email)" />
-						</UFormGroup>
+						</FormGroup>
 
 						<FormGroup label="Unit" name="unit_id">
-							<USelectMenu
+							<SelectMenu
 								v-model="state.unit_id"
 								:options="unitOptions"
 								value-attribute="id"
@@ -239,11 +239,11 @@ function resetForm() {
 								<template #leading>
 									<Icon name="i-heroicons-home" class="w-5 h-5 text-gray-400" />
 								</template>
-							</USelectMenu>
-						</UFormGroup>
+							</SelectMenu>
+						</FormGroup>
 
 						<FormGroup label="Role" name="role" required>
-							<USelectMenu
+							<SelectMenu
 								v-model="state.role"
 								:options="roles"
 								value-attribute="id"
@@ -256,8 +256,8 @@ function resetForm() {
 										<p v-if="option.description" class="text-xs text-gray-500">{{ option.description }}</p>
 									</div>
 								</template>
-							</USelectMenu>
-						</UFormGroup>
+							</SelectMenu>
+						</FormGroup>
 
 						<Button
 							type="submit"
@@ -267,7 +267,7 @@ function resetForm() {
 							size="lg">
 							Send Invitation
 						</Button>
-					</UForm>
+					</Form>
 				</Card>
 			</div>
 		</div>

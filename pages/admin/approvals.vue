@@ -205,7 +205,7 @@ onMounted(() => {
 
 				<!-- Tabs and Content -->
 				<template v-else>
-					<UTabs :items="tabs" v-model="activeTab" class="mb-6">
+					<Tabs :items="tabs" v-model="activeTab" class="mb-6">
 						<template #item="{item}">
 							<div class="flex items-center gap-2">
 								<Icon :name="item.icon" class="w-4 h-4" />
@@ -215,7 +215,7 @@ onMounted(() => {
 								</Badge>
 							</div>
 						</template>
-					</UTabs>
+					</Tabs>
 
 					<!-- Pets Tab -->
 					<div v-if="activeTab === 'pets' && pendingItems.permissions.pets">

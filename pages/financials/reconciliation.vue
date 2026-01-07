@@ -11,21 +11,21 @@
 			<div class="flex flex-wrap gap-4 items-center">
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 uppercase">Account:</label>
-					<USelect v-model="selectedAccount" :options="accountOptions" size="sm" class="w-64" />
+					<Select v-model="selectedAccount" :options="accountOptions" size="sm" class="w-64" />
 				</div>
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 uppercase">Month:</label>
-					<USelect v-model="selectedMonth" :options="monthOptions" size="sm" class="w-32" />
+					<Select v-model="selectedMonth" :options="monthOptions" size="sm" class="w-32" />
 				</div>
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 uppercase">Year:</label>
-					<USelect v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
+					<Select v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
 				</div>
 			</div>
 		</Card>
 
 		<!-- Transfer Audit Alert -->
-		<UAlert
+		<Alert
 			v-if="transferAudit?.hasIssues"
 			icon="i-heroicons-exclamation-triangle"
 			color="red"
@@ -38,7 +38,7 @@
 					<li v-if="transferAudit.mismatches.count > 0">{{ transferAudit.mismatches.count }} amount mismatches</li>
 				</ul>
 			</template>
-		</UAlert>
+		</Alert>
 
 		<!-- Monthly Reconciliation -->
 		<Card v-if="monthlyReconciliation">

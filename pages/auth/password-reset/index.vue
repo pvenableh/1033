@@ -103,7 +103,7 @@ const togglePassword = () => {
 						<template #error>
 							<p class="text-xs text-red-500 text-right uppercase font-bold">{{ errorMessage }}</p>
 						</template>
-					</UFormGroup>
+					</FormGroup>
 					<Button type="submit" class="w-full my-6 text-center" label="Reset Password" />
 				</form>
 			</div>

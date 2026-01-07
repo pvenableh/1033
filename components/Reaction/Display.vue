@@ -2,7 +2,7 @@
 	<div v-if="hasReactions || showPicker" class="flex flex-wrap items-center gap-1.5 mt-2">
 		<!-- Existing reactions with animation -->
 		<TransitionGroup name="reaction">
-			<UTooltip v-for="reaction in summary.reactions" :key="reaction.reaction_type.id" :text="getTooltipText(reaction)">
+			<Tooltip v-for="reaction in summary.reactions" :key="reaction.reaction_type.id" :text="getTooltipText(reaction)">
 				<button
 					class="reaction-button inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-200"
 					:class="getReactionButtonClass(reaction)"

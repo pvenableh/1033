@@ -248,7 +248,7 @@ function openExternalLink() {
 				</div>
 			</div>
 		</div>
-		<UModal v-model="isVoteOpen">
+		<Modal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
 				<Icon
 					name="i-heroicons-x-circle"
@@ -270,7 +270,7 @@ function openExternalLink() {
 					<span class="font-bold">{{ selectedItem.title }}</span>
 				</nuxt-link>
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 <style scoped>

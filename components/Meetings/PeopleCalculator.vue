@@ -7,7 +7,7 @@
 		</p>
 
 		<div class="w-full mt-2 md:mt-0 md:w-1/2 flex items-end md:justify-end flex-row">
-			<UTooltip
+			<Tooltip
 				v-for="(person, index) in boardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title">
@@ -25,7 +25,7 @@
 					:alt="person.first_name + ' ' + person.last_name" />
 			</Tooltip>
 
-			<UTooltip
+			<Tooltip
 				v-for="(person, index) in nonBoardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name">

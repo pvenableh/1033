@@ -123,7 +123,7 @@
 						<div class="p-3 w-80 space-y-3">
 							<FormGroup label="URL">
 								<Input v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
-							</UFormGroup>
+							</FormGroup>
 							<div class="flex justify-end gap-2">
 								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
 									Remove
@@ -296,10 +296,10 @@
 			]" />
 
 		<!-- Upload Progress -->
-		<UProgress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
+		<Progress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
 
 		<!-- Image URL Modal -->
-		<UModal v-model="showImageUrlInput">
+		<Modal v-model="showImageUrlInput">
 			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -310,10 +310,10 @@
 				<div class="space-y-4">
 					<FormGroup label="Image URL">
 						<Input v-model="imageUrl" placeholder="https://example.com/image.jpg" @keyup.enter="insertImageFromUrl" />
-					</UFormGroup>
+					</FormGroup>
 					<FormGroup label="Alt Text (optional)">
 						<Input v-model="imageAlt" placeholder="Image description" />
-					</UFormGroup>
+					</FormGroup>
 				</div>
 				<template #footer>
 					<div class="flex justify-end gap-2">
@@ -322,10 +322,10 @@
 					</div>
 				</template>
 			</Card>
-		</UModal>
+		</Modal>
 
 		<!-- File Browser Modal -->
-		<UModal v-model="showFileBrowser" :ui="{width: 'sm:max-w-3xl'}">
+		<Modal v-model="showFileBrowser" :ui="{width: 'sm:max-w-3xl'}">
 			<Card class="max-h-[80vh] flex flex-col">
 				<template #header>
 					<div class="flex items-center justify-between">
@@ -399,10 +399,10 @@
 					</div>
 				</div>
 			</Card>
-		</UModal>
+		</Modal>
 
 		<!-- Image Lightbox -->
-		<UModal v-model="showLightbox" fullscreen>
+		<Modal v-model="showLightbox" fullscreen>
 			<div class="relative flex items-center justify-center min-h-screen bg-black/90 p-4">
 				<Button
 					class="absolute top-4 right-4 z-10"
@@ -417,7 +417,7 @@
 					alt="Expanded view"
 					class="max-w-full max-h-full object-contain rounded-lg" />
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

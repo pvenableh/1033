@@ -17,7 +17,7 @@
 		</div>
 
 		<!-- Error State -->
-		<UAlert
+		<Alert
 			v-if="error && !loading"
 			icon="i-heroicons-exclamation-triangle"
 			color="red"
@@ -88,15 +88,15 @@
 						<div class="flex flex-wrap gap-4 items-center">
 							<div class="flex items-center gap-2">
 								<label class="text-sm font-medium text-gray-700 uppercase">Fiscal Year:</label>
-								<USelect v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
+								<Select v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
 							</div>
 							<div class="flex items-center gap-2">
 								<label class="text-sm font-medium text-gray-700 uppercase">From Month:</label>
-								<USelect v-model="selectedStartMonth" :options="monthOptions" size="sm" class="w-32" />
+								<Select v-model="selectedStartMonth" :options="monthOptions" size="sm" class="w-32" />
 							</div>
 							<div class="flex items-center gap-2">
 								<label class="text-sm font-medium text-gray-700 uppercase">To Month:</label>
-								<USelect
+								<Select
 									v-model="selectedEndMonth"
 									:options="monthOptions"
 									size="sm"
@@ -230,7 +230,7 @@
 				</div>
 
 				<!-- ANALYSIS TABS -->
-				<UTabs v-model="activeTab" :items="contentTabs" class="space-y-6">
+				<Tabs v-model="activeTab" :items="contentTabs" class="space-y-6">
 					<!-- Budget & Categories Tab -->
 					<template #budget-categories>
 						<div v-if="selectedAccount === 1" class="space-y-6">
@@ -311,7 +311,7 @@
 									</div>
 								</template>
 
-								<UTable :rows="budgetComparison" :columns="budgetComparisonColumns">
+								<Table :rows="budgetComparison" :columns="budgetComparisonColumns">
 									<template #category-data="{row}">
 										<div class="flex items-center gap-2">
 											<div class="w-4 h-4 rounded-full bg-blue-500"></div>
@@ -345,7 +345,7 @@
 									<template #transactionCount-data="{row}">
 										<span class="text-xs text-gray-500">{{ row.transactionCount }}</span>
 									</template>
-								</UTable>
+								</Table>
 							</Card>
 
 							<!-- Budget Chart -->
@@ -407,7 +407,7 @@
 											</div>
 										</div>
 
-										<UAccordion
+										<Accordion
 											:items="[
 												{
 													label: `View ${category.transactionCount} Transactions`,
@@ -498,7 +498,7 @@
 													</div>
 												</div>
 											</template>
-										</UAccordion>
+										</Accordion>
 									</div>
 								</div>
 							</Card>
@@ -521,7 +521,7 @@
 								<div class="flex flex-wrap gap-4 items-center">
 									<div class="flex items-center gap-2">
 										<label class="text-sm font-medium text-gray-700">Vendor:</label>
-										<USelect v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-48" />
+										<Select v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-48" />
 									</div>
 									<Button @click="selectedVendor = 'all'" size="sm" variant="outline">Clear Filter</Button>
 								</div>
@@ -605,7 +605,7 @@
 										<Badge color="primary" variant="soft">{{ accountTransactions.length }} TRANSACTIONS</Badge>
 									</div>
 								</template>
-								<UTable :rows="accountTransactions.slice(0, 50)" :columns="transactionColumns">
+								<Table :rows="accountTransactions.slice(0, 50)" :columns="transactionColumns">
 									<template #transaction_date-data="{row}">
 										<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
 									</template>
@@ -622,7 +622,7 @@
 									<template #description-data="{row}">
 										<span class="text-sm">{{ row.description }}</span>
 									</template>
-								</UTable>
+								</Table>
 							</Card>
 						</div>
 					</template>
@@ -643,11 +643,11 @@
 									</div>
 									<div class="flex items-center gap-2">
 										<label class="text-sm font-medium text-gray-700 uppercase">Category:</label>
-										<USelect v-model="selectedCategory" :options="categoryOptions" size="sm" class="w-40" />
+										<Select v-model="selectedCategory" :options="categoryOptions" size="sm" class="w-40" />
 									</div>
 									<div class="flex items-center gap-2">
 										<label class="text-sm font-medium text-gray-700 uppercase">Vendor:</label>
-										<USelect v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-40" />
+										<Select v-model="selectedVendor" :options="vendorOptions" size="sm" class="w-40" />
 									</div>
 									<Button @click="clearAllFilters" size="sm" variant="outline">Clear All Filters</Button>
 								</div>
@@ -679,7 +679,7 @@
 										</Badge>
 									</div>
 								</template>
-								<UTable :rows="displayTransactions" :columns="transactionColumnsDetailed">
+								<Table :rows="displayTransactions" :columns="transactionColumnsDetailed">
 									<template #transaction_date-data="{row}">
 										<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
 									</template>
@@ -707,7 +707,7 @@
 										<Badge v-else-if="isTransferTransaction(row)" color="blue" variant="soft" size="xs">TRANSFER</Badge>
 										<Badge v-else color="green" variant="soft" size="xs">NORMAL</Badge>
 									</template>
-								</UTable>
+								</Table>
 							</Card>
 						</div>
 					</template>
@@ -742,7 +742,7 @@
 
 							<!-- Transfers View -->
 							<div v-show="complianceView === 'transfers'" class="space-y-6">
-								<UAlert
+								<Alert
 									v-if="transferActivity.unmatchedCount > 0"
 									icon="i-heroicons-exclamation-triangle"
 									color="red"
@@ -760,9 +760,9 @@
 											</p>
 										</div>
 									</template>
-								</UAlert>
+								</Alert>
 
-								<UAlert
+								<Alert
 									v-else-if="transferActivity.totalTransfers > 0"
 									icon="i-heroicons-check-circle"
 									color="green"
@@ -771,7 +771,7 @@
 									<template #description>
 										All {{ transferActivity.totalTransfers }} transfers are properly matched and linked.
 									</template>
-								</UAlert>
+								</Alert>
 
 								<div class="grid grid-cols-1 md:grid-cols-5 gap-6">
 									<Card class="text-center">
@@ -846,7 +846,7 @@
 										</div>
 									</template>
 
-									<UTable
+									<Table
 										:rows="unmatchedTransfers"
 										:columns="[
 											{key: 'transaction_date', label: 'DATE'},
@@ -869,7 +869,7 @@
 												{{ formatCurrency(row.amount) }}
 											</span>
 										</template>
-									</UTable>
+									</Table>
 								</Card>
 
 								<Card v-if="transferPairs.length > 0">
@@ -920,7 +920,7 @@
 
 							<!-- Clumped Payments View -->
 							<div v-show="complianceView === 'clumped'" class="space-y-6">
-								<UAlert
+								<Alert
 									v-if="clumpedPayments.length > 0"
 									icon="i-heroicons-exclamation-triangle"
 									color="red"
@@ -938,14 +938,14 @@
 											</p>
 										</div>
 									</template>
-								</UAlert>
+								</Alert>
 
-								<UAlert v-else icon="i-heroicons-check-circle" color="green" variant="soft">
+								<Alert v-else icon="i-heroicons-check-circle" color="green" variant="soft">
 									<template #title>No Fund Mixing Issues Detected</template>
 									<template #description>
 										All electronic payments appear to be properly allocated to their respective accounts.
 									</template>
-								</UAlert>
+								</Alert>
 
 								<Card v-if="clumpedPayments.length > 0">
 									<template #header>
@@ -954,7 +954,7 @@
 										</h3>
 									</template>
 
-									<UTable
+									<Table
 										:rows="clumpedPayments"
 										:columns="[
 											{key: 'transaction_date', label: 'DATE'},
@@ -971,12 +971,12 @@
 										<template #account_id-data="{row}">
 											<span class="text-sm">{{ getAccountById(row.account_id)?.account_name || 'Unknown' }}</span>
 										</template>
-									</UTable>
+									</Table>
 								</Card>
 							</div>
 						</div>
 					</template>
-				</UTabs>
+				</Tabs>
 			</div>
 
 			<!-- Budget Info View -->

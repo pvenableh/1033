@@ -61,7 +61,7 @@
 
 			<div class="flex items-center gap-2">
 				<!-- Enter-to-send toggle -->
-				<UTooltip
+				<Tooltip
 					:text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
 					<Button
 						size="xs"
@@ -96,7 +96,7 @@
 
 		<input ref="fileInput" type="file" multiple class="hidden" @change="handleFileUpload" />
 
-		<UProgress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
+		<Progress v-if="isUploading" :value="uploadProgress" color="primary" class="mt-2" />
 
 		<!-- Mentions popup portal -->
 		<div ref="mentionsPortal" class="mentions-portal" />

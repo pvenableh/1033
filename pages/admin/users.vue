@@ -305,7 +305,7 @@ onMounted(async () => {
           icon="i-heroicons-magnifying-glass"
           placeholder="Search users..."
           class="md:w-64" />
-        <USelectMenu
+        <SelectMenu
           v-model="statusFilter"
           :options="statusOptions"
           value-attribute="value"
@@ -315,7 +315,7 @@ onMounted(async () => {
 
       <!-- Users Table -->
       <Card>
-        <UTable
+        <Table
           :rows="filteredUsers"
           :columns="columns"
           :loading="loading"
@@ -377,12 +377,12 @@ onMounted(async () => {
               </Button>
             </div>
           </template>
-        </UTable>
+        </Table>
       </Card>
     </template>
 
     <!-- User Edit Modal -->
-    <UModal v-model="showUserModal">
+    <Modal v-model="showUserModal">
       <Card v-if="selectedUser">
         <template #header>
           <div class="flex items-center justify-between">
@@ -434,7 +434,7 @@ onMounted(async () => {
 
           <!-- Role Selection -->
           <FormGroup label="Assign Role">
-            <USelectMenu
+            <SelectMenu
               v-model="selectedUser.role"
               :options="roles"
               value-attribute="id"
@@ -446,8 +446,8 @@ onMounted(async () => {
                   <p v-if="option.description" class="text-xs text-gray-500">{{ option.description }}</p>
                 </div>
               </template>
-            </USelectMenu>
-          </UFormGroup>
+            </SelectMenu>
+          </FormGroup>
 
           <!-- Status Actions -->
           <div v-if="selectedUser.status !== 'draft'" class="flex gap-2">
@@ -499,7 +499,7 @@ onMounted(async () => {
           </div>
         </template>
       </Card>
-    </UModal>
+    </Modal>
   </div>
   </div>
 </template>
