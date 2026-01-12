@@ -30,7 +30,7 @@
     </div>
 
     <!-- Project timeline -->
-    <ProjectTimelineProjectTimeline v-else-if="canView" :initial-focus="projectId" />
+    <ProjectTimeline v-else-if="canView" :initial-focus="projectId" />
   </div>
 </template>
 
