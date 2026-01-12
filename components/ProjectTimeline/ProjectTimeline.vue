@@ -121,11 +121,7 @@ interface Props {
 const props = defineProps<Props>();
 
 // Composables
-<<<<<<< HEAD
-const { user, fetch: fetchSession } = useDirectusAuth();
-=======
 const { user, fetch: fetchSession, loggedIn } = useDirectusAuth();
->>>>>>> 032e04b (Fix project details page: move fetch to onMounted for reliable client-side execution)
 const { projects, loading, error, refresh, fetchProject, toggleTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
 
