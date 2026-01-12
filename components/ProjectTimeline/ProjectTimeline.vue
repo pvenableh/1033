@@ -11,7 +11,7 @@
         </p>
       </div>
 
-      <TimelineControls
+      <ProjectTimelineTimelineControls
         v-model:zoom="zoomLevel"
         v-model:focused-project="focusedProjectId"
         :projects="rootProjects"
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Legend -->
-    <TimelineLegend
+    <ProjectTimelineTimelineLegend
       :projects="rootProjects"
       :focused-id="focusedProjectId"
       class="mx-6 lg:mx-8 mb-4"
@@ -77,7 +77,7 @@
       ref="canvasContainer"
       class="bg-gray-900 rounded-xl border border-gray-800 mx-6 lg:mx-8 overflow-auto"
     >
-      <TimelineCanvas
+      <ProjectTimelineTimelineCanvas
         :projects="visibleProjects"
         :zoom="zoomLevel"
         :selected-event-id="selectedEventId"
@@ -86,7 +86,7 @@
     </div>
 
     <!-- Stats Footer -->
-    <TimelineStats
+    <ProjectTimelineTimelineStats
       v-if="!loading && projects.length > 0"
       :projects="projects"
       class="mt-6 mx-6 lg:mx-8 mb-8"
@@ -94,7 +94,7 @@
 
     <!-- Event Detail Panel (slide-out) -->
     <Teleport to="body">
-      <TimelineEventDetail
+      <ProjectTimelineTimelineEventDetail
         v-if="selectedEvent"
         :event="selectedEvent"
         :project="selectedEventProject"
