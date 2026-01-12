@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-2">
-    <TimelineTaskItem
+    <ProjectTimelineTimelineTaskItem
       v-for="task in sortedTasks"
       :key="task.id"
       :task="task"

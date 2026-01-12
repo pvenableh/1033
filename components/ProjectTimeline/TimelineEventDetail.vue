@@ -101,7 +101,7 @@
           <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
             Tasks ({{ completedTasks }}/{{ event.tasks.length }})
           </h3>
-          <TimelineTaskList
+          <ProjectTimelineTimelineTaskList
             :tasks="event.tasks"
             @toggle="handleTaskToggle"
           />
@@ -112,7 +112,7 @@
           <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
             Files ({{ event.files.length }})
           </h3>
-          <TimelineFileList :files="event.files" />
+          <ProjectTimelineTimelineFileList :files="event.files" />
         </div>
 
         <!-- Reactions -->

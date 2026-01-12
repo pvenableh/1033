@@ -60,7 +60,7 @@
     </text>
 
     <!-- Event nodes -->
-    <TimelineEventNode
+    <ProjectTimelineTimelineEventNode
       v-for="event in sortedEvents"
       :key="event.id"
       :event="event"

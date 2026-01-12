@@ -82,7 +82,7 @@
     </g>
 
     <!-- Project lanes -->
-    <TimelineLane
+    <ProjectTimelineTimelineLane
       v-for="lane in lanes"
       :key="lane.project.id"
       :project="lane.project"
