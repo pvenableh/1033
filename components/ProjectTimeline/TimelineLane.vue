@@ -60,7 +60,7 @@
     </text>
 
     <!-- Event nodes -->
-    <ProjectTimelineTimelineEventNode
+    <TimelineEventNode
       v-for="event in sortedEvents"
       :key="event.id"
       :event="event"
@@ -76,6 +76,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ProjectWithRelations, ProjectEventWithRelations } from '~/types/projects';
+import TimelineEventNode from './TimelineEventNode.vue';
 
 interface Props {
   project: ProjectWithRelations;

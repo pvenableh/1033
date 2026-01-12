@@ -82,7 +82,7 @@
     </g>
 
     <!-- Project lanes -->
-    <ProjectTimelineTimelineLane
+    <TimelineLane
       v-for="lane in lanes"
       :key="lane.project.id"
       :project="lane.project"
@@ -100,6 +100,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ProjectWithRelations } from '~/types/projects';
+import TimelineLane from './TimelineLane.vue';
 
 interface Props {
   projects: ProjectWithRelations[];

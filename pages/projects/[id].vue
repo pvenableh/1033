@@ -30,11 +30,12 @@
     </div>
 
     <!-- Project timeline -->
-    <ProjectTimelineProjectTimeline v-else-if="canView" :initial-focus="projectId" />
+    <Timeline v-else-if="canView" :initial-focus="projectId" /> 
   </div>
 </template>
 
 <script setup lang="ts">
+import Timeline from '~/components/ProjectTimeline/Timeline.vue';
 import type { Project } from '~/types/projects';
 
 const route = useRoute();

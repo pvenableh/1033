@@ -11,7 +11,7 @@
         </p>
       </div>
 
-      <ProjectTimelineTimelineControls
+      <TimelineControls
         v-model:zoom="zoomLevel"
         v-model:focused-project="focusedProjectId"
         :projects="rootProjects"
@@ -20,7 +20,7 @@
     </div>
 
     <!-- Legend -->
-    <ProjectTimelineTimelineLegend
+    <TimelineLegend
       :projects="rootProjects"
       :focused-id="focusedProjectId"
       class="mx-6 lg:mx-8 mb-4"
@@ -77,7 +77,7 @@
       ref="canvasContainer"
       class="bg-gray-900 rounded-xl border border-gray-800 mx-6 lg:mx-8 overflow-auto"
     >
-      <ProjectTimelineTimelineCanvas
+      <TimelineCanvas
         :projects="visibleProjects"
         :zoom="zoomLevel"
         :selected-event-id="selectedEventId"
@@ -86,7 +86,7 @@
     </div>
 
     <!-- Stats Footer -->
-    <ProjectTimelineTimelineStats
+    <TimelineStats
       v-if="!loading && projects.length > 0"
       :projects="projects"
       class="mt-6 mx-6 lg:mx-8 mb-8"
@@ -94,7 +94,7 @@
 
     <!-- Event Detail Panel (slide-out) -->
     <Teleport to="body">
-      <ProjectTimelineTimelineEventDetail
+      <TimelineEventDetail
         v-if="selectedEvent"
         :event="selectedEvent"
         :project="selectedEventProject"
@@ -109,6 +109,11 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import TimelineControls from './TimelineControls.vue';
+import TimelineEventDetail from './TimelineEventDetail.vue';
+import TimelineCanvas from './TimelineCanvas.vue';
+import TimelineLegend from './TimelineLegend.vue';
+import TimelineStats from './TimelineStats.vue';
 import type { ProjectWithRelations, ProjectEventWithRelations } from '~/types/projects';
 
 gsap.registerPlugin(ScrollTrigger);

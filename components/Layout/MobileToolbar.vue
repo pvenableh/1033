@@ -11,8 +11,9 @@ const props = defineProps({
 <template>
 	<div
 		id="mobile-toolbar"
-		class="mobile-toolbar flex flex-row items-center justify-center bg-cream dark:bg-gradient-to-tr dark:from-gray-800 dark:to-gray-900 lg:hidden relative pb-safe"
-		:class="{retracted: isScrollingDown}">
+		class="mobile-toolbar flex flex-row items-center justify-center bg-cream  lg:hidden relative pb-safe"
+		:class="{retracted: isScrollingDown}" 
+		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<nuxt-link v-for="(link, index) in links" :key="index" :to="link.to">
 			<UIcon :name="link.icon" />
 			<h5>{{ link.name }}</h5>
@@ -36,8 +37,10 @@ const props = defineProps({
 	/* Extend background behind the home indicator safe area */
 	padding-bottom: env(safe-area-inset-bottom, 0px);
 
-	border-top: solid 1px rgba(55, 55, 55, 0.05);
 	padding-right: 33.333333%;
+	background: var(--theme-footer-bg, #eeeeee);
+	border-top: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
+	box-shadow: var(--theme-shadow-sm, -1px 2px 10px rgba(0, 0, 0, 0.05));
 	overflow: hidden;
 	box-shadow: -1px -2px 10px rgba(0, 0, 0, 0.1);
 	z-index: 10;
