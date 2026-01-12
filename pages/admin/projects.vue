@@ -577,6 +577,15 @@ onMounted(async () => {
                   size="xs"
                   color="gray"
                   variant="ghost"
+                  icon="i-heroicons-chart-bar"
+                  :to="`/admin/projects/${row.id}`"
+                >
+                  Manage
+                </UButton>
+                <UButton
+                  size="xs"
+                  color="gray"
+                  variant="ghost"
                   icon="i-heroicons-eye"
                   :to="`/projects/${row.id}`"
                 >
