@@ -55,14 +55,10 @@ export default defineNuxtConfig({
 		},
 	},
 
-	components: {
-		dirs: [
-			{
-				path: '~/components',
-				pathPrefix: false,
-			},
-		],
-	},
+	// components: {
+	// 	global: true,
+	// 	dirs: ['~/components'],
+	// },
 
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
