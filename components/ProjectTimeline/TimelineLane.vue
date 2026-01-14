@@ -140,13 +140,14 @@
 
     <!-- Event nodes -->
     <TimelineEventNode
-      v-for="event in sortedEvents"
+      v-for="(event, index) in sortedEvents"
       :key="event.id"
       :event="event"
       :x="getXPosition(event.event_date)"
       :y="laneY"
       :project-color="project.color"
       :is-selected="selectedEventId === event.id"
+      :index="index"
       @select="$emit('select-event', $event)"
     />
   </g>

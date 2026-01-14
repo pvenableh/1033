@@ -15,6 +15,9 @@ const { canCreate, canUpdate, canDelete } = useUserPermissions();
 
 const projectId = computed(() => route.params.id as string);
 
+// Auth composable
+const { loggedIn } = useDirectusAuth();
+
 // Composables
 const {
   projects,
@@ -339,9 +342,24 @@ function getPriorityColor(priority: string) {
   return colors[priority] || 'gray';
 }
 
-// Initialize
+// Initialize - wait for auth state before loading
 onMounted(async () => {
-  await loadProject();
+  // If already logged in, fetch immediately
+  if (loggedIn.value) {
+    await loadProject();
+  } else {
+    // Wait for login state to become true
+    const stopWatch = watch(
+      loggedIn,
+      async (isLoggedIn) => {
+        if (isLoggedIn) {
+          stopWatch();
+          await loadProject();
+        }
+      },
+      { immediate: true }
+    );
+  }
 });
 </script>
 
