@@ -701,9 +701,7 @@
 					content-class="px-4 py-4"
 					:show-handle="true"
 					:close-on-click-outside="true"
-					:swipe-threshold="30"
-					@open="onOpen"
-					@close="onClose">
+					:swipe-threshold="30">
 					<!-- Custom trigger button -->
 					<template #trigger="{toggle}">
 						<FormVButton type="submit" variant="outline" @click="toggle">Submit Inquiry</FormVButton>
@@ -726,6 +724,7 @@ import {ScrollTrigger} from 'gsap/ScrollTrigger';
 
 import {readSingleton} from '~/composables/useDirectusItems';
 
+const {user} = useDirectusAuth();
 const {getImageUrl} = useDirectusFiles();
 
 // Fetch the features singleton with the featured_images relation
