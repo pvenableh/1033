@@ -15,8 +15,8 @@ const { canCreate, canUpdate, canDelete } = useUserPermissions();
 
 const projectId = computed(() => route.params.id as string);
 
-// Auth composable - user object used in onMounted to wait for hydration
-const { user: authUser } = useDirectusAuth();
+// Auth composable - get fetch and loggedIn for proper session hydration
+const { user: authUser, fetch: fetchSession, loggedIn } = useDirectusAuth();
 
 // Composables
 const {
@@ -278,13 +278,14 @@ async function handleTaskToggle(taskId: string, completed: boolean) {
   try {
     await toggleTask(taskId, completed);
     await loadProject();
-  } catch (e) {
+  } catch (e: any) {
     console.error('Failed to toggle task:', e);
+    toast.add({ title: 'Error', description: e?.message || 'Failed to update task', color: 'red' });
   }
 }
 
-// Project edit
-async function saveProject() {
+// Project update
+async function saveProjectDetails() {
   if (!projectForm.value.name?.trim()) {
     toast.add({ title: 'Error', description: 'Project name is required', color: 'red' });
     return;
@@ -297,11 +298,23 @@ async function saveProject() {
     showProjectEditModal.value = false;
     await loadProject();
   } catch (e: any) {
-    console.error('Failed to save project:', e);
-    toast.add({ title: 'Error', description: e?.message || 'Failed to save project', color: 'red' });
+    console.error('Failed to update project:', e);
+    toast.add({ title: 'Error', description: e?.message || 'Failed to update project', color: 'red' });
   } finally {
     saving.value = false;
   }
+}
+
+// Helpers
+function getStatusColor(status: string): string {
+  const colors: Record<string, string> = {
+    draft: 'gray',
+    active: 'green',
+    paused: 'yellow',
+    completed: 'blue',
+    archived: 'gray',
+  };
+  return colors[status] || 'gray';
 }
 
 function formatDate(dateString: string | null): string {
@@ -315,7 +328,7 @@ function formatDate(dateString: string | null): string {
 
 function formatDateTime(dateString: string | null): string {
   if (!dateString) return '-';
-  return new Date(dateString).toLocaleString('en-US', {
+  return new Date(dateString).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
@@ -324,38 +337,26 @@ function formatDateTime(dateString: string | null): string {
   });
 }
 
-function getStatusColor(status: string) {
-  const colors: Record<string, string> = {
-    draft: 'gray',
-    active: 'green',
-    completed: 'blue',
-    archived: 'amber',
-  };
-  return colors[status] || 'gray';
-}
-
-function getPriorityColor(priority: string) {
-  const colors: Record<string, string> = {
-    low: 'gray',
-    medium: 'blue',
-    high: 'amber',
-    urgent: 'red',
-  };
-  return colors[priority] || 'gray';
-}
-
-function stripHtmlAndTruncate(html: string | null | undefined, maxLength = 200): string {
+function stripHtmlAndTruncate(html: string | null, maxLength = 150): string {
   if (!html) return '';
   const stripped = html.replace(/<[^>]*>/g, '');
   return stripped.length > maxLength ? stripped.substring(0, maxLength) + '...' : stripped;
 }
 
 // Initialize - wait for user to be fully loaded before fetching project
-// Note: loggedIn can be true before user object is hydrated, causing fetchProject to fail
+// Pattern matches Timeline.vue for proper session hydration
 onMounted(async () => {
-  // If user is already available with an ID, fetch immediately
-  if (authUser.value?.id) {
+  // Ensure session is loaded from cookies/storage
+  await fetchSession();
+
+  // Function to load project data
+  const loadData = async () => {
     await loadProject();
+  };
+
+  // If already logged in with user data, fetch immediately
+  if (loggedIn.value && authUser.value?.id) {
+    await loadData();
   } else {
     // Wait for user object to be populated (not just loggedIn boolean)
     const stopWatch = watch(
@@ -363,10 +364,10 @@ onMounted(async () => {
       async (userId) => {
         if (userId) {
           stopWatch();
-          await loadProject();
+          await loadData();
         }
       },
-      { immediate: true }
+      { immediate: true },
     );
   }
 });
@@ -377,13 +378,7 @@ onMounted(async () => {
     <div class="container mx-auto px-6 py-8">
       <!-- Back button and header -->
       <div class="mb-6">
-        <UButton
-          color="gray"
-          variant="ghost"
-          icon="i-heroicons-arrow-left"
-          to="/admin/projects"
-          class="mb-4"
-        >
+        <UButton color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/admin/projects" class="mb-4">
           Back to Projects
         </UButton>
 
@@ -401,26 +396,23 @@ onMounted(async () => {
             />
             <div>
               <h1 class="text-2xl font-bold">{{ project.name }}</h1>
-              <p v-if="project.description" class="text-gray-600 dark:text-gray-400 mt-1">{{ stripHtmlAndTruncate(project.description) }}</p>
+              <p v-if="project.description" class="text-gray-600 dark:text-gray-400 mt-1">
+                {{ stripHtmlAndTruncate(project.description) }}
+              </p>
               <div class="flex items-center gap-3 mt-2">
                 <UBadge :color="getStatusColor(project.status)" variant="soft">
                   {{ project.status }}
                 </UBadge>
                 <span class="text-sm text-gray-500">
                   {{ formatDate(project.start_date) }}
-                  <span v-if="project.target_end_date"> → {{ formatDate(project.target_end_date) }}</span>
+                  <span v-if="project.target_end_date">→ {{ formatDate(project.target_end_date) }}</span>
                 </span>
               </div>
             </div>
           </div>
 
           <div class="flex items-center gap-2">
-            <UButton
-              color="gray"
-              variant="ghost"
-              icon="i-heroicons-eye"
-              :to="`/projects/${project.id}`"
-            >
+            <UButton color="gray" variant="ghost" icon="i-heroicons-eye" :to="`/projects/${project.id}`">
               Public View
             </UButton>
             <UButton
@@ -432,12 +424,7 @@ onMounted(async () => {
             >
               Edit Project
             </UButton>
-            <UButton
-              v-if="canUpdateProjects"
-              color="primary"
-              icon="i-heroicons-plus"
-              @click="openCreateEventModal"
-            >
+            <UButton v-if="canUpdateProjects" color="primary" icon="i-heroicons-plus" @click="openCreateEventModal">
               Add Event
             </UButton>
           </div>
@@ -465,7 +452,9 @@ onMounted(async () => {
           <UCard>
             <div class="text-center">
               <p class="text-2xl font-bold text-green-600">
-                {{ project.events?.reduce((acc, e) => acc + (e.tasks?.filter(t => t.completed)?.length || 0), 0) || 0 }}
+                {{
+                  project.events?.reduce((acc, e) => acc + (e.tasks?.filter((t) => t.completed)?.length || 0), 0) || 0
+                }}
               </p>
               <p class="text-sm text-gray-600 dark:text-gray-400">Completed</p>
             </div>
@@ -473,7 +462,7 @@ onMounted(async () => {
           <UCard>
             <div class="text-center">
               <p class="text-2xl font-bold">
-                {{ project.events?.filter(e => e.is_milestone)?.length || 0 }}
+                {{ project.events?.filter((e) => e.is_milestone)?.length || 0 }}
               </p>
               <p class="text-sm text-gray-600 dark:text-gray-400">Milestones</p>
             </div>
@@ -514,11 +503,7 @@ onMounted(async () => {
 
             <!-- Events -->
             <div class="relative flex overflow-x-auto pb-4 gap-6 pt-2">
-              <div
-                v-for="event in project.events"
-                :key="event.id"
-                class="flex-shrink-0 w-72"
-              >
+              <div v-for="event in project.events" :key="event.id" class="flex-shrink-0 w-72">
                 <!-- Event node -->
                 <div class="relative">
                   <!-- Node circle -->
@@ -527,32 +512,41 @@ onMounted(async () => {
                     :class="event.is_milestone ? 'w-6 h-6' : ''"
                     :style="{
                       borderColor: project.color || '#C4A052',
-                      backgroundColor: event.is_milestone ? (project.color || '#C4A052') : 'white',
+                      backgroundColor: event.is_milestone ? project.color || '#C4A052' : 'white',
                     }"
                   />
 
                   <!-- Event card -->
-                  <div class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                  <div
+                    class="mt-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
+                  >
                     <div class="flex items-start justify-between gap-2 mb-2">
                       <h3 class="font-medium text-sm">{{ event.title }}</h3>
                       <UDropdown
                         v-if="canUpdateProjects"
                         :items="[
                           [
-                            { label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditEventModal(event as ProjectEventWithRelations) },
-                            { label: 'Add Task', icon: 'i-heroicons-plus', click: () => openCreateTaskModal(event as ProjectEventWithRelations) },
+                            {
+                              label: 'Edit',
+                              icon: 'i-heroicons-pencil',
+                              click: () => openEditEventModal(event as ProjectEventWithRelations),
+                            },
+                            {
+                              label: 'Add Task',
+                              icon: 'i-heroicons-plus',
+                              click: () => openCreateTaskModal(event as ProjectEventWithRelations),
+                            },
                           ],
                           [
-                            { label: 'Delete', icon: 'i-heroicons-trash', click: () => openDeleteEventModal(event as ProjectEventWithRelations) },
+                            {
+                              label: 'Delete',
+                              icon: 'i-heroicons-trash',
+                              click: () => openDeleteEventModal(event as ProjectEventWithRelations),
+                            },
                           ],
                         ]"
                       >
-                        <UButton
-                          size="xs"
-                          color="gray"
-                          variant="ghost"
-                          icon="i-heroicons-ellipsis-vertical"
-                        />
+                        <UButton size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" />
                       </UDropdown>
                     </div>
 
@@ -561,18 +555,19 @@ onMounted(async () => {
                     </p>
 
                     <div class="flex items-center gap-2 mb-2">
-                      <UBadge v-if="event.is_milestone" color="amber" variant="soft" size="xs">
-                        Milestone
-                      </UBadge>
+                      <UBadge v-if="event.is_milestone" color="amber" variant="soft" size="xs">Milestone</UBadge>
                       <UBadge :color="event.status === 'published' ? 'green' : 'gray'" variant="soft" size="xs">
                         {{ event.status }}
                       </UBadge>
                     </div>
 
                     <!-- Tasks preview -->
-                    <div v-if="event.tasks && event.tasks.length > 0" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600">
+                    <div
+                      v-if="event.tasks && event.tasks.length > 0"
+                      class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-600"
+                    >
                       <p class="text-xs text-gray-500 mb-2">
-                        Tasks ({{ event.tasks.filter(t => t.completed).length }}/{{ event.tasks.length }})
+                        Tasks ({{ event.tasks.filter((t) => t.completed).length }}/{{ event.tasks.length }})
                       </p>
                       <div class="space-y-1">
                         <div
@@ -592,11 +587,13 @@ onMounted(async () => {
                             v-if="canUpdateProjects"
                             :items="[
                               [
-                                { label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditTaskModal(event as ProjectEventWithRelations, task) },
+                                {
+                                  label: 'Edit',
+                                  icon: 'i-heroicons-pencil',
+                                  click: () => openEditTaskModal(event as ProjectEventWithRelations, task),
+                                },
                               ],
-                              [
-                                { label: 'Delete', icon: 'i-heroicons-trash', click: () => openDeleteTaskModal(task) },
-                              ],
+                              [{ label: 'Delete', icon: 'i-heroicons-trash', click: () => openDeleteTaskModal(task) }],
                             ]"
                             class="ml-auto"
                           >
@@ -654,12 +651,7 @@ onMounted(async () => {
               <h3 class="text-lg font-semibold">
                 {{ isEditingEvent ? 'Edit Event' : 'Create Event' }}
               </h3>
-              <UButton
-                color="gray"
-                variant="ghost"
-                icon="i-heroicons-x-mark"
-                @click="showEventModal = false"
-              />
+              <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showEventModal = false" />
             </div>
           </template>
 
@@ -693,9 +685,7 @@ onMounted(async () => {
             <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
               <div>
                 <p class="font-medium">Milestone</p>
-                <p class="text-sm text-gray-500 dark:text-gray-400">
-                  Mark this event as a project milestone
-                </p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Mark this event as a project milestone</p>
               </div>
               <UToggle v-model="eventForm.is_milestone" />
             </div>
@@ -703,9 +693,7 @@ onMounted(async () => {
 
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showEventModal = false">
-                Cancel
-              </UButton>
+              <UButton color="gray" variant="ghost" @click="showEventModal = false">Cancel</UButton>
               <UButton color="primary" :loading="saving" @click="saveEvent">
                 {{ isEditingEvent ? 'Save Changes' : 'Create Event' }}
               </UButton>
@@ -727,18 +715,15 @@ onMounted(async () => {
           </template>
 
           <p class="text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete <strong>"{{ selectedEvent?.title }}"</strong>?
-            This will also delete all associated tasks. This action cannot be undone.
+            Are you sure you want to delete
+            <strong>"{{ selectedEvent?.title }}"</strong>
+            ? This will also delete all associated tasks. This action cannot be undone.
           </p>
 
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showDeleteEventModal = false">
-                Cancel
-              </UButton>
-              <UButton color="red" :loading="saving" @click="confirmDeleteEvent">
-                Delete Event
-              </UButton>
+              <UButton color="gray" variant="ghost" @click="showDeleteEventModal = false">Cancel</UButton>
+              <UButton color="red" :loading="saving" @click="confirmDeleteEvent">Delete Event</UButton>
             </div>
           </template>
         </UCard>
@@ -752,12 +737,7 @@ onMounted(async () => {
               <h3 class="text-lg font-semibold">
                 {{ isEditingTask ? 'Edit Task' : 'Create Task' }}
               </h3>
-              <UButton
-                color="gray"
-                variant="ghost"
-                icon="i-heroicons-x-mark"
-                @click="showTaskModal = false"
-              />
+              <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showTaskModal = false" />
             </div>
           </template>
 
@@ -793,9 +773,7 @@ onMounted(async () => {
 
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showTaskModal = false">
-                Cancel
-              </UButton>
+              <UButton color="gray" variant="ghost" @click="showTaskModal = false">Cancel</UButton>
               <UButton color="primary" :loading="saving" @click="saveTask">
                 {{ isEditingTask ? 'Save Changes' : 'Create Task' }}
               </UButton>
@@ -817,18 +795,15 @@ onMounted(async () => {
           </template>
 
           <p class="text-gray-600 dark:text-gray-400">
-            Are you sure you want to delete <strong>"{{ selectedTask?.title }}"</strong>?
-            This action cannot be undone.
+            Are you sure you want to delete
+            <strong>"{{ selectedTask?.title }}"</strong>
+            ? This action cannot be undone.
           </p>
 
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showDeleteTaskModal = false">
-                Cancel
-              </UButton>
-              <UButton color="red" :loading="saving" @click="confirmDeleteTask">
-                Delete Task
-              </UButton>
+              <UButton color="gray" variant="ghost" @click="showDeleteTaskModal = false">Cancel</UButton>
+              <UButton color="red" :loading="saving" @click="confirmDeleteTask">Delete Task</UButton>
             </div>
           </template>
         </UCard>
@@ -840,12 +815,7 @@ onMounted(async () => {
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">Edit Project</h3>
-              <UButton
-                color="gray"
-                variant="ghost"
-                icon="i-heroicons-x-mark"
-                @click="showProjectEditModal = false"
-              />
+              <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showProjectEditModal = false" />
             </div>
           </template>
 
@@ -908,12 +878,8 @@ onMounted(async () => {
 
           <template #footer>
             <div class="flex justify-end gap-3">
-              <UButton color="gray" variant="ghost" @click="showProjectEditModal = false">
-                Cancel
-              </UButton>
-              <UButton color="primary" :loading="saving" @click="saveProject">
-                Save Changes
-              </UButton>
+              <UButton color="gray" variant="ghost" @click="showProjectEditModal = false">Cancel</UButton>
+              <UButton color="primary" :loading="saving" @click="saveProject">Save Changes</UButton>
             </div>
           </template>
         </UCard>
