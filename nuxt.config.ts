@@ -198,6 +198,7 @@ export default defineNuxtConfig({
 		workbox: {
 			navigateFallback: '/',
 			globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
+			cleanupOutdatedCaches: true,
 			runtimeCaching: [
 				{
 					urlPattern: /^https:\/\/admin\.1033lenox\.com\/assets\/.*/i,
