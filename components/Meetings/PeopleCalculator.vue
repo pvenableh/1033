@@ -23,7 +23,7 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</UTooltip>
+			</Tooltip>
 
 			<Tooltip
 				v-for="(person, index) in nonBoardMembers"
@@ -40,7 +40,7 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</UTooltip>
+			</Tooltip>
 		</div>
 	</div>
 </template>

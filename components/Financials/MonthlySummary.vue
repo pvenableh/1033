@@ -105,7 +105,7 @@
 						<Tooltip
 							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`">
 							<div class="absolute inset-0" />
-						</UTooltip>
+						</Tooltip>
 					</div>
 				</div>
 				<div class="flex justify-between mt-1 text-xs text-gray-500">

@@ -69,14 +69,8 @@ export default defineNuxtConfig({
 	modules: [
 		'@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
 		'@nuxt/devtools', // https://devtools.nuxtjs.org/
-		'@nuxt/icon',
+		'@nuxt/icon', // https://nuxt.com/modules/icon - replaces NuxtUI icons
 		'@nuxt/image',
-		[
-			'@nuxt/ui',
-			{
-				icons: ['heroicons', 'wi', 'meteocons', 'material-symbols', 'lucide', 'fluent-emoji-flat'],
-			},
-		],
 		'@nuxtjs/color-mode',
 		'@nuxtjs/seo', // https://nuxtseo.com/
 		'@vite-pwa/nuxt', // https://vite-pwa-org.netlify.app/frameworks/nuxt
@@ -92,8 +86,16 @@ export default defineNuxtConfig({
 			},
 		],
 		// '@nuxtjs/plausible',
-		// '@nuxtjs/tailwindcss', // https://tailwindcss.nuxtjs.org/ Removed because of Nuxt UI already includes this
 	],
+
+	// Configure @nuxt/icon to support all icon sets used previously by NuxtUI
+	icon: {
+		serverBundle: 'remote',
+		clientBundle: {
+			icons: [],
+			scan: true,
+		},
+	},
 
 	// experimental: {
 	// 	componentIslands: true,

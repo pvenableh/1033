@@ -73,7 +73,7 @@
 							:loading="loading"
 							icon="i-heroicons-lock-closed"
 							placeholder="Enter your password" />
-					</FormGroup>
+					</UFormGroup>
 
 					<UFormGroup label="Confirm Password" name="confirmPassword" required>
 						<UInput
@@ -83,7 +83,7 @@
 							:loading="loading"
 							icon="i-heroicons-lock-closed"
 							placeholder="Confirm your password" />
-					</FormGroup>
+					</UFormGroup>
 
 					<div class="text-xs text-gray-500 dark:text-gray-400">
 						Password must be at least 8 characters long.
@@ -97,7 +97,7 @@
 						label="Set Password"
 						trailing-icon="i-heroicons-arrow-right"
 						block />
-				</Form>
+				</UForm>
 			</div>
 		</div>
 	</div>
