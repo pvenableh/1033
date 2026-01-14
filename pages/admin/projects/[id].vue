@@ -52,10 +52,12 @@ const selectedTask = ref<ProjectTask | null>(null);
 const saving = ref(false);
 
 // Form states
+// Note: event_date initialized empty to avoid SSR/client hydration mismatch
+// The actual date is set when modal opens (client-side only)
 const eventForm = ref<Partial<ProjectEvent>>({
   title: '',
   description: '',
-  event_date: new Date().toISOString().slice(0, 16),
+  event_date: '',
   is_milestone: false,
   status: 'published',
 });
@@ -342,6 +344,12 @@ function getPriorityColor(priority: string) {
   return colors[priority] || 'gray';
 }
 
+function stripHtmlAndTruncate(html: string | null | undefined, maxLength = 200): string {
+  if (!html) return '';
+  const stripped = html.replace(/<[^>]*>/g, '');
+  return stripped.length > maxLength ? stripped.substring(0, maxLength) + '...' : stripped;
+}
+
 // Initialize - wait for auth state before loading
 onMounted(async () => {
   // If already logged in, fetch immediately
@@ -392,7 +400,7 @@ onMounted(async () => {
             />
             <div>
               <h1 class="text-2xl font-bold">{{ project.name }}</h1>
-              <p v-if="project.description" class="text-gray-600 dark:text-gray-400 mt-1" v-html="project.description.replace(/<[^>]*>/g, '').substring(0, 200)" />
+              <p v-if="project.description" class="text-gray-600 dark:text-gray-400 mt-1">{{ stripHtmlAndTruncate(project.description) }}</p>
               <div class="flex items-center gap-3 mt-2">
                 <UBadge :color="getStatusColor(project.status)" variant="soft">
                   {{ project.status }}

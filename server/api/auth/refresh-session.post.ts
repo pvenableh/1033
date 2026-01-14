@@ -146,6 +146,8 @@ export default defineEventHandler(async (event) => {
     });
 
     // Update session with fresh user data
+    // Note: units intentionally excluded to keep cookie under 4KB limit
+    // Units should be fetched via /api/directus/users/me/units when needed
     await setUserSession(event, {
       user: {
         id: userData.id,
@@ -155,7 +157,6 @@ export default defineEventHandler(async (event) => {
         status: userData.status,
         role: userData.role,
         person_id: userData.person_id,
-        units: userData.units,
         avatar: userData.avatar,
         phone: userData.phone,
       },
