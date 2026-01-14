@@ -6,60 +6,64 @@
     @mouseleave="isHovered = false"
     @click="$emit('select', event.id)"
   >
-    <!-- Inner group for hover scale effect (prevents position jump) -->
-    <g :class="['event-node-inner', { 'is-hovered': isHovered, 'is-selected': isSelected }]">
-      <!-- Glow effect on hover/select -->
-      <circle
-        :r="nodeRadius + 4"
-        :fill="projectColor"
-        class="glow-ring"
-        :class="{ 'visible': isHovered || isSelected }"
-      />
+    <!-- Invisible larger hit area to prevent hover jitter -->
+    <circle
+      :r="nodeRadius + 20"
+      fill="transparent"
+      class="hit-area"
+    />
 
-      <!-- Main node -->
-      <circle
-        :r="nodeRadius"
-        :fill="isSelected ? projectColor : '#1A1916'"
-        :stroke="projectColor"
-        stroke-width="3"
-      />
+    <!-- Glow effect on hover/select -->
+    <circle
+      :r="isHovered || isSelected ? nodeRadius + 6 : nodeRadius + 4"
+      :fill="projectColor"
+      class="glow-ring"
+      :opacity="isHovered || isSelected ? 0.3 : 0"
+    />
 
-      <!-- Milestone indicator (inner dot) -->
-      <circle
-        v-if="event.is_milestone"
-        :r="nodeRadius * 0.4"
-        :fill="projectColor"
-      />
+    <!-- Main node -->
+    <circle
+      :r="nodeRadius"
+      :fill="isSelected ? projectColor : 'white'"
+      :stroke="projectColor"
+      stroke-width="3"
+    />
 
-      <!-- Task badge -->
-      <g
-        v-if="incompleteTasks > 0"
-        :transform="`translate(${nodeRadius - 4}, ${-nodeRadius})`"
+    <!-- Milestone indicator (inner dot) -->
+    <circle
+      v-if="event.is_milestone"
+      :r="nodeRadius * 0.4"
+      :fill="projectColor"
+    />
+
+    <!-- Task badge -->
+    <g
+      v-if="incompleteTasks > 0"
+      :transform="`translate(${nodeRadius - 4}, ${-nodeRadius})`"
+    >
+      <circle
+        r="10"
+        :fill="categoryColors.bg"
+        :stroke="categoryColors.text"
+        stroke-width="1"
+      />
+      <text
+        y="4"
+        text-anchor="middle"
+        :fill="categoryColors.text"
+        font-size="10"
+        font-weight="600"
+        font-family="system-ui, sans-serif"
       >
-        <circle
-          r="10"
-          :fill="categoryColors.bg"
-          :stroke="categoryColors.text"
-          stroke-width="1"
-        />
-        <text
-          y="4"
-          text-anchor="middle"
-          :fill="categoryColors.text"
-          font-size="10"
-          font-weight="600"
-          font-family="system-ui, sans-serif"
-        >
-          {{ incompleteTasks > 9 ? '9+' : incompleteTasks }}
-        </text>
-      </g>
+        {{ incompleteTasks > 9 ? '9+' : incompleteTasks }}
+      </text>
     </g>
 
-    <!-- Labels below node (outside scale group to prevent text scaling) -->
+    <!-- Labels below node -->
     <text
       :y="nodeRadius + 24"
       text-anchor="middle"
-      :fill="isHovered || isSelected ? '#E8E4DC' : '#8A8680'"
+      :fill="isHovered || isSelected ? '#1A1916' : '#4A4A4A'"
       font-size="11"
       font-weight="500"
       font-family="system-ui, sans-serif"
@@ -71,7 +75,7 @@
     <text
       :y="nodeRadius + 38"
       text-anchor="middle"
-      fill="#5A5650"
+      fill="#6A6A6A"
       font-size="10"
       font-family="system-ui, sans-serif"
       class="event-label"
@@ -84,7 +88,7 @@
       v-if="hasEngagement"
       :y="nodeRadius + 52"
       text-anchor="middle"
-      fill="#5A5650"
+      fill="#6A6A6A"
       font-size="9"
       font-family="system-ui, sans-serif"
       class="event-label"
@@ -153,32 +157,14 @@ const engagementText = computed(() => {
 </script>
 
 <style scoped>
-.event-node-inner {
-  transition: transform 0.2s ease;
-  transform-origin: center center;
-}
-.event-node-inner.is-hovered,
-.event-node-inner.is-selected {
-  transform: scale(1.05);
+.hit-area {
+  pointer-events: all;
 }
 .glow-ring {
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-.glow-ring.visible {
-  opacity: 0.2;
-  animation: pulse 2s ease-in-out infinite;
+  transition: opacity 0.2s ease, r 0.2s ease;
 }
 .event-label {
   transition: fill 0.2s ease;
-}
-@keyframes pulse {
-  0%,
-  100% {
-    opacity: 0.2;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  pointer-events: none;
 }
 </style>

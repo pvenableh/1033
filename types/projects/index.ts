@@ -16,7 +16,7 @@ type File = DirectusFile;
  */
 export interface Project {
   id: string;
-  status: 'draft' | 'active' | 'completed' | 'archived';
+  status: 'draft' | 'active' | 'paused' | 'completed' | 'archived';
   sort: number | null;
   user_created: string | User | null;
   user_updated: string | User | null;
@@ -262,7 +262,7 @@ export interface CreateProjectPayload {
   parent_event_id?: string | null;
   start_date: string;
   target_end_date?: string | null;
-  status?: 'draft' | 'active' | 'completed' | 'archived';
+  status?: 'draft' | 'active' | 'paused' | 'completed' | 'archived';
   member_visible?: boolean;
 }
 

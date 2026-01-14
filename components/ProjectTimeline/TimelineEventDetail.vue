@@ -157,7 +157,7 @@
               </span>
             </p>
             <p class="text-xs text-gray-500">
-              {{ timeAgo(event.date_created || '') }}
+              {{ formattedCreatedDate }}
             </p>
           </div>
         </div>
@@ -196,6 +196,17 @@ const formattedDate = computed(() =>
     day: 'numeric',
   })
 );
+
+const formattedCreatedDate = computed(() => {
+  if (!props.event.date_created) return '';
+  const date = new Date(props.event.date_created);
+  if (isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+});
 
 const sanitizedDescription = computed(() =>
   props.event.description ? sanitizeSync(props.event.description) : ''

@@ -30,6 +30,7 @@ const statusOptions = [
   { label: 'All Statuses', value: 'all' },
   { label: 'Draft', value: 'draft' },
   { label: 'Active', value: 'active' },
+  { label: 'Paused', value: 'paused' },
   { label: 'Completed', value: 'completed' },
   { label: 'Archived', value: 'archived' },
 ];
@@ -346,6 +347,7 @@ function getStatusColor(status: string) {
   const colors: Record<string, string> = {
     draft: 'gray',
     active: 'green',
+    paused: 'orange',
     completed: 'blue',
     archived: 'amber',
   };
@@ -537,6 +539,7 @@ onMounted(async () => {
                   [
                     { label: 'Draft', click: () => updateProjectStatus(row, 'draft') },
                     { label: 'Active', click: () => updateProjectStatus(row, 'active') },
+                    { label: 'Paused', click: () => updateProjectStatus(row, 'paused') },
                     { label: 'Completed', click: () => updateProjectStatus(row, 'completed') },
                     { label: 'Archived', click: () => updateProjectStatus(row, 'archived') },
                   ],
@@ -658,6 +661,7 @@ onMounted(async () => {
                   :options="[
                     { label: 'Draft', value: 'draft' },
                     { label: 'Active', value: 'active' },
+                    { label: 'Paused', value: 'paused' },
                     { label: 'Completed', value: 'completed' },
                     { label: 'Archived', value: 'archived' },
                   ]"
