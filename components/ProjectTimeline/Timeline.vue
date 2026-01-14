@@ -9,7 +9,7 @@
         <p class="text-xs font-mono text-gray-600 tracking-wider uppercase">
           {{ currentDateTime }}
         </p>
-        <p class="text-sm text-gray-500 mt-1">
+        <p class="text-xs font-mono text-gray-500 mt-1 tracking-wider uppercase">
           {{ rootProjects.length }} projects · {{ totalEvents }} events
         </p>
       </div>
