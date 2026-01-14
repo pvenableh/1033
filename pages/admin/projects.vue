@@ -581,7 +581,7 @@ onMounted(async () => {
                   color="gray"
                   variant="ghost"
                   icon="i-heroicons-chart-bar"
-                  :to="`/admin/projects/${row.id}`"
+                  @click="navigateTo(`/admin/projects/${row.id}`)"
                 >
                   Manage
                 </UButton>
@@ -590,7 +590,7 @@ onMounted(async () => {
                   color="gray"
                   variant="ghost"
                   icon="i-heroicons-eye"
-                  :to="`/projects/${row.id}`"
+                  @click="navigateTo(`/projects/${row.id}`)"
                 >
                   View
                 </UButton>
