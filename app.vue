@@ -56,6 +56,7 @@ import {Toaster} from '@/components/ui/sonner';
 	<Toaster />
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .page-content {
 	transition: all 0.25s var(--curve);
 	overflow: hidden;

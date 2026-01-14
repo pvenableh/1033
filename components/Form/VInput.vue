@@ -80,6 +80,7 @@ const props = defineProps({
 // }
 </script>
 <style>
+@reference "~/assets/css/tailwind.css";
 .input-container {
 	.input {
 		@apply block w-full text-lg md:text-base border-gray-300  rounded-md shadow-sm placeholder:text-gray-400;

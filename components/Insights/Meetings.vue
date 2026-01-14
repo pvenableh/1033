@@ -144,6 +144,7 @@ function minutes(files) {
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .next-meeting {
 	background: #159957;
 	/* fallback for old browsers */

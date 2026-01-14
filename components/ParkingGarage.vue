@@ -355,6 +355,7 @@ onClickOutside(spotDetailsRef, () => {
 </script>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .parking-lot-container {
 	display: flex;
 	justify-content: center;

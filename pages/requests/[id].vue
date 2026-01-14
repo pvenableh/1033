@@ -37,6 +37,7 @@ const request = await requestsCollection.get(params.id, {
 });
 </script>
 <style>
+@reference "~/assets/css/tailwind.css";
 .request {
 	max-width: 900px;
 	&__description {

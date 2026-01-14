@@ -38,6 +38,7 @@ const board = await boardCollection.list({
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .board {
 	height: auto;
 	@media (min-width: theme('screens.lg')) {

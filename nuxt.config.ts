@@ -1,5 +1,6 @@
 // import { formatFonts } from './utils/fonts';
 // import { theme } from './theme';
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
 	ssr: true,
@@ -227,13 +228,8 @@ export default defineNuxtConfig({
 		},
 	},
 
-	postcss: {
-		plugins: {
-			'postcss-import': {},
-			'tailwindcss/nesting': {},
-			tailwindcss: {},
-			autoprefixer: {},
-		},
+	vite: {
+		plugins: [tailwindcss()],
 	},
 
 	build: {

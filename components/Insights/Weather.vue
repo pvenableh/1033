@@ -575,6 +575,7 @@ function getUtilityIcon(type: string): string {
 </template>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .weather {
 	--weather-accent: hwb(39 26% 38%);
 	--weather-icon-size: 1.25rem;

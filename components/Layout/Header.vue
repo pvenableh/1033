@@ -71,6 +71,7 @@ const avatar = computed(() => {
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 header {
 	background: var(--theme-header-bg, #eeeeee);
 	border-bottom: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
