@@ -18,6 +18,7 @@ import type {
 
 export function useProjectTimeline() {
   const { user } = useDirectusAuth();
+  const { isBoardMember } = useRoles();
   const projects = useDirectusItems<Project>('projects');
   const events = useDirectusItems<ProjectEvent>('project_events');
   const tasks = useDirectusItems<ProjectTask>('project_tasks');
@@ -105,13 +106,23 @@ export function useProjectTimeline() {
     error.value = null;
 
     try {
+      // Build filter based on role
+      // Board members see all active/completed projects
+      // Regular members only see projects marked as member_visible
+      const filter: Record<string, any> = {
+        status: { _in: ['active', 'completed'] },
+      };
+
+      // Non-board members only see member-visible projects
+      if (!isBoardMember.value) {
+        filter.member_visible = { _eq: true };
+      }
+
       // Fetch without deep filtering - filter client-side instead
       // (Directus deep parameter can cause "Invalid query. 'json' field" errors)
       const result = await projects.list({
         fields: projectFields,
-        filter: {
-          status: { _in: ['active', 'completed'] },
-        },
+        filter,
         sort: ['sort', '-date_created'],
       });
 
