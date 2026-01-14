@@ -1,6 +1,6 @@
 <template>
   <div class="space-y-2">
-    <ProjectTimelineTimelineTaskItem
+    <TimelineTaskItem
       v-for="task in sortedTasks"
       :key="task.id"
       :task="task"
@@ -12,6 +12,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { ProjectTaskWithRelations } from '~/types/projects';
+import TimelineTaskItem from './TimelineTaskItem.vue';
 
 interface Props {
   tasks: ProjectTaskWithRelations[];
