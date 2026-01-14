@@ -102,10 +102,10 @@
 							class="absolute bottom-0 left-0 right-0 rounded transition-all duration-300"
 							:class="category.overBudget ? 'bg-red-500' : 'bg-green-500'"
 							:style="`height: ${Math.min(category.percent, 100)}%`" />
-						<UTooltip
+						<Tooltip
 							:text="`${category.name}: ${category.percent}% of budget ($${category.actual}/$${category.budget})`">
 							<div class="absolute inset-0" />
-						</UTooltip>
+						</Tooltip>
 					</div>
 				</div>
 				<div class="flex justify-between mt-1 text-xs text-gray-500">

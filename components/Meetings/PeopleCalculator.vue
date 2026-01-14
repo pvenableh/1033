@@ -7,7 +7,7 @@
 		</p>
 
 		<div class="w-full mt-2 md:mt-0 md:w-1/2 flex items-end md:justify-end flex-row">
-			<UTooltip
+			<Tooltip
 				v-for="(person, index) in boardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name + ': ' + person.board_member[0].title">
@@ -23,9 +23,9 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</UTooltip>
+			</Tooltip>
 
-			<UTooltip
+			<Tooltip
 				v-for="(person, index) in nonBoardMembers"
 				:key="index"
 				:text="person.first_name + ' ' + person.last_name">
@@ -40,7 +40,7 @@
 					"
 					class="shadow -ml-1 transition-all hover:scale-125 hover:z-30"
 					:alt="person.first_name + ' ' + person.last_name" />
-			</UTooltip>
+			</Tooltip>
 		</div>
 	</div>
 </template>

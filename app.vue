@@ -43,6 +43,7 @@ const links = ref([
 		icon: 'i-heroicons-squares-2x2',
 	},
 ]);
+import {Toaster} from '@/components/ui/sonner';
 </script>
 <template>
 	<NuxtLayout :links="links">
@@ -51,9 +52,11 @@ const links = ref([
 	<NuxtLoadingIndicator
 		color="repeating-linear-gradient(to right,#FF99DD
     0%,#94a3b8 100%)" />
-	<UNotifications />
+	<!-- <UNotifications /> -->
+	<Toaster />
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .page-content {
 	transition: all 0.25s var(--curve);
 	overflow: hidden;

@@ -189,12 +189,12 @@
 					<UIcon name="i-heroicons-chevron-right" class="w-3 h-3 ml-1" />
 				</nuxt-link>
 			</h2>
-			<USelect v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
+			<Select v-model="selectedMonth" :options="monthOptions" size="lg" class="w-48 relative" />
 		</div>
 
 		<!-- Critical Alerts -->
 		<div v-if="criticalAlerts.length > 0" class="mb-8">
-			<UAlert
+			<Alert
 				v-for="alert in criticalAlerts"
 				:key="alert.id"
 				:title="alert.title"
@@ -208,11 +208,11 @@
 				<template #actions>
 					<UButton color="red" variant="soft" size="xs" @click="activeTab = 2">VIEW VIOLATIONS</UButton>
 				</template>
-			</UAlert>
+			</Alert>
 		</div>
 
 		<!-- Main Content Tabs -->
-		<UTabs v-model="activeTab" :items="tabs" class="space-y-6">
+		<Tabs v-model="activeTab" :items="tabs" class="space-y-6">
 			<!-- Overview Tab -->
 			<template #overview>
 				<div class="space-y-6 lg:space-y-0 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -321,7 +321,7 @@
 						</div>
 
 						<!-- Variance Table -->
-						<UTable :rows="budgetVariances" :columns="budgetColumns">
+						<Table :rows="budgetVariances" :columns="budgetColumns">
 							<template #category-data="{row}">
 								<span class="font-medium">{{ row.category }}</span>
 							</template>
@@ -346,7 +346,7 @@
 									{{ row.status }}
 								</UBadge>
 							</template>
-						</UTable>
+						</Table>
 					</div>
 				</UCard>
 			</template>
@@ -433,7 +433,7 @@
 
 							<!-- Violation Transactions Table -->
 							<div class="overflow-x-auto">
-								<UTable :rows="violationTransactions" :columns="violationColumns" class="w-full">
+								<Table :rows="violationTransactions" :columns="violationColumns" class="w-full">
 									<template #date-data="{row}">
 										<span class="font-mono text-sm">{{ row.date }}</span>
 									</template>
@@ -461,7 +461,7 @@
 											{{ row.category || 'VIOLATION' }}
 										</UBadge>
 									</template>
-								</UTable>
+								</Table>
 							</div>
 
 							<!-- Violation Pattern Analysis -->
@@ -505,7 +505,7 @@
 
 								<!-- YTD Violations by Month -->
 								<div class="overflow-x-auto">
-									<UTable :rows="ytdViolationSummary" :columns="ytdViolationColumns">
+									<Table :rows="ytdViolationSummary" :columns="ytdViolationColumns">
 										<template #month-data="{row}">
 											<span class="font-medium">{{ row.month }}</span>
 										</template>
@@ -526,7 +526,7 @@
 												{{ row.violations === 0 ? 'CLEAN' : row.violations < 5 ? 'MODERATE' : 'SEVERE' }}
 											</UBadge>
 										</template>
-									</UTable>
+									</Table>
 								</div>
 							</div>
 						</UCard>
@@ -540,7 +540,7 @@
 						</h3>
 
 						<div class="grid grid-cols-1 gap-4">
-							<UAlert
+							<Alert
 								v-for="violation in criticalViolations"
 								:key="violation.type"
 								:color="violation.severity === 'CRITICAL' ? 'red' : 'orange'"
@@ -570,7 +570,7 @@
 									<p class="text-sm mt-1">💰 Penalty: {{ violation.penalty }}</p>
 									<p class="text-sm mt-1 font-semibold">🎯 Immediate Action: {{ violation.immediateAction }}</p>
 								</div>
-							</UAlert>
+							</Alert>
 						</div>
 					</div>
 
@@ -663,7 +663,7 @@
 					</UCard>
 				</div>
 			</template>
-		</UTabs>
+		</Tabs>
 		<!-- Quick Actions -->
 		<div class="w-full mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
 			<UCard

@@ -54,7 +54,7 @@
 					</p>
 				</div>
 
-				<UAlert
+				<Alert
 					v-if="error"
 					class="mb-4"
 					:description="error"
@@ -62,7 +62,7 @@
 					variant="subtle"
 					icon="i-heroicons-exclamation-triangle">
 					{{ error }}
-				</UAlert>
+				</Alert>
 
 				<UForm :validate="validate" :state="state" class="grid gap-4" @submit="handleSubmit">
 					<UFormGroup label="Password" name="password" required>

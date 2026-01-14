@@ -135,7 +135,7 @@
 					</div>
 				</UCard>
 			</div>
-			<UModal v-model="isOpen" fullscreen>
+			<Modal v-model="isOpen" fullscreen>
 				<div class="p-1 !rounded-none flex items-center justify-center relative h-full w-full">
 					<UIcon
 						@click="isOpen = false"
@@ -143,7 +143,7 @@
 						class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px] text-white bg-black rounded-full" />
 					<NuxtImg :src="selectedImage" class="h-[90svh] w-auto" />
 				</div>
-			</UModal>
+			</Modal>
 			<!-- Executive Summary -->
 			<UCard class="mb-12 border border-gray-900 border-l-8 border-l-gray-900 rounded-sm bg-white">
 				<template #header>
@@ -289,7 +289,7 @@
 					<label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">
 						SELECT TIMEFRAME FOR COMPARISON:
 					</label>
-					<UTabs v-model="selectedTimeframe" :items="timeframeOptions" class="w-full" />
+					<Tabs v-model="selectedTimeframe" :items="timeframeOptions" class="w-full" />
 				</div>
 
 				<!-- Cumulative Cost Chart -->
@@ -347,7 +347,7 @@
 								<span class="text-gray-800 font-medium">Hardware + Installation:</span>
 								<span class="font-bold text-gray-900">${{ unifiProposal.phase1.cost.toLocaleString() }}</span>
 							</div>
-							<UDivider />
+							<Divider />
 							<h4 class="font-bold text-purple-800 text-sm uppercase tracking-wide">ONGOING COSTS:</h4>
 							<div class="flex justify-between">
 								<span class="text-gray-800 font-medium">Monthly fees:</span>
@@ -369,7 +369,7 @@
 								</span>
 							</div>
 
-							<UDivider />
+							<Divider />
 							<div class="flex justify-between text-lg font-bold">
 								<span class="text-gray-900">{{ calculateTotalCost.months }}-MONTH TOTAL:</span>
 								<span class="text-purple-800">${{ calculateTotalCost.unifi.toLocaleString() }}</span>
@@ -402,7 +402,7 @@
 								<span class="text-gray-800 font-medium">Installation:</span>
 								<span class="font-bold text-gray-900">${{ swiftlaneProposal.installation.toLocaleString() }}</span>
 							</div>
-							<UDivider />
+							<Divider />
 							<h4 class="font-bold text-blue-500 text-sm uppercase tracking-wide">ONGOING COSTS:</h4>
 							<div class="flex justify-between">
 								<span class="text-gray-800 font-medium">Base monthly cost:</span>
@@ -435,7 +435,7 @@
 									<span class="text-[10px] block leading-[12px]">per resident</span>
 								</span>
 							</div>
-							<UDivider />
+							<Divider />
 							<div class="flex justify-between text-lg font-bold">
 								<span class="text-gray-900">{{ calculateTotalCost.months }}-MONTH TOTAL:</span>
 								<span class="text-blue-500">${{ calculateTotalCost.swiftlane.toLocaleString() }}</span>
@@ -485,7 +485,7 @@
 								<span class="text-gray-800 font-medium">Installation + New Linear Panel:</span>
 								<span class="font-bold text-gray-900">${{ amazonKeyProposal.installation.toLocaleString() }}</span>
 							</div>
-							<UDivider />
+							<Divider />
 							<h4 class="font-bold text-orange-800 text-sm uppercase tracking-wide">ONGOING COSTS:</h4>
 							<div class="flex justify-between">
 								<span class="text-gray-800 font-medium">Monthly subscription:</span>
@@ -500,7 +500,7 @@
 								<span class="font-bold text-gray-900">${{ (amazonKeyProposal.monthlyFee + 40).toLocaleString() }}</span>
 							</div>
 
-							<UDivider />
+							<Divider />
 							<div class="flex justify-between text-lg font-bold">
 								<span class="text-gray-900">{{ calculateTotalCost.months }}-MONTH TOTAL:</span>
 								<span class="text-orange-800">${{ calculateTotalCost.amazonKey.toLocaleString() }}</span>
@@ -527,7 +527,7 @@
 					</UCard>
 				</div>
 				<div class="grid grid-cols-1 md:grid-cols-3 md:gap-4 md:mt-6 hidden">
-					<UAlert
+					<Alert
 						color="blue"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -535,7 +535,7 @@
 						title="AMAZON KEY LINEAR INTEGRATION ADVANTAGE"
 						description="Amazon Key Virtual Key + Intercom Boost relies on Linear access panel as an add-on. However, requires maintaining existing phone line infrastructure at $40/month." />
 
-					<UAlert
+					<Alert
 						color="green"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -543,7 +543,7 @@
 						title="SWIFTLANE FACIAL RECOGNITION ADVANTAGE"
 						description="Swiftlane is the ONLY system offering facial recognition. With their innovative per-resident model, tenants who want facial recognition can pay $21.99/year individually, making it budget-friendly and optional for residents." />
 
-					<UAlert
+					<Alert
 						color="blue"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -551,7 +551,7 @@
 						title="SWIFTLANE COMPREHENSIVE FEATURES"
 						description="Complete video intercom solution: Full-screen video calls, Face/Mobile/PIN/Voice unlock options, IK10 vandal resistance with replacement insurance, cellular internet fallback, property management integrations, real-time monitoring, and comprehensive delivery management for UPS/FedEx/Amazon with PIN generation and photo logging." />
 
-					<UAlert
+					<Alert
 						color="blue"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -559,7 +559,7 @@
 						title="PHONE LINE SAVINGS"
 						description="UniFi and Swiftlane systems save $40/month by eliminating phone line requirements. Over 5 years, this represents $2,400 in additional savings versus Amazon Key." />
 
-					<UAlert
+					<Alert
 						color="green"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -567,7 +567,7 @@
 						title="SWIFTLANE BULK PAYMENT DISCOUNTS"
 						description="Swiftlane offers significant discounts for longer commitments on their $30/month base rate: 5% (annual), 10% (3-year), 15% (5-year). Current pricing reflects the selected timeframe discount." />
 
-					<UAlert
+					<Alert
 						color="amber"
 						variant="solid"
 						class="mt-6 md:mt-0 font-bold"
@@ -578,7 +578,7 @@
 			</UCard>
 
 			<!-- Detailed Feature Comparison -->
-			<UAccordion :items="accordionItems" multiple class="space-y-6" default-open>
+			<Accordion :items="accordionItems" multiple class="space-y-6" default-open>
 				<!-- Feature Comparison -->
 				<template #features>
 					<UCard class="border border-gray-300 rounded-sm bg-white">
@@ -1097,7 +1097,7 @@
 						</UCard>
 					</div>
 				</template>
-			</UAccordion>
+			</Accordion>
 		</div>
 	</div>
 </template>

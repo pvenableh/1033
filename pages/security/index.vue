@@ -12,7 +12,7 @@
 		</nuxt-link>
 		<!-- Mobile Tabs (hidden on lg and up) -->
 		<div class="w-full md:px-6 lg:hidden mt-0">
-			<UTabs
+			<Tabs
 				:items="tabs"
 				class="w-full"
 				:ui="{
@@ -283,7 +283,7 @@
 						</div>
 					</div>
 				</template>
-			</UTabs>
+			</Tabs>
 		</div>
 
 		<!-- Desktop Side-by-Side (hidden on mobile, visible on lg and up) -->
@@ -535,7 +535,7 @@
 		</div>
 
 		<!-- Photo Modal -->
-		<UModal v-model="isPhotoModalOpen" :ui="{background: 'bg-zinc-900/95'}">
+		<Modal v-model="isPhotoModalOpen" :ui="{background: 'bg-zinc-900/95'}">
 			<div class="p-6 bg-zinc-950">
 				<!-- Modal Header -->
 				<div class="flex items-center justify-between mb-4">
@@ -591,7 +591,7 @@
 					<span class="text-white">{{ selectedEvent.pass_name }}</span>
 				</p>
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

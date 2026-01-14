@@ -47,6 +47,7 @@ const percentageChange = computed(() => {
 });
 </script>
 <style lang="postcss">
+@reference "~/assets/css/tailwind.css";
 .insight {
 	&__label {
 		font-size: 12px;

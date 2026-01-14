@@ -1,4 +1,6 @@
 <script setup>
+import { UiAvatar } from '~/components/ui/avatar'
+
 const config = useRuntimeConfig();
 const {user} = useDirectusAuth();
 const avatarSource = ref('');
@@ -48,15 +50,16 @@ watch(
 );
 </script>
 <template>
-	<UAvatar
+	<UiAvatar
 		v-if="chip"
+		chip
 		chip-color="sky"
 		:chip-text="text"
 		chip-position="top-right"
 		:size="size"
 		:src="avatarSource"
 		:alt="user?.first_name + ' ' + user?.last_name" />
-	<UAvatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
+	<UiAvatar v-else :size="size" :src="avatarSource" :alt="user?.first_name + ' ' + user?.last_name" />
 </template>
 
 <style></style>

@@ -636,10 +636,10 @@ onMounted(async () => {
     <div class="container mx-auto px-4 py-6 max-w-6xl">
       <!-- Header -->
       <div class="mb-6">
-        <UButton variant="ghost" size="sm" @click="handleCancel" class="mb-4">
-          <UIcon name="i-heroicons-arrow-left" class="w-4 h-4 mr-2" />
+        <Button variant="ghost" size="sm" @click="handleCancel" class="mb-4">
+          <Icon name="i-heroicons-arrow-left" class="w-4 h-4 mr-2" />
           Back to Announcements
-        </UButton>
+        </Button>
         <h1 class="text-2xl font-bold">
           {{ isEditing ? 'Edit Announcement' : 'Compose Announcement' }}
         </h1>
@@ -650,7 +650,7 @@ onMounted(async () => {
 
       <!-- Access Denied -->
       <div v-if="!hasAccess" class="text-center py-12">
-        <UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
+        <Icon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
         <h2 class="text-xl font-semibold mb-2">Access Denied</h2>
         <p class="text-gray-600 dark:text-gray-400">
           You don't have permission to create announcements.
@@ -659,7 +659,7 @@ onMounted(async () => {
 
       <!-- Loading State -->
       <div v-else-if="loading" class="text-center py-12">
-        <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
+        <Icon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin mx-auto mb-4 text-gray-400" />
         <p class="text-gray-600">Loading...</p>
       </div>
 
@@ -668,7 +668,7 @@ onMounted(async () => {
         <!-- Email Content (Left) -->
         <div class="lg:col-span-2 space-y-6">
           <!-- Template Selection -->
-          <UCard>
+          <Card>
             <template #header>
               <h3 class="font-semibold">Template</h3>
             </template>
@@ -680,38 +680,38 @@ onMounted(async () => {
                 :class="[
                   'flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all',
                   form.template === option.value
-                    ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
+                    ? 'border-primary bg-primary-50 dark:bg-primary-900/20 text-primary'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300',
                 ]"
               >
-                <UIcon :name="option.icon" class="w-5 h-5" />
+                <Icon :name="option.icon" class="w-5 h-5" />
                 {{ option.label }}
               </button>
             </div>
-          </UCard>
+          </Card>
 
           <!-- Subject & Content -->
-          <UCard>
+          <Card>
             <template #header>
               <h3 class="font-semibold">Email Content</h3>
             </template>
             <div class="space-y-4">
-              <UFormGroup label="Title" required>
-                <UInput v-model="form.title" placeholder="Enter announcement title..." size="lg" />
-              </UFormGroup>
+              <FormGroup label="Title" required>
+                <Input v-model="form.title" placeholder="Enter announcement title..." size="lg" />
+              </FormGroup>
 
-              <UFormGroup label="Subtitle">
-                <UInput v-model="form.subtitle" placeholder="Brief summary (optional)" />
-              </UFormGroup>
+              <FormGroup label="Subtitle">
+                <Input v-model="form.subtitle" placeholder="Brief summary (optional)" />
+              </FormGroup>
 
-              <UFormGroup label="Greeting">
-                <UInput v-model="form.greeting" placeholder="Dear {{first_name}}," />
+              <FormGroup label="Greeting">
+                <Input v-model="form.greeting" placeholder="Dear {{first_name}}," />
                 <template #hint>
                   Use <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{{first_name}}</code> for personalization
                 </template>
-              </UFormGroup>
+              </FormGroup>
 
-              <UFormGroup label="Message" required>
+              <FormGroup label="Message" required>
                 <ClientOnly>
                   <TiptapEditor
                     v-model="form.content"
@@ -723,38 +723,38 @@ onMounted(async () => {
                   />
                   <template #fallback>
                     <div class="min-h-[300px] border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-800 flex items-center justify-center">
-                      <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
+                      <Icon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin text-gray-400" />
                     </div>
                   </template>
                 </ClientOnly>
-              </UFormGroup>
+              </FormGroup>
 
-              <UFormGroup label="Closing">
-                <UInput v-model="form.closing" placeholder="Best regards,\nThe Board" />
-              </UFormGroup>
+              <FormGroup label="Closing">
+                <Input v-model="form.closing" placeholder="Best regards,\nThe Board" />
+              </FormGroup>
 
-              <UCheckbox v-model="form.urgent" label="Mark as urgent" />
+              <Checkbox v-model="form.urgent" label="Mark as urgent" />
             </div>
-          </UCard>
+          </Card>
 
           <!-- Attachments -->
-          <UCard>
+          <Card>
             <template #header>
               <div class="flex items-center gap-2">
-                <UIcon name="i-heroicons-paper-clip" class="w-5 h-5" />
+                <Icon name="i-heroicons-paper-clip" class="w-5 h-5" />
                 <h3 class="font-semibold">Attachments</h3>
               </div>
             </template>
             <div class="space-y-4">
               <div class="flex gap-2">
-                <UButton variant="outline" size="sm" @click="openAttachmentBrowser">
-                  <UIcon name="i-lucide-folder-open" class="w-4 h-4 mr-2" />
+                <Button variant="outline" size="sm" @click="openAttachmentBrowser">
+                  <Icon name="i-lucide-folder-open" class="w-4 h-4 mr-2" />
                   Browse Files
-                </UButton>
-                <UButton variant="outline" size="sm" :loading="isUploadingAttachment" @click="attachmentFileInput?.click()">
-                  <UIcon name="i-lucide-upload" class="w-4 h-4 mr-2" />
+                </Button>
+                <Button variant="outline" size="sm" :loading="isUploadingAttachment" @click="attachmentFileInput?.click()">
+                  <Icon name="i-lucide-upload" class="w-4 h-4 mr-2" />
                   Upload New
-                </UButton>
+                </Button>
                 <input
                   ref="attachmentFileInput"
                   type="file"
@@ -770,15 +770,15 @@ onMounted(async () => {
                   class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700"
                 >
                   <div class="flex items-center gap-3">
-                    <UIcon :name="getFileIcon(attachment.type)" class="w-5 h-5 text-gray-500" />
+                    <Icon :name="getFileIcon(attachment.type)" class="w-5 h-5 text-gray-500" />
                     <div>
                       <div class="font-medium text-sm">{{ attachment.filename }}</div>
                       <div class="text-xs text-gray-500">{{ formatFileSize(attachment.size) }}</div>
                     </div>
                   </div>
-                  <UButton variant="ghost" size="xs" @click="removeAttachment(attachment.id)">
-                    <UIcon name="i-heroicons-x-mark" class="w-4 h-4" />
-                  </UButton>
+                  <Button variant="ghost" size="xs" @click="removeAttachment(attachment.id)">
+                    <Icon name="i-heroicons-x-mark" class="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
 
@@ -786,13 +786,13 @@ onMounted(async () => {
                 No attachments added
               </p>
             </div>
-          </UCard>
+          </Card>
         </div>
 
         <!-- Recipients & Actions (Right) -->
         <div class="space-y-6">
           <!-- Recipients Card -->
-          <UCard>
+          <Card>
             <template #header>
               <div class="flex items-center justify-between">
                 <h3 class="font-semibold">Recipients</h3>
@@ -810,11 +810,11 @@ onMounted(async () => {
                   :class="[
                     'p-2 rounded-lg border text-center transition-all text-xs',
                     recipientFilter === option.value
-                      ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-600'
+                      ? 'border-primary bg-primary-50 dark:bg-primary-900/20 text-primary'
                       : 'border-gray-200 dark:border-gray-700 hover:border-gray-300',
                   ]"
                 >
-                  <UIcon :name="option.icon" class="w-4 h-4 mx-auto mb-1" />
+                  <Icon :name="option.icon" class="w-4 h-4 mx-auto mb-1" />
                   <div class="font-medium">{{ option.label }}</div>
                   <div class="text-gray-500">({{ memberCounts[option.value] }})</div>
                 </button>
@@ -844,12 +844,12 @@ onMounted(async () => {
                     {{ selectedRecipients.length }} selected
                   </span>
                   <div class="flex gap-2">
-                    <UButton variant="ghost" size="xs" @click="selectAll">All</UButton>
-                    <UButton variant="ghost" size="xs" @click="deselectAll">None</UButton>
+                    <Button variant="ghost" size="xs" @click="selectAll">All</Button>
+                    <Button variant="ghost" size="xs" @click="deselectAll">None</Button>
                   </div>
                 </div>
                 <div v-if="loadingRecipients" class="p-4 text-center">
-                  <UIcon name="i-heroicons-arrow-path" class="animate-spin w-5 h-5 text-gray-400" />
+                  <Icon name="i-heroicons-arrow-path" class="animate-spin w-5 h-5 text-gray-400" />
                 </div>
                 <div
                   v-for="member in filteredRecipients"
@@ -873,7 +873,7 @@ onMounted(async () => {
 
             <template #footer>
               <div class="space-y-3">
-                <UButton
+                <Button
                   class="w-full"
                   size="lg"
                   color="green"
@@ -881,30 +881,30 @@ onMounted(async () => {
                   :disabled="recipientCount === 0"
                   @click="sendAnnouncement"
                 >
-                  <UIcon name="i-heroicons-paper-airplane" class="w-5 h-5 mr-2" />
+                  <Icon name="i-heroicons-paper-airplane" class="w-5 h-5 mr-2" />
                   Send to {{ recipientCount }} recipient{{ recipientCount !== 1 ? 's' : '' }}
-                </UButton>
+                </Button>
 
                 <div class="grid grid-cols-2 gap-2">
-                  <UButton variant="outline" :loading="previewLoading" @click="generatePreview">
-                    <UIcon name="i-heroicons-eye" class="w-4 h-4 mr-2" />
+                  <Button variant="outline" :loading="previewLoading" @click="generatePreview">
+                    <Icon name="i-heroicons-eye" class="w-4 h-4 mr-2" />
                     Preview
-                  </UButton>
-                  <UButton variant="outline" :loading="saving" @click="saveAnnouncement('draft')">
-                    <UIcon name="i-heroicons-bookmark" class="w-4 h-4 mr-2" />
+                  </Button>
+                  <Button variant="outline" :loading="saving" @click="saveAnnouncement('draft')">
+                    <Icon name="i-heroicons-bookmark" class="w-4 h-4 mr-2" />
                     Save Draft
-                  </UButton>
+                  </Button>
                 </div>
 
-                <UButton variant="ghost" class="w-full" @click="handleCancel">
+                <Button variant="ghost" class="w-full" @click="handleCancel">
                   Cancel
-                </UButton>
+                </Button>
               </div>
             </template>
-          </UCard>
+          </Card>
 
           <!-- Test Email Card -->
-          <UCard>
+          <Card>
             <template #header>
               <button
                 type="button"
@@ -912,10 +912,10 @@ onMounted(async () => {
                 @click="showTestEmailSection = !showTestEmailSection"
               >
                 <div class="flex items-center gap-2">
-                  <UIcon name="i-heroicons-beaker" class="w-5 h-5 text-amber-600" />
+                  <Icon name="i-heroicons-beaker" class="w-5 h-5 text-amber-600" />
                   <h3 class="font-semibold">Test Email</h3>
                 </div>
-                <UIcon
+                <Icon
                   :name="showTestEmailSection ? 'i-heroicons-chevron-up' : 'i-heroicons-chevron-down'"
                   class="w-4 h-4 text-gray-400"
                 />
@@ -929,13 +929,13 @@ onMounted(async () => {
 
               <!-- Email Input -->
               <div class="flex gap-2">
-                <UInput
+                <Input
                   v-model="testEmailInput"
                   placeholder="Enter email address"
                   class="flex-1"
                   @keyup.enter="addTestEmail"
                 />
-                <UButton size="sm" @click="addTestEmail">Add</UButton>
+                <Button size="sm" @click="addTestEmail">Add</Button>
               </div>
 
               <!-- Email Tags -->
@@ -947,7 +947,7 @@ onMounted(async () => {
                 >
                   <span>{{ email }}</span>
                   <button @click="removeTestEmail(email)" class="p-0.5 hover:text-red-500">
-                    <UIcon name="i-heroicons-x-mark" class="w-3 h-3" />
+                    <Icon name="i-heroicons-x-mark" class="w-3 h-3" />
                   </button>
                 </div>
               </div>
@@ -960,7 +960,7 @@ onMounted(async () => {
                   :key="result.email"
                   class="flex items-center gap-2 text-sm"
                 >
-                  <UIcon
+                  <Icon
                     :name="result.success ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
                     :class="result.success ? 'text-green-600' : 'text-red-600'"
                     class="w-4 h-4"
@@ -970,28 +970,28 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <UButton
+              <Button
                 variant="outline"
                 class="w-full"
                 :loading="testEmailSending"
                 :disabled="testEmails.length === 0 || !form.title || !form.content"
                 @click="sendTestEmail"
               >
-                <UIcon name="i-heroicons-paper-airplane" class="w-4 h-4 mr-2" />
+                <Icon name="i-heroicons-paper-airplane" class="w-4 h-4 mr-2" />
                 Send Test Email{{ testEmails.length > 1 ? 's' : '' }}
-              </UButton>
+              </Button>
             </div>
-          </UCard>
+          </Card>
         </div>
       </div>
 
       <!-- Preview Modal -->
-      <UModal v-model="showPreview" :ui="{ width: 'sm:max-w-4xl' }">
-        <UCard>
+      <Modal v-model="showPreview" :ui="{ width: 'sm:max-w-4xl' }">
+        <Card>
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">Email Preview</h3>
-              <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showPreview = false" />
+              <Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showPreview = false" />
             </div>
           </template>
           <div class="max-h-[70vh] overflow-auto border dark:border-gray-700 rounded-lg bg-gray-100 dark:bg-gray-800 p-4">
@@ -999,20 +999,20 @@ onMounted(async () => {
           </div>
           <template v-if="selectedAttachments.length > 0" #footer>
             <div class="flex items-center gap-2 text-sm text-gray-600">
-              <UIcon name="i-heroicons-paper-clip" class="w-4 h-4" />
+              <Icon name="i-heroicons-paper-clip" class="w-4 h-4" />
               <span>{{ selectedAttachments.length }} attachment{{ selectedAttachments.length !== 1 ? 's' : '' }}</span>
             </div>
           </template>
-        </UCard>
-      </UModal>
+        </Card>
+      </Modal>
 
       <!-- Attachment Browser Modal -->
-      <UModal v-model="showAttachmentBrowser" :ui="{ width: 'sm:max-w-3xl' }">
-        <UCard class="max-h-[80vh] flex flex-col">
+      <Modal v-model="showAttachmentBrowser" :ui="{ width: 'sm:max-w-3xl' }">
+        <Card class="max-h-[80vh] flex flex-col">
           <template #header>
             <div class="flex items-center justify-between">
               <h3 class="text-lg font-semibold">Select File</h3>
-              <UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showAttachmentBrowser = false" />
+              <Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showAttachmentBrowser = false" />
             </div>
           </template>
 
@@ -1020,13 +1020,13 @@ onMounted(async () => {
           <div class="flex items-center gap-1 text-sm border-b dark:border-gray-700 pb-2 mb-3">
             <template v-for="(folder, index) in attachmentFolderPath" :key="folder.id || 'root'">
               <button
-                class="hover:text-primary-500 hover:underline"
+                class="hover:text-primary hover:underline"
                 :class="{ 'font-medium': index === attachmentFolderPath.length - 1 }"
                 @click="navigateToAttachmentFolder(folder.id, folder.name)"
               >
                 {{ folder.name }}
               </button>
-              <UIcon
+              <Icon
                 v-if="index < attachmentFolderPath.length - 1"
                 name="i-heroicons-chevron-right"
                 class="w-4 h-4 text-gray-400"
@@ -1035,7 +1035,7 @@ onMounted(async () => {
           </div>
 
           <!-- Search -->
-          <UInput
+          <Input
             v-model="attachmentSearchQuery"
             icon="i-heroicons-magnifying-glass"
             placeholder="Search files..."
@@ -1045,13 +1045,13 @@ onMounted(async () => {
           <!-- File Grid -->
           <div class="flex-1 overflow-y-auto min-h-[300px]">
             <div v-if="isLoadingAttachments" class="flex items-center justify-center h-full">
-              <UIcon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-gray-400" />
+              <Icon name="i-heroicons-arrow-path" class="w-8 h-8 animate-spin text-gray-400" />
             </div>
             <div
               v-else-if="attachmentFolders.length === 0 && filteredAttachmentFiles.length === 0"
               class="flex flex-col items-center justify-center h-full text-gray-500"
             >
-              <UIcon name="i-lucide-folder-x" class="w-12 h-12 mb-2" />
+              <Icon name="i-lucide-folder-x" class="w-12 h-12 mb-2" />
               <p>No files found</p>
             </div>
             <div v-else class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 p-1">
@@ -1062,7 +1062,7 @@ onMounted(async () => {
                 class="flex flex-col items-center p-3 rounded-lg border dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 @click="navigateToAttachmentFolder(folder.id, folder.name || 'Folder')"
               >
-                <UIcon name="i-lucide-folder" class="w-10 h-10 text-amber-500 mb-2" />
+                <Icon name="i-lucide-folder" class="w-10 h-10 text-amber-500 mb-2" />
                 <span class="text-xs text-center truncate w-full">{{ folder.name || 'Folder' }}</span>
               </button>
 
@@ -1070,11 +1070,11 @@ onMounted(async () => {
               <button
                 v-for="file in filteredAttachmentFiles"
                 :key="file.id"
-                class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary-500 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                class="flex flex-col items-center p-2 rounded-lg border dark:border-gray-700 hover:border-primary hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                 @click="selectAttachmentFile(file)"
               >
                 <div class="w-10 h-10 mb-2 flex items-center justify-center rounded bg-gray-100 dark:bg-gray-700">
-                  <UIcon :name="getFileIcon(file.type || '')" class="w-5 h-5 text-gray-400" />
+                  <Icon :name="getFileIcon(file.type || '')" class="w-5 h-5 text-gray-400" />
                 </div>
                 <span class="text-xs text-center truncate w-full">
                   {{ file.title || file.filename_download || 'File' }}
@@ -1085,8 +1085,8 @@ onMounted(async () => {
               </button>
             </div>
           </div>
-        </UCard>
-      </UModal>
+        </Card>
+      </Modal>
     </div>
   </div>
 </template>

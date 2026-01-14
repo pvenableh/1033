@@ -214,6 +214,7 @@ const userUnits = computed(() => {
 </template>
 
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .lease-status {
   @apply p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg;
 }

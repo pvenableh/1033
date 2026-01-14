@@ -12,13 +12,13 @@
 						<span class="text-sm text-gray-500">40-Year Special (5872)</span>
 					</div>
 				</div>
-				<UButton color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</UButton>
+				<Button color="gray" variant="ghost" icon="i-heroicons-arrow-left" to="/financials">BACK TO DASHBOARD</Button>
 			</div>
 		</div>
 
 		<!-- 🚨 FLORIDA COMPLIANCE ALERTS -->
 		<div v-if="complianceViolations.length > 0" class="mb-8">
-			<UAlert
+			<Alert
 				icon="i-heroicons-exclamation-triangle"
 				color="red"
 				variant="solid"
@@ -27,7 +27,7 @@
 				class="mb-4" />
 
 			<div class="grid gap-3">
-				<UAlert
+				<Alert
 					v-for="violation in complianceViolations.slice(0, 3)"
 					:key="violation.date"
 					icon="i-heroicons-exclamation-circle"
@@ -41,13 +41,13 @@
 		<!-- Multi-Account Summary -->
 		<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 			<!-- Operating Account (5129) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Operating Account (5129)</h3>
-						<UBadge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
+						<Badge :color="operatingData?.endingBalance < 25000 ? 'red' : 'green'" variant="soft" size="xs">
 							{{ operatingData?.endingBalance < 25000 ? 'CRITICAL' : 'HEALTHY' }}
-						</UBadge>
+						</Badge>
 					</div>
 				</template>
 
@@ -76,14 +76,14 @@
 						⚠️ {{ operatingViolations }} fund mixing violations
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- Reserve Account (7011) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">Reserve Account (7011)</h3>
-						<UBadge color="red" variant="soft" size="xs">CRITICAL</UBadge>
+						<Badge color="red" variant="soft" size="xs">CRITICAL</Badge>
 					</div>
 				</template>
 
@@ -110,14 +110,14 @@
 						🚨 {{ Math.round(((75000 - (reserveData?.endingBalance || 0)) / 75000) * 100) }}% underfunded
 					</div>
 				</div>
-			</UCard>
+			</Card>
 
 			<!-- 40-Year Special Assessment (5872) -->
-			<UCard>
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">40-Year Special (5872)</h3>
-						<UBadge color="orange" variant="soft" size="xs">VIOLATIONS</UBadge>
+						<Badge color="orange" variant="soft" size="xs">VIOLATIONS</Badge>
 					</div>
 				</template>
 
@@ -140,15 +140,15 @@
 
 					<div class="p-2 bg-orange-50 rounded text-orange-700 text-sm">❌ Mixed with operating funds</div>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Budget vs Actual Analysis (Corrected) -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<div class="flex justify-between items-center">
 					<h2 class="text-xl font-semibold uppercase tracking-wide">BUDGET VARIANCE ANALYSIS</h2>
-					<UBadge color="blue" variant="soft">2025 Operating Budget</UBadge>
+					<Badge color="blue" variant="soft">2025 Operating Budget</Badge>
 				</div>
 			</template>
 
@@ -177,7 +177,7 @@
 			</div>
 
 			<!-- Category Breakdown with Correct Budget Numbers -->
-			<UTable :rows="varianceAnalysis" :columns="budgetColumns">
+			<Table :rows="varianceAnalysis" :columns="budgetColumns">
 				<template #category-data="{row}">
 					<span class="font-medium">{{ row.category }}</span>
 				</template>
@@ -193,20 +193,20 @@
 					</span>
 				</template>
 				<template #status-data="{row}">
-					<UBadge :color="row.statusColor" variant="soft" size="xs">
+					<Badge :color="row.statusColor" variant="soft" size="xs">
 						{{ row.status }}
-					</UBadge>
+					</Badge>
 				</template>
-			</UTable>
-		</UCard>
+			</Table>
+		</Card>
 
 		<!-- Detailed Expense Categories -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">EXPENSE BREAKDOWN</h2>
 			</template>
 
-			<UAccordion :items="expenseCategories" variant="soft" size="sm">
+			<Accordion :items="expenseCategories" variant="soft" size="sm">
 				<template #insurance="{item, index, open}">
 					<div class="space-y-2">
 						<div
@@ -302,22 +302,22 @@
 						</div>
 					</div>
 				</template>
-			</UAccordion>
-		</UCard>
+			</Accordion>
+		</Card>
 
 		<!-- Compliance Checklist -->
-		<UCard class="mb-8">
+		<Card class="mb-8">
 			<template #header>
 				<h2 class="text-xl font-semibold uppercase tracking-wide">FLORIDA COMPLIANCE CHECKLIST</h2>
 			</template>
 
 			<div class="space-y-4">
 				<div v-for="item in certificationChecklist" :key="item.id" class="flex items-center space-x-3">
-					<UCheckbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
+					<Checkbox v-model="item.checked" :disabled="!item.compliant" :color="item.compliant ? 'green' : 'red'" />
 					<label class="text-sm" :class="item.compliant ? 'text-gray-700' : 'text-red-700'">
 						{{ item.label }}
 					</label>
-					<UIcon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
+					<Icon v-if="!item.compliant" name="i-heroicons-exclamation-triangle" class="text-red-500 w-4 h-4" />
 				</div>
 			</div>
 
@@ -334,9 +334,9 @@
 					<p class="text-sm text-gray-600 mt-2">Date: _______________________</p>
 					<p class="text-sm text-red-600 mt-2 font-medium">⚖️ Florida Chapter 720 Compliance Required</p>
 				</div>
-				<UButton color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</UButton>
+				<Button color="primary" size="lg" icon="i-heroicons-document-arrow-down">EXPORT REPORT</Button>
 			</div>
-		</UCard>
+		</Card>
 	</div>
 </template>
 

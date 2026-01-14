@@ -78,7 +78,7 @@ const mailtoLink = computed(() => {
 				<p class="w-full">We are very thankful for you cooperation and participation in the voting process.</p>
 			</div>
 		</div>
-		<UModal v-model="isOpen" fullscreen>
+		<Modal v-model="isOpen" fullscreen>
 			<div class="w-full h-full flex items-center justify-center flex-col p-2 lg:p-12 relative" @click="isOpen = false">
 				<UIcon name="i-heroicons-x-circle" class="cursor-pointer h-8 w-8 absolute shadow-lg right-[10px] top-[10px]" />
 				<h5 class="w-full uppercase font-bold mt-3 leading-4 max-w-[1200px]">
@@ -106,7 +106,7 @@ const mailtoLink = computed(() => {
 					alt="1033 Lenox Design Rendering"
 					class="w-full h-auto max-w-[1200px]" />
 			</div>
-		</UModal>
+		</Modal>
 		<div
 			v-for="(item, index) in renderings"
 			:key="index"
@@ -154,7 +154,7 @@ const mailtoLink = computed(() => {
 				</UButton> -->
 			</div>
 		</div>
-		<!-- <UModal v-model="isVoteOpen">
+		<!-- <Modal v-model="isVoteOpen">
 			<div class="py-8 px-6 relative">
 				<UIcon
 					name="i-heroicons-x-circle"
@@ -195,10 +195,11 @@ const mailtoLink = computed(() => {
 					Send Email Vote for {{ selectedItem.title }}
 				</UButton>
 			</div>
-		</UModal> -->
+		</Modal> -->
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .renderings {
 	&__item {
 		@apply px-4;

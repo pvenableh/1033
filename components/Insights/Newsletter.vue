@@ -27,6 +27,7 @@ const newsletters = await newslettersCollection.list({
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
 .newsletter {
 	&__cover {
 		@apply bg-no-repeat bg-center bg-cover h-full;

@@ -19,6 +19,7 @@ function sideMenuToggle() {
 	</div>
 </template>
 <style scoped>
+@reference "~/assets/css/tailwind.css";
 .header #nav-btn {
 	display: none;
 	@media (min-width: theme('screens.lg')) {

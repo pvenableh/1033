@@ -102,7 +102,7 @@
 		</div>
 
 		<!-- Main Content Tabs -->
-		<UTabs v-model="activeTab" :items="tabs" class="space-y-6">
+		<Tabs v-model="activeTab" :items="tabs" class="space-y-6">
 			<!-- Expenses Breakdown Tab -->
 			<template #expenses>
 				<div class="space-y-6">
@@ -344,7 +344,7 @@
 					</div>
 				</UCard>
 			</template>
-		</UTabs>
+		</Tabs>
 
 		<!-- Footer Notes -->
 		<div class="mt-8 text-center text-sm text-gray-500">

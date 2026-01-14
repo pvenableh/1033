@@ -20,7 +20,7 @@ function movePanel(val: string) {
 
 <template>
 	<div class="flex items-center justify-center flex-col px-12 login">
-		<UAlert
+		<Alert
 			v-if="errorMessage"
 			class="mb-6 max-w-md"
 			color="amber"
@@ -73,6 +73,7 @@ function movePanel(val: string) {
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 .login {
 	/* height: 90vh; */
 }
