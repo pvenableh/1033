@@ -78,6 +78,7 @@
 		"nuxt": "^3.15.1",
 		"nuxt-auth-utils": "^0.5.16",
 		"prettier": "3.2.5",
+		"shadcn-nuxt": "^2.4.3",
 		"stripe": "^14.25.0",
 		"tailwindcss": "^4.1.0",
 		"tailwindcss-safe-area": "0.8.0",

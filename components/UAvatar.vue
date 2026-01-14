@@ -11,6 +11,7 @@ interface Props {
   src?: string
   alt?: string
   text?: string // NuxtUI uses text for fallback
+  icon?: string // NuxtUI icon prop (e.g., "i-heroicons-user")
   size?: "xs" | "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "2xs" | "3xs"
   chip?: boolean
   chipColor?: string
@@ -54,6 +55,7 @@ const avatarClasses = computed(() => {
 
 // Get fallback text from various props
 const fallbackText = computed(() => {
+  if (props.icon) return undefined // Use icon instead of text
   if (props.text) {
     // Generate initials from text
     return props.text
@@ -73,6 +75,20 @@ const fallbackText = computed(() => {
   }
   return "?"
 })
+
+// Convert NuxtUI icon format to @nuxt/icon format
+const convertedIcon = computed(() => {
+  if (!props.icon) return undefined
+  // Convert i-heroicons-xxx to heroicons:xxx
+  if (props.icon.startsWith('i-heroicons-')) {
+    return props.icon.replace('i-heroicons-', 'heroicons:')
+  }
+  // Convert i-lucide-xxx to lucide:xxx
+  if (props.icon.startsWith('i-lucide-')) {
+    return props.icon.replace('i-lucide-', 'lucide:')
+  }
+  return props.icon
+})
 </script>
 
 <template>
@@ -81,6 +97,7 @@ const fallbackText = computed(() => {
     :alt="alt || text"
     :size="mappedSize"
     :fallback="fallbackText"
+    :icon="convertedIcon"
     :chip="chip"
     :chip-color="chipColor"
     :chip-text="chipText"
