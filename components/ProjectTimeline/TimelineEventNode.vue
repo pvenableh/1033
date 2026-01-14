@@ -1,60 +1,61 @@
 <template>
   <g
-    :class="['event-node', { 'is-selected': isSelected, 'is-hovered': isHovered }]"
     :transform="`translate(${x}, ${y})`"
     style="cursor: pointer"
     @mouseenter="isHovered = true"
     @mouseleave="isHovered = false"
     @click="$emit('select', event.id)"
   >
-    <!-- Glow effect on hover/select -->
-    <circle
-      v-if="isHovered || isSelected"
-      :r="nodeRadius + 4"
-      :fill="projectColor"
-      opacity="0.2"
-      class="glow-ring"
-    />
-
-    <!-- Main node -->
-    <circle
-      :r="nodeRadius"
-      :fill="isSelected ? projectColor : '#1A1916'"
-      :stroke="projectColor"
-      stroke-width="3"
-    />
-
-    <!-- Milestone indicator (inner dot) -->
-    <circle
-      v-if="event.is_milestone"
-      :r="nodeRadius * 0.4"
-      :fill="projectColor"
-    />
-
-    <!-- Task badge -->
-    <g
-      v-if="incompleteTasks > 0"
-      :transform="`translate(${nodeRadius - 4}, ${-nodeRadius})`"
-    >
+    <!-- Inner group for hover scale effect (prevents position jump) -->
+    <g :class="['event-node-inner', { 'is-hovered': isHovered, 'is-selected': isSelected }]">
+      <!-- Glow effect on hover/select -->
       <circle
-        r="10"
-        :fill="categoryColors.bg"
-        :stroke="categoryColors.text"
-        stroke-width="1"
+        :r="nodeRadius + 4"
+        :fill="projectColor"
+        class="glow-ring"
+        :class="{ 'visible': isHovered || isSelected }"
       />
-      <text
-        y="4"
-        text-anchor="middle"
-        :fill="categoryColors.text"
-        font-size="10"
-        font-weight="600"
-        font-family="system-ui, sans-serif"
+
+      <!-- Main node -->
+      <circle
+        :r="nodeRadius"
+        :fill="isSelected ? projectColor : '#1A1916'"
+        :stroke="projectColor"
+        stroke-width="3"
+      />
+
+      <!-- Milestone indicator (inner dot) -->
+      <circle
+        v-if="event.is_milestone"
+        :r="nodeRadius * 0.4"
+        :fill="projectColor"
+      />
+
+      <!-- Task badge -->
+      <g
+        v-if="incompleteTasks > 0"
+        :transform="`translate(${nodeRadius - 4}, ${-nodeRadius})`"
       >
-        {{ incompleteTasks > 9 ? '9+' : incompleteTasks }}
-      </text>
+        <circle
+          r="10"
+          :fill="categoryColors.bg"
+          :stroke="categoryColors.text"
+          stroke-width="1"
+        />
+        <text
+          y="4"
+          text-anchor="middle"
+          :fill="categoryColors.text"
+          font-size="10"
+          font-weight="600"
+          font-family="system-ui, sans-serif"
+        >
+          {{ incompleteTasks > 9 ? '9+' : incompleteTasks }}
+        </text>
+      </g>
     </g>
 
-    <!-- Labels below node -->
+    <!-- Labels below node (outside scale group to prevent text scaling) -->
     <text
       :y="nodeRadius + 24"
       text-anchor="middle"
@@ -62,6 +63,7 @@
       font-size="11"
       font-weight="500"
       font-family="system-ui, sans-serif"
+      class="event-label"
     >
       {{ truncatedTitle }}
     </text>
@@ -72,6 +74,7 @@
       fill="#5A5650"
       font-size="10"
       font-family="system-ui, sans-serif"
+      class="event-label"
     >
       {{ formattedDate }}
     </text>
@@ -84,6 +87,7 @@
       fill="#5A5650"
       font-size="9"
       font-family="system-ui, sans-serif"
+      class="event-label"
     >
       {{ engagementText }}
     </text>
@@ -149,14 +153,24 @@ const engagementText = computed(() => {
 </script>
 
 <style scoped>
-.event-node {
+.event-node-inner {
   transition: transform 0.2s ease;
+  transform-origin: center center;
 }
-.event-node:hover {
+.event-node-inner.is-hovered,
+.event-node-inner.is-selected {
   transform: scale(1.05);
 }
 .glow-ring {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.glow-ring.visible {
+  opacity: 0.2;
   animation: pulse 2s ease-in-out infinite;
+}
+.event-label {
+  transition: fill 0.2s ease;
 }
 @keyframes pulse {
   0%,
