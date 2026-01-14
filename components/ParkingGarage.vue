@@ -192,11 +192,11 @@
 				</div>
 			</div>
 		</div>
-		<UModal v-model="vehicleImageModal">
+		<Modal v-model="vehicleImageModal">
 			<div class="p-0">
 				<img :src="'https://admin.1033lenox.com/assets/' + vehicleImage + '?key=large'" />
 			</div>
-		</UModal>
+		</Modal>
 	</div>
 </template>
 

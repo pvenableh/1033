@@ -11,7 +11,7 @@
 			},
 		}"
 		class="w-full">
-		<UAlert
+		<Alert
 			v-if="login_error"
 			type="error"
 			class="my-4"
@@ -20,11 +20,11 @@
 			variant="subtle"
 			icon="i-heroicons-exclamation-triangle">
 			Error: {{ login_error }}
-		</UAlert>
+		</Alert>
 
-		<UForm :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
-			<UFormGroup label="Email" name="email">
-				<UInput
+		<Form :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
+			<FormGroup label="Email" name="email">
+				<Input
 					v-model="state.email"
 					name="email"
 					label="Email"
@@ -37,13 +37,13 @@
 				<template #error="{error}">
 					<span
 						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary-500 dark:text-primary-400']">
+						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary dark:text-primary']">
 						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
 					</span>
 				</template>
-			</UFormGroup>
-			<UFormGroup label="Password" required>
-				<UInput
+			</FormGroup>
+			<FormGroup label="Password" required>
+				<Input
 					v-model="state.password"
 					type="password"
 					size="lg"
@@ -52,8 +52,8 @@
 					name="password"
 					label="Password"
 					placeholder="********" />
-			</UFormGroup>
-			<UButton
+			</FormGroup>
+			<Button
 				type="submit"
 				:loading="loading"
 				:disabled="!state.email"
@@ -61,7 +61,7 @@
 				label="Sign In"
 				trailing-icon="i-heroicons-arrow-right"
 				block />
-		</UForm>
+		</Form>
 	</div>
 </template>
 
@@ -116,7 +116,7 @@ async function attemptLogin() {
 
 	try {
 		// Pass email and password as an object
-		await login({ email: state.email, password: state.password });
+		await login({email: state.email, password: state.password});
 
 		if (route.query.redirect) {
 			const path = decodeURIComponent(route.query.redirect as string);

@@ -151,7 +151,7 @@
 
 		<!-- Month Selector for Details -->
 		<div class="mb-6">
-			<USelectMenu
+			<SelectMenu
 				v-model="selectedMonth"
 				:options="monthOptions"
 				option-attribute="label"
@@ -160,7 +160,7 @@
 				<template #label>
 					<span class="uppercase tracking-wide">{{ selectedMonth.replace('2025', '').trim() }} DETAILS</span>
 				</template>
-			</USelectMenu>
+			</SelectMenu>
 		</div>
 
 		<!-- Monthly Summary Cards -->
@@ -217,7 +217,7 @@
 
 		<!-- Critical Alerts -->
 		<div v-if="criticalAlerts.length > 0" class="mb-8">
-			<UAlert
+			<Alert
 				v-for="alert in criticalAlerts"
 				:key="alert.id"
 				:title="alert.title"
@@ -237,11 +237,11 @@
 						VIEW DETAILS
 					</UButton>
 				</template>
-			</UAlert>
+			</Alert>
 		</div>
 
 		<!-- Main Content Tabs -->
-		<UTabs :items="tabs" class="space-y-6">
+		<Tabs :items="tabs" class="space-y-6">
 			<!-- Overview Tab -->
 			<template #overview>
 				<div class="space-y-6 grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
@@ -364,7 +364,7 @@
 						</div>
 
 						<!-- Variance Table -->
-						<UTable :rows="budgetVariances" :columns="budgetColumns" />
+						<Table :rows="budgetVariances" :columns="budgetColumns" />
 					</div>
 				</UCard>
 			</template>
@@ -431,7 +431,7 @@
 					</UCard>
 				</div>
 			</template>
-		</UTabs>
+		</Tabs>
 	</div>
 </template>
 

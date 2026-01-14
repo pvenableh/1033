@@ -129,7 +129,7 @@ const commentsTotal = computed(() => {
 			style="font-size: 8px"
 		>
 			<div class="flex flex-row items-center justify-center">
-				<UToggle
+				<Toggle
 					v-model="showComments"
 					color="gray"
 					on-icon="i-heroicons-chat-bubble-left-right-solid"

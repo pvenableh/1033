@@ -2,28 +2,28 @@
 	<div v-if="hasReactions || showPicker" class="flex flex-wrap items-center gap-1.5 mt-2">
 		<!-- Existing reactions with animation -->
 		<TransitionGroup name="reaction">
-			<UTooltip
-				v-for="reaction in summary.reactions"
-				:key="reaction.reaction_type.id"
-				:text="getTooltipText(reaction)">
+			<Tooltip v-for="reaction in summary.reactions" :key="reaction.reaction_type.id" :text="getTooltipText(reaction)">
 				<button
 					class="reaction-button inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-all duration-200"
 					:class="getReactionButtonClass(reaction)"
 					:disabled="loading || !loggedIn"
 					@click="handleToggle(reaction.reaction_type)">
 					<!-- Emoji display -->
-					<span v-if="reaction.reaction_type.emoji" class="transition-transform duration-200" :class="{ 'scale-110': reaction.hasReacted }">
+					<span
+						v-if="reaction.reaction_type.emoji"
+						class="transition-transform duration-200"
+						:class="{'scale-110': reaction.hasReacted}">
 						{{ reaction.reaction_type.emoji }}
 					</span>
 					<!-- Icon display - use filled variant when user has reacted -->
-					<UIcon
+					<Icon
 						v-else-if="reaction.reaction_type.icon"
 						:name="getIconName(reaction)"
 						class="w-3.5 h-3.5 transition-all duration-200"
-						:class="{ 'scale-110': reaction.hasReacted }" />
+						:class="{'scale-110': reaction.hasReacted}" />
 					<span>{{ reaction.count }}</span>
 				</button>
-			</UTooltip>
+			</Tooltip>
 		</TransitionGroup>
 
 		<!-- Add reaction button (only if logged in) -->
@@ -36,14 +36,14 @@
 </template>
 
 <script setup lang="ts">
-import type { ReactionTypeRecord, ReactionSummary, ReactionCount, ReactableCollection } from '~/types/reactions';
-import { getReactionIcon, getReactionIconFilled } from '~/types/reactions';
+import type {ReactionTypeRecord, ReactionSummary, ReactionCount, ReactableCollection} from '~/types/reactions';
+import {getReactionIcon, getReactionIconFilled} from '~/types/reactions';
 
 const props = defineProps<{
 	collection: ReactableCollection;
 	itemId: string;
 	ownerUserId?: string;
-	itemContext?: { title?: string; channelName?: string };
+	itemContext?: {title?: string; channelName?: string};
 	showPicker?: boolean;
 	compact?: boolean;
 }>();
@@ -52,8 +52,8 @@ const emit = defineEmits<{
 	(e: 'reaction-changed', summary: ReactionSummary): void;
 }>();
 
-const { toggleReaction, getReactionSummary } = useReactions();
-const { loggedIn } = useDirectusAuth();
+const {toggleReaction, getReactionSummary} = useReactions();
+const {loggedIn} = useDirectusAuth();
 
 const loading = ref(false);
 const summary = ref<ReactionSummary>({
@@ -66,9 +66,7 @@ const summary = ref<ReactionSummary>({
 const hasReactions = computed(() => summary.value.reactions.length > 0);
 
 const userReactionTypeIds = computed(() => {
-	return summary.value.reactions
-		.filter((r) => r.hasReacted)
-		.map((r) => r.reaction_type.id);
+	return summary.value.reactions.filter((r) => r.hasReacted).map((r) => r.reaction_type.id);
 });
 
 const pickerButtonClass = computed(() => {
@@ -155,7 +153,7 @@ watch(
 );
 
 // Expose refresh method for parent components
-defineExpose({ refresh });
+defineExpose({refresh});
 </script>
 
 <style scoped>

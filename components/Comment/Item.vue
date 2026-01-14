@@ -1,14 +1,8 @@
 <template>
-	<div
-		class="comment-item group"
-		:class="{'pl-8 border-l-2 border-gray-200 dark:border-gray-700 ml-4': isReply}">
+	<div class="comment-item group" :class="{'pl-8 border-l-2 border-gray-200 dark:border-gray-700 ml-4': isReply}">
 		<div class="flex gap-3">
 			<!-- Avatar -->
-			<UAvatar
-				:src="authorAvatar"
-				:alt="authorName"
-				size="sm"
-				class="flex-shrink-0 mt-0.5" />
+			<Avatar :src="authorAvatar" :alt="authorName" size="sm" class="flex-shrink-0 mt-0.5" />
 
 			<!-- Content -->
 			<div class="flex-1 min-w-0">
@@ -20,13 +14,11 @@
 					<span class="text-xs text-gray-500 dark:text-gray-400">
 						{{ formatTime(comment.date_created) }}
 					</span>
-					<UBadge v-if="comment.is_edited" size="xs" color="gray" variant="subtle">
-						edited
-					</UBadge>
-					<UBadge v-if="comment.is_resolved" size="xs" color="green" variant="subtle">
-						<UIcon name="i-heroicons-check" class="w-3 h-3 mr-0.5" />
+					<Badge v-if="comment.is_edited" size="xs" color="gray" variant="subtle">edited</Badge>
+					<Badge v-if="comment.is_resolved" size="xs" color="green" variant="subtle">
+						<Icon name="i-heroicons-check" class="w-3 h-3 mr-0.5" />
 						Resolved
-					</UBadge>
+					</Badge>
 				</div>
 
 				<!-- Comment Content -->
@@ -55,7 +47,7 @@
 						:href="getFileUrl(file)"
 						target="_blank"
 						class="inline-flex items-center gap-1.5 px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded text-sm hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors">
-						<UIcon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
+						<Icon :name="getFileIcon(file)" class="w-4 h-4 text-gray-500" />
 						<span class="text-gray-700 dark:text-gray-300 truncate max-w-[150px]">
 							{{ file.directus_files_id?.filename_download || 'File' }}
 						</span>
@@ -79,23 +71,18 @@
 					</button>
 
 					<!-- Reply count -->
-					<span v-if="replyCount > 0" class="text-xs text-primary-600 dark:text-primary-400">
+					<span v-if="replyCount > 0" class="text-xs text-primary dark:text-primary">
 						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
 					</span>
 
 					<!-- More actions dropdown -->
-					<UDropdown
+					<Dropdown
 						v-if="canEdit"
 						:items="actionItems"
 						:popper="{placement: 'bottom-end'}"
 						class="opacity-0 group-hover:opacity-100 transition-opacity">
-						<UButton
-							size="xs"
-							color="gray"
-							variant="ghost"
-							icon="i-heroicons-ellipsis-horizontal"
-							class="ml-auto" />
-					</UDropdown>
+						<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" class="ml-auto" />
+					</Dropdown>
 				</div>
 
 				<!-- Replies -->
@@ -142,9 +129,7 @@ onMounted(() => {
 const authorAvatar = computed(() => {
 	const author = props.comment.user_created;
 	if (!author || typeof author === 'string') return null;
-	return author.avatar
-		? `${config.public.directusUrl}/assets/${author.avatar}?key=small`
-		: null;
+	return author.avatar ? `${config.public.directusUrl}/assets/${author.avatar}?key=small` : null;
 });
 
 const authorName = computed(() => {

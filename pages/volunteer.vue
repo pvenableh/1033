@@ -184,7 +184,7 @@ const onSubmit = handleSubmit(async (values) => {
 			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<form @submit.prevent="onSubmit" class="grid gap-2 sm:gap-4 w-full">
 					<div class="w-full">
-						<UFormGroup label="Select a category:" required :error="subjectError">
+						<FormGroup label="Select a category:" required :error="subjectError">
 							<div class="w-full button-group-wrapper">
 								<div class="button-group">
 									<button
@@ -210,48 +210,48 @@ const onSubmit = handleSubmit(async (values) => {
 									</button>
 								</div>
 							</div>
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<div class="grid grid-cols-2 gap-2 sm:gap-4 w-full">
-						<UFormGroup label="Name" required :error="nameError">
-							<UInput v-model="name" />
-						</UFormGroup>
-						<UFormGroup label="Email" required :error="emailError">
-							<UInput v-model="email" type="email" placeholder="name@domain.com" />
-						</UFormGroup>
+						<FormGroup label="Name" required :error="nameError">
+							<Input v-model="name" />
+						</FormGroup>
+						<FormGroup label="Email" required :error="emailError">
+							<Input v-model="email" type="email" placeholder="name@domain.com" />
+						</FormGroup>
 					</div>
 					<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 w-full">
-						<UFormGroup label="Unit" :error="unitError">
-							<USelect v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
-						</UFormGroup>
-						<UFormGroup label="Phone">
-							<UInput v-model="phone" type="text" placeholder="(555) 555-5555" />
-						</UFormGroup>
-						<UFormGroup label="Contact by:" required :error="preferenceError">
-							<USelect
+						<FormGroup label="Unit" :error="unitError">
+							<Select v-model="unit" :options="formattedOptions" placeholder="Select a unit" />
+						</FormGroup>
+						<FormGroup label="Phone">
+							<Input v-model="phone" type="text" placeholder="(555) 555-5555" />
+						</FormGroup>
+						<FormGroup label="Contact by:" required :error="preferenceError">
+							<Select
 								v-model="contact_preference"
 								:options="availablePreferenceOptions"
 								:disabled="availablePreferenceOptions.length === 1" />
-						</UFormGroup>
+						</FormGroup>
 					</div>
 					<!-- <div class="grid grid-cols-2 gap-2 sm:gap-4">
-						<UFormGroup label="Subject" required :error="subjectError">
-							<USelect v-model="subject" :options="categories" placeholder="Select a subject" />
-						</UFormGroup> 
+						<FormGroup label="Subject" required :error="subjectError">
+							<Select v-model="subject" :options="categories" placeholder="Select a subject" />
+						</FormGroup> 
 					</div>-->
 					<!-- Description -->
-					<UFormGroup label="Comments">
+					<FormGroup label="Comments">
 						<TipTap v-model="description" :allow-uploads="false" rows="4" />
-					</UFormGroup>
+					</FormGroup>
 
 					<div class="flex justify-end space-x-3 pt-4 w-full pb-12">
-						<UButton type="button" color="gray" variant="soft" @click="handleReset">Reset</UButton>
-						<UButton type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
+						<Button type="button" color="gray" variant="soft" @click="handleReset">Reset</Button>
+						<Button type="submit" color="primary" :loading="isSubmitting" :disabled="isSubmitting">
 							{{ isSubmitting ? 'Submitting...' : 'Submit' }}
-						</UButton>
+						</Button>
 					</div>
 				</form>
-				<!-- <UButton @click="handleNext" color="primary">Next</UButton> -->
+				<!-- <Button @click="handleNext" color="primary">Next</Button> -->
 			</div>
 			<div v-else class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider">
@@ -264,13 +264,14 @@ const onSubmit = handleSubmit(async (values) => {
 					<span class="font-bold text-[var(--cyan)]" v-if="subject">{{ subject.toLowerCase() }}</span>
 					request was submitted successfully.
 				</p>
-				<UButton @click="handleReset" color="primary">Reset Form</UButton>
+				<Button @click="handleReset" color="primary">Reset Form</Button>
 			</div>
 		</TransitionGroup>
 	</div>
 </template>
 
 <style>
+@reference "~/assets/css/tailwind.css";
 .button-group {
 	display: flex;
 	width: 100%;

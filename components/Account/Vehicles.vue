@@ -188,28 +188,28 @@ function getStatusBadge(status: string) {
 	<div class="w-full">
 		<div class="flex items-center justify-between mb-6">
 			<h2 class="!mt-0 !mb-0">My Vehicles</h2>
-			<UButton v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</UButton>
+			<Button v-if="defaultUnitId" icon="i-heroicons-plus" size="sm" @click="openAddModal">Add Vehicle</Button>
 		</div>
 
 		<div v-if="unitsPending" class="text-center py-8 text-gray-500">
-			<UIcon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
+			<Icon name="i-heroicons-arrow-path" class="w-12 h-12 mx-auto mb-4 opacity-50 animate-spin" />
 			<p>Loading vehicles...</p>
 		</div>
 
 		<div v-else-if="errorMessage" class="text-center py-8">
-			<UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
+			<Icon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-4 text-red-400" />
 			<p class="text-red-600 mb-2">{{ errorMessage }}</p>
-			<UButton variant="soft" size="sm" @click="refreshUnits()">Try Again</UButton>
+			<Button variant="soft" size="sm" @click="refreshUnits()">Try Again</Button>
 		</div>
 
 		<div v-else-if="vehicles.length === 0" class="text-center py-8 text-gray-500">
-			<UIcon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
+			<Icon name="i-heroicons-truck" class="w-12 h-12 mx-auto mb-4 opacity-50" />
 			<p>No vehicles registered yet.</p>
-			<UButton v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</UButton>
+			<Button v-if="defaultUnitId" variant="soft" class="mt-4" @click="openAddModal">Add Your First Vehicle</Button>
 		</div>
 
 		<div v-else class="grid gap-4 md:grid-cols-2">
-			<UCard v-for="vehicle in vehicles" :key="vehicle.id" class="relative">
+			<Card v-for="vehicle in vehicles" :key="vehicle.id" class="relative">
 				<div class="flex items-start gap-4">
 					<div class="flex-shrink-0">
 						<div class="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -218,16 +218,16 @@ function getStatusBadge(status: string) {
 								:src="'https://admin.1033lenox.com/assets/' + vehicle.image + '?key=small'"
 								alt="Vehicle Image"
 								class="w-full h-full object-cover" />
-							<UIcon v-else name="i-lucide-car" class="w-8 h-8 text-gray-400" />
+							<Icon v-else name="i-lucide-car" class="w-8 h-8 text-gray-400" />
 						</div>
 					</div>
 
 					<div class="flex-1 min-w-0">
 						<div class="flex items-center gap-2 mb-1">
 							<h3 class="font-semibold">{{ vehicle.year }} {{ vehicle.make }} {{ vehicle.model }}</h3>
-							<UBadge :color="getStatusBadge(vehicle.status).color" variant="soft" size="xs">
+							<Badge :color="getStatusBadge(vehicle.status).color" variant="soft" size="xs">
 								{{ getStatusBadge(vehicle.status).label }}
-							</UBadge>
+							</Badge>
 						</div>
 						<p v-if="vehicle.color" class="text-sm text-gray-500">{{ vehicle.color }}</p>
 						<p v-if="vehicle.license_plate" class="text-sm font-mono text-gray-600 dark:text-gray-400">
@@ -237,58 +237,58 @@ function getStatusBadge(status: string) {
 						<p class="text-xs text-gray-400 mt-1">Unit {{ vehicle.unit_number }}</p>
 					</div>
 
-					<UDropdown
+					<Dropdown
 						:items="[
 							[
 								{label: 'Edit', icon: 'i-heroicons-pencil', click: () => openEditModal(vehicle)},
 								{label: 'Remove', icon: 'i-heroicons-trash', click: () => deleteVehicle(vehicle)},
 							],
 						]">
-						<UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
-					</UDropdown>
+						<Button color="gray" variant="ghost" icon="i-heroicons-ellipsis-vertical" size="xs" />
+					</Dropdown>
 				</div>
-			</UCard>
+			</Card>
 		</div>
 
 		<!-- Add/Edit Modal -->
-		<UModal v-model="showModal">
-			<UCard>
+		<Modal v-model="showModal">
+			<Card>
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="font-semibold">{{ isEditing ? 'Edit Vehicle' : 'Add Vehicle' }}</h3>
-						<UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showModal = false" />
+						<Button color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showModal = false" />
 					</div>
 				</template>
 
 				<div class="space-y-4">
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="Make">
-							<UInput v-model="editingVehicle.make" placeholder="e.g., Toyota" />
-						</UFormGroup>
+						<FormGroup label="Make">
+							<Input v-model="editingVehicle.make" placeholder="e.g., Toyota" />
+						</FormGroup>
 
-						<UFormGroup label="Model">
-							<UInput v-model="editingVehicle.model" placeholder="e.g., Camry" />
-						</UFormGroup>
+						<FormGroup label="Model">
+							<Input v-model="editingVehicle.model" placeholder="e.g., Camry" />
+						</FormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="Year">
-							<UInput v-model="editingVehicle.year" placeholder="e.g., 2022" />
-						</UFormGroup>
+						<FormGroup label="Year">
+							<Input v-model="editingVehicle.year" placeholder="e.g., 2022" />
+						</FormGroup>
 
-						<UFormGroup label="Color">
-							<USelectMenu v-model="editingVehicle.color" :options="commonColors" placeholder="Select color" />
-						</UFormGroup>
+						<FormGroup label="Color">
+							<SelectMenu v-model="editingVehicle.color" :options="commonColors" placeholder="Select color" />
+						</FormGroup>
 					</div>
 
 					<div class="grid grid-cols-2 gap-4">
-						<UFormGroup label="License Plate">
-							<UInput v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
-						</UFormGroup>
+						<FormGroup label="License Plate">
+							<Input v-model="editingVehicle.license_plate" placeholder="ABC-1234" />
+						</FormGroup>
 
-						<UFormGroup label="State">
-							<UInput v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
-						</UFormGroup>
+						<FormGroup label="State">
+							<Input v-model="editingVehicle.state" placeholder="GA" maxlength="2" />
+						</FormGroup>
 					</div>
 				</div>
 
@@ -298,14 +298,14 @@ function getStatusBadge(status: string) {
 							New vehicles and updates require admin approval before they appear as approved.
 						</p>
 						<div class="flex justify-end gap-3">
-							<UButton color="gray" variant="ghost" @click="showModal = false">Cancel</UButton>
-							<UButton :loading="loading" @click="saveVehicle">
+							<Button color="gray" variant="ghost" @click="showModal = false">Cancel</Button>
+							<Button :loading="loading" @click="saveVehicle">
 								{{ isEditing ? 'Save Changes' : 'Add Vehicle' }}
-							</UButton>
+							</Button>
 						</div>
 					</div>
 				</template>
-			</UCard>
-		</UModal>
+			</Card>
+		</Modal>
 	</div>
 </template>
