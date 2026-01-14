@@ -116,14 +116,15 @@
     <!-- Project label (centered above timeline) -->
     <text
       :x="projectCenterX"
-      :y="laneY - 25"
+      :y="laneY - 40"
       :fill="project.color"
       font-size="13"
       font-weight="600"
       text-anchor="middle"
       font-family="system-ui, sans-serif"
+      letter-spacing="0.05em"
     >
-      {{ project.name }}
+      {{ project.name?.toUpperCase() }}
     </text>
 
     <!-- Sub-project indicator -->
