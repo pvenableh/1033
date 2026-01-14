@@ -107,10 +107,10 @@ export function useProjectTimeline() {
 
     try {
       // Build filter based on role
-      // Board members see all active/completed projects
+      // Board members see all active/paused/completed projects
       // Regular members only see projects marked as member_visible
       const filter: Record<string, any> = {
-        status: { _in: ['active', 'completed'] },
+        status: { _in: ['active', 'paused', 'completed'] },
       };
 
       // Non-board members only see member-visible projects

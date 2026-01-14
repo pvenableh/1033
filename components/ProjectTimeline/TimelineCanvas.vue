@@ -3,6 +3,7 @@
     :width="canvasWidth"
     :height="canvasHeight"
     class="block"
+    style="background: white"
   >
     <!-- Background grid pattern -->
     <defs>
@@ -17,7 +18,7 @@
           y1="0"
           x2="0"
           :y2="laneHeight"
-          stroke="rgb(45 42 36 / 0.3)"
+          stroke="rgb(230 230 230)"
           stroke-width="1"
         />
       </pattern>
@@ -36,25 +37,9 @@
       :y1="i * laneHeight + headerHeight"
       :x2="canvasWidth"
       :y2="i * laneHeight + headerHeight"
-      stroke="rgb(45 42 36 / 0.3)"
+      stroke="rgb(220 220 220)"
       stroke-width="1"
     />
-
-    <!-- Time axis labels -->
-    <g class="time-axis">
-      <text
-        v-for="(label, i) in timeLabels"
-        :key="`time-${i}`"
-        :x="label.x"
-        :y="30"
-        fill="#8A8680"
-        font-size="11"
-        text-anchor="middle"
-        font-family="system-ui, sans-serif"
-      >
-        {{ label.text }}
-      </text>
-    </g>
 
     <!-- Today marker line -->
     <g v-if="showTodayMarker">
@@ -66,7 +51,7 @@
         stroke="#C4A052"
         stroke-width="2"
         stroke-dasharray="4 2"
-        opacity="0.6"
+        opacity="0.8"
       />
       <text
         :x="todayX"
@@ -74,7 +59,7 @@
         fill="#C4A052"
         font-size="10"
         text-anchor="middle"
-        font-weight="500"
+        font-weight="600"
         font-family="system-ui, sans-serif"
       >
         TODAY

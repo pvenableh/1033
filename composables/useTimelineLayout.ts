@@ -10,8 +10,8 @@ export function useTimelineLayout(
   projects: Ref<ProjectWithRelations[]>,
   zoom: Ref<number>
 ) {
-  const laneHeight = 120;
-  const headerHeight = 50;
+  const laneHeight = 180;
+  const headerHeight = 60;
   const padding = 100;
 
   /**

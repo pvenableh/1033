@@ -1,16 +1,27 @@
 <template>
-  <div class="project-timeline min-h-screen bg-cream">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row justify-between items-start gap-4 p-6 lg:p-8">
-      <div>
-        <h1 class="font-serif text-2xl lg:text-3xl font-light text-gray-900">
-          Project Timeline
-        </h1>
+  <div class="project-timeline min-h-screen bg-gray-50">
+    <!-- Header with Live Clock -->
+    <div class="flex flex-col items-center gap-2 p-6 lg:p-8">
+      <h1 class="font-serif text-2xl lg:text-3xl font-light text-gray-900 text-center">
+        Project Timeline
+      </h1>
+      <div class="text-center">
+        <p class="text-lg font-mono text-gray-700">
+          {{ currentDateTime }}
+        </p>
         <p class="text-sm text-gray-500 mt-1">
           {{ rootProjects.length }} projects · {{ totalEvents }} events
         </p>
       </div>
+    </div>
 
+    <!-- Controls Row -->
+    <div class="flex justify-between items-center px-6 lg:px-8 mb-4">
+      <TimelineLegend
+        :projects="rootProjects"
+        :focused-id="focusedProjectId"
+        @focus="focusedProjectId = $event"
+      />
       <TimelineControls
         v-model:zoom="zoomLevel"
         v-model:focused-project="focusedProjectId"
@@ -18,14 +29,6 @@
         @reset="resetView"
       />
     </div>
-
-    <!-- Legend -->
-    <TimelineLegend
-      :projects="rootProjects"
-      :focused-id="focusedProjectId"
-      class="mx-6 lg:mx-8 mb-4"
-      @focus="focusedProjectId = $event"
-    />
 
     <!-- Loading State -->
     <div
@@ -41,7 +44,7 @@
     <!-- Error State -->
     <div
       v-else-if="error"
-      class="mx-6 lg:mx-8 p-6 bg-red-50 rounded-xl border border-red-200"
+      class="mx-6 lg:mx-8 p-6 bg-red-50 border border-red-200"
     >
       <div class="flex items-center gap-3">
         <UIcon
@@ -71,11 +74,11 @@
       <p class="text-gray-500 mt-1">Create your first project to get started</p>
     </div>
 
-    <!-- Canvas -->
+    <!-- Canvas (no rounded corners, white background) -->
     <div
       v-else
       ref="canvasContainer"
-      class="bg-gray-900 rounded-xl border border-gray-800 mx-6 lg:mx-8 overflow-auto"
+      class="bg-white border-y border-gray-200 overflow-auto"
     >
       <TimelineCanvas
         :projects="visibleProjects"
@@ -84,13 +87,6 @@
         @select-event="handleEventSelect"
       />
     </div>
-
-    <!-- Stats Footer -->
-    <TimelineStats
-      v-if="!loading && projects.length > 0"
-      :projects="projects"
-      class="mt-6 mx-6 lg:mx-8 mb-8"
-    />
 
     <!-- Event Detail Panel (slide-out) -->
     <Teleport to="body">
@@ -113,7 +109,6 @@ import TimelineControls from './TimelineControls.vue';
 import TimelineEventDetail from './TimelineEventDetail.vue';
 import TimelineCanvas from './TimelineCanvas.vue';
 import TimelineLegend from './TimelineLegend.vue';
-import TimelineStats from './TimelineStats.vue';
 import type { ProjectWithRelations, ProjectEventWithRelations } from '~/types/projects';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -135,6 +130,22 @@ const canvasContainer = ref<HTMLElement | null>(null);
 const zoomLevel = ref(1);
 const focusedProjectId = ref<string | null>(props.initialFocus || null);
 const selectedEventId = ref<string | null>(null);
+
+// Live clock
+const currentTime = ref(new Date());
+let clockInterval: ReturnType<typeof setInterval> | null = null;
+
+const currentDateTime = computed(() => {
+  return currentTime.value.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+});
 
 // Computed
 const rootProjects = computed(() => projects.value.filter((p) => !p.parent_id));
@@ -212,6 +223,11 @@ let ctx: gsap.Context;
 
 // Fetch projects on mount (client-side)
 onMounted(async () => {
+  // Start the clock
+  clockInterval = setInterval(() => {
+    currentTime.value = new Date();
+  }, 1000);
+
   ctx = gsap.context(() => {
     // Fade in header
     gsap.fromTo(
@@ -264,6 +280,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   if (ctx) ctx.revert();
+  if (clockInterval) clearInterval(clockInterval);
 });
 </script>
 
