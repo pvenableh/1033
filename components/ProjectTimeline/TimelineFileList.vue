@@ -53,16 +53,23 @@ interface FileWithRelation {
 }
 
 interface Props {
-  files: FileWithRelation[];
+  files?: FileWithRelation[];
 }
 
-defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  files: () => []
+});
 
-const { getFileUrl: getUrl } = useDirectusFiles();
+// Use the exact names returned in the composable's 'return' block
+const { getUrl, formatFileSize } = useDirectusFiles();
 
 const getFileUrl = (file: DirectusFile) => {
+  if (!file?.id) return '#';
+  // Note: Your composable also has 'getDownloadUrl' 
+  // which adds ?download=true. You might prefer that!
   return getUrl(file.id);
 };
+
 
 const getFileIcon = (file: DirectusFile) => {
   const type = file.type || '';
@@ -106,18 +113,5 @@ const getFileIconColor = (file: DirectusFile) => {
   return 'text-gray-600';
 };
 
-const formatFileSize = (bytes: number | undefined) => {
-  if (!bytes) return '0 B';
 
-  const units = ['B', 'KB', 'MB', 'GB'];
-  let size = bytes;
-  let unitIndex = 0;
-
-  while (size >= 1024 && unitIndex < units.length - 1) {
-    size /= 1024;
-    unitIndex++;
-  }
-
-  return `${size.toFixed(1)} ${units[unitIndex]}`;
-};
 </script>
