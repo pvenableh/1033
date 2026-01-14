@@ -16,6 +16,7 @@
 import {
   useDirectusAdmin,
   getUserDirectus,
+  getPublicDirectus,
   readItems,
   readItem,
   createItem,
@@ -60,10 +61,16 @@ export default defineEventHandler(async (event) => {
   // Write operations require user authentication for permission-aware operations
   // System collections (directus_*) require user's client for proper context
   const isWriteOperation = ['create', 'update', 'delete'].includes(body.operation);
+  const isReadOperation = ['list', 'get', 'aggregate', 'singleton'].includes(body.operation);
   const isSystemCollection = body.collection?.startsWith('directus_');
+  const isPublicRequest = body.public === true;
 
   let client;
-  if ((isWriteOperation || isSystemCollection) && session?.user) {
+  if (isPublicRequest && isReadOperation && !isSystemCollection) {
+    // Use public client (no authentication) for explicitly public read requests
+    // This allows reading data from collections with public read permissions
+    client = getPublicDirectus();
+  } else if ((isWriteOperation || isSystemCollection) && session?.user) {
     // Use user's authenticated client for write operations and system collections (with auto token refresh)
     try {
       client = await getUserDirectus(event);
