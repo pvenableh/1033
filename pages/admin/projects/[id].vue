@@ -15,8 +15,8 @@ const { canCreate, canUpdate, canDelete } = useUserPermissions();
 
 const projectId = computed(() => route.params.id as string);
 
-// Auth composable
-const { loggedIn } = useDirectusAuth();
+// Auth composable - user object used in onMounted to wait for hydration
+const { user: authUser } = useDirectusAuth();
 
 // Composables
 const {
@@ -350,17 +350,18 @@ function stripHtmlAndTruncate(html: string | null | undefined, maxLength = 200):
   return stripped.length > maxLength ? stripped.substring(0, maxLength) + '...' : stripped;
 }
 
-// Initialize - wait for auth state before loading
+// Initialize - wait for user to be fully loaded before fetching project
+// Note: loggedIn can be true before user object is hydrated, causing fetchProject to fail
 onMounted(async () => {
-  // If already logged in, fetch immediately
-  if (loggedIn.value) {
+  // If user is already available with an ID, fetch immediately
+  if (authUser.value?.id) {
     await loadProject();
   } else {
-    // Wait for login state to become true
+    // Wait for user object to be populated (not just loggedIn boolean)
     const stopWatch = watch(
-      loggedIn,
-      async (isLoggedIn) => {
-        if (isLoggedIn) {
+      () => authUser.value?.id,
+      async (userId) => {
+        if (userId) {
           stopWatch();
           await loadProject();
         }
