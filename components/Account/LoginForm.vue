@@ -1,139 +1,142 @@
-<template>
-	<div
-		v-motion="{
-			initial: {
-				y: -100,
-				opacity: 0,
-			},
-			enter: {
-				y: 0,
-				opacity: 1,
-			},
-		}"
-		class="w-full">
-		<Alert
-			v-if="login_error"
-			type="error"
-			class="my-4"
-			:description="login_error"
-			color="red"
-			variant="subtle"
-			icon="i-heroicons-exclamation-triangle">
-			Error: {{ login_error }}
-		</Alert>
-
-		<Form :validate="validate" :state="state" class="grid gap-4" @submit="attemptLogin">
-			<FormGroup label="Email" name="email">
-				<Input
-					v-model="state.email"
-					name="email"
-					label="Email"
-					type="email"
-					size="lg"
-					:loading="loading"
-					icon="i-heroicons-envelope"
-					placeholder="name@domain.com"
-					@input="emailTouched = true" />
-				<template #error="{error}">
-					<span
-						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary dark:text-primary']">
-						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
-					</span>
-				</template>
-			</FormGroup>
-			<FormGroup label="Password" required>
-				<Input
-					v-model="state.password"
-					type="password"
-					size="lg"
-					:loading="loading"
-					icon="i-heroicons-lock-closed"
-					name="password"
-					label="Password"
-					placeholder="********" />
-			</FormGroup>
-			<Button
-				type="submit"
-				:loading="loading"
-				:disabled="!state.email"
-				size="lg"
-				label="Sign In"
-				trailing-icon="i-heroicons-arrow-right"
-				block />
-		</Form>
-	</div>
-</template>
-
 <script setup lang="ts">
-import type {FormError} from '#ui/types';
+import { ref } from "vue";
+import { useForm, Field as VeeField } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
 
-const {login} = useDirectusAuth();
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/alert";
+import { Loader2 } from "lucide-vue-next";
+
+const { login } = useDirectusAuth();
 const route = useRoute();
-const loading = ref(false);
 const login_error = ref<string | null>(null);
-const emailTouched = ref(false);
+const emailChecking = ref(false);
 
-const state = reactive({
-	email: '',
-	password: '',
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
 });
 
-const validate = async (state: any): Promise<FormError[]> => {
-	const errors = [];
-	const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+type LoginFormValues = z.infer<typeof loginSchema>;
 
-	if (!state.email) {
-		errors.push({path: 'email', message: 'Required'});
-	}
+const formSchema = toTypedSchema(loginSchema);
 
-	if (!regex.test(state.email)) {
-		errors.push({path: 'email', message: 'This must be a valid email'});
-	}
+const { handleSubmit, isSubmitting, setFieldError } = useForm<LoginFormValues>({
+  validationSchema: formSchema,
+  initialValues: {
+    email: "",
+    password: "",
+  },
+});
 
-	if (state.email && regex.test(state.email)) {
-		try {
-			loading.value = true;
-			const response: any = await $fetch(`https://admin.1033lenox.com/users?filter[email][_eq]=${state.email}`);
-
-			if (response.data.length < 1) {
-				errors.push({path: 'email', message: 'This email is not registered.'});
-			}
-
-			loading.value = false;
-		} catch (error) {
-			errors.push({path: 'email', message: 'Failed to validate email'});
-			loading.value = false;
-		}
-	}
-
-	return errors;
+const checkEmailExists = async (email: string): Promise<boolean> => {
+  try {
+    emailChecking.value = true;
+    const response: any = await $fetch(
+      `https://admin.1033lenox.com/users?filter[email][_eq]=${email}`
+    );
+    return response.data.length > 0;
+  } catch (error) {
+    console.error("Failed to validate email:", error);
+    return true; // Allow submission if check fails
+  } finally {
+    emailChecking.value = false;
+  }
 };
 
-async function attemptLogin() {
-	loading.value = true;
-	login_error.value = null;
+const onSubmit = handleSubmit(async (values) => {
+  login_error.value = null;
 
-	try {
-		// Pass email and password as an object
-		await login({email: state.email, password: state.password});
+  // Check if email exists before attempting login
+  const emailExists = await checkEmailExists(values.email);
+  if (!emailExists) {
+    setFieldError("email", "This email is not registered.");
+    return;
+  }
 
-		if (route.query.redirect) {
-			const path = decodeURIComponent(route.query.redirect as string);
-			await navigateTo(path);
-		} else {
-			await navigateTo('/');
-		}
-	} catch (err: any) {
-		if (err?.errors?.length) {
-			login_error.value = err.errors[0].message;
-		} else if (err?.data?.errors?.length) {
-			login_error.value = err.data.errors[0].message;
-		} else {
-			login_error.value = err?.message || 'Login failed. Please try again.';
-		}
-	}
+  try {
+    await login({ email: values.email, password: values.password });
 
-	loading.value = false;
-}
+    if (route.query.redirect) {
+      const path = decodeURIComponent(route.query.redirect as string);
+      await navigateTo(path);
+    } else {
+      await navigateTo("/");
+    }
+  } catch (err: any) {
+    if (err?.errors?.length) {
+      login_error.value = err.errors[0].message;
+    } else if (err?.data?.errors?.length) {
+      login_error.value = err.data.errors[0].message;
+    } else {
+      login_error.value = err?.message || "Login failed. Please try again.";
+    }
+  }
+});
 </script>
+
+<template>
+  <div
+    v-motion="{
+      initial: {
+        y: -100,
+        opacity: 0,
+      },
+      enter: {
+        y: 0,
+        opacity: 1,
+      },
+    }"
+    class="w-full"
+  >
+    <Alert
+      v-if="login_error"
+      class="my-4"
+      variant="destructive"
+    >
+      {{ login_error }}
+    </Alert>
+
+    <form @submit="onSubmit" class="grid gap-4">
+      <VeeField v-slot="{ field, errors }" name="email">
+        <FormCustomInput
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="name@domain.com"
+          v-bind="field"
+          :error-message="errors[0]"
+          variant="underline"
+        />
+      </VeeField>
+
+      <VeeField v-slot="{ field, errors }" name="password">
+        <FormCustomInput
+          id="password"
+          label="Password"
+          type="password"
+          placeholder="********"
+          v-bind="field"
+          :error-message="errors[0]"
+          variant="underline"
+        />
+      </VeeField>
+
+      <Button
+        type="submit"
+        class="w-full"
+        :disabled="isSubmitting || emailChecking"
+      >
+        <Loader2
+          v-if="isSubmitting || emailChecking"
+          class="mr-2 h-4 w-4 animate-spin"
+        />
+        {{ isSubmitting ? "Signing in..." : "Sign In" }}
+      </Button>
+    </form>
+  </div>
+</template>
