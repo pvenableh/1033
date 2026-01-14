@@ -41,6 +41,33 @@
       stroke-width="1"
     />
 
+    <!-- Monthly markers -->
+    <g
+      v-for="(label, i) in timeLabels"
+      :key="`month-${i}`"
+    >
+      <line
+        :x1="label.x"
+        :y1="headerHeight"
+        :x2="label.x"
+        :y2="canvasHeight - 30"
+        stroke="rgb(200 200 200)"
+        stroke-width="1"
+        stroke-dasharray="4 4"
+        opacity="0.6"
+      />
+      <text
+        :x="label.x"
+        :y="canvasHeight - 10"
+        fill="#9A9A9A"
+        font-size="10"
+        text-anchor="middle"
+        font-family="system-ui, sans-serif"
+      >
+        {{ label.text }}
+      </text>
+    </g>
+
     <!-- Today marker line -->
     <g v-if="showTodayMarker">
       <line
