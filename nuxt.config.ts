@@ -72,6 +72,7 @@ export default defineNuxtConfig({
 	css: ['~/assets/css/tailwind.css', '~/assets/css/main.css'],
 
 	modules: [
+		'shadcn-nuxt', // https://www.shadcn-vue.com/docs/installation/nuxt
 		'@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
 		'@nuxt/devtools', // https://devtools.nuxtjs.org/
 		'@nuxt/icon', // https://nuxt.com/modules/icon - replaces NuxtUI icons
@@ -92,6 +93,12 @@ export default defineNuxtConfig({
 		],
 		// '@nuxtjs/plausible',
 	],
+
+	// shadcn-nuxt configuration
+	shadcn: {
+		prefix: '',
+		componentDir: './components/ui',
+	},
 
 	// Configure @nuxt/icon to support all icon sets used previously by NuxtUI
 	icon: {
