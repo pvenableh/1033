@@ -42,7 +42,7 @@
       text-anchor="middle"
       font-family="system-ui, sans-serif"
     >
-      Start
+      START
     </text>
 
     <!-- Today marker with pulse (for active projects) -->
