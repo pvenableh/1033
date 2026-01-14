@@ -10,7 +10,7 @@ export function useTimelineLayout(
   projects: Ref<ProjectWithRelations[]>,
   zoom: Ref<number>
 ) {
-  const laneHeight = 180;
+  const laneHeight = 220;
   const headerHeight = 60;
   const padding = 100;
 
@@ -160,7 +160,7 @@ export function useTimelineLayout(
     while (current <= dateRange.value.end) {
       labels.push({
         x: getXPosition(current.toISOString()),
-        text: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+        text: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }).toUpperCase(),
       });
       current.setMonth(current.getMonth() + 1);
     }

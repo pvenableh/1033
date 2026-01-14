@@ -90,8 +90,8 @@
       </text>
     </template>
 
-    <!-- Target end marker (hollow dot) for active projects with target -->
-    <template v-if="showDottedLine && project.target_end_date">
+    <!-- Target end marker (hollow dot) for projects with target end date -->
+    <template v-if="project.target_end_date && !project.actual_end_date">
       <circle
         :cx="targetEndX"
         :cy="laneY"
@@ -184,11 +184,15 @@ const sortedEvents = computed(() =>
 );
 
 // Helper to check if two dates are the same day
-const isSameDay = (date1: string, date2: string | null): boolean => {
-  if (!date2) return false;
-  const d1 = new Date(date1).toDateString();
-  const d2 = new Date(date2).toDateString();
-  return d1 === d2;
+const isSameDay = (date1: string | null | undefined, date2: string | null | undefined): boolean => {
+  if (!date1 || !date2) return false;
+  const d1 = new Date(date1);
+  const d2 = new Date(date2);
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 };
 
 // Check if there's an event on the start date

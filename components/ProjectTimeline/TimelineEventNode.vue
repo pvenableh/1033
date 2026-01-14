@@ -21,10 +21,10 @@
       :opacity="isHovered || isSelected ? 0.3 : 0"
     />
 
-    <!-- Main node -->
+    <!-- Main node (solid) -->
     <circle
       :r="nodeRadius"
-      :fill="isSelected ? projectColor : 'white'"
+      :fill="projectColor"
       :stroke="projectColor"
       stroke-width="3"
     />
