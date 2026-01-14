@@ -15,7 +15,7 @@
 
     <!-- Glow effect on hover/select -->
     <circle
-      :r="isHovered || isSelected ? nodeRadius + 6 : nodeRadius + 4"
+      :r="isHovered || isSelected ? nodeRadius + 4 : nodeRadius + 2"
       :fill="projectColor"
       class="glow-ring"
       :opacity="isHovered || isSelected ? 0.3 : 0"
@@ -59,41 +59,16 @@
       </text>
     </g>
 
-    <!-- Labels below node -->
+    <!-- Date label (alternates above/below based on index) -->
     <text
-      :y="nodeRadius + 24"
+      :y="labelAbove ? -(nodeRadius + 12) : (nodeRadius + 18)"
       text-anchor="middle"
-      :fill="isHovered || isSelected ? '#1A1916' : '#4A4A4A'"
-      font-size="11"
-      font-weight="500"
-      font-family="system-ui, sans-serif"
-      class="event-label"
-    >
-      {{ truncatedTitle }}
-    </text>
-
-    <text
-      :y="nodeRadius + 38"
-      text-anchor="middle"
-      fill="#6A6A6A"
-      font-size="10"
-      font-family="system-ui, sans-serif"
-      class="event-label"
-    >
-      {{ formattedDate }}
-    </text>
-
-    <!-- Engagement indicators -->
-    <text
-      v-if="hasEngagement"
-      :y="nodeRadius + 52"
-      text-anchor="middle"
-      fill="#6A6A6A"
+      :fill="isHovered || isSelected ? '#1A1916' : '#6A6A6A'"
       font-size="9"
       font-family="system-ui, sans-serif"
       class="event-label"
     >
-      {{ engagementText }}
+      {{ formattedDate }}
     </text>
   </g>
 </template>
@@ -108,6 +83,7 @@ interface Props {
   y: number;
   projectColor: string;
   isSelected: boolean;
+  index?: number;
 }
 
 const props = defineProps<Props>();
@@ -117,23 +93,22 @@ const emit = defineEmits<{
 
 const isHovered = ref(false);
 
-const nodeRadius = computed(() => (props.event.is_milestone ? 18 : 14));
+// Smaller dot sizes
+const nodeRadius = computed(() => (props.event.is_milestone ? 12 : 9));
+
+// Alternate label position based on event index
+const labelAbove = computed(() => (props.index ?? 0) % 2 === 1);
 
 const incompleteTasks = computed(
   () => props.event.tasks?.filter((t) => !t.completed).length || 0
 );
-
-const truncatedTitle = computed(() => {
-  const title = props.event.title;
-  return title.length > 18 ? title.slice(0, 16) + '…' : title;
-});
 
 const formattedDate = computed(() =>
   new Date(props.event.event_date).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  })
+  }).toUpperCase()
 );
 
 const categoryColors = computed(() => {
@@ -142,17 +117,6 @@ const categoryColors = computed(() => {
     return { bg: cat.color, text: cat.text_color };
   }
   return { bg: '#2D2A24', text: '#C4A052' };
-});
-
-const hasEngagement = computed(
-  () => (props.event.comment_count || 0) > 0 || (props.event.reaction_count || 0) > 0
-);
-
-const engagementText = computed(() => {
-  const parts = [];
-  if (props.event.comment_count) parts.push(`💬${props.event.comment_count}`);
-  if (props.event.reaction_count) parts.push(`❤️${props.event.reaction_count}`);
-  return parts.join(' ');
 });
 </script>
 
