@@ -1,85 +1,95 @@
-<template>
-	<div class="w-full flex items-start justify-start flex-row password-request">
-		<Form :validate="validate" :state="state" class="w-full" @submit="submit">
-			<FormGroup label="Email" name="email" class="my-6">
-				<Input
-					v-model="state.email"
-					name="email"
-					type="email"
-					label="Email"
-					size="lg"
-					:loading="loading"
-					icon="i-heroicons-envelope"
-					placeholder="name@domain.com"
-					@input="emailTouched = true" />
-				<template #error="{error}">
-					<span
-						class="uppercase tracking-wide text-xs"
-						:class="[error ? 'text-red-500 dark:text-red-400' : 'text-primary dark:text-primary']">
-						{{ error ? error : emailTouched && !error ? 'Your email is valid' : '' }}
-					</span>
-				</template>
-			</FormGroup>
-			<Button
-				class="w-full mb-6"
-				type="submit"
-				size="lg"
-				label="Send Email"
-				trailing-icon="i-heroicons-arrow-right"
-				block></Button>
-		</Form>
-	</div>
-</template>
-
 <script setup lang="ts">
-import type {FormError} from '#ui/types';
+import { ref } from "vue";
+import { useForm, Field as VeeField } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import { z } from "zod";
 
-const {requestPasswordReset} = useDirectusAuth();
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-vue-next";
+
+const { requestPasswordReset } = useDirectusAuth();
 const toast = useToast();
-const loading = ref(false);
-const emailTouched = ref(false);
+const emailChecking = ref(false);
 
-const state = reactive({
-	email: '',
+const passwordRequestSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address"),
 });
 
-const validate = async (state: any): Promise<FormError[]> => {
-	const errors = [];
+type PasswordRequestFormValues = z.infer<typeof passwordRequestSchema>;
 
-	if (!state.email) {
-		errors.push({path: 'email', message: 'Required'});
-	}
+const formSchema = toTypedSchema(passwordRequestSchema);
 
-	const regex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i;
+const { handleSubmit, isSubmitting, setFieldError } =
+  useForm<PasswordRequestFormValues>({
+    validationSchema: formSchema,
+    initialValues: {
+      email: "",
+    },
+  });
 
-	if (!regex.test(state.email)) {
-		errors.push({path: 'email', message: 'This must be a valid email'});
-	}
-
-	if (state.email && regex.test(state.email)) {
-		try {
-			loading.value = true;
-			const response: any = await $fetch(`https://admin.1033lenox.com/users?filter[email][_eq]=${state.email}`);
-
-			if (response.data.length < 1) {
-				errors.push({path: 'email', message: 'This email is not registered.'});
-			}
-
-			loading.value = false;
-		} catch (error) {
-			errors.push({path: 'email', message: 'Failed to validate email'});
-			loading.value = false;
-		}
-	}
-
-	return errors;
+const checkEmailExists = async (email: string): Promise<boolean> => {
+  try {
+    emailChecking.value = true;
+    const response: any = await $fetch(
+      `https://admin.1033lenox.com/users?filter[email][_eq]=${email}`
+    );
+    return response.data.length > 0;
+  } catch (error) {
+    console.error("Failed to validate email:", error);
+    return false;
+  } finally {
+    emailChecking.value = false;
+  }
 };
 
-function submit() {
-	openScreen();
-	requestPasswordReset(state.email, 'https://1033lenox.com/auth/password-reset');
-	closeScreen();
-	toast.add({title: 'An email was sent to ' + state.email + '.'});
-}
+const onSubmit = handleSubmit(async (values) => {
+  // Check if email exists
+  const emailExists = await checkEmailExists(values.email);
+  if (!emailExists) {
+    setFieldError("email", "This email is not registered.");
+    return;
+  }
+
+  openScreen();
+  await requestPasswordReset(
+    values.email,
+    "https://1033lenox.com/auth/password-reset"
+  );
+  closeScreen();
+  toast.add({ title: "An email was sent to " + values.email + "." });
+});
 </script>
-<style></style>
+
+<template>
+  <div class="w-full flex items-start justify-start flex-row password-request">
+    <form @submit="onSubmit" class="w-full">
+      <VeeField v-slot="{ field, errors }" name="email">
+        <FormCustomInput
+          id="email"
+          label="Email"
+          type="email"
+          placeholder="name@domain.com"
+          v-bind="field"
+          :error-message="errors[0]"
+          variant="underline"
+          class="my-6"
+        />
+      </VeeField>
+
+      <Button
+        type="submit"
+        class="w-full mb-6"
+        :disabled="isSubmitting || emailChecking"
+      >
+        <Loader2
+          v-if="isSubmitting || emailChecking"
+          class="mr-2 h-4 w-4 animate-spin"
+        />
+        {{ isSubmitting ? "Sending..." : "Send Email" }}
+      </Button>
+    </form>
+  </div>
+</template>
