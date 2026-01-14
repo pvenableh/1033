@@ -6,7 +6,7 @@
         Project Timeline
       </h1>
       <div class="text-center">
-        <p class="text-lg font-mono text-gray-700">
+        <p class="text-xs font-mono text-gray-600 tracking-wider uppercase">
           {{ currentDateTime }}
         </p>
         <p class="text-sm text-gray-500 mt-1">

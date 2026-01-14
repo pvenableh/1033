@@ -32,8 +32,9 @@
       :fill="project.color"
     />
 
-    <!-- Start label -->
+    <!-- Start label (hidden if event on same day) -->
     <text
+      v-if="!hasEventOnStartDate"
       :x="projectStartX"
       :y="laneY + 50"
       fill="#6A6A6A"
@@ -75,8 +76,9 @@
         r="3"
         fill="white"
       />
-      <!-- End status label -->
+      <!-- End status label (hidden if event on same day) -->
       <text
+        v-if="!hasEventOnEndDate"
         :x="endMarkerX"
         :y="laneY + 50"
         fill="#6A6A6A"
@@ -93,13 +95,13 @@
       <circle
         :cx="targetEndX"
         :cy="laneY"
-        r="5"
-        fill="none"
+        r="6"
+        fill="white"
         :stroke="project.color"
         stroke-width="2"
-        opacity="0.5"
       />
       <text
+        v-if="!hasEventOnTargetDate"
         :x="targetEndX"
         :y="laneY + 50"
         fill="#9A9A9A"
@@ -180,6 +182,31 @@ const sortedEvents = computed(() =>
     (a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
   )
 );
+
+// Helper to check if two dates are the same day
+const isSameDay = (date1: string, date2: string | null): boolean => {
+  if (!date2) return false;
+  const d1 = new Date(date1).toDateString();
+  const d2 = new Date(date2).toDateString();
+  return d1 === d2;
+};
+
+// Check if there's an event on the start date
+const hasEventOnStartDate = computed(() => {
+  return sortedEvents.value.some((e) => isSameDay(e.event_date, props.project.start_date));
+});
+
+// Check if there's an event on the target end date
+const hasEventOnTargetDate = computed(() => {
+  if (!props.project.target_end_date) return false;
+  return sortedEvents.value.some((e) => isSameDay(e.event_date, props.project.target_end_date));
+});
+
+// Check if there's an event on the actual end date
+const hasEventOnEndDate = computed(() => {
+  if (!props.project.actual_end_date) return false;
+  return sortedEvents.value.some((e) => isSameDay(e.event_date, props.project.actual_end_date));
+});
 
 // Project start position
 const projectStartX = computed(() => props.getXPosition(props.project.start_date));

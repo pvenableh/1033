@@ -152,7 +152,6 @@ export function useTimelineLayout(
    */
   const timeLabels = computed(() => {
     const labels: { x: number; text: string }[] = [];
-    const monthMs = 30 * 24 * 60 * 60 * 1000;
     const current = new Date(dateRange.value.start);
 
     // Start from the first day of the month
@@ -161,7 +160,7 @@ export function useTimelineLayout(
     while (current <= dateRange.value.end) {
       labels.push({
         x: getXPosition(current.toISOString()),
-        text: current.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }),
+        text: current.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
       });
       current.setMonth(current.getMonth() + 1);
     }
