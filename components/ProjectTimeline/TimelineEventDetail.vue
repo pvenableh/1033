@@ -101,7 +101,7 @@
           <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
             Tasks ({{ completedTasks }}/{{ event.tasks.length }})
           </h3>
-          <ProjectTimelineTimelineTaskList
+          <TimelineTaskList
             :tasks="event.tasks"
             @toggle="handleTaskToggle"
           />
@@ -112,7 +112,7 @@
           <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
             Files ({{ event.files.length }})
           </h3>
-          <ProjectTimelineTimelineFileList :files="event.files" />
+          <TimelineFileList :files="event.files" />
         </div>
 
         <!-- Reactions -->
@@ -171,6 +171,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { gsap } from 'gsap';
 import type { ProjectEventWithRelations, ProjectWithRelations } from '~/types/projects';
 import type { DirectusUser } from '~/types/directus';
+import TimelineTaskList from './TimelineTaskList.vue';
+import TimelineFileList from './TimelineFileList.vue';
 
 interface Props {
   event: ProjectEventWithRelations;
