@@ -65,6 +65,8 @@ export const useDirectusItems = <T = any>(
         collection,
         operation: 'list',
         query,
+        // Pass public flag when auth is not required
+        public: !requireAuth,
       },
     });
 
@@ -89,6 +91,8 @@ export const useDirectusItems = <T = any>(
         operation: 'get',
         id,
         query,
+        // Pass public flag when auth is not required
+        public: !requireAuth,
       },
     });
   };
@@ -229,6 +233,8 @@ export const useDirectusItems = <T = any>(
         collection,
         operation: 'aggregate',
         query,
+        // Pass public flag when auth is not required
+        public: !requireAuth,
       },
     });
   };
