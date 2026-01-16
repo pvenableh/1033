@@ -92,6 +92,7 @@
   /* Font families */
   --font-sans: "AvenirNextLTW01", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: "Bauer Bodoni Pro_1 W05 Roman", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-body: "AvenirNextLTW01", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-proxima-light: "AvenirNextLTW01", ui-sans-serif, system-ui, sans-serif;
   --font-proxima-regular: "AvenirNextLTW01", ui-sans-serif, system-ui, sans-serif;
   --font-proxima-thin: "AvenirNextLTW01", ui-sans-serif, system-ui, sans-serif;
