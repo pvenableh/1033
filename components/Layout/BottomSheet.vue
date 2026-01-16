@@ -26,11 +26,11 @@
 				:class="[{'pointer-events-none': !isOpen}, maxWidthClass]">
 				<div
 					ref="sheetContent"
-					class="bg-white rounded-t-2xl shadow-xl mx-auto w-full overflow-y-auto no-scrollbar"
+					class="bg-background rounded-t-2xl shadow-xl mx-auto w-full overflow-y-auto no-scrollbar"
 					:class="[maxHeightClass]">
 					<!-- Handle -->
 					<div v-if="showHandle" class="w-full flex justify-center pt-4 pb-2 touch-none cursor-grab" ref="handle">
-						<div class="w-12 h-1.5 bg-gray-300 rounded-full" />
+						<div class="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
 					</div>
 
 					<!-- Header slot -->
