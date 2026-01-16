@@ -193,8 +193,8 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
 			mode="out-in">
 			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
-				<h5 class="uppercase tracking-wider font-bold w-full text-center">Submit your Inquiry</h5>
-				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto">
+				<h5 class="uppercase tracking-wider font-bold w-full text-center t-text">Submit your Inquiry</h5>
+				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto t-text-secondary">
 					Complete the form below to submit an inquiry to 1033 Lenox.
 				</p>
 				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
@@ -240,14 +240,14 @@ const onSubmit = handleSubmit(async (values) => {
 				<!-- <Button @click="handleNext" color="primary">Next</Button> -->
 			</div>
 			<div v-else class="w-full min-h-[500px] flex items-center justify-center flex-col">
-				<h5 class="uppercase tracking-wider">
+				<h5 class="uppercase tracking-wider t-text">
 					Thank you
-					<span v-if="name" class="font-bold text-[var(--cyan)]">{{ name.split(' ')[0] }}</span>
+					<span v-if="name" class="font-bold text-[var(--theme-accent-active)]">{{ name.split(' ')[0] }}</span>
 					.
 				</h5>
-				<p class="my-20">
+				<p class="my-20 t-text-secondary">
 					Your
-					<span class="font-bold text-[var(--cyan)]" v-if="subject">{{ subject.toLowerCase() }} {{ category }}</span>
+					<span class="font-bold text-[var(--theme-accent-active)]" v-if="subject">{{ subject.toLowerCase() }} {{ category }}</span>
 					was submitted successfully.
 				</p>
 				<Button @click="handleReset" color="primary">Reset Form</Button>
