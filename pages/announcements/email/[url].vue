@@ -136,6 +136,7 @@ useSeoMeta({
 </script>
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .email {
 	max-width: 600px;
 	line-height: 1.4em;
@@ -143,98 +144,10 @@ useSeoMeta({
 	padding: 0 10px;
 	color: var(--black);
 
-	@media (min-width: 400px) {
-	}
-
-	&__border {
-		background: #555555;
-	}
-
-	&__header {
-		img {
-			max-width: 175px;
-			padding: 20px 0px 10px;
-			/* 
-			@media (min-width: 400px) {
-				max-width: 200px;
-			} */
-		}
-	}
-
-	&__body {
-		padding: 20px 0px;
-	}
-
-	&__title {
-		line-height: 1.2em;
-		font-size: 16px;
-		text-transform: uppercase;
-		font-family: var(--font-bold) !important;
-		font-weight: 900;
-		@apply text-center tracking-wide;
-	}
-
-	&__title.red {
-		color: var(--red);
-	}
-
-	&__subtitle {
-		line-height: 1.2em;
-		font-size: 12px;
-		text-transform: uppercase;
-		padding-bottom: 20px;
-		padding-top: 10px;
-		font-family: var(--font-bold) !important;
-		font-weight: 900;
-		@apply text-center tracking-wide;
-	}
-
-	&__content {
-		padding: 20px 0px 20px;
-		border-top: thin solid #999;
-		border-bottom: thin solid #999;
-		line-height: 1.4em !important;
-
-		p {
-			padding: 10px 0px 10px;
-			line-height: 1.6em;
-			font-weight: 600;
-			/* font-family: var(--bold-font); */
-		}
-
-		a:link,
-		a:visited {
-			color: var(--blue) !important;
-		}
-
-		a:hover {
-			color: var(--gray);
-		}
-
-		ul,
-		ol {
-			padding-left: 30px !important;
-		}
-
-		b,
-		strong {
-			font-family: var(--font-bold) !important;
-			font-weight: 900;
-		}
-
-		li {
-			padding: 2px 0px;
-			font-weight: 600;
-		}
-	}
-
 	.signature {
 		.greeting {
-			/* line-height: 1em; */
 			font-size: 15px;
 			line-height: 1.25em;
-			/* margin-bottom: 0px;
-      padding-bottom: 0px; */
 		}
 
 		p {
@@ -254,8 +167,10 @@ useSeoMeta({
 			}
 		}
 	}
+
 	.board-signature {
 		@apply border-t border-[#999999] mt-8 pt-4 flex flex-row flex-wrap;
+
 		p {
 			font-size: 10px;
 
@@ -272,20 +187,96 @@ useSeoMeta({
 			}
 		}
 	}
+}
 
-	&__footer {
-		padding: 20px 0px 0px;
-		font-size: 10px;
+.email__border {
+	background: #555555;
+}
 
-		h5 {
-			margin-top: 10px;
-		}
+.email__header {
+	img {
+		max-width: 175px;
+		padding: 20px 0px 10px;
+	}
+}
 
-		img {
-			margin: 40px auto 0px;
+.email__body {
+	padding: 20px 0px;
+}
 
-			max-width: 250px;
-		}
+.email__title {
+	line-height: 1.2em;
+	font-size: 16px;
+	text-transform: uppercase;
+	font-family: var(--font-bold) !important;
+	font-weight: 900;
+	@apply text-center tracking-wide;
+}
+
+.email__title.red {
+	color: var(--red);
+}
+
+.email__subtitle {
+	line-height: 1.2em;
+	font-size: 12px;
+	text-transform: uppercase;
+	padding-bottom: 20px;
+	padding-top: 10px;
+	font-family: var(--font-bold) !important;
+	font-weight: 900;
+	@apply text-center tracking-wide;
+}
+
+.email__content {
+	padding: 20px 0px 20px;
+	border-top: thin solid #999;
+	border-bottom: thin solid #999;
+	line-height: 1.4em !important;
+
+	p {
+		padding: 10px 0px 10px;
+		line-height: 1.6em;
+		font-weight: 600;
+	}
+
+	a:link,
+	a:visited {
+		color: var(--blue) !important;
+	}
+
+	a:hover {
+		color: var(--gray);
+	}
+
+	ul,
+	ol {
+		padding-left: 30px !important;
+	}
+
+	b,
+	strong {
+		font-family: var(--font-bold) !important;
+		font-weight: 900;
+	}
+
+	li {
+		padding: 2px 0px;
+		font-weight: 600;
+	}
+}
+
+.email__footer {
+	padding: 20px 0px 0px;
+	font-size: 10px;
+
+	h5 {
+		margin-top: 10px;
+	}
+
+	img {
+		margin: 40px auto 0px;
+		max-width: 250px;
 	}
 }
 </style>

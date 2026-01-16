@@ -28,21 +28,22 @@ const newsletters = await newslettersCollection.list({
 </template>
 <style>
 @reference "~/assets/css/tailwind.css";
-.newsletter {
-	&__cover {
-		@apply bg-no-repeat bg-center bg-cover h-full;
-	}
-	&__title {
-		color: var(--white);
-		font-size: 6vw;
-		line-height: 1em;
-		text-shadow: 2px 2px #ff0000;
-		@apply tracking-wide;
-	}
-	&__link {
-		color: var(--white);
-		text-shadow: 2px 2px #ff0000;
-		@apply font-bold tracking-wider;
-	}
+
+.newsletter__cover {
+	@apply bg-no-repeat bg-center bg-cover h-full;
+}
+
+.newsletter__title {
+	color: var(--white);
+	font-size: 6vw;
+	line-height: 1em;
+	text-shadow: 2px 2px #ff0000;
+	@apply tracking-wide;
+}
+
+.newsletter__link {
+	color: var(--white);
+	text-shadow: 2px 2px #ff0000;
+	@apply font-bold tracking-wider;
 }
 </style>

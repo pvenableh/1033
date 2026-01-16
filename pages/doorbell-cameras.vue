@@ -342,59 +342,53 @@ function openExternalLink() {
 </template>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
-.renderings {
-	&__list {
-		flex-direction: column;
-		@apply w-full flex items-center justify-center gap-8 px-2;
-		@media (min-width: 600px) {
-			flex-direction: row;
-			align-items: flex-start;
-		}
-		@media (min-width: theme('screens.lg')) {
-		}
+
+.renderings__list {
+	flex-direction: column;
+	@apply w-full flex items-center justify-center gap-8 px-2;
+
+	@media (min-width: 600px) {
+		flex-direction: row;
+		align-items: flex-start;
 	}
-	&__item {
-		/* max-width: 220px; */
-		@apply px-0 w-full;
-		@media (min-width: 600px) {
-			/* flex-direction: row; */
-		}
-		/*@media (min-width: theme('screens.md')) {
-			 max-width: 500px;
-		} */
-		/* @media (min-width: theme('screens.lg')) {
-			max-width: 400px;
-		} */
-		/* @media (min-width: theme('screens.xl')) {
-			max-width: 250px;
-		} */
-		button {
-			@apply w-full;
-		}
-		&-caption {
-			@apply px-3;
-		}
-		&-title {
-			font-size: 16px;
-			@apply uppercase tracking-wide;
-		}
-		&-subtitle {
-			@apply uppercase;
-		}
-		.label {
-			@apply opacity-50;
-		}
-		&-image {
-			img {
-				@apply w-1/2 h-auto;
-			}
-			img:first-of-type {
-				@apply px-6 py-2;
-			}
-			@media (min-width: theme('screens.lg')) {
-				max-width: 500px;
-			}
-		}
+}
+
+.renderings__item {
+	@apply px-0 w-full;
+
+	button {
+		@apply w-full;
+	}
+
+	.label {
+		@apply opacity-50;
+	}
+}
+
+.renderings__item-caption {
+	@apply px-3;
+}
+
+.renderings__item-title {
+	font-size: 16px;
+	@apply uppercase tracking-wide;
+}
+
+.renderings__item-subtitle {
+	@apply uppercase;
+}
+
+.renderings__item-image {
+	@media (min-width: theme('screens.lg')) {
+		max-width: 500px;
+	}
+
+	img {
+		@apply w-1/2 h-auto;
+	}
+
+	img:first-of-type {
+		@apply px-6 py-2;
 	}
 }
 </style>

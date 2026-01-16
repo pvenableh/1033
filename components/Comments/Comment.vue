@@ -50,29 +50,28 @@ const avatar = computed(() => {
 </template>
 <style>
 @reference "~/assets/css/tailwind.css";
-.comment {
-	&__user-avatar {
-		@apply mr-2;
-	}
 
-	&__comment {
-		border-radius: 18px;
-		background: #f5f5f5;
-		font-size: 14px;
-		word-break: break-word;
-		word-wrap: break-word;
-		@apply py-2 px-3 shadow-inner dark:bg-black dark:text-white;
+.comment__user-avatar {
+	@apply mr-2;
+}
 
-		&-name {
-			font-size: 10px;
-			line-height: 10px;
-			@apply font-bold;
-		}
-	}
+.comment__comment {
+	border-radius: 18px;
+	background: #f5f5f5;
+	font-size: 14px;
+	word-break: break-word;
+	word-wrap: break-word;
+	@apply py-2 px-3 shadow-inner dark:bg-black dark:text-white;
+}
 
-	&__time {
-		font-size: 7px;
-		@apply font-bold;
-	}
+.comment__comment-name {
+	font-size: 10px;
+	line-height: 10px;
+	@apply font-bold;
+}
+
+.comment__time {
+	font-size: 7px;
+	@apply font-bold;
 }
 </style>

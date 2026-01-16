@@ -239,58 +239,57 @@ function openExternalLink() {
 </template>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
-.options {
-	&__list {
-		flex-direction: column;
-		@apply w-full flex items-center justify-center gap-8 px-2;
-		@media (min-width: 600px) {
-			flex-direction: row;
-			align-items: flex-start;
-		}
-		@media (min-width: theme('screens.lg')) {
-		}
+
+.options__list {
+	flex-direction: column;
+	@apply w-full flex items-center justify-center gap-8 px-2;
+
+	@media (min-width: 600px) {
+		flex-direction: row;
+		align-items: flex-start;
 	}
-	&__item {
-		max-width: 450px;
-		height: 265px;
-		@apply px-0 w-full relative flex flex-col  items-start justify-start border border-gray-200 shadow-lg mx-auto;
-		@media (min-width: 600px) {
-			/* flex-direction: row; */
-		}
-		@media (min-width: theme('screens.md')) {
-		}
-		@media (min-width: theme('screens.lg')) {
-		}
-		@media (min-width: theme('screens.xl')) {
-		}
-		button {
-			@apply w-10/12 absolute bottom-0;
-		}
-		&-caption {
-			@apply px-3;
-		}
-		&-title {
-			font-size: 16px;
-			@apply uppercase tracking-wide;
-		}
-		&-subtitle {
-			@apply uppercase;
-		}
-		.label {
-			@apply opacity-50;
-		}
-		p {
-			@apply w-full mt-6 text-[14px] leading-5 mb-4 text-center md:text-left;
-		}
-		&-image {
-			@apply w-full;
-			@media (min-width: 600px) {
-				flex-direction: row;
-			}
-			@media (min-width: theme('screens.lg')) {
-				max-width: 250px;
-			}
-		}
+}
+
+.options__item {
+	max-width: 450px;
+	height: 265px;
+	@apply px-0 w-full relative flex flex-col items-start justify-start border border-gray-200 shadow-lg mx-auto;
+
+	button {
+		@apply w-10/12 absolute bottom-0;
+	}
+
+	.label {
+		@apply opacity-50;
+	}
+
+	p {
+		@apply w-full mt-6 text-[14px] leading-5 mb-4 text-center md:text-left;
+	}
+}
+
+.options__item-caption {
+	@apply px-3;
+}
+
+.options__item-title {
+	font-size: 16px;
+	@apply uppercase tracking-wide;
+}
+
+.options__item-subtitle {
+	@apply uppercase;
+}
+
+.options__item-image {
+	@apply w-full;
+
+	@media (min-width: 600px) {
+		flex-direction: row;
+	}
+
+	@media (min-width: theme('screens.lg')) {
+		max-width: 250px;
 	}
 }
 </style>

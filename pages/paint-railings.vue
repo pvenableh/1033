@@ -200,22 +200,25 @@ const mailtoLink = computed(() => {
 </template>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
-.renderings {
-	&__item {
-		@apply px-4;
-		&-caption {
-		}
-		&-title {
-			border-bottom: thin solid rgba(0, 0, 0, 0.25);
-			font-size: 22px;
-			@apply uppercase tracking-wide;
-		}
-		&-subtitle {
-			@apply uppercase;
-		}
-		.label {
-			@apply opacity-50;
-		}
+
+.renderings__item {
+	@apply px-4;
+
+	.label {
+		@apply opacity-50;
 	}
+}
+
+.renderings__item-caption {
+}
+
+.renderings__item-title {
+	border-bottom: thin solid rgba(0, 0, 0, 0.25);
+	font-size: 22px;
+	@apply uppercase tracking-wide;
+}
+
+.renderings__item-subtitle {
+	@apply uppercase;
 }
 </style>

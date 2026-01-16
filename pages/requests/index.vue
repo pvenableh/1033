@@ -43,12 +43,14 @@ const requests = await requestsCollection.list({
 </script>
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .request {
 	max-width: 900px;
-	&__description {
-		img {
-			@apply max-w-full;
-		}
+}
+
+.request__description {
+	img {
+		@apply max-w-full;
 	}
 }
 </style>

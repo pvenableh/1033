@@ -45,55 +45,56 @@ const dashboardType = computed(() => {
 
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .insight {
 	@media (min-width: theme('screens.lg')) {
 		min-height: 300px;
 	}
+}
 
-	&__label {
-		font-size: 12px;
-		line-height: 15px;
-		@apply uppercase tracking-wider border-b;
+.insight__label {
+	font-size: 12px;
+	line-height: 15px;
+	@apply uppercase tracking-wider border-b;
+}
+
+.insight__title {
+	font-size: 48px;
+	background: linear-gradient(75deg, var(--pink), var(--purple));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	@apply font-bold;
+}
+
+.insight__subtitle {
+	font-size: 12px;
+	line-height: 15px;
+	@apply uppercase tracking-wider mb-6;
+}
+
+.insight__link {
+	font-size: 12px;
+	line-height: 15px;
+	/* color: var(--white);
+	background: var(--blue); */
+	@apply font-bold uppercase tracking-wider px-6 py-2;
+
+	span {
+		margin-bottom: -2px;
+		@apply inline-block;
 	}
+}
 
-	&__title {
-		font-size: 48px;
-		background: linear-gradient(75deg, var(--pink), var(--purple));
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		@apply font-bold;
-	}
+.insight__button {
+	font-size: 10px;
+	line-height: 14px;
+	color: var(--white);
+	background: var(--grey);
+	@apply font-bold uppercase tracking-wider px-4 py-1 rounded-xl;
 
-	&__subtitle {
-		font-size: 12px;
-		line-height: 15px;
-		@apply uppercase tracking-wider mb-6;
-	}
-
-	&__link {
-		font-size: 12px;
-		line-height: 15px;
-		/* color: var(--white);
-		background: var(--blue); */
-		@apply font-bold uppercase tracking-wider px-6 py-2;
-
-		span {
-			margin-bottom: -2px;
-			@apply inline-block;
-		}
-	}
-
-	&__button {
-		font-size: 10px;
-		line-height: 14px;
-		color: var(--white);
-		background: var(--grey);
-		@apply font-bold uppercase tracking-wider px-4 py-1 rounded-xl;
-
-		span {
-			margin-bottom: -2px;
-			@apply inline-block;
-		}
+	span {
+		margin-bottom: -2px;
+		@apply inline-block;
 	}
 }
 </style>

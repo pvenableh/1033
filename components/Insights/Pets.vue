@@ -42,12 +42,14 @@ const icon = computed(() => {
 	</div>
 </template>
 <style>
+@reference "~/assets/css/tailwind.css";
+
 .pet {
 	height: auto;
+}
 
-	&__icon {
-		color: var(--cyan);
-		background: rgba(80, 80, 80, 0.15);
-	}
+.pet__icon {
+	color: var(--cyan);
+	background: rgba(80, 80, 80, 0.15);
 }
 </style>
