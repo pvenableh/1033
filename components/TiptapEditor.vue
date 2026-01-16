@@ -437,6 +437,7 @@ import TableRow from '@tiptap/extension-table-row';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import CharacterCount from '@tiptap/extension-character-count';
+import {Progress} from '~/components/ui/progress';
 
 import type {DirectusFile, DirectusFolder} from '~/types/directus';
 

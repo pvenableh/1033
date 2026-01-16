@@ -114,6 +114,7 @@ import Image from '@tiptap/extension-image';
 import CharacterCount from '@tiptap/extension-character-count';
 import Mention from '@tiptap/extension-mention';
 import type {MentionData, ChannelMessageWithRelations} from '~/types/channels';
+import {Progress} from '~/components/ui/progress';
 
 const {processUpload, validateFiles} = useFileUpload();
 
