@@ -18,7 +18,7 @@
 								to="/dashboard"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/dashboard')}">
-								<Icon name="i-lucide-layout-dashboard" class="w-5 h-5" />
+								<Icon name="i-lucide-layout-dashboard" class="w-6 h-6" />
 								<span class="hidden">Dashboard</span>
 							</nuxt-link>
 						</Tooltip>
@@ -31,7 +31,7 @@
 								to="/announcements"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/announcements')}">
-								<Icon name="i-heroicons-megaphone" class="w-5 h-5" />
+								<Icon name="i-heroicons-megaphone" class="w-6 h-6" />
 								<span class="hidden">Announcements</span>
 							</nuxt-link>
 						</Tooltip>
@@ -41,7 +41,7 @@
 					<li>
 						<Tooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/meetings" class="secondary-nav__link flex" :class="{active: isActiveRoute('/meetings')}">
-								<Icon name="i-heroicons-calendar-days" class="w-5 h-5" />
+								<Icon name="i-heroicons-calendar-days" class="w-6 h-6" />
 								<span class="hidden">Meetings</span>
 							</nuxt-link>
 						</Tooltip>
@@ -54,7 +54,7 @@
 								to="/documents"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/documents')}">
-								<Icon name="i-heroicons-document-text" class="w-5 h-5" />
+								<Icon name="i-heroicons-document-text" class="w-6 h-6" />
 								<span class="hidden">By-Laws</span>
 							</nuxt-link>
 						</Tooltip>
@@ -67,7 +67,7 @@
 								to="/rules-regulations"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/rules-regulations')}">
-								<Icon name="i-heroicons-clipboard-document-list" class="w-5 h-5" />
+								<Icon name="i-heroicons-clipboard-document-list" class="w-6 h-6" />
 								<span class="hidden">Rules</span>
 							</nuxt-link>
 						</Tooltip>
@@ -80,7 +80,7 @@
 								to="/parking-garage"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/parking-garage')}">
-								<Icon name="i-lucide-car" class="w-5 h-5" />
+								<Icon name="i-lucide-car" class="w-6 h-6" />
 								<span class="hidden">Parking</span>
 							</nuxt-link>
 						</Tooltip>
@@ -90,7 +90,7 @@
 					<li>
 						<Tooltip text="Projects" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/projects" class="secondary-nav__link flex" :class="{active: isActiveRoute('/projects')}">
-								<Icon name="i-lucide-chart-no-axes-gantt" class="w-5 h-5" />
+								<Icon name="i-lucide-chart-no-axes-gantt" class="w-6 h-6" />
 								<span class="hidden">Projects</span>
 							</nuxt-link>
 						</Tooltip>
@@ -100,7 +100,7 @@
 					<li>
 						<Tooltip text="Account" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/account" class="secondary-nav__link flex" :class="{active: isActiveRoute('/account')}">
-								<Icon name="i-heroicons-user-circle" class="w-5 h-5" />
+								<Icon name="i-heroicons-user-circle" class="w-6 h-6" />
 								<span class="hidden">Account</span>
 							</nuxt-link>
 						</Tooltip>
@@ -110,7 +110,7 @@
 					<li v-if="showChannels">
 						<Tooltip text="Channels" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/channels" class="secondary-nav__link flex" :class="{active: isActiveRoute('/channels')}">
-								<Icon name="i-lucide-messages-square" class="w-5 h-5" />
+								<Icon name="i-lucide-messages-square" class="w-6 h-6" />
 								<span class="hidden">Channels</span>
 							</nuxt-link>
 						</Tooltip>
@@ -119,7 +119,7 @@
 					<li v-if="showSecurity">
 						<Tooltip text="Security" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/security" class="secondary-nav__link flex" :class="{active: isActiveRoute('/security')}">
-								<Icon name="i-lucide-cctv" class="w-5 h-5" />
+								<Icon name="i-lucide-cctv" class="w-6 h-6" />
 								<span class="hidden">Security</span>
 							</nuxt-link>
 						</Tooltip>
@@ -137,7 +137,7 @@
 								to="/financials"
 								class="secondary-nav__link flex"
 								:class="{active: isActiveRoute('/financials')}">
-								<Icon name="i-heroicons-currency-dollar" class="w-5 h-5" />
+								<Icon name="i-heroicons-currency-dollar" class="w-6 h-6" />
 								<span class="hidden">Financials</span>
 							</nuxt-link>
 						</Tooltip>
@@ -147,7 +147,7 @@
 					<li v-if="isBoardMember">
 						<Tooltip text="Tasks" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link to="/tasks" class="secondary-nav__link flex" :class="{active: isActiveRoute('/tasks')}">
-								<Icon name="i-heroicons-clipboard-document-check" class="w-5 h-5" />
+								<Icon name="i-heroicons-clipboard-document-check" class="w-6 h-6" />
 								<span class="hidden">Tasks</span>
 							</nuxt-link>
 						</Tooltip>
@@ -160,7 +160,7 @@
 								to="/admin"
 								class="secondary-nav__link flex admin-link"
 								:class="{active: isActiveRoute('/admin')}">
-								<Icon name="i-heroicons-shield-check" class="w-5 h-5" />
+								<Icon name="i-heroicons-shield-check" class="w-6 h-6" />
 								<span class="hidden">Users</span>
 							</nuxt-link>
 						</Tooltip>
@@ -246,36 +246,45 @@ const isActiveRoute = (path: string): boolean => {
 </script>
 
 <style scoped>
-/* Slide down transition for toggle */
+/* Slide down transition for toggle - smoother with GPU acceleration */
 .slide-down-enter-active,
 .slide-down-leave-active {
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: opacity 0.25s ease-out, transform 0.25s ease-out;
+	will-change: transform, opacity;
 }
 
 .slide-down-enter-from,
 .slide-down-leave-to {
 	opacity: 0;
-	transform: translateY(-100%);
+	transform: translateY(-100%) translateZ(0);
+}
+
+.slide-down-enter-to,
+.slide-down-leave-from {
+	opacity: 1;
+	transform: translateY(0) translateZ(0);
 }
 
 .secondary-nav {
 	position: fixed;
-	top: 52px; /* Below main header */
+	top: 56px; /* Below main header - matches page-content padding */
 	left: 0;
 	z-index: 15;
 	border-bottom: 1px solid var(--theme-border-light, rgba(55, 55, 55, 0.1));
-	transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+	transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 	will-change: transform;
+	transform: translateZ(0); /* Force GPU layer */
+	backface-visibility: hidden;
 	padding-top: env(safe-area-inset-top, 0px);
 }
 
 .secondary-nav.retracted {
-	transform: translateY(calc(-100% - 52px - env(safe-area-inset-top, 0px)));
+	transform: translateY(calc(-100% - 56px - env(safe-area-inset-top, 0px))) translateZ(0);
 }
 
 @media (min-width: 1024px) {
 	.secondary-nav.retracted {
-		transform: translateY(0px);
+		transform: translateY(0) translateZ(0);
 	}
 }
 

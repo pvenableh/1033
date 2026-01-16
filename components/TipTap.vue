@@ -104,6 +104,7 @@ import {Plugin} from '@tiptap/pm/state';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import CharacterCount from '@tiptap/extension-character-count';
+import {Progress} from '~/components/ui/progress';
 const {processUpload, validateFiles, MAX_FILES} = useFileUpload();
 // import { Mention } from '@tiptap/extension-mention';
 
