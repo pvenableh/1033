@@ -49,6 +49,7 @@
 		"@nuxtjs/seo": "^3.3.0",
 		"@samk-dev/nuxt-vcalendar": "^1.0.4",
 		"@stripe/stripe-js": "^3.5.0",
+		"@tailwindcss/postcss": "^4.1.18",
 		"@tailwindcss/vite": "^4.1.0",
 		"@tiptap/extension-character-count": "^2.11.2",
 		"@tiptap/extension-code": "^2.11.2",
