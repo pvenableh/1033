@@ -51,7 +51,7 @@ const readNoticeIds = ref<Set<string>>(new Set());
 export function useNotificationCenter() {
   const { user } = useDirectusAuth();
   const directusNotifications = useDirectusNotifications();
-  const noticesCollection = useDirectusItems<Notice>('notices', { requireAuth: false });
+  const noticesCollection = useDirectusItems<Notice>('notices');
 
   // Computed: total unread count (notifications + unread notices)
   const unreadNotificationCount = computed(() => {
