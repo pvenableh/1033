@@ -60,35 +60,36 @@ const {user, logout} = useDirectusAuth();
 </script>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
+
 .footer {
 	position: relative;
 	z-index: 10;
+}
 
-	&__col {
-		text-align: center;
-		width: 200px;
+.footer__col {
+	text-align: center;
+	width: 200px;
 
-		@media (min-width: theme('screens.md')) {
-			width: 250px;
-		}
-
-		a {
-			font-size: 10px;
-
-			@apply uppercase tracking-widest py-1 mb-1 w-full;
-		}
-		a:hover,
-		a.active,
-		a.router-link-exact-active {
-			color: var(--theme-accent-active, var(--blue));
-		}
+	@media (min-width: theme('screens.md')) {
+		width: 250px;
 	}
 
-	&__contact-info {
-		h5 {
-			font-size: 9px;
-			@apply uppercase tracking-wider font-bold px-2;
-		}
+	a {
+		font-size: 10px;
+		@apply uppercase tracking-widest py-1 mb-1 w-full;
+	}
+
+	a:hover,
+	a.active,
+	a.router-link-exact-active {
+		color: var(--theme-accent-active, var(--blue));
+	}
+}
+
+.footer__contact-info {
+	h5 {
+		font-size: 9px;
+		@apply uppercase tracking-wider font-bold px-2;
 	}
 }
 
@@ -99,6 +100,7 @@ h5.web-designer {
 
 	a {
 		font-size: 10px;
+
 		svg {
 			width: 35px;
 			height: auto;
@@ -107,6 +109,7 @@ h5.web-designer {
 			margin-top: -11px;
 			margin-left: 3px;
 			fill: var(--theme-text-secondary, #6c757d);
+
 			path {
 				transition: all 0.3s linear;
 			}

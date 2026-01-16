@@ -413,41 +413,48 @@ onClickOutside(spotDetailsRef, () => {
 	cursor: pointer;
 	position: relative;
 	overflow: hidden;
+	height: 50px;
+	@apply border border-gray-100 dark:border-gray-700;
 
-	height: 50px; /* Consistent spot height */
 	@media (min-width: theme('screens.lg')) {
 		flex-direction: column;
 	}
-	@apply border border-gray-100 dark:border-gray-700;
-	&__number {
-		font-size: 12px;
-		line-height: 14px;
+}
 
-		@apply flex items-center justify-center lg:absolute lg:top-0 lg:left-0 p-2  h-[50px] lg:h-[30px] w-[30px] text-center font-bold bg-gray-400 text-white dark:text-white;
-		@media (min-width: theme('screens.lg')) {
-			box-shadow: inset 0px 5px 10px rgba(0, 0, 0, 0.15);
-			text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
-		}
+.spot__number {
+	font-size: 12px;
+	line-height: 14px;
+	@apply flex items-center justify-center lg:absolute lg:top-0 lg:left-0 p-2 h-[50px] lg:h-[30px] w-[30px] text-center font-bold bg-gray-400 text-white dark:text-white;
+
+	@media (min-width: theme('screens.lg')) {
+		box-shadow: inset 0px 5px 10px rgba(0, 0, 0, 0.15);
+		text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.25);
 	}
-	&__details {
-		@apply flex flex-col items-start pl-1;
-		@media (min-width: theme('screens.lg')) {
-			padding: 10px;
-		}
+}
+
+.spot__details {
+	@apply flex flex-col items-start pl-1;
+
+	@media (min-width: theme('screens.lg')) {
+		padding: 10px;
 	}
-	&__label {
-		font-size: 11px;
-		@apply uppercase;
-		@media (min-width: theme('screens.sm')) {
-			font-size: 12px;
-		}
+}
+
+.spot__label {
+	font-size: 11px;
+	@apply uppercase;
+
+	@media (min-width: theme('screens.sm')) {
+		font-size: 12px;
 	}
-	&__vehicles {
-		font-size: 8px;
-		@apply uppercase font-bold;
-		@media (min-width: theme('screens.sm')) {
-			font-size: 9px;
-		}
+}
+
+.spot__vehicles {
+	font-size: 8px;
+	@apply uppercase font-bold;
+
+	@media (min-width: theme('screens.sm')) {
+		font-size: 9px;
 	}
 }
 
@@ -543,31 +550,30 @@ onClickOutside(spotDetailsRef, () => {
 	right: 0;
 	padding: 1rem;
 	height: 80svh;
-	transform: translateY(100%); /* Start hidden */
+	transform: translateY(100%);
 	z-index: 30;
 	box-shadow: 0px -10px 20px rgba(0, 0, 0, 0.1);
 	border-radius: 20px 20px 0 0;
-	/* transition:
-		transform 0.3s ease-out,
-		opacity 0.3s ease-out;*/
 	@apply flex items-center justify-start flex-col pt-10 bg-white dark:bg-neutral-900;
-	&__inner {
-		touch-action: pan-x;
-		max-width: 600px;
-		@apply px-4 md:p-20  w-full mx-20 relative;
-		h3 {
-			@apply w-full text-[18px] leading-[20px] text-center md:text-left;
-		}
+}
 
-		h4 {
-			@apply w-full text-[12px] leading-[14px];
-		}
+.spot-details__inner {
+	touch-action: pan-x;
+	max-width: 600px;
+	@apply px-4 md:p-20 w-full mx-20 relative;
 
-		ul {
-			list-style-type: disc;
-			padding-left: 1.5rem;
-			margin-bottom: 1rem;
-		}
+	h3 {
+		@apply w-full text-[18px] leading-[20px] text-center md:text-left;
+	}
+
+	h4 {
+		@apply w-full text-[12px] leading-[14px];
+	}
+
+	ul {
+		list-style-type: disc;
+		padding-left: 1.5rem;
+		margin-bottom: 1rem;
 	}
 }
 </style>

@@ -93,6 +93,7 @@ const formattedTime = computed(() => {
 </script>
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .meeting-card {
 	width: 100%;
 	max-width: 800px;
@@ -106,10 +107,10 @@ const formattedTime = computed(() => {
 		background: var(--lightGrey);
 		@apply text-xs px-6 py-2 tracking-wide;
 	}
+}
 
-	&__title {
-		border-bottom: thin solid rgba(0, 0, 0, 0.25);
-		@apply pb-4;
-	}
+.meeting-card__title {
+	border-bottom: thin solid rgba(0, 0, 0, 0.25);
+	@apply pb-4;
 }
 </style>

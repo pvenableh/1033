@@ -97,33 +97,42 @@ definePageMeta({
 </template>
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .intro {
 	background-image: url('https://admin.1033lenox.com/assets/bda84bff-e6e1-4bfb-ac82-f44a999d7073');
 	background-color: rgba(0, 0, 0, 0.5);
 	background-attachment: fixed;
 	@apply bg-cover bg-center bg-no-repeat bg-blend-darken opacity-100;
+
 	.weather__stats {
 		@apply text-white;
 	}
-	&__logo {
-		filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
-		path {
-			fill: white;
-		}
-		line {
-			stroke: white;
-		}
+}
+
+.intro__logo {
+	filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5));
+
+	path {
+		fill: white;
 	}
-	&__header {
+
+	line {
+		stroke: white;
 	}
-	&__amenity {
-		@apply flex flex-col items-center justify-center px-4 mx-4 mb-6 transition-all;
-		h5 {
-			@apply uppercase tracking-wide text-[9px];
-		}
+}
+
+.intro__header {
+}
+
+.intro__amenity {
+	@apply flex flex-col items-center justify-center px-4 mx-4 mb-6 transition-all;
+
+	h5 {
+		@apply uppercase tracking-wide text-[9px];
 	}
-	&__amenity:hover {
-		@apply transform scale-105;
-	}
+}
+
+.intro__amenity:hover {
+	@apply transform scale-105;
 }
 </style>

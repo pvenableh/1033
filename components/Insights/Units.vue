@@ -84,18 +84,16 @@ const subtitle = ownershipPercentage + '% of units are owner-occupied.';
 	</div>
 </template>
 <style>
-.units {
-	&__chart {
-		width: 100%;
-		max-width: 300px;
-		margin: 0 auto;
-	}
+@reference "~/assets/css/tailwind.css";
 
-	&__unit {
-		&-occupant {
-			font-size: 8px;
-			color: var(--black);
-		}
-	}
+.units__chart {
+	width: 100%;
+	max-width: 300px;
+	margin: 0 auto;
+}
+
+.units__unit-occupant {
+	font-size: 8px;
+	color: var(--black);
 }
 </style>

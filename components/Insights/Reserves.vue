@@ -48,32 +48,29 @@ const percentageChange = computed(() => {
 </script>
 <style lang="postcss">
 @reference "~/assets/css/tailwind.css";
-.insight {
-	&__label {
-		font-size: 12px;
-		line-height: 15px;
-		@apply uppercase tracking-wider;
-	}
 
-	&__title {
-		font-size: 48px;
-		background: linear-gradient(75deg, var(--pink), var(--purple));
-		-webkit-background-clip: text;
-		-webkit-text-fill-color: transparent;
-		@apply font-bold;
-	}
-
-	&__subtitle {
-		font-size: 12px;
-		line-height: 15px;
-		@apply uppercase tracking-wider mb-6;
-	}
+.insight__label {
+	font-size: 12px;
+	line-height: 15px;
+	@apply uppercase tracking-wider;
 }
 
-.reserves {
-	&__chart {
-		height: 300px;
-		width: 100%;
-	}
+.insight__title {
+	font-size: 48px;
+	background: linear-gradient(75deg, var(--pink), var(--purple));
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	@apply font-bold;
+}
+
+.insight__subtitle {
+	font-size: 12px;
+	line-height: 15px;
+	@apply uppercase tracking-wider mb-6;
+}
+
+.reserves__chart {
+	height: 300px;
+	width: 100%;
 }
 </style>

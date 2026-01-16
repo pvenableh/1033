@@ -317,6 +317,7 @@ onClickOutside(navDrawerRef, () => {
 </script>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
+
 .nav-drawer {
 	min-height: 100vh;
 	max-height: 100vh;
@@ -339,69 +340,69 @@ onClickOutside(navDrawerRef, () => {
 	  top: 0px;
 	  @apply absolute; */
 	}
+}
 
-	&__menu-box {
-	}
+.nav-drawer__menu-box {
+}
 
-	&__menu {
-		@apply overflow-hidden;
+.nav-drawer__menu {
+	@apply overflow-hidden;
 
-		li {
-			opacity: 0;
-			transform: translateX(50px) translateZ(-9.7rem);
-			transition: all 0.4s var(--curve);
-			@apply my-1;
+	li {
+		opacity: 0;
+		transform: translateX(50px) translateZ(-9.7rem);
+		transition: all 0.4s var(--curve);
+		@apply my-1;
 
-			a,
-			label {
-				font-size: 13px;
-				letter-spacing: 0.3em;
-				@apply block uppercase py-1;
-			}
+		a,
+		label {
+			font-size: 13px;
+			letter-spacing: 0.3em;
+			@apply block uppercase py-1;
+		}
 
-			a.router-link-exact-active,
-			a.router-link-active {
-				color: var(--theme-accent-active, var(--cyan2));
-				@apply font-bold;
-			}
+		a.router-link-exact-active,
+		a.router-link-active {
+			color: var(--theme-accent-active, var(--cyan2));
+			@apply font-bold;
+		}
 
-			a.admin-link {
-				color: var(--theme-warning, #f59e0b);
-			}
+		a.admin-link {
+			color: var(--theme-warning, #f59e0b);
+		}
 
-			a.admin-link.router-link-active {
-				color: var(--theme-warning, #f59e0b);
-			}
+		a.admin-link.router-link-active {
+			color: var(--theme-warning, #f59e0b);
+		}
 
-			a.restricted-link {
-				opacity: 0.5;
-				cursor: pointer;
+		a.restricted-link {
+			opacity: 0.5;
+			cursor: pointer;
 
-				&:hover {
-					opacity: 0.7;
-				}
-
-				.lock-icon {
-					opacity: 0.7;
-				}
-			}
-
-			a.admin-link.restricted-link {
-				opacity: 0.4;
+			.lock-icon {
+				opacity: 0.7;
 			}
 		}
-	}
 
-	&__divider {
-		padding: 0.5rem 0;
-
-		.divider-line {
-			display: block;
-			height: 1px;
-			width: 100%;
-			background: currentColor;
-			opacity: 0.2;
+		a.restricted-link:hover {
+			opacity: 0.7;
 		}
+
+		a.admin-link.restricted-link {
+			opacity: 0.4;
+		}
+	}
+}
+
+.nav-drawer__divider {
+	padding: 0.5rem 0;
+
+	.divider-line {
+		display: block;
+		height: 1px;
+		width: 100%;
+		background: currentColor;
+		opacity: 0.2;
 	}
 }
 

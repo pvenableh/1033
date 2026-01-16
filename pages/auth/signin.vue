@@ -74,6 +74,7 @@ function movePanel(val: string) {
 
 <style>
 @reference "~/assets/css/tailwind.css";
+
 .login {
 	/* height: 90vh; */
 }
@@ -81,20 +82,20 @@ function movePanel(val: string) {
 .login-panel {
 	width: 325px;
 	min-height: 450px;
+}
 
-	&--wide {
-		width: 400px;
-		min-height: auto;
-		padding: 1rem 0;
-	}
+.login-panel--wide {
+	width: 400px;
+	min-height: auto;
+	padding: 1rem 0;
+}
 
-	&__nav-button {
-		font-size: 14px;
-		@apply uppercase tracking-wider;
-	}
+.login-panel__nav-button {
+	font-size: 14px;
+	@apply uppercase tracking-wider;
+}
 
-	&__nav-button.reset {
-		font-size: 10px;
-	}
+.login-panel__nav-button.reset {
+	font-size: 10px;
 }
 </style>
