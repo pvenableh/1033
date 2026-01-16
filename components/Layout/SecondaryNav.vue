@@ -247,20 +247,21 @@ const isActiveRoute = (path: string): boolean => {
 
 <style scoped>
 /* Slide down transition for toggle - smoother with GPU acceleration */
-.slide-down-enter-active,
-.slide-down-leave-active {
+/* Use .secondary-nav prefix for specificity to override base transform */
+.slide-down-enter-active.secondary-nav,
+.slide-down-leave-active.secondary-nav {
 	transition: opacity 0.25s ease-out, transform 0.25s ease-out;
 	will-change: transform, opacity;
 }
 
-.slide-down-enter-from,
-.slide-down-leave-to {
+.slide-down-enter-from.secondary-nav,
+.slide-down-leave-to.secondary-nav {
 	opacity: 0;
 	transform: translateY(-100%) translateZ(0);
 }
 
-.slide-down-enter-to,
-.slide-down-leave-from {
+.slide-down-enter-to.secondary-nav,
+.slide-down-leave-from.secondary-nav {
 	opacity: 1;
 	transform: translateY(0) translateZ(0);
 }
