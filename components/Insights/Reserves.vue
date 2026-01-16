@@ -1,76 +1,70 @@
-<template>
-	<div class="insight reserves">
-		<div v-if="pending">Loading</div>
-		<h1 class="insight__label">Reserves:</h1>
-		<h3 v-if="currentAmount" class="insight__title">${{ currentAmount.toLocaleString('en-US') }}</h3>
-		<h5 class="insight__subtitle">
-			<span class="font-bold">{{ percentage }}%</span>
-			{{ percentageChange }}
-		</h5>
-		<ChartsLine class="reserves__chart" title="2023 Reserves" :data="amounts" :labels="labels" />
-		<div class="w-full flex items-center justify-center mt-8">
-			<nuxt-link to="/financials/" class="insight__link">
-				View All Financials
-				<UIcon name="i-heroicons-arrow-right" />
-			</nuxt-link>
-		</div>
-		<div v-if="error">Error</div>
-	</div>
-</template>
-<script setup>
-const reservesCollection = useDirectusItems('reserves', {requireAuth: false});
+<script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
+
+const reservesCollection = useDirectusItems('reserves', { requireAuth: false })
 
 const data = await reservesCollection.list({
-	fields: ['*'],
-	sort: 'date',
-});
+  fields: ['*'],
+  sort: 'date',
+})
 
-const labels = data.map((reserve) => new Date(reserve.date).toLocaleString('default', {month: 'short'}));
+const labels = data.map((reserve: any) => new Date(reserve.date).toLocaleString('default', { month: 'short' }))
 
-const amounts = data.map((reserve) =>
-	reserve.amount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})
-);
+const amounts = data.map((reserve: any) =>
+  reserve.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+)
 
-const currentAmount = amounts[amounts.length - 1];
+const currentAmount = amounts[amounts.length - 1]
 
 const percentage = computed(() => {
-	const amount = ((currentAmount - amounts[0]) / currentAmount) * 100;
-	return Math.round(amount * 100) / 100;
-});
+  const amount = ((parseFloat(currentAmount.replace(/,/g, '')) - parseFloat(amounts[0].replace(/,/g, ''))) / parseFloat(currentAmount.replace(/,/g, ''))) * 100
+  return Math.round(amount * 100) / 100
+})
 
 const percentageChange = computed(() => {
-	if (percentage.value > 0) {
-		return 'Increase Since ' + new Date(data[0].date).toLocaleString('default', {month: 'long', year: 'numeric'});
-	} else {
-		return 'Decrease Since ' + new Date(data[0].date).toLocaleString('default', {month: 'long', year: 'numeric'});
-	}
-});
+  if (percentage.value > 0) {
+    return 'Increase Since ' + new Date(data[0].date).toLocaleString('default', { month: 'long', year: 'numeric' })
+  } else {
+    return 'Decrease Since ' + new Date(data[0].date).toLocaleString('default', { month: 'long', year: 'numeric' })
+  }
+})
 </script>
-<style lang="postcss">
-@reference "~/assets/css/tailwind.css";
 
-.insight__label {
-	font-size: 12px;
-	line-height: 15px;
-	@apply uppercase tracking-wider;
-}
+<template>
+  <Card>
+    <CardHeader class="pb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <CardTitle class="text-base">Reserves</CardTitle>
+          <CardDescription>Financial reserves balance</CardDescription>
+        </div>
+        <Icon name="heroicons:banknotes" class="h-5 w-5 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div class="mb-4">
+        <p class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">
+          ${{ currentAmount }}
+        </p>
+        <p class="text-sm text-muted-foreground mt-1">
+          <span class="font-bold" :class="percentage > 0 ? 'text-green-600' : 'text-red-600'">
+            {{ percentage > 0 ? '+' : '' }}{{ percentage }}%
+          </span>
+          {{ percentageChange }}
+        </p>
+      </div>
 
-.insight__title {
-	font-size: 48px;
-	background: linear-gradient(75deg, var(--pink), var(--purple));
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	@apply font-bold;
-}
+      <ChartsLine class="h-[200px] w-full" title="Reserves" :data="amounts" :labels="labels" />
 
-.insight__subtitle {
-	font-size: 12px;
-	line-height: 15px;
-	@apply uppercase tracking-wider mb-6;
-}
-
-.reserves__chart {
-	height: 300px;
-	width: 100%;
-}
-</style>
+      <div class="mt-4 flex justify-center">
+        <nuxt-link
+          to="/financials/"
+          class="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+        >
+          View All Financials
+          <Icon name="heroicons:arrow-right" class="h-3 w-3" />
+        </nuxt-link>
+      </div>
+    </CardContent>
+  </Card>
+</template>

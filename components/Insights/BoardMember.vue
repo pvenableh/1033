@@ -1,27 +1,47 @@
-<script setup>
-const props = defineProps({
-	boardMember: {
-		type: String,
-		default: null,
-	},
-});
-</script>
-<template>
-	<div class="insight board_member">
-		<h1 class="insight__label">Board Member:</h1>
-		<div v-if="pending">Loading</div>
-		<h2 class="uppercase tracking-wide mt-4">{{ boardMember.year }} {{ boardMember.title }}</h2>
-		<h3 class="uppercase tracking-wide text-xs">
-			<span class="opacity-50">Appointed:</span>
-			{{ getFriendlyDateTwo(boardMember.start) }}
-			<span class="opacity-50">Expires:</span>
-			{{ getFriendlyDateTwo(boardMember.finish) }}
-		</h3>
-		<div v-if="error">Error</div>
-	</div>
-</template>
-<style>
-.board_member {
-	min-height: auto !important;
+<script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
+import { Badge } from "~/components/ui/badge"
+
+interface BoardMember {
+  year: string
+  title: string
+  start: string
+  finish: string
 }
-</style>
+
+defineProps<{
+  boardMember: BoardMember
+}>()
+</script>
+
+<template>
+  <Card>
+    <CardHeader class="pb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <CardTitle class="text-base">Board Member Status</CardTitle>
+          <CardDescription>Your current board position</CardDescription>
+        </div>
+        <Icon name="heroicons:shield-check" class="h-5 w-5 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div class="flex items-center gap-3 mb-4">
+        <Badge variant="secondary" class="bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+          {{ boardMember.year }}
+        </Badge>
+        <span class="font-bold text-lg">{{ boardMember.title }}</span>
+      </div>
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-wide">Appointed</p>
+          <p class="font-medium">{{ getFriendlyDateTwo(boardMember.start) }}</p>
+        </div>
+        <div>
+          <p class="text-xs text-muted-foreground uppercase tracking-wide">Expires</p>
+          <p class="font-medium">{{ getFriendlyDateTwo(boardMember.finish) }}</p>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</template>

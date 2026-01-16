@@ -1,67 +1,79 @@
-<script setup>
-const props = defineProps({
-	user: {
-		type: Object,
-		default: null,
-	},
-});
+<script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
+import type { DirectusUser } from '~/types/directus'
 
-function filterTenants(obj) {
-	// Check if the object is an array
-	if (Array.isArray(obj)) {
-		// If it is an array, use flatMap to concatenate the results of filterTenants function applied to each item
-		return obj.flatMap((item) => filterTenants(item));
-	} else if (typeof obj === 'object' && obj !== null) {
-		// If it is an object, check if it has a 'people_id' property with 'category' equal to 'Tenant'
-		if (obj.people_id && obj.people_id.category === 'Tenant') {
-			// If it does, return an array with the filtered 'people_id'
-			return [obj.people_id];
-		} else {
-			// If it doesn't, use flatMap to concatenate the results of filterTenants function applied to its properties
-			return Object.values(obj).flatMap((value) => filterTenants(value));
-		}
-	} else {
-		// If it is neither an array nor an object, return an empty array
-		return [];
-	}
+const props = defineProps<{
+  user: DirectusUser
+}>()
+
+function filterTenants(obj: any): any[] {
+  if (Array.isArray(obj)) {
+    return obj.flatMap((item) => filterTenants(item))
+  } else if (typeof obj === 'object' && obj !== null) {
+    if (obj.people_id && obj.people_id.category === 'Tenant') {
+      return [obj.people_id]
+    } else {
+      return Object.values(obj).flatMap((value) => filterTenants(value))
+    }
+  } else {
+    return []
+  }
 }
 
-const tenants = filterTenants(props.user.units);
+const extUser = props.user as any
+const tenants = filterTenants(extUser?.units || [])
 </script>
-<template>
-	<div class="insight units-summary">
-		<h1 class="w-full mb-4 insight__label">Units:</h1>
-		<div class="person" v-for="(unit, index) in user.units" :key="index">
-			<h3 class="uppercase text-sm tracking-wide mb-4">
-				<span class="opacity-50">Unit:</span>
-				{{ unit.units_id.number }} is
-				<span class="font-bold uppercase">{{ unit.units_id.occupant }}-occupied</span>
-			</h3>
 
-			<InsightsTenant v-for="(tenant, index2) in tenants" :key="index2" :tenant="tenant" />
-			<div class="my-4">
-				<h3 class="uppercase tracking-wide text-sm mb-2">
-					<span class="opacity-50">Vehicles:</span>
-					<span v-if="unit.units_id.vehicles.length === 0">No vehicles registered.</span>
-				</h3>
-				<div v-if="unit.units_id.vehicles.length">
-					<InsightsCars v-for="(car, index3) in unit.units_id.vehicles" :key="index3" :car="car" />
-				</div>
-			</div>
-			<div class="my-4">
-				<h3 class="uppercase text-sm tracking-wide mb-2">
-					<span class="opacity-50">Pets:</span>
-					<span v-if="unit.units_id.pets.length === 0">No pets registered.</span>
-				</h3>
-				<div v-if="unit.units_id.pets.length">
-					<InsightsPets v-for="(pet, index2) in unit.units_id.pets" :key="index2" :pet="pet" />
-				</div>
-			</div>
-		</div>
-	</div>
+<template>
+  <Card>
+    <CardHeader class="pb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <CardTitle class="text-base">Units Summary</CardTitle>
+          <CardDescription>Your property details</CardDescription>
+        </div>
+        <Icon name="heroicons:home-modern" class="h-5 w-5 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div v-if="extUser?.units?.length > 0" class="space-y-4">
+        <div
+          v-for="(unit, index) in extUser.units"
+          :key="index"
+          class="p-4 rounded-lg border bg-muted/30"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="font-medium">
+              Unit {{ unit.units_id?.number }}
+            </h3>
+            <span class="text-xs px-2 py-1 rounded bg-muted">
+              {{ unit.units_id?.occupant }}-occupied
+            </span>
+          </div>
+
+          <InsightsTenant v-for="(tenant, index2) in tenants" :key="index2" :tenant="tenant" />
+
+          <div v-if="unit.units_id?.vehicles" class="mt-3">
+            <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Vehicles</p>
+            <div v-if="unit.units_id.vehicles.length > 0" class="space-y-2">
+              <InsightsCars v-for="(car, index3) in unit.units_id.vehicles" :key="index3" :car="car" />
+            </div>
+            <p v-else class="text-sm text-muted-foreground">No vehicles registered.</p>
+          </div>
+
+          <div v-if="unit.units_id?.pets" class="mt-3">
+            <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Pets</p>
+            <div v-if="unit.units_id.pets.length > 0" class="space-y-2">
+              <InsightsPets v-for="(pet, index2) in unit.units_id.pets" :key="index2" :pet="pet" />
+            </div>
+            <p v-else class="text-sm text-muted-foreground">No pets registered.</p>
+          </div>
+        </div>
+      </div>
+      <div v-else class="py-8 text-center text-muted-foreground">
+        <Icon name="heroicons:home-modern" class="h-12 w-12 mx-auto mb-3 opacity-20" />
+        <p class="text-sm">No units found</p>
+      </div>
+    </CardContent>
+  </Card>
 </template>
-<style>
-.units-summary {
-	min-height: auto !important;
-}
-</style>
