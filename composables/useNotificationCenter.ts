@@ -51,7 +51,7 @@ const readNoticeIds = ref<Set<string>>(new Set());
 export function useNotificationCenter() {
   const { user } = useDirectusAuth();
   const directusNotifications = useDirectusNotifications();
-  const noticesCollection = useDirectusItems<Notice>('notices', { requireAuth: false });
+  const noticesCollection = useDirectusItems<Notice>('notices');
 
   // Computed: total unread count (notifications + unread notices)
   const unreadNotificationCount = computed(() => {
@@ -178,7 +178,13 @@ export function useNotificationCenter() {
         return visibilities.some((v) => notice.visibility.includes(v));
       });
     } catch (e: any) {
-      console.error('Failed to fetch notices:', e);
+      // Silently handle common errors (collection doesn't exist, permissions, etc.)
+      // This prevents console spam when notices collection isn't set up
+      const isExpectedError = e?.statusCode === 400 || e?.statusCode === 403 || e?.statusCode === 404;
+      if (!isExpectedError) {
+        console.error('Failed to fetch notices:', e);
+      }
+      notices.value = [];
     }
   };
 
