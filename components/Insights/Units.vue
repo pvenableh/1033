@@ -1,99 +1,105 @@
-<script setup>
-function setBackgroundColor(occupant) {
-	if (occupant === 'Owner') {
-		return '#00BFFF';
-	} else if (occupant === 'Tenant') {
-		return '#00FFED';
-	} else {
-		return '#e8fc00';
-	}
+<script setup lang="ts">
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "~/components/ui/card"
+
+function setBackgroundColor(occupant: string) {
+  if (occupant === 'Owner') {
+    return 'bg-blue-400'
+  } else if (occupant === 'Tenant') {
+    return 'bg-cyan-400'
+  } else {
+    return 'bg-yellow-400'
+  }
 }
 
 const {
-	data: units,
-	pending,
-	error,
+  data: units,
+  pending,
+  error,
 } = await useAsyncData('units', () => {
-	return useDirectus(
-		readItems('units', {
-			fields: ['*'],
-			sort: 'number',
-		})
-	);
-});
+  return useDirectus(
+    readItems('units', {
+      fields: ['*'],
+      sort: 'number',
+    })
+  )
+})
 
-const occupantTotals = units.value.reduce((totals, property) => {
-	const occupant = property.occupant;
+const occupantTotals = computed(() => {
+  if (!units.value) return {}
+  return units.value.reduce((totals: Record<string, number>, property: any) => {
+    const occupant = property.occupant
+    if (occupant === 'Owner' || occupant === 'Tenant') {
+      if (!totals[occupant]) {
+        totals[occupant] = 0
+      }
+      totals[occupant]++
+    }
+    return totals
+  }, {})
+})
 
-	// Check if the occupant is "Owner" or "Tenant"
-	if (occupant === 'Owner' || occupant === 'Tenant') {
-		// Initialize the total if not present
-		if (!totals[occupant]) {
-			totals[occupant] = 0;
-		}
+const labels = computed(() => Object.keys(occupantTotals.value))
+const values = computed(() => Object.values(occupantTotals.value) as number[])
+const ownershipPercentage = computed(() => {
+  if (!units.value || values.value.length === 0) return 0
+  return percentage(values.value[0], units.value.length)
+})
 
-		// Increment the total for the current occupant
-		totals[occupant]++;
-	}
+const colors = ['#00BFFF', '#00FFED', '#e8fc00']
 
-	return totals;
-}, {});
+const legendValues = computed(() => labels.value.map((label) => ({
+  label,
+  color: label === 'Owner' ? colors[0] : colors[1],
+})))
 
-const labels = Object.keys(occupantTotals);
-const values = Object.values(occupantTotals);
-const ownershipPercentage = percentage(values[0], units.value.length);
-
-const colors = ['#00BFFF', '#00FFED', '#e8fc00'];
-
-const legendValues = labels.map((label) => ({
-	label,
-	color: label === 'Owner' ? colors[0] : colors[1],
-}));
-
-const subtitle = ownershipPercentage + '% of units are owner-occupied.';
+const subtitle = computed(() => ownershipPercentage.value + '% of units are owner-occupied.')
 </script>
+
 <template>
-	<div class="w-full insight units">
-		<div v-if="pending">Loading</div>
-		<h1 class="w-full mb-6 insight__label">Units:</h1>
-		<div class="w-full flex flex-col lg:flex-row items-center justify-center">
-			<div class="flex-none mb-8 lg:mb-0">
-				<ChartsLegend :legendValues="legendValues" :subtitle="subtitle" />
-				<ClientOnly fallback-tag="span" fallback="Loading chart...">
-					<ChartsDoughnut class="units__chart" title="Units" :data="values" :labels="labels" :colors="colors" />
-				</ClientOnly>
-			</div>
-			<div class="lg:ml-8 grid grid-cols-4 2xl:grid-cols-5 gap-6 grow w-full">
-				<div class="units__unit" v-for="(unit, index) in units" :key="index">
-					<h3 class="w-full uppercase text-sm border-b">
-						<span class="opacity-50">Unit:</span>
-						{{ unit.number }}
-					</h3>
-					<p class="text-xxs uppercase tracking-wide mt-1 units__unit-occupant">
-						<span class="">Occupied by:</span>
-						<span
-							class="font-bold px-1 py-[2px]"
-							:style="'background-color: ' + setBackgroundColor(unit.occupant) + ';'">
-							{{ unit.occupant }}
-						</span>
-					</p>
-				</div>
-			</div>
-		</div>
-		<div v-if="error">Error</div>
-	</div>
+  <Card>
+    <CardHeader class="pb-3">
+      <div class="flex items-center justify-between">
+        <div>
+          <CardTitle class="text-base">All Units</CardTitle>
+          <CardDescription>Building occupancy overview</CardDescription>
+        </div>
+        <Icon name="heroicons:building-office-2" class="h-5 w-5 text-muted-foreground" />
+      </div>
+    </CardHeader>
+    <CardContent>
+      <div v-if="pending" class="py-8 text-center text-muted-foreground">
+        Loading...
+      </div>
+      <div v-else-if="units" class="flex flex-col lg:flex-row items-start justify-center gap-8">
+        <div class="flex-none">
+          <ChartsLegend :legendValues="legendValues" :subtitle="subtitle" />
+          <ClientOnly fallback-tag="span" fallback="Loading chart...">
+            <ChartsDoughnut class="w-full max-w-[250px] mx-auto" title="Units" :data="values" :labels="labels" :colors="colors" />
+          </ClientOnly>
+        </div>
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-3 grow w-full">
+          <div
+            v-for="(unit, index) in units"
+            :key="index"
+            class="p-2 rounded border bg-muted/30"
+          >
+            <p class="text-sm font-medium border-b pb-1 mb-1">
+              Unit {{ unit.number }}
+            </p>
+            <p class="text-xs text-muted-foreground">
+              <span
+                class="inline-block px-1.5 py-0.5 rounded text-xs font-medium text-black"
+                :class="setBackgroundColor(unit.occupant)"
+              >
+                {{ unit.occupant }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+      <div v-if="error" class="py-8 text-center text-destructive">
+        Error loading units
+      </div>
+    </CardContent>
+  </Card>
 </template>
-<style>
-@reference "~/assets/css/tailwind.css";
-
-.units__chart {
-	width: 100%;
-	max-width: 300px;
-	margin: 0 auto;
-}
-
-.units__unit-occupant {
-	font-size: 8px;
-	color: var(--black);
-}
-</style>
