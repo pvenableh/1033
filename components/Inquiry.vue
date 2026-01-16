@@ -183,7 +183,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-	<div class="w-full max-w-[650px] py-10 px-6 mx-auto relative flex items-center justify-center flex-col rounded-lg t-bg-elevated t-border border">
+	<div class="w-full max-w-[650px] py-10 px-6 mx-auto relative flex items-center justify-center flex-col bg-background">
 		<TransitionGroup
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"
@@ -199,17 +199,29 @@ const onSubmit = handleSubmit(async (values) => {
 				</p>
 				<form @submit.prevent="onSubmit" class="grid gap-4 w-full">
 					<div class="grid sm:grid-cols-2 gap-4 w-full">
-						<FormGroup label="Name" required :error="nameError">
-							<Input v-model="name" />
-						</FormGroup>
-						<FormGroup label="Email" required :error="emailError">
-							<Input v-model="email" type="email" placeholder="name@domain.com" />
-						</FormGroup>
+						<FormCustomInput
+							label="Name"
+							v-model="name"
+							:error-message="nameError"
+							variant="underline"
+						/>
+						<FormCustomInput
+							label="Email"
+							v-model="email"
+							type="email"
+							placeholder="name@domain.com"
+							:error-message="emailError"
+							variant="underline"
+						/>
 					</div>
 					<div class="grid grid-cols-2 gap-4 w-full">
-						<FormGroup label="Phone">
-							<Input v-model="phone" type="text" placeholder="(555) 555-5555" />
-						</FormGroup>
+						<FormCustomInput
+							label="Phone"
+							v-model="phone"
+							type="text"
+							placeholder="(555) 555-5555"
+							variant="underline"
+						/>
 						<FormGroup label="Contact me by:" required :error="preferenceError">
 							<Select
 								v-model="contact_preference"
