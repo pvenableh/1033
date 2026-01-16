@@ -183,7 +183,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-	<div class="w-full max-w-[650px] py-10 mx-auto relative flex items-center justify-center flex-col">
+	<div class="w-full max-w-[650px] py-10 px-6 mx-auto relative flex items-center justify-center flex-col rounded-lg t-bg-elevated t-border border">
 		<TransitionGroup
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"

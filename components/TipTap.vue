@@ -2,7 +2,7 @@
 	<div v-if="editor" class="tiptap-wrapper relative">
 		<editor-content
 			:editor="editor"
-			class="border-gray-300 border-t border-r border-l dark:text-white text-[14px] transition-all duration-200 overflow-y-scroll focus:border focus:border-cyan-200 relative tiptap-container"
+			class="border-input bg-background text-foreground border-t border-r border-l text-[14px] transition-all duration-200 overflow-y-scroll focus:border focus:border-cyan-200 relative tiptap-container"
 			:class="[
 				{'px-0 pt-0 border-none': disabled},
 				{' !border-cyan-200': editor.isFocused},
@@ -13,7 +13,7 @@
 
 		<div
 			v-if="showToolbar"
-			class="w-full flex flex-row justify-between border-gray-300 border-r border-l border-b toolbar"
+			class="w-full flex flex-row justify-between border-input bg-background border-r border-l border-b toolbar"
 			:class="{' !border-cyan-200': editor.isFocused}">
 			<div class="flex items-center flex-row">
 				<Button
