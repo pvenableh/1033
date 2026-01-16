@@ -111,6 +111,7 @@ import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
 import Mention from '@tiptap/extension-mention';
 import type {MentionData} from '~/types/comments';
+import {Progress} from '~/components/ui/progress';
 
 const {processUpload, validateFiles} = useFileUpload();
 
