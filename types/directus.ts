@@ -923,6 +923,204 @@ export interface FiscalYearBudget {
 	items?: BudgetItem[] | string[];
 }
 
+export interface ReserveStudy {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Fiscal year this study applies to @required */
+	fiscal_year: number;
+	/** @description Study date */
+	study_date?: string | null;
+	/** @description Current reserve balance */
+	current_balance?: number | null;
+	/** @description Recommended reserve balance */
+	recommended_balance?: number | null;
+	/** @description Percent funded (current/recommended * 100) */
+	percent_funded?: number | null;
+	/** @description Required annual contribution */
+	annual_contribution?: number | null;
+	/** @description Monthly contribution per unit */
+	monthly_contribution_per_unit?: number | null;
+	/** @description Study PDF document */
+	study_document?: DirectusFile | string | null;
+	/** @description Notes about this study */
+	notes?: string | null;
+	/** @description Related reserve components */
+	components?: ReserveComponent[] | string[];
+}
+
+export interface ReserveComponent {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Related reserve study */
+	reserve_study_id?: ReserveStudy | number | null;
+	/** @description Component name @required */
+	name: string;
+	/** @description Category of component */
+	category?: 'building' | 'mechanical' | 'electrical' | 'plumbing' | 'exterior' | 'common_area' | 'safety' | 'other' | null;
+	/** @description Useful life in years */
+	useful_life_years?: number | null;
+	/** @description Remaining life in years */
+	remaining_life_years?: number | null;
+	/** @description Year placed in service */
+	placed_in_service_year?: number | null;
+	/** @description Expected replacement year */
+	replacement_year?: number | null;
+	/** @description Current replacement cost */
+	replacement_cost?: number | null;
+	/** @description Current condition */
+	condition?: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' | null;
+	/** @description Last inspection date */
+	last_inspection_date?: string | null;
+	/** @description Notes about this component */
+	notes?: string | null;
+}
+
+export interface AssessmentLedger {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Unit this ledger entry belongs to @required */
+	unit_id: Unit | number;
+	/** @description Fiscal year @required */
+	fiscal_year: number;
+	/** @description Month (01-12) @required */
+	month: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12';
+	/** @description Amount due */
+	amount_due?: number | null;
+	/** @description Amount paid */
+	amount_paid?: number | null;
+	/** @description Payment date */
+	payment_date?: string | null;
+	/** @description Due date */
+	due_date?: string | null;
+	/** @description Late fee applied */
+	late_fee?: number | null;
+	/** @description Payment status */
+	payment_status?: 'current' | 'late' | 'delinquent' | 'lien' | 'collections' | null;
+	/** @description Days past due */
+	days_past_due?: number | null;
+	/** @description Related transaction */
+	transaction_id?: Transaction | number | null;
+	/** @description Notes */
+	notes?: string | null;
+}
+
+export interface AuditLog {
+	/** @primaryKey */
+	id: number;
+	date_created?: string | null;
+	/** @description Collection/table name @required */
+	collection: string;
+	/** @description Item ID that was affected @required */
+	item_id: number;
+	/** @description Action performed @required */
+	action: 'create' | 'update' | 'delete' | 'login' | 'logout' | 'approve' | 'reconcile';
+	/** @description User who performed the action */
+	user_id?: DirectusUser | string | null;
+	/** @description Previous values (for updates) */
+	old_values?: Record<string, any> | null;
+	/** @description New values (for creates/updates) */
+	new_values?: Record<string, any> | null;
+	/** @description IP address of the user */
+	ip_address?: string | null;
+	/** @description User agent string */
+	user_agent?: string | null;
+	/** @description Additional context/notes */
+	notes?: string | null;
+}
+
+export interface ComplianceAlert {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Alert type @required */
+	alert_type: 'fund_mixing' | 'reserve_withdrawal' | 'budget_overage' | 'delinquency' | 'compliance' | 'approval_required';
+	/** @description Severity level @required */
+	severity: 'info' | 'warning' | 'critical';
+	/** @description Alert title @required */
+	title: string;
+	/** @description Alert description */
+	description?: string | null;
+	/** @description Related transaction */
+	transaction_id?: Transaction | number | null;
+	/** @description Related account */
+	account_id?: Account | number | null;
+	/** @description Amount involved */
+	amount?: number | null;
+	/** @description Is this alert acknowledged */
+	is_acknowledged?: boolean | null;
+	/** @description User who acknowledged */
+	acknowledged_by?: DirectusUser | string | null;
+	/** @description Date acknowledged */
+	acknowledged_date?: string | null;
+	/** @description Is this alert resolved */
+	is_resolved?: boolean | null;
+	/** @description User who resolved */
+	resolved_by?: DirectusUser | string | null;
+	/** @description Date resolved */
+	resolved_date?: string | null;
+	/** @description Resolution notes */
+	resolution_notes?: string | null;
+	/** @description Required board action */
+	requires_board_action?: boolean | null;
+	/** @description Board resolution reference */
+	board_resolution?: string | null;
+}
+
+export interface CashFlowProjection {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Account for this projection @required */
+	account_id: Account | number;
+	/** @description Fiscal year @required */
+	fiscal_year: number;
+	/** @description Month @required */
+	month: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12';
+	/** @description Projected beginning balance */
+	projected_beginning_balance?: number | null;
+	/** @description Projected income */
+	projected_income?: number | null;
+	/** @description Projected expenses */
+	projected_expenses?: number | null;
+	/** @description Projected ending balance */
+	projected_ending_balance?: number | null;
+	/** @description Actual beginning balance */
+	actual_beginning_balance?: number | null;
+	/** @description Actual income */
+	actual_income?: number | null;
+	/** @description Actual expenses */
+	actual_expenses?: number | null;
+	/** @description Actual ending balance */
+	actual_ending_balance?: number | null;
+	/** @description Variance (actual - projected) */
+	variance?: number | null;
+	/** @description Notes */
+	notes?: string | null;
+}
+
 export interface Unit {
 	/** @primaryKey @required */
 	id: number;
@@ -1646,6 +1844,12 @@ export interface Schema {
 	reconciliation_notes: ReconciliationNote[];
 	monthly_reconciliation_reports: MonthlyReconciliationReport[];
 	fiscal_year_budgets: FiscalYearBudget[];
+	reserve_studies: ReserveStudy[];
+	reserve_components: ReserveComponent[];
+	assessment_ledger: AssessmentLedger[];
+	audit_logs: AuditLog[];
+	compliance_alerts: ComplianceAlert[];
+	cash_flow_projections: CashFlowProjection[];
 	units: Unit[];
 	units_people: UnitsPeople[];
 	user_permissions: UserPermission[];
@@ -1742,6 +1946,12 @@ export enum CollectionNames {
 	reconciliation_notes = 'reconciliation_notes',
 	monthly_reconciliation_reports = 'monthly_reconciliation_reports',
 	fiscal_year_budgets = 'fiscal_year_budgets',
+	reserve_studies = 'reserve_studies',
+	reserve_components = 'reserve_components',
+	assessment_ledger = 'assessment_ledger',
+	audit_logs = 'audit_logs',
+	compliance_alerts = 'compliance_alerts',
+	cash_flow_projections = 'cash_flow_projections',
 	units = 'units',
 	units_people = 'units_people',
 	user_permissions = 'user_permissions',
