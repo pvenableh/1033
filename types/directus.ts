@@ -92,29 +92,6 @@ export interface AnnouncementsPeople {
 	sort?: number | null;
 }
 
-export interface AssessmentLedger {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	unit_id?: Unit | string | null;
-	month?: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12' | null;
-	amount_due?: number | null;
-	amount_paid?: number | null;
-	payment_date?: string | null;
-	due_date?: string | null;
-	late_fee?: number | null;
-	payment_status?: 'current' | 'late' | 'deliquent' | 'lien' | 'collections' | null;
-	days_past_due?: number | null;
-	transaction_id?: Transaction | string | null;
-	notes?: string | null;
-	fiscal_year?: FiscalYear | string | null;
-}
-
 export interface Assessment {
 	/** @primaryKey */
 	id: string;
@@ -134,25 +111,6 @@ export interface AssessmentsFile {
 	id: number;
 	assessments_id?: Assessment | string | null;
 	directus_files_id?: DirectusFile | string | null;
-}
-
-export interface AuditLog {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	/** @description e.g., transactions, budget_items */
-	collection?: string | null;
-	item_id?: number | null;
-	action?: 'create' | 'update' | 'delete' | 'approve' | 'reconcile' | null;
-	user_id?: DirectusUser | string | null;
-	old_values?: Array<{ value: string }> | null;
-	new_values?: Array<{ value: string }> | null;
-	ip_address?: string | null;
-	user_agent?: string | null;
-	notes?: string | null;
 }
 
 export interface BoardMember {
@@ -175,36 +133,6 @@ export interface BoardMember {
 	icon?: string | null;
 }
 
-export interface BudgetAdmendment {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	/** @required */
-	fiscal_year_budget_id: FiscalYearBudget | string;
-	/** @required */
-	budget_item_id: BudgetItem | string;
-	/** @required */
-	effective_date: string;
-	/** @required */
-	original_annual_amount: number;
-	/** @required */
-	amended_annual_amount: number;
-	original_monthly_amount?: number | null;
-	amended_monthly_amount?: number | null;
-	reason?: string | null;
-	amendment_type?: 'rate_change' | 'new_expense' | 'removed_expense' | 'reallocation' | 'emergency' | 'correction' | null;
-	supporting_document?: DirectusFile | string | null;
-	is_approved?: boolean | null;
-	approved_by?: DirectusUser | string | null;
-	approved_date?: string | null;
-	board_meeting_reference?: string | null;
-}
-
 export interface BudgetCategory {
 	/** @primaryKey */
 	id: number;
@@ -214,6 +142,8 @@ export interface BudgetCategory {
 	date_updated?: string | null;
 	status?: 'published' | 'draft' | 'archived' | null;
 	sort?: number | null;
+	/** @description HOA fiscal year (e.g., 2025, 2026) @required */
+	fiscal_year: number;
 	/** @description Insurance, Professional, Utilities, Maintenance, etc. @required */
 	category_name: string;
 	monthly_budget?: number | null;
@@ -221,9 +151,6 @@ export interface BudgetCategory {
 	/** @description Color for charts and reports */
 	color?: string | null;
 	description?: string | null;
-	fiscal_year_budget_id?: FiscalYearBudget | string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
 }
 
 export interface BudgetItem {
@@ -235,6 +162,8 @@ export interface BudgetItem {
 	date_created?: string | null;
 	user_updated?: DirectusUser | string | null;
 	date_updated?: string | null;
+	/** @description HOA fiscal year for this budget item @required */
+	fiscal_year: number;
 	/** @description Unique identifier (e.g., waste-removal, janitorial) @required */
 	item_code: string;
 	/** @description Full description of the budget item @required */
@@ -249,9 +178,6 @@ export interface BudgetItem {
 	/** @description Links to vendors collection */
 	vendor_id?: number | null;
 	keywords?: string[] | null;
-	fiscal_year_budget_id?: FiscalYearBudget | string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
 }
 
 export interface ByLaws {
@@ -265,30 +191,6 @@ export interface ByLaws {
 	document?: string | null;
 	test?: 'json' | null;
 	file?: DirectusFile | string | null;
-}
-
-export interface CashFlowProjection {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	account_id?: Account | string | null;
-	projected_beginning_balance?: number | null;
-	projected_income?: number | null;
-	projected_expenses?: number | null;
-	projected_ending_balance?: number | null;
-	actual_beginning_balance?: number | null;
-	actual_income?: number | null;
-	actual_expenses?: number | null;
-	actual_ending_balance?: number | null;
-	variance?: number | null;
-	notes?: string | null;
-	month?: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12' | null;
-	fiscal_year?: FiscalYear | string | null;
 }
 
 export interface ChannelMember {
@@ -395,33 +297,6 @@ export interface Comment {
 	files?: CommentFile[] | string[];
 }
 
-export interface ComplianceAlert {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	alert_type?: 'fund_mixing' | 'reserve_withdrawal' | 'budget_overage' | 'delinquency' | 'compliance' | 'approval_required' | null;
-	severity?: 'info' | 'warning' | 'critical' | null;
-	title?: string | null;
-	description?: string | null;
-	transaction_id?: Transaction | string | null;
-	account_id?: Account | string | null;
-	amount?: number | null;
-	is_acknowledged?: boolean | null;
-	acknowledged_by?: DirectusUser | string | null;
-	acknowledged_date?: string | null;
-	is_resolved?: boolean | null;
-	resolved_by?: DirectusUser | string | null;
-	resolved_date?: string | null;
-	resolution_notes?: string | null;
-	requires_board_action?: boolean | null;
-	board_resolution?: string | null;
-}
-
 export interface Corporation {
 	/** @primaryKey */
 	id: number;
@@ -468,45 +343,6 @@ export interface FeaturesFile {
 	directus_files_id?: DirectusFile | string | null;
 	sort?: number | null;
 	sort_new?: number | null;
-}
-
-export interface FiscalYearBudget {
-	/** @primaryKey */
-	id: string;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	name?: string | null;
-	is_active?: boolean | null;
-	total_revenue?: number | null;
-	total_expenses?: number | null;
-	net_operating?: number | null;
-	unit_count?: number | null;
-	monthly_assessment?: number | null;
-	approved_date?: string | null;
-	approved_by?: DirectusUser | string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
-	categories?: BudgetCategory[] | string[];
-	items?: BudgetItem[] | string[];
-	amendments?: BudgetAdmendment[] | string[];
-}
-
-export interface FiscalYear {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	year?: number | null;
-	start_date?: string | null;
-	end_date?: string | null;
 }
 
 export interface JunctionDirectusUsersUnit {
@@ -582,40 +418,6 @@ export interface MeetingsPresentation {
 	presentations_id?: Presentation | string | null;
 }
 
-export interface MonthlyReconciliationReport {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	/** @required */
-	account_id: Account | string;
-	report_month?: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12' | null;
-	statement_beginning_balance?: number | null;
-	statement_ending_balance?: number | null;
-	calculated_beginning_balance?: number | null;
-	calculated_ending_balance?: number | null;
-	reconciliation_difference?: number | null;
-	reconciliation_status?: 'pending' | 'in_progress' | 'reconciled' | 'discrepency' | null;
-	total_deposits?: number | null;
-	total_withdrawals?: number | null;
-	total_transfer_in?: number | null;
-	total_transfers_out?: number | null;
-	total_fees?: number | null;
-	transactions_reconciled?: number | null;
-	transactions_pending?: number | null;
-	transactions_disputed?: number | null;
-	completed_date?: string | null;
-	completed_by?: DirectusUser | string | null;
-	notes?: string | null;
-	pdf_report?: DirectusFile | string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
-}
-
 export interface MonthlyStatement {
 	/** @primaryKey */
 	id: number;
@@ -625,6 +427,8 @@ export interface MonthlyStatement {
 	date_updated?: string | null;
 	status?: 'published' | 'draft' | 'archived' | null;
 	sort?: number | null;
+	/** @description HOA fiscal year for this statement @required */
+	fiscal_year: number;
 	/** @required */
 	account_id: Account | string;
 	/** @required */
@@ -636,8 +440,6 @@ export interface MonthlyStatement {
 	reconciled?: boolean | null;
 	reconciled_by?: string | null;
 	reconciled_date?: string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
 }
 
 export interface Newsletter {
@@ -815,7 +617,7 @@ export interface ProjectEvent {
 export interface Project {
 	/** @primaryKey */
 	id: string;
-	status?: 'published' | 'draft' | 'archived' | 'active' | 'paused' | 'completed';
+	status?: 'published' | 'draft' | 'archived';
 	sort?: number | null;
 	user_created?: DirectusUser | string | null;
 	date_created?: string | null;
@@ -894,23 +696,6 @@ export interface ReactionType {
 	icon_family?: 'emoji' | 'heroicons' | 'lucide' | null;
 }
 
-export interface ReconciliationNote {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	transaction_id?: Transaction | string | null;
-	note?: string | null;
-	note_type?: 'general' | 'reconciliation' | 'discrepency' | 'approval' | 'inquiry' | null;
-	is_resolved?: boolean | null;
-	resolved_date?: string | null;
-	resolved_by?: DirectusUser | string | null;
-}
-
 export interface Rendering {
 	/** @primaryKey */
 	id: string;
@@ -951,29 +736,6 @@ export interface Request {
 	phone?: string | null;
 }
 
-export interface ReserveComponent {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	reserve_study_id?: ReserveStudy | string | null;
-	/** @description e.g., "Roof", "Elevator" */
-	name?: string | null;
-	category?: 'building' | 'mechanical' | 'electrical' | 'plumbing' | 'exterior' | 'common_area' | 'safety' | 'other' | null;
-	useful_life_years?: number | null;
-	remaining_life_years?: number | null;
-	placed_in_service_year?: number | null;
-	replacement_year?: number | null;
-	replacement_cost?: number | null;
-	condition?: 'excellent' | 'good' | 'fair' | 'poor' | 'critical' | null;
-	last_inspection_date?: string | null;
-	notes?: string | null;
-}
-
 export interface Reserf {
 	/** @primaryKey */
 	id: number;
@@ -985,27 +747,6 @@ export interface Reserf {
 	date_updated?: string | null;
 	amount?: number | null;
 	date?: string | null;
-}
-
-export interface ReserveStudy {
-	/** @primaryKey */
-	id: number;
-	status?: 'published' | 'draft' | 'archived';
-	sort?: number | null;
-	user_created?: DirectusUser | string | null;
-	date_created?: string | null;
-	user_updated?: DirectusUser | string | null;
-	date_updated?: string | null;
-	study_date?: string | null;
-	current_balance?: number | null;
-	recommended_balance?: number | null;
-	percent_funded?: number | null;
-	annual_contribution?: number | null;
-	monthly_contribution_per_unit?: number | null;
-	study_document?: DirectusFile | string | null;
-	notes?: string | null;
-	fiscal_year?: FiscalYear | string | null;
-	components?: ReserveComponent[] | string[];
 }
 
 export interface Rule {
@@ -1032,6 +773,8 @@ export interface Transaction {
 	date_updated?: string | null;
 	status?: 'published' | 'draft' | 'archived' | null;
 	sort?: number | null;
+	/** @description HOA fiscal year for this transaction @required */
+	fiscal_year: number;
 	/** @required */
 	account_id: Account | string;
 	/** @required */
@@ -1062,12 +805,122 @@ export interface Transaction {
 	budget_item_id?: BudgetItem | string | null;
 	/** @description Links to the matching transfer transaction (e.g., transfer_out links to its transfer_in counterpart) */
 	linked_transfer_id?: Transaction | string | null;
+	/** @description Reconciliation status for this transaction */
 	reconciliation_status?: 'pending' | 'reconciled' | 'disputed' | null;
+	/** @description Date when transaction was reconciled */
 	reconciled_date?: string | null;
+	/** @description User who reconciled this transaction */
 	reconciled_by?: DirectusUser | string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
+	/** @description Related reconciliation notes */
 	reconciliation_notes?: ReconciliationNote[] | string[];
+}
+
+export interface ReconciliationNote {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description The transaction this note belongs to @required */
+	transaction_id: Transaction | number;
+	/** @description The note content @required */
+	note: string;
+	/** @description Type of note for categorization */
+	note_type?: 'general' | 'reconciliation' | 'discrepancy' | 'approval' | 'inquiry' | null;
+	/** @description Is this note resolved/addressed */
+	is_resolved?: boolean | null;
+	/** @description Date when note was resolved */
+	resolved_date?: string | null;
+	/** @description User who resolved the note */
+	resolved_by?: DirectusUser | string | null;
+}
+
+export interface MonthlyReconciliationReport {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description HOA fiscal year for this report @required */
+	fiscal_year: number;
+	/** @description Account for this reconciliation @required */
+	account_id: Account | number;
+	/** @description Month of reconciliation @required */
+	report_month: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12';
+	/** @description Beginning balance from bank statement */
+	statement_beginning_balance?: number | null;
+	/** @description Ending balance from bank statement */
+	statement_ending_balance?: number | null;
+	/** @description Calculated beginning balance from transactions */
+	calculated_beginning_balance?: number | null;
+	/** @description Calculated ending balance from transactions */
+	calculated_ending_balance?: number | null;
+	/** @description Difference between statement and calculated balances */
+	reconciliation_difference?: number | null;
+	/** @description Overall reconciliation status */
+	reconciliation_status?: 'pending' | 'in_progress' | 'reconciled' | 'discrepancy' | null;
+	/** @description Total deposits for the month */
+	total_deposits?: number | null;
+	/** @description Total withdrawals for the month */
+	total_withdrawals?: number | null;
+	/** @description Total transfers in for the month */
+	total_transfers_in?: number | null;
+	/** @description Total transfers out for the month */
+	total_transfers_out?: number | null;
+	/** @description Total fees for the month */
+	total_fees?: number | null;
+	/** @description Number of transactions reconciled */
+	transactions_reconciled?: number | null;
+	/** @description Number of transactions pending */
+	transactions_pending?: number | null;
+	/** @description Number of transactions with discrepancies */
+	transactions_disputed?: number | null;
+	/** @description Date when reconciliation was completed */
+	completed_date?: string | null;
+	/** @description User who completed the reconciliation */
+	completed_by?: DirectusUser | string | null;
+	/** @description Notes about this reconciliation */
+	notes?: string | null;
+	/** @description PDF report file */
+	pdf_report?: DirectusFile | string | null;
+}
+
+export interface FiscalYearBudget {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Fiscal year for this budget @required */
+	fiscal_year: number;
+	/** @description Budget name/description */
+	name?: string | null;
+	/** @description Is this the active budget for the year */
+	is_active?: boolean | null;
+	/** @description Total budgeted revenue */
+	total_revenue?: number | null;
+	/** @description Total budgeted expenses */
+	total_expenses?: number | null;
+	/** @description Net operating budget (revenue - expenses) */
+	net_operating?: number | null;
+	/** @description Number of units for assessment calculations */
+	unit_count?: number | null;
+	/** @description Monthly assessment amount per unit */
+	monthly_assessment?: number | null;
+	/** @description Date budget was approved */
+	approved_date?: string | null;
+	/** @description User who approved the budget */
+	approved_by?: DirectusUser | string | null;
+	/** @description Related budget categories */
+	categories?: BudgetCategory[] | string[];
+	/** @description Related budget items */
+	items?: BudgetItem[] | string[];
 }
 
 export interface Unit {
@@ -1258,6 +1111,8 @@ export interface ViolationReport {
 	date_updated?: string | null;
 	status?: 'published' | 'draft' | 'archived' | null;
 	sort?: number | null;
+	/** @description HOA fiscal year for this report @required */
+	fiscal_year: number;
 	/** @required */
 	report_month: '01' | '02' | '03' | '04' | '05' | '06' | '07' | '08' | '09' | '10' | '11' | '12';
 	violation_count?: number | null;
@@ -1265,8 +1120,6 @@ export interface ViolationReport {
 	compliance_status?: 'compliant' | 'minor_issues' | 'critical_violations' | null;
 	board_actions_required?: string | null;
 	generated_by?: string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
 }
 
 export interface Vote {
@@ -1742,16 +1595,12 @@ export interface Schema {
 	announcements_email_activity: AnnouncementsEmailActivity[];
 	announcements_files: AnnouncementsFile[];
 	announcements_people: AnnouncementsPeople[];
-	assessment_ledger: AssessmentLedger[];
 	assessments: Assessment[];
 	assessments_files: AssessmentsFile[];
-	audit_logs: AuditLog[];
 	board_member: BoardMember[];
-	budget_admendments: BudgetAdmendment[];
 	budget_categories: BudgetCategory[];
 	budget_items: BudgetItem[];
 	by_laws: ByLaws;
-	cash_flow_projections: CashFlowProjection[];
 	channel_members: ChannelMember[];
 	channel_message_files: ChannelMessageFile[];
 	channel_message_mentions: ChannelMessageMention[];
@@ -1760,21 +1609,17 @@ export interface Schema {
 	comment_files: CommentFile[];
 	comment_mentions: CommentMention[];
 	comments: Comment[];
-	compliance_alerts: ComplianceAlert[];
 	corporation: Corporation;
 	corporation_files: CorporationFile[];
 	email_activity: EmailActivity[];
 	features: Features;
 	features_files: FeaturesFile[];
-	fiscal_year_budgets: FiscalYearBudget[];
-	fiscal_years: FiscalYear[];
 	junction_directus_users_units: JunctionDirectusUsersUnit[];
 	leases: Lease[];
 	meetings: Meeting[];
 	meetings_files: MeetingsFile[];
 	meetings_people: MeetingsPeople[];
 	meetings_presentations: MeetingsPresentation[];
-	monthly_reconciliation_reports: MonthlyReconciliationReport[];
 	monthly_statements: MonthlyStatement[];
 	newsletters: Newsletter[];
 	notices: Notice[];
@@ -1793,14 +1638,14 @@ export interface Schema {
 	project_task_watchers: ProjectTaskWatcher[];
 	reactions: Reaction[];
 	reaction_types: ReactionType[];
-	reconciliation_notes: ReconciliationNote[];
 	renderings: Rendering[];
 	requests: Request[];
-	reserve_components: ReserveComponent[];
 	reserves: Reserf[];
-	reserve_studies: ReserveStudy[];
 	rules: Rule[];
 	transactions: Transaction[];
+	reconciliation_notes: ReconciliationNote[];
+	monthly_reconciliation_reports: MonthlyReconciliationReport[];
+	fiscal_year_budgets: FiscalYearBudget[];
 	units: Unit[];
 	units_people: UnitsPeople[];
 	user_permissions: UserPermission[];
@@ -1846,16 +1691,12 @@ export enum CollectionNames {
 	announcements_email_activity = 'announcements_email_activity',
 	announcements_files = 'announcements_files',
 	announcements_people = 'announcements_people',
-	assessment_ledger = 'assessment_ledger',
 	assessments = 'assessments',
 	assessments_files = 'assessments_files',
-	audit_logs = 'audit_logs',
 	board_member = 'board_member',
-	budget_admendments = 'budget_admendments',
 	budget_categories = 'budget_categories',
 	budget_items = 'budget_items',
 	by_laws = 'by_laws',
-	cash_flow_projections = 'cash_flow_projections',
 	channel_members = 'channel_members',
 	channel_message_files = 'channel_message_files',
 	channel_message_mentions = 'channel_message_mentions',
@@ -1864,21 +1705,17 @@ export enum CollectionNames {
 	comment_files = 'comment_files',
 	comment_mentions = 'comment_mentions',
 	comments = 'comments',
-	compliance_alerts = 'compliance_alerts',
 	corporation = 'corporation',
 	corporation_files = 'corporation_files',
 	email_activity = 'email_activity',
 	features = 'features',
 	features_files = 'features_files',
-	fiscal_year_budgets = 'fiscal_year_budgets',
-	fiscal_years = 'fiscal_years',
 	junction_directus_users_units = 'junction_directus_users_units',
 	leases = 'leases',
 	meetings = 'meetings',
 	meetings_files = 'meetings_files',
 	meetings_people = 'meetings_people',
 	meetings_presentations = 'meetings_presentations',
-	monthly_reconciliation_reports = 'monthly_reconciliation_reports',
 	monthly_statements = 'monthly_statements',
 	newsletters = 'newsletters',
 	notices = 'notices',
@@ -1897,14 +1734,14 @@ export enum CollectionNames {
 	project_task_watchers = 'project_task_watchers',
 	reactions = 'reactions',
 	reaction_types = 'reaction_types',
-	reconciliation_notes = 'reconciliation_notes',
 	renderings = 'renderings',
 	requests = 'requests',
-	reserve_components = 'reserve_components',
 	reserves = 'reserves',
-	reserve_studies = 'reserve_studies',
 	rules = 'rules',
 	transactions = 'transactions',
+	reconciliation_notes = 'reconciliation_notes',
+	monthly_reconciliation_reports = 'monthly_reconciliation_reports',
+	fiscal_year_budgets = 'fiscal_year_budgets',
 	units = 'units',
 	units_people = 'units_people',
 	user_permissions = 'user_permissions',
