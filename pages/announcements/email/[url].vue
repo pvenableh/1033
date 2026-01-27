@@ -272,6 +272,7 @@ useSeoMeta({
 	li {
 		padding: 2px 0px;
 		font-weight: 600;
+		@apply list-disc;
 	}
 }
 
