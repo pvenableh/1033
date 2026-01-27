@@ -144,6 +144,8 @@ export interface BudgetCategory {
 	sort?: number | null;
 	/** @description HOA fiscal year (e.g., 2025, 2026) @required */
 	fiscal_year: number;
+	/** @description Link to parent fiscal year budget */
+	fiscal_year_budget_id?: FiscalYearBudget | number | null;
 	/** @description Insurance, Professional, Utilities, Maintenance, etc. @required */
 	category_name: string;
 	monthly_budget?: number | null;
@@ -164,6 +166,8 @@ export interface BudgetItem {
 	date_updated?: string | null;
 	/** @description HOA fiscal year for this budget item @required */
 	fiscal_year: number;
+	/** @description Link to parent fiscal year budget */
+	fiscal_year_budget_id?: FiscalYearBudget | number | null;
 	/** @description Unique identifier (e.g., waste-removal, janitorial) @required */
 	item_code: string;
 	/** @description Full description of the budget item @required */
@@ -917,10 +921,50 @@ export interface FiscalYearBudget {
 	approved_date?: string | null;
 	/** @description User who approved the budget */
 	approved_by?: DirectusUser | string | null;
-	/** @description Related budget categories */
+	/** @description Related budget categories (O2M via fiscal_year_budget_id) */
 	categories?: BudgetCategory[] | string[];
-	/** @description Related budget items */
+	/** @description Related budget items (O2M via fiscal_year_budget_id) */
 	items?: BudgetItem[] | string[];
+	/** @description Related budget amendments */
+	amendments?: BudgetAmendment[] | string[];
+}
+
+export interface BudgetAmendment {
+	/** @primaryKey */
+	id: number;
+	status?: 'published' | 'draft' | 'archived' | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description Parent fiscal year budget @required */
+	fiscal_year_budget_id: FiscalYearBudget | number;
+	/** @description Budget item being amended @required */
+	budget_item_id: BudgetItem | number;
+	/** @description Effective date of the amendment @required */
+	effective_date: string;
+	/** @description Original annual budget amount before amendment */
+	original_annual_amount: number;
+	/** @description New annual budget amount after amendment */
+	amended_annual_amount: number;
+	/** @description Original monthly budget amount before amendment */
+	original_monthly_amount?: number | null;
+	/** @description New monthly budget amount after amendment */
+	amended_monthly_amount?: number | null;
+	/** @description Reason for the amendment @required */
+	reason: string;
+	/** @description Amendment type */
+	amendment_type?: 'rate_change' | 'new_expense' | 'removed_expense' | 'reallocation' | 'emergency' | 'correction' | null;
+	/** @description Supporting documentation */
+	supporting_document?: DirectusFile | string | null;
+	/** @description Whether the amendment has been approved */
+	is_approved?: boolean | null;
+	/** @description User who approved the amendment */
+	approved_by?: DirectusUser | string | null;
+	/** @description Date the amendment was approved */
+	approved_date?: string | null;
+	/** @description Board meeting reference where amendment was approved */
+	board_meeting_reference?: string | null;
 }
 
 export interface ReserveStudy {
@@ -1798,6 +1842,7 @@ export interface Schema {
 	board_member: BoardMember[];
 	budget_categories: BudgetCategory[];
 	budget_items: BudgetItem[];
+	budget_amendments: BudgetAmendment[];
 	by_laws: ByLaws;
 	channel_members: ChannelMember[];
 	channel_message_files: ChannelMessageFile[];
@@ -1900,6 +1945,7 @@ export enum CollectionNames {
 	board_member = 'board_member',
 	budget_categories = 'budget_categories',
 	budget_items = 'budget_items',
+	budget_amendments = 'budget_amendments',
 	by_laws = 'by_laws',
 	channel_members = 'channel_members',
 	channel_message_files = 'channel_message_files',

@@ -5,6 +5,7 @@ export const useBudgetManagement = () => {
 	const budgetCategoriesCollection = useDirectusItems('budget_categories');
 	const budgetItemsCollection = useDirectusItems('budget_items');
 	const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
+	const budgetAmendmentsCollection = useDirectusItems('budget_amendments');
 
 	// Reactive state
 	const selectedYear = ref(new Date().getFullYear());
@@ -17,6 +18,7 @@ export const useBudgetManagement = () => {
 	const fiscalYearBudget = ref(null);
 	const budgetCategories = ref([]);
 	const budgetItems = ref([]);
+	const budgetAmendments = ref([]);
 
 	// Default budget template (based on 2025 budget)
 	const defaultBudgetTemplate = {
@@ -179,6 +181,8 @@ export const useBudgetManagement = () => {
 				fetchBudgetCategories(),
 				fetchBudgetItems(),
 			]);
+			// Fetch amendments after fiscal year budget is loaded (needs the ID)
+			await fetchBudgetAmendments();
 		} catch (e) {
 			error.value = e.message || 'Error fetching budget data';
 			console.error('Error fetching budget data:', e);
@@ -240,8 +244,10 @@ export const useBudgetManagement = () => {
 		error.value = null;
 
 		try {
+			const year = categoryData.fiscal_year || unref(selectedYear);
 			const result = await budgetCategoriesCollection.create({
-				fiscal_year: categoryData.fiscal_year || unref(selectedYear),
+				fiscal_year: year,
+				fiscal_year_budget_id: fiscalYearBudget.value?.id || null,
 				category_name: categoryData.category_name,
 				monthly_budget: categoryData.monthly_budget || 0,
 				yearly_budget: categoryData.yearly_budget || 0,
@@ -302,8 +308,10 @@ export const useBudgetManagement = () => {
 		error.value = null;
 
 		try {
+			const year = itemData.fiscal_year || unref(selectedYear);
 			const result = await budgetItemsCollection.create({
-				fiscal_year: itemData.fiscal_year || unref(selectedYear),
+				fiscal_year: year,
+				fiscal_year_budget_id: fiscalYearBudget.value?.id || null,
 				item_code: itemData.item_code,
 				description: itemData.description,
 				category_id: itemData.category_id,
@@ -384,8 +392,9 @@ export const useBudgetManagement = () => {
 			});
 
 			// Create target fiscal year budget
+			let newBudgetId = null;
 			if (sourceBudget && sourceBudget.length > 0) {
-				await fiscalYearBudgetsCollection.create({
+				const newBudget = await fiscalYearBudgetsCollection.create({
 					...sourceBudget[0],
 					id: undefined,
 					fiscal_year: targetYear,
@@ -394,6 +403,7 @@ export const useBudgetManagement = () => {
 					approved_date: null,
 					approved_by: null,
 				});
+				newBudgetId = newBudget?.id || null;
 			}
 
 			// Create category mapping (old ID -> new ID)
@@ -403,6 +413,7 @@ export const useBudgetManagement = () => {
 			for (const category of sourceCategories || []) {
 				const newCategory = await budgetCategoriesCollection.create({
 					fiscal_year: targetYear,
+					fiscal_year_budget_id: newBudgetId,
 					category_name: category.category_name,
 					monthly_budget: category.monthly_budget,
 					yearly_budget: category.yearly_budget,
@@ -417,6 +428,7 @@ export const useBudgetManagement = () => {
 			for (const item of sourceItems || []) {
 				await budgetItemsCollection.create({
 					fiscal_year: targetYear,
+					fiscal_year_budget_id: newBudgetId,
 					item_code: item.item_code,
 					description: item.description,
 					category_id: categoryMapping[item.category_id] || null,
@@ -450,7 +462,7 @@ export const useBudgetManagement = () => {
 
 		try {
 			// Create fiscal year budget
-			await fiscalYearBudgetsCollection.create({
+			const newBudget = await fiscalYearBudgetsCollection.create({
 				fiscal_year: year,
 				name: `${year} Operating Budget`,
 				is_active: false,
@@ -461,11 +473,13 @@ export const useBudgetManagement = () => {
 				monthly_assessment: 0,
 				status: 'published',
 			});
+			const newBudgetId = newBudget?.id || null;
 
 			// Create default categories
 			for (const category of defaultBudgetTemplate.categories) {
 				await budgetCategoriesCollection.create({
 					fiscal_year: year,
+					fiscal_year_budget_id: newBudgetId,
 					category_name: category.category_name,
 					monthly_budget: 0,
 					yearly_budget: 0,
@@ -489,6 +503,192 @@ export const useBudgetManagement = () => {
 			saving.value = false;
 		}
 	};
+
+	// Fetch budget amendments for selected year
+	const fetchBudgetAmendments = async () => {
+		try {
+			if (!fiscalYearBudget.value?.id) {
+				budgetAmendments.value = [];
+				return;
+			}
+
+			const data = await budgetAmendmentsCollection.list({
+				filter: {
+					fiscal_year_budget_id: { _eq: fiscalYearBudget.value.id },
+				},
+				sort: ['-effective_date'],
+				fields: ['*', 'budget_item_id.*', 'approved_by.first_name', 'approved_by.last_name'],
+			});
+
+			budgetAmendments.value = data || [];
+		} catch (e) {
+			console.error('Error fetching budget amendments:', e);
+			budgetAmendments.value = [];
+		}
+	};
+
+	// Create a budget amendment (e.g., insurance rate change mid-year)
+	const createBudgetAmendment = async (amendmentData) => {
+		saving.value = true;
+		error.value = null;
+
+		try {
+			if (!fiscalYearBudget.value?.id) {
+				throw new Error('No fiscal year budget found for the selected year');
+			}
+
+			// Find the budget item to get original amounts
+			const budgetItem = budgetItems.value.find(
+				(item) => item.id === amendmentData.budget_item_id
+			);
+
+			if (!budgetItem) {
+				throw new Error('Budget item not found');
+			}
+
+			const result = await budgetAmendmentsCollection.create({
+				fiscal_year_budget_id: fiscalYearBudget.value.id,
+				budget_item_id: amendmentData.budget_item_id,
+				effective_date: amendmentData.effective_date,
+				original_annual_amount: safeParseFloat(budgetItem.yearly_budget),
+				amended_annual_amount: safeParseFloat(amendmentData.amended_annual_amount),
+				original_monthly_amount: safeParseFloat(budgetItem.monthly_budget),
+				amended_monthly_amount: safeParseFloat(amendmentData.amended_monthly_amount),
+				reason: amendmentData.reason,
+				amendment_type: amendmentData.amendment_type || 'rate_change',
+				supporting_document: amendmentData.supporting_document || null,
+				board_meeting_reference: amendmentData.board_meeting_reference || null,
+				is_approved: false,
+				status: 'published',
+			});
+
+			await fetchBudgetAmendments();
+			return result;
+		} catch (e) {
+			error.value = e.message || 'Error creating budget amendment';
+			console.error('Error creating budget amendment:', e);
+			throw e;
+		} finally {
+			saving.value = false;
+		}
+	};
+
+	// Approve a budget amendment and update the budget item amounts
+	const approveBudgetAmendment = async (amendmentId, approvedBy) => {
+		saving.value = true;
+		error.value = null;
+
+		try {
+			const amendment = budgetAmendments.value.find((a) => a.id === amendmentId);
+			if (!amendment) {
+				throw new Error('Amendment not found');
+			}
+
+			// Approve the amendment
+			await budgetAmendmentsCollection.update(amendmentId, {
+				is_approved: true,
+				approved_by: approvedBy,
+				approved_date: new Date().toISOString(),
+			});
+
+			// Update the budget item with the amended amounts
+			const itemId =
+				typeof amendment.budget_item_id === 'object'
+					? amendment.budget_item_id.id
+					: amendment.budget_item_id;
+
+			await budgetItemsCollection.update(itemId, {
+				yearly_budget: amendment.amended_annual_amount,
+				monthly_budget: amendment.amended_monthly_amount || amendment.amended_annual_amount / 12,
+			});
+
+			// Recalculate category totals
+			await recalculateCategoryTotals();
+
+			await Promise.all([fetchBudgetItems(), fetchBudgetAmendments()]);
+			return { success: true };
+		} catch (e) {
+			error.value = e.message || 'Error approving amendment';
+			console.error('Error approving amendment:', e);
+			throw e;
+		} finally {
+			saving.value = false;
+		}
+	};
+
+	// Recalculate category budget totals from their items
+	const recalculateCategoryTotals = async () => {
+		for (const category of budgetCategories.value) {
+			const categoryItems = budgetItems.value.filter((item) => {
+				const catId = typeof item.category_id === 'object' ? item.category_id?.id : item.category_id;
+				return catId === category.id;
+			});
+
+			const totalMonthly = categoryItems.reduce((sum, item) => sum + safeParseFloat(item.monthly_budget), 0);
+			const totalYearly = categoryItems.reduce((sum, item) => sum + safeParseFloat(item.yearly_budget), 0);
+
+			await budgetCategoriesCollection.update(category.id, {
+				monthly_budget: totalMonthly,
+				yearly_budget: totalYearly,
+			});
+		}
+	};
+
+	// Get the effective budget amount for a budget item at a given date
+	// Accounts for amendments that have been approved before that date
+	const getEffectiveBudgetAmount = (budgetItemId, asOfDate = new Date()) => {
+		const item = budgetItems.value.find((i) => i.id === budgetItemId);
+		if (!item) return { monthly: 0, yearly: 0 };
+
+		// Find approved amendments for this item, sorted by effective date
+		const itemAmendments = budgetAmendments.value
+			.filter((a) => {
+				const aItemId = typeof a.budget_item_id === 'object' ? a.budget_item_id.id : a.budget_item_id;
+				return aItemId === budgetItemId && a.is_approved;
+			})
+			.sort((a, b) => new Date(a.effective_date) - new Date(b.effective_date));
+
+		// Find the most recent amendment effective on or before asOfDate
+		const applicableAmendment = itemAmendments
+			.filter((a) => new Date(a.effective_date) <= new Date(asOfDate))
+			.pop();
+
+		if (applicableAmendment) {
+			return {
+				monthly: safeParseFloat(applicableAmendment.amended_monthly_amount),
+				yearly: safeParseFloat(applicableAmendment.amended_annual_amount),
+				amendedOn: applicableAmendment.effective_date,
+				reason: applicableAmendment.reason,
+			};
+		}
+
+		return {
+			monthly: safeParseFloat(item.monthly_budget),
+			yearly: safeParseFloat(item.yearly_budget),
+		};
+	};
+
+	// Get amendment history for a specific budget item
+	const getAmendmentHistory = (budgetItemId) => {
+		return budgetAmendments.value
+			.filter((a) => {
+				const aItemId = typeof a.budget_item_id === 'object' ? a.budget_item_id.id : a.budget_item_id;
+				return aItemId === budgetItemId;
+			})
+			.sort((a, b) => new Date(a.effective_date) - new Date(b.effective_date));
+	};
+
+	// Computed: Items with pending amendments
+	const itemsWithPendingAmendments = computed(() => {
+		const pendingIds = new Set();
+		budgetAmendments.value
+			.filter((a) => !a.is_approved)
+			.forEach((a) => {
+				const itemId = typeof a.budget_item_id === 'object' ? a.budget_item_id.id : a.budget_item_id;
+				pendingIds.add(itemId);
+			});
+		return budgetItems.value.filter((item) => pendingIds.has(item.id));
+	});
 
 	// Computed: Get budget items grouped by category
 	const itemsByCategory = computed(() => {
@@ -566,11 +766,13 @@ export const useBudgetManagement = () => {
 		fiscalYearBudget: readonly(fiscalYearBudget),
 		budgetCategories: readonly(budgetCategories),
 		budgetItems: readonly(budgetItems),
+		budgetAmendments: readonly(budgetAmendments),
 
 		// Computed
 		itemsByCategory,
 		budgetTotals,
 		yearOptions,
+		itemsWithPendingAmendments,
 
 		// Methods - Fetch
 		fetchBudgetData,
@@ -589,6 +791,12 @@ export const useBudgetManagement = () => {
 		createBudgetItem,
 		updateBudgetItem,
 		deleteBudgetItem,
+
+		// Methods - Amendments
+		createBudgetAmendment,
+		approveBudgetAmendment,
+		getEffectiveBudgetAmount,
+		getAmendmentHistory,
 
 		// Methods - Copy/Template
 		copyBudgetToYear,
