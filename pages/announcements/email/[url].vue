@@ -116,13 +116,22 @@ definePageMeta({
 	layout: 'email',
 });
 
-const url = 'https://admin.1033lenox.com/items/announcements?filter[url][_eq]=' + params.url;
-
-// This is reactive and works with `useFetch`
-const {data: announcement} = await useFetch(url, {key: params.url});
-
-const email = computed(() => announcement.value?.data?.[0]);
-console.log(email);
+const {data: email} = await useAsyncData(`announcement-${params.url}`, async () => {
+	const results = await $fetch('/api/directus/items', {
+		method: 'POST',
+		body: {
+			collection: 'announcements',
+			operation: 'list',
+			query: {
+				filter: {
+					url: {_eq: params.url},
+				},
+				fields: ['*'],
+			},
+		},
+	});
+	return results?.[0] || null;
+});
 // Even though `email.value` might be initially undefined,
 // `useSeoMeta` will update reactively once `email.value` is ready.
 useSeoMeta({
