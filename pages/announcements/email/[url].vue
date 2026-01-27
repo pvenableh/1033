@@ -152,6 +152,12 @@ useSeoMeta({
 	font-size: 15px;
 	padding: 0 10px;
 	color: var(--black);
+	h3 {
+		font-size: 20px;
+		line-height: 22px;
+		font-weight: 600;
+		margin: 8px 0px 2px;
+	}
 
 	.signature {
 		.greeting {
