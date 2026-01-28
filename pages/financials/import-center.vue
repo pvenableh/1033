@@ -1,5 +1,13 @@
 <template>
 	<div class="max-w-7xl mx-auto p-6 space-y-6">
+		<!-- Permission Denied -->
+		<div v-if="!canReadFinancials" class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+			<Icon name="i-heroicons-lock-closed" class="w-12 h-12 text-red-400 mx-auto mb-4" />
+			<h2 class="text-xl font-semibold text-red-800 mb-2">Access Denied</h2>
+			<p class="text-red-600">You do not have permission to access financial import tools.</p>
+		</div>
+
+		<template v-if="canReadFinancials">
 		<!-- Header -->
 		<div class="bg-white rounded-lg shadow-sm border p-6">
 			<h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wider">Financial Import Center</h1>
@@ -12,7 +20,7 @@
 		<div class="border-b border-gray-200">
 			<nav class="-mb-px flex space-x-1">
 				<button
-					v-for="tab in tabs"
+					v-for="tab in visibleTabs"
 					:key="tab.id"
 					@click="activeTab = tab.id"
 					:class="[
@@ -38,6 +46,7 @@
 				<div class="border-b px-6 py-4 flex items-center justify-between">
 					<h2 class="text-xl font-semibold text-gray-900">Bank Accounts</h2>
 					<button
+						v-if="canCreateFinancials"
 						@click="showCreateAccount = !showCreateAccount"
 						class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
 						{{ showCreateAccount ? 'Cancel' : '+ Create Account' }}
@@ -237,11 +246,13 @@
 
 						<div class="text-center">
 							<button
+								v-if="canCreateFinancials"
 								@click="importBudget"
 								:disabled="budgetImporting || !resolvedBudgetFiscalYearId"
 								class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
 								{{ budgetImporting ? `Importing... (${budgetImportProgress}/${budgetPreview.length})` : 'Import Budget Data' }}
 							</button>
+							<p v-else class="text-sm text-red-600">You need financials create permission to import budgets.</p>
 						</div>
 					</div>
 
@@ -576,7 +587,11 @@
 							<div v-if="!stmtAccountId" class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
 								Please select a target account above before importing.
 							</div>
+							<div v-if="!canCreateFinancials" class="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+								You need financials create permission to import transactions.
+							</div>
 							<button
+								v-if="canCreateFinancials"
 								@click="importTransactions"
 								:disabled="stmtImporting || !stmtAccountId || !resolvedStmtFiscalYearId"
 								class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
@@ -611,6 +626,78 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- ======================== -->
+		<!-- TAB: Data Maintenance    -->
+		<!-- ======================== -->
+		<div v-if="activeTab === 'maintenance'" class="space-y-6">
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4">
+					<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
+					<p class="text-sm text-gray-500 mt-1">
+						Fix transactions that have raw year numbers instead of proper fiscal_years M2O record IDs.
+						This repairs data from older imports that stored the year number (e.g., 2025) instead of the
+						Directus fiscal_years record ID.
+					</p>
+				</div>
+				<div class="p-6 space-y-6">
+					<!-- Scan -->
+					<div class="flex items-center gap-4">
+						<button
+							@click="scanFiscalYearIssues"
+							:disabled="repairScanning"
+							class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 text-sm">
+							{{ repairScanning ? 'Scanning...' : 'Scan for Issues' }}
+						</button>
+						<p class="text-sm text-gray-500">
+							Checks all transactions to identify records with incorrect fiscal_year values.
+						</p>
+					</div>
+
+					<!-- Scan Results -->
+					<div v-if="repairScanResults" class="space-y-4">
+						<div class="p-4 rounded-lg border" :class="repairScanResults.issueCount > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'">
+							<h3 :class="repairScanResults.issueCount > 0 ? 'text-yellow-800' : 'text-green-800'" class="font-semibold">
+								{{ repairScanResults.issueCount > 0 ? `Found ${repairScanResults.issueCount} transactions to repair` : 'All transactions have correct fiscal year references' }}
+							</h3>
+							<ul class="text-sm mt-2 space-y-1" :class="repairScanResults.issueCount > 0 ? 'text-yellow-700' : 'text-green-700'">
+								<li>Total transactions scanned: {{ repairScanResults.totalScanned }}</li>
+								<li>Correct M2O references: {{ repairScanResults.correctCount }}</li>
+								<li>Raw year numbers needing repair: {{ repairScanResults.issueCount }}</li>
+								<li v-if="repairScanResults.yearBreakdown">
+									Breakdown: {{ Object.entries(repairScanResults.yearBreakdown).map(([y, c]) => `${y}: ${c} transactions`).join(', ') }}
+								</li>
+							</ul>
+						</div>
+
+						<!-- Repair Button -->
+						<div v-if="repairScanResults.issueCount > 0" class="flex items-center gap-4">
+							<button
+								v-if="canUpdateFinancials"
+								@click="repairFiscalYears"
+								:disabled="repairRunning"
+								class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm">
+								{{ repairRunning ? `Repairing... (${repairProgress}/${repairScanResults.issueCount})` : `Repair ${repairScanResults.issueCount} Transactions` }}
+							</button>
+							<p v-if="!canUpdateFinancials" class="text-sm text-red-600">
+								You need financials update permission to run repairs.
+							</p>
+						</div>
+
+						<!-- Repair Results -->
+						<div v-if="repairResults" class="p-4 rounded-lg border" :class="repairResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+							<h3 :class="repairResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
+								{{ repairResults.success ? 'Repair Complete' : 'Repair Failed' }}
+							</h3>
+							<p class="text-sm mt-1" :class="repairResults.success ? 'text-green-600' : 'text-red-600'">
+								{{ repairResults.message }}
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		</template>
 	</div>
 </template>
 
@@ -630,12 +717,27 @@ const budgetCategoriesCollection = useDirectusItems('budget_categories');
 const budgetItemsCollection = useDirectusItems('budget_items');
 const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
 
-// Tab state
-const tabs = [
-	{ id: 'accounts', label: 'Bank Accounts', icon: 'i-heroicons-building-library' },
-	{ id: 'budgets', label: 'Budget Import', icon: 'i-heroicons-calculator' },
-	{ id: 'statements', label: 'Statement Import', icon: 'i-heroicons-document-arrow-up' },
+// Permission checks
+const { canCreate, canRead, canUpdate, canDelete, hasFullAccess } = useUserPermissions();
+const canReadFinancials = computed(() => canRead('financials'));
+const canCreateFinancials = computed(() => canCreate('financials'));
+const canUpdateFinancials = computed(() => canUpdate('financials'));
+const canDeleteFinancials = computed(() => canDelete('financials'));
+
+// Tab state - maintenance tab only visible to users with update permission
+const allTabs = [
+	{ id: 'accounts', label: 'Bank Accounts', icon: 'i-heroicons-building-library', requiresCreate: false },
+	{ id: 'budgets', label: 'Budget Import', icon: 'i-heroicons-calculator', requiresCreate: true },
+	{ id: 'statements', label: 'Statement Import', icon: 'i-heroicons-document-arrow-up', requiresCreate: true },
+	{ id: 'maintenance', label: 'Data Maintenance', icon: 'i-heroicons-wrench-screwdriver', requiresUpdate: true },
 ];
+const visibleTabs = computed(() =>
+	allTabs.filter((tab) => {
+		if (tab.requiresCreate && !canCreateFinancials.value) return false;
+		if (tab.requiresUpdate && !canUpdateFinancials.value) return false;
+		return true;
+	})
+);
 const activeTab = ref('statements');
 
 // ======================
@@ -1320,6 +1422,151 @@ async function loadFiscalYears() {
 	}
 }
 
+// ======================
+// DATA MAINTENANCE TAB
+// ======================
+const repairScanning = ref(false);
+const repairRunning = ref(false);
+const repairProgress = ref(0);
+const repairScanResults = ref(null);
+const repairResults = ref(null);
+
+/**
+ * Scan transactions to find ones with raw year numbers instead of M2O record IDs.
+ * fiscal_years records typically have auto-increment IDs (1, 2, 3, etc.)
+ * while raw year values would be 2024, 2025, etc.
+ * We compare each transaction's fiscal_year value against known fiscal_year record IDs.
+ */
+async function scanFiscalYearIssues() {
+	repairScanning.value = true;
+	repairScanResults.value = null;
+	repairResults.value = null;
+
+	try {
+		// Get all fiscal_years records to know valid IDs
+		const fiscalYears = await fiscalYearsCollection.list({
+			fields: ['id', 'year'],
+			limit: -1,
+		});
+
+		const validIds = new Set(fiscalYears.map((fy) => fy.id));
+		const yearToIdMap = {};
+		fiscalYears.forEach((fy) => {
+			yearToIdMap[fy.year] = fy.id;
+		});
+
+		// Get all transactions with their fiscal_year field
+		const transactions = await transactionsCollection.list({
+			fields: ['id', 'fiscal_year'],
+			limit: -1,
+		});
+
+		let correctCount = 0;
+		let issueCount = 0;
+		const yearBreakdown = {};
+		const transactionsToFix = [];
+
+		for (const tx of transactions) {
+			const fyValue = tx.fiscal_year;
+
+			if (!fyValue) {
+				issueCount++;
+				continue;
+			}
+
+			// If the value is a valid fiscal_years record ID, it's correct
+			// fiscal_year could be returned as an object (M2O expanded) or as an ID
+			const fyId = typeof fyValue === 'object' ? fyValue.id : fyValue;
+
+			if (validIds.has(fyId)) {
+				correctCount++;
+			} else {
+				// It's likely a raw year number (e.g., 2025)
+				issueCount++;
+				const yearNum = typeof fyValue === 'object' ? fyValue.year : fyValue;
+				yearBreakdown[yearNum] = (yearBreakdown[yearNum] || 0) + 1;
+				transactionsToFix.push({
+					id: tx.id,
+					currentValue: fyValue,
+					yearNumber: yearNum,
+					correctId: yearToIdMap[yearNum] || null,
+				});
+			}
+		}
+
+		repairScanResults.value = {
+			totalScanned: transactions.length,
+			correctCount,
+			issueCount,
+			yearBreakdown: Object.keys(yearBreakdown).length > 0 ? yearBreakdown : null,
+			transactionsToFix,
+			yearToIdMap,
+		};
+	} catch (err) {
+		console.error('Scan error:', err);
+		repairScanResults.value = {
+			totalScanned: 0,
+			correctCount: 0,
+			issueCount: 0,
+			error: err.message,
+		};
+	} finally {
+		repairScanning.value = false;
+	}
+}
+
+/**
+ * Repair transactions by updating their fiscal_year to the correct M2O record ID.
+ */
+async function repairFiscalYears() {
+	if (!repairScanResults.value?.transactionsToFix?.length) return;
+
+	repairRunning.value = true;
+	repairProgress.value = 0;
+
+	const toFix = repairScanResults.value.transactionsToFix;
+	let fixed = 0;
+	let skipped = 0;
+	const errors = [];
+
+	try {
+		for (const tx of toFix) {
+			if (!tx.correctId) {
+				skipped++;
+				errors.push(`Transaction ${tx.id}: No fiscal_years record found for year ${tx.yearNumber}`);
+				repairProgress.value++;
+				continue;
+			}
+
+			try {
+				await transactionsCollection.update(tx.id, {
+					fiscal_year: tx.correctId,
+				});
+				fixed++;
+			} catch (err) {
+				errors.push(`Transaction ${tx.id}: ${err.message}`);
+			}
+
+			repairProgress.value++;
+		}
+
+		repairResults.value = {
+			success: fixed > 0,
+			message: `Repaired ${fixed} transactions. ${skipped > 0 ? `Skipped ${skipped} (no matching fiscal year record).` : ''} ${errors.length > 0 ? `${errors.length} errors.` : ''}`,
+		};
+	} catch (err) {
+		repairResults.value = {
+			success: false,
+			message: 'Repair failed: ' + (err.message || 'Unknown error'),
+		};
+	} finally {
+		repairRunning.value = false;
+	}
+}
+
+// ======================
+// INITIALIZATION
+// ======================
 onMounted(async () => {
 	await Promise.all([loadAccounts(), loadFiscalYears()]);
 });
