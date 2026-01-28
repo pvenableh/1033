@@ -17,6 +17,16 @@ This document covers the HOA financial management system, including budget manag
   - [useAuditLog](#useauditlog)
 - [Fiscal Year Management](#fiscal-year-management)
 - [Account Structure](#account-structure)
+- [Import Center](#import-center)
+  - [Overview](#import-center-overview)
+  - [Access & Permissions](#access--permissions)
+  - [Bank Account Management](#bank-account-management)
+  - [Budget CSV Import](#budget-csv-import)
+  - [Statement Import (PDF / JSON / CSV)](#statement-import-pdf--json--csv)
+  - [Fiscal Year Auto-Detection](#fiscal-year-auto-detection)
+  - [Data Maintenance & Repair](#data-maintenance--repair)
+  - [Server API -- parse-statement](#server-api----parse-statement)
+  - [JSON Transaction Format](#json-transaction-format)
 - [Workflows](#workflows)
   - [Setting Up a New Fiscal Year](#setting-up-a-new-fiscal-year)
   - [Monthly Reconciliation](#monthly-reconciliation)
@@ -674,6 +684,239 @@ The system manages three segregated bank accounts:
 | 3 | Special Assessment (5872) | 40-Year Recertification special assessment funds |
 
 Florida law requires these funds to remain segregated. The compliance alerts system monitors transactions to detect potential fund commingling.
+
+---
+
+## Import Center
+
+The Import Center (`/financials/import-center`) is a unified page for authorized users to import budgets, bank statements, and transactions, as well as create and manage bank accounts. It is built with proper fiscal year M2O resolution and granular permission enforcement.
+
+**Route:** `/financials/import-center`
+**Page file:** `pages/financials/import-center.vue`
+**Server endpoint:** `server/api/admin/parse-statement.post.ts`
+
+### Import Center Overview
+
+The page has four tabs:
+
+| Tab | Purpose | Permission Required |
+|---|---|---|
+| **Bank Accounts** | View existing accounts, create new ones | `financials_read` (view), `financials_create` (create) |
+| **Budget Import** | Upload CSV budgets, preview, and import as budget categories + items | `financials_create` |
+| **Statement Import** | Upload PDF/JSON/CSV bank statements and import transactions | `financials_create` |
+| **Data Maintenance** | Scan and repair fiscal year M2O references on existing transactions | `financials_update` |
+
+### Access & Permissions
+
+The Import Center enforces permissions at three levels:
+
+1. **Route-level** -- The route is restricted to Board Members in `useRoles.ts` (`PAGE_ACCESS`). The `auth` middleware blocks unauthenticated users.
+
+2. **Page-level** -- The page uses `useUserPermissions()` to check granular CRUD flags. Users without `financials_read` see an "Access Denied" screen. Tabs requiring `financials_create` or `financials_update` are hidden from users lacking those permissions.
+
+3. **Action-level** -- Individual import/create/repair buttons check `canCreateFinancials` or `canUpdateFinancials` before rendering. Users with read-only access can view parsed data previews but cannot execute imports.
+
+**Permission hierarchy:**
+- **Admins** -- full access (always)
+- **Board Members** -- full access by default (all CRUD)
+- **Other users** -- only if their `user_permissions` record grants specific `financials_create`, `financials_read`, `financials_update`, or `financials_delete` flags
+
+### Bank Account Management
+
+Create bank accounts directly from the Import Center:
+
+```javascript
+// Fields for new accounts
+{
+  account_name: 'Operating Account',
+  account_number: '5129',
+  account_type: 'operating',  // 'operating' | 'reserve' | 'special'
+  color: '#3B82F6',
+  description: 'Day-to-day operations',
+}
+```
+
+The account list loads published accounts sorted by `account_number`. The "+ Create Account" button is hidden for users without `financials_create` permission.
+
+### Budget CSV Import
+
+Upload a budget CSV to create budget categories and line items for a given fiscal year.
+
+**Workflow:**
+1. Select a fiscal year from the dropdown (populated from `fiscal_years` collection)
+2. Upload a CSV file (drag-and-drop or file picker)
+3. Click "Parse Budget CSV" to preview the extracted items
+4. Review the preview table (category, description, monthly, yearly amounts)
+5. Click "Import Budget Data" to create records in Directus
+
+**CSV column mapping** (supports multiple naming conventions):
+
+| Expected Data | Accepted Column Names |
+|---|---|
+| Category | `Category`, `category`, `Department` |
+| Description | `Description`, `description`, `Item`, `item`, `Budget Item` |
+| Monthly amount | `Monthly`, `monthly`, `Monthly Budget`, `Monthly Amount` |
+| Yearly amount | `Yearly`, `yearly`, `Yearly Budget`, `Annual Amount`, `Annual` |
+
+**Fiscal year resolution:**
+The selected year number (e.g., 2025) is resolved to the Directus `fiscal_years` record ID via `resolveFiscalYearId()` before any records are created. The resolved ID is displayed in the preview. Categories and items are created with the M2O reference:
+
+```javascript
+await budgetCategoriesCollection.create({
+  fiscal_year: resolvedFiscalYearId,  // M2O record ID, not year number
+  category_name: 'Insurance',
+  monthly_budget: 2500,
+  yearly_budget: 30000,
+  status: 'published',
+});
+```
+
+### Statement Import (PDF / JSON / CSV)
+
+Import bank statement transactions into the system. Three upload methods are supported:
+
+#### PDF Upload
+1. Select account and fiscal year
+2. Upload the PDF bank statement
+3. The PDF is stored in Directus file storage
+4. Paste or upload a JSON version of the extracted transactions
+5. Review the preview table
+6. Import to Directus
+
+#### JSON Upload
+Upload a JSON file or paste JSON directly. Two formats accepted:
+
+```json
+// Format 1: Array of transactions
+[
+  { "date": "01/02", "description": "Remote Deposit", "amount": 2300, "type": "deposit" }
+]
+
+// Format 2: Object with metadata
+{
+  "beginning_balance": 46086.55,
+  "ending_balance": 64114.11,
+  "statement_period": "January 2025",
+  "transactions": [
+    { "date": "01/02", "description": "Remote Deposit", "amount": 2300, "type": "deposit" }
+  ]
+}
+```
+
+#### CSV Upload
+Upload a CSV file matching the format used in `public/data/reconciliation/`:
+
+```csv
+Type,Date,Description,Amount,Source,Vendor,Category,Violation,Period,SubType
+BALANCE,,,46086.55,,,,,,Beginning,
+BALANCE,,,64114.11,,,,,,Ending,
+DEPOSIT,01/02,Remote Online Deposit,2300,Multiple Units,,Maintenance,false,January,
+WITHDRAWAL,01/05,Check #1234,1500,Vendor Inc,Vendor Inc,Utilities,false,January,
+```
+
+### Fiscal Year Auto-Detection
+
+When transactions are parsed, the system auto-detects the fiscal year from transaction dates:
+
+1. Scans all transaction dates for year values
+2. Supports `YYYY-MM-DD`, `MM/DD/YYYY`, and `MM/DD` formats
+3. Picks the most common year across all transactions
+4. Shows "(auto-detected: 2025)" label next to the fiscal year dropdown
+5. User can always override the auto-detected value
+
+Statement month is also auto-detected from the first transaction's date or `Period` field.
+
+The selected fiscal year is resolved to the `fiscal_years` M2O record ID before creating transactions:
+
+```javascript
+await transactionsCollection.create({
+  fiscal_year: resolvedFiscalYearId,  // M2O record ID
+  account_id: selectedAccountId,
+  transaction_date: '2025-01-02',
+  description: 'Remote Online Deposit',
+  amount: 2300,
+  transaction_type: 'deposit',
+  statement_month: '01',
+  status: 'published',
+});
+```
+
+**Duplicate detection:** Before importing, existing transactions for the same account/fiscal year/month are loaded. Each new transaction is checked against existing records by date + amount + description prefix. Duplicates are skipped.
+
+### Data Maintenance & Repair
+
+The Data Maintenance tab provides a tool to fix transactions that were imported with raw year numbers (e.g., `2025`) instead of proper `fiscal_years` M2O record IDs.
+
+**How it works:**
+
+1. **Scan** -- Loads all `fiscal_years` records to build a set of valid IDs and a year-to-ID mapping. Then loads all transactions and checks whether each `fiscal_year` value is a valid record ID.
+
+2. **Identify issues** -- Transactions where `fiscal_year` is not in the valid ID set are flagged. The year number is extracted and matched against the `fiscal_years` collection to find the correct ID.
+
+3. **Repair** -- Updates each flagged transaction's `fiscal_year` to the correct M2O record ID in batch, with progress tracking.
+
+```javascript
+// Scan logic
+const validIds = new Set(fiscalYears.map(fy => fy.id));   // e.g., {1, 2, 3}
+const yearToIdMap = { 2024: 1, 2025: 2, 2026: 3 };
+
+// For each transaction:
+if (!validIds.has(tx.fiscal_year)) {
+  // tx.fiscal_year is likely 2025 (raw year) instead of 2 (record ID)
+  correctId = yearToIdMap[tx.fiscal_year];  // → 2
+}
+
+// Repair:
+await transactionsCollection.update(tx.id, { fiscal_year: correctId });
+```
+
+**When to run:** After importing transactions from the older import pages (`import.vue`, `import-one.vue`, `import-two.vue`) which passed raw year numbers. The Import Center's own imports always resolve the M2O ID correctly.
+
+### Server API -- parse-statement
+
+**Endpoint:** `POST /api/admin/parse-statement`
+
+Accepts multipart form data with a file upload. Returns parsed transaction data or upload confirmation.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `file` | File | Yes | PDF, JSON, or CSV file |
+| `account_id` | string | No | Target account ID (used for PDF metadata) |
+| `fiscal_year` | string | No | Fiscal year (used for PDF metadata) |
+
+**Responses by file type:**
+
+| File Type | Behavior |
+|---|---|
+| **JSON** | Parses and returns normalized transaction array with balances |
+| **CSV** | Parses reconciliation-format CSV, separates balances from transactions |
+| **PDF** | Uploads to Directus file storage, returns file ID and instructions to provide JSON |
+
+**Authentication:** Requires an authenticated session with admin/board member access. Uses `hasAdminAccess()` server-side check.
+
+### JSON Transaction Format
+
+The standard transaction object for import:
+
+```typescript
+interface ParsedTransaction {
+  date: string;           // "01/02", "01/02/2025", or "2025-01-02"
+  description: string;    // Transaction description
+  amount: number;         // Always positive; type determines debit/credit
+  type: 'deposit' | 'withdrawal' | 'fee' | 'transfer_in' | 'transfer_out';
+  vendor?: string;        // Vendor/payee name
+  category?: string;      // Budget category name
+  check_number?: string;  // Check number if applicable
+  balance?: number;       // Running balance after transaction
+}
+```
+
+**Type normalization:** The parser accepts aliases:
+- `deposit`, `credit` → `deposit`
+- `withdrawal`, `debit`, `check` → `withdrawal`
+- `fee`, `charge` → `fee`
+- `transfer_in`, `transfer in` → `transfer_in`
+- `transfer_out`, `transfer out` → `transfer_out`
 
 ---
 
