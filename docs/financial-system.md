@@ -21,6 +21,7 @@ This document covers the HOA financial management system, including budget manag
   - [Overview](#import-center-overview)
   - [Access & Permissions](#access--permissions)
   - [Bank Account Management](#bank-account-management)
+  - [Fiscal Year Management](#fiscal-year-management)
   - [Budget CSV Import](#budget-csv-import)
   - [Statement Import (PDF / JSON / CSV)](#statement-import-pdf--json--csv)
   - [Fiscal Year Auto-Detection](#fiscal-year-auto-detection)
@@ -737,6 +738,27 @@ Create bank accounts directly from the Import Center:
 ```
 
 The account list loads published accounts sorted by `account_number`. The "+ Create Account" button is hidden for users without `financials_create` permission.
+
+### Fiscal Year Management
+
+Fiscal years are foundational configuration records. All financial collections reference `fiscal_years` via M2O relationships. The Bank Accounts tab includes a Fiscal Years section where authorized users can create and manage fiscal year records directly -- no Directus admin panel access required.
+
+**Create a fiscal year:**
+```javascript
+// Fields
+{
+  year: 2026,                    // Integer year number (2020-2050)
+  start_date: '2026-01-01',     // ISO date for fiscal year start
+  status: 'published',          // 'published' | 'draft' | 'archived'
+}
+```
+
+**Capabilities:**
+- **Create** (`financials_create`) -- Add new fiscal year records with year, start date, and status. Duplicate years are blocked with a warning.
+- **Update status** (`financials_update`) -- Change a fiscal year's status between published, draft, and archived via an inline dropdown. Only published fiscal years appear in the Budget Import and Statement Import dropdowns.
+- **View** (`financials_read`) -- All fiscal years are listed with their year, start date, record ID, and color-coded status badges (green = published, yellow = draft, gray = archived).
+
+**Important:** A fiscal year record must exist before importing budgets or transactions for that year. The year dropdowns on the Budget Import and Statement Import tabs are populated from published `fiscal_years` records only.
 
 ### Budget CSV Import
 
