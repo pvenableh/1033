@@ -63,6 +63,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   '/financials/budget': { requireBoardMember: true },
   '/financials/reconciliation': { requireBoardMember: true },
   '/financials/dashboard-v2': { requireBoardMember: true },
+  '/financials/import-center': { requireBoardMember: true },
 
   // Owners only (includes property managers acting on behalf of owners)
   '/documents': { requireOwner: true },
