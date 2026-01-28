@@ -5,7 +5,8 @@ export const useBudgetManagement = () => {
 	const budgetCategoriesCollection = useDirectusItems('budget_categories');
 	const budgetItemsCollection = useDirectusItems('budget_items');
 	const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
-	const budgetAmendmentsCollection = useDirectusItems('budget_amendments');
+	const budgetAmendmentsCollection = useDirectusItems('budget_admendments');
+	const fiscalYearsCollection = useDirectusItems('fiscal_years');
 
 	// Reactive state
 	const selectedYear = ref(new Date().getFullYear());
@@ -19,6 +20,22 @@ export const useBudgetManagement = () => {
 	const budgetCategories = ref([]);
 	const budgetItems = ref([]);
 	const budgetAmendments = ref([]);
+
+	// Cache: year number → fiscal_years record ID
+	const fiscalYearIdCache = {};
+
+	// Helper: resolve year number to fiscal_years record ID
+	const resolveFiscalYearId = async (yearNumber) => {
+		if (fiscalYearIdCache[yearNumber]) return fiscalYearIdCache[yearNumber];
+		const data = await fiscalYearsCollection.list({
+			filter: { year: { _eq: yearNumber } },
+			fields: ['id'],
+			limit: 1,
+		});
+		const id = data && data.length > 0 ? data[0].id : null;
+		if (id) fiscalYearIdCache[yearNumber] = id;
+		return id;
+	};
 
 	// Default budget template (based on 2025 budget)
 	const defaultBudgetTemplate = {
@@ -68,34 +85,24 @@ export const useBudgetManagement = () => {
 		return isNaN(parsed) ? 0 : parsed;
 	};
 
-	// Fetch available fiscal years
+	// Fetch available fiscal years from the fiscal_years collection
 	const fetchAvailableYears = async () => {
 		try {
-			// Get years from fiscal_year_budgets collection
-			const budgets = await fiscalYearBudgetsCollection.list({
-				fields: ['fiscal_year'],
-				sort: ['-fiscal_year'],
-			});
-
-			// Also get years from budget_categories as fallback
-			const categories = await budgetCategoriesCollection.list({
-				fields: ['fiscal_year'],
-				sort: ['-fiscal_year'],
+			const fiscalYears = await fiscalYearsCollection.list({
+				filter: { status: { _eq: 'published' } },
+				sort: ['-year'],
+				fields: ['id', 'year'],
 			});
 
 			const yearsSet = new Set();
 
-			// Add years from budgets
-			if (budgets && Array.isArray(budgets)) {
-				budgets.forEach((b) => {
-					if (b.fiscal_year) yearsSet.add(b.fiscal_year);
-				});
-			}
-
-			// Add years from categories
-			if (categories && Array.isArray(categories)) {
-				categories.forEach((c) => {
-					if (c.fiscal_year) yearsSet.add(c.fiscal_year);
+			if (fiscalYears && Array.isArray(fiscalYears)) {
+				fiscalYears.forEach((fy) => {
+					if (fy.year) {
+						yearsSet.add(fy.year);
+						// Cache the ID mapping
+						fiscalYearIdCache[fy.year] = fy.id;
+					}
 				});
 			}
 
@@ -118,9 +125,9 @@ export const useBudgetManagement = () => {
 			const year = unref(selectedYear);
 			const data = await fiscalYearBudgetsCollection.list({
 				filter: {
-					fiscal_year: { _eq: year },
+					fiscal_year: { year: { _eq: year } },
 				},
-				fields: ['*'],
+				fields: ['*', 'fiscal_year.*'],
 				limit: 1,
 			});
 
@@ -137,10 +144,10 @@ export const useBudgetManagement = () => {
 			const year = unref(selectedYear);
 			const data = await budgetCategoriesCollection.list({
 				filter: {
-					fiscal_year: { _eq: year },
+					fiscal_year: { year: { _eq: year } },
 				},
 				sort: ['sort', 'category_name'],
-				fields: ['*'],
+				fields: ['*', 'fiscal_year.*'],
 			});
 
 			budgetCategories.value = data || [];
@@ -156,10 +163,10 @@ export const useBudgetManagement = () => {
 			const year = unref(selectedYear);
 			const data = await budgetItemsCollection.list({
 				filter: {
-					fiscal_year: { _eq: year },
+					fiscal_year: { year: { _eq: year } },
 				},
 				sort: ['category_id', 'sort', 'description'],
-				fields: ['*', 'category_id.*'],
+				fields: ['*', 'category_id.*', 'fiscal_year.*'],
 			});
 
 			budgetItems.value = data || [];
@@ -197,8 +204,13 @@ export const useBudgetManagement = () => {
 		error.value = null;
 
 		try {
+			const fiscalYearId = await resolveFiscalYearId(budgetData.fiscal_year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${budgetData.fiscal_year}. Create it in Directus first.`);
+			}
+
 			const result = await fiscalYearBudgetsCollection.create({
-				fiscal_year: budgetData.fiscal_year,
+				fiscal_year: fiscalYearId,
 				name: budgetData.name || `${budgetData.fiscal_year} Operating Budget`,
 				is_active: budgetData.is_active ?? true,
 				total_revenue: budgetData.total_revenue || 0,
@@ -245,8 +257,13 @@ export const useBudgetManagement = () => {
 
 		try {
 			const year = categoryData.fiscal_year || unref(selectedYear);
+			const fiscalYearId = await resolveFiscalYearId(year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${year}. Create it in Directus first.`);
+			}
+
 			const result = await budgetCategoriesCollection.create({
-				fiscal_year: year,
+				fiscal_year: fiscalYearId,
 				fiscal_year_budget_id: fiscalYearBudget.value?.id || null,
 				category_name: categoryData.category_name,
 				monthly_budget: categoryData.monthly_budget || 0,
@@ -309,8 +326,13 @@ export const useBudgetManagement = () => {
 
 		try {
 			const year = itemData.fiscal_year || unref(selectedYear);
+			const fiscalYearId = await resolveFiscalYearId(year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${year}. Create it in Directus first.`);
+			}
+
 			const result = await budgetItemsCollection.create({
-				fiscal_year: year,
+				fiscal_year: fiscalYearId,
 				fiscal_year_budget_id: fiscalYearBudget.value?.id || null,
 				item_code: itemData.item_code,
 				description: itemData.description,
@@ -374,19 +396,25 @@ export const useBudgetManagement = () => {
 		error.value = null;
 
 		try {
+			// Resolve fiscal year IDs
+			const targetFiscalYearId = await resolveFiscalYearId(targetYear);
+			if (!targetFiscalYearId) {
+				throw new Error(`No fiscal year record found for ${targetYear}. Create it in Directus first.`);
+			}
+
 			// Fetch source budget data
 			const sourceCategories = await budgetCategoriesCollection.list({
-				filter: { fiscal_year: { _eq: sourceYear } },
+				filter: { fiscal_year: { year: { _eq: sourceYear } } },
 				fields: ['*'],
 			});
 
 			const sourceItems = await budgetItemsCollection.list({
-				filter: { fiscal_year: { _eq: sourceYear } },
+				filter: { fiscal_year: { year: { _eq: sourceYear } } },
 				fields: ['*'],
 			});
 
 			const sourceBudget = await fiscalYearBudgetsCollection.list({
-				filter: { fiscal_year: { _eq: sourceYear } },
+				filter: { fiscal_year: { year: { _eq: sourceYear } } },
 				fields: ['*'],
 				limit: 1,
 			});
@@ -397,7 +425,7 @@ export const useBudgetManagement = () => {
 				const newBudget = await fiscalYearBudgetsCollection.create({
 					...sourceBudget[0],
 					id: undefined,
-					fiscal_year: targetYear,
+					fiscal_year: targetFiscalYearId,
 					name: `${targetYear} Operating Budget`,
 					is_active: false,
 					approved_date: null,
@@ -412,7 +440,7 @@ export const useBudgetManagement = () => {
 			// Copy categories
 			for (const category of sourceCategories || []) {
 				const newCategory = await budgetCategoriesCollection.create({
-					fiscal_year: targetYear,
+					fiscal_year: targetFiscalYearId,
 					fiscal_year_budget_id: newBudgetId,
 					category_name: category.category_name,
 					monthly_budget: category.monthly_budget,
@@ -427,7 +455,7 @@ export const useBudgetManagement = () => {
 			// Copy items with updated category references
 			for (const item of sourceItems || []) {
 				await budgetItemsCollection.create({
-					fiscal_year: targetYear,
+					fiscal_year: targetFiscalYearId,
 					fiscal_year_budget_id: newBudgetId,
 					item_code: item.item_code,
 					description: item.description,
@@ -461,9 +489,14 @@ export const useBudgetManagement = () => {
 		error.value = null;
 
 		try {
+			const fiscalYearId = await resolveFiscalYearId(year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${year}. Create it in Directus first.`);
+			}
+
 			// Create fiscal year budget
 			const newBudget = await fiscalYearBudgetsCollection.create({
-				fiscal_year: year,
+				fiscal_year: fiscalYearId,
 				name: `${year} Operating Budget`,
 				is_active: false,
 				total_revenue: 0,
@@ -478,7 +511,7 @@ export const useBudgetManagement = () => {
 			// Create default categories
 			for (const category of defaultBudgetTemplate.categories) {
 				await budgetCategoriesCollection.create({
-					fiscal_year: year,
+					fiscal_year: fiscalYearId,
 					fiscal_year_budget_id: newBudgetId,
 					category_name: category.category_name,
 					monthly_budget: 0,
@@ -805,6 +838,7 @@ export const useBudgetManagement = () => {
 		// Helpers
 		formatCurrency,
 		safeParseFloat,
+		resolveFiscalYearId,
 		defaultBudgetTemplate,
 	};
 };

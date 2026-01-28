@@ -245,7 +245,7 @@ export const useComplianceAlerts = () => {
 
 		try {
 			const transactions = await transactionsCollection.list({
-				filter: { fiscal_year: { _eq: fiscalYear } },
+				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
 				fields: ['*'],
 				limit: -1,
 			});

@@ -33,29 +33,29 @@ export const useFinancialDashboard = () => {
 
 			const [txData, catData, accData, stmtData, projData, budgetData] = await Promise.all([
 				transactionsCollection.list({
-					filter: { fiscal_year: { _eq: year } },
+					filter: { fiscal_year: { year: { _eq: year } } },
 					sort: ['-transaction_date'],
 					fields: ['*'],
 					limit: -1,
 				}),
 				budgetCategoriesCollection.list({
-					filter: { fiscal_year: { _eq: year } },
-					fields: ['*'],
+					filter: { fiscal_year: { year: { _eq: year } } },
+					fields: ['*', 'fiscal_year.*'],
 				}),
 				accountsCollection.list({ fields: ['*'] }),
 				monthlyStatementsCollection.list({
-					filter: { fiscal_year: { _eq: year } },
+					filter: { fiscal_year: { year: { _eq: year } } },
 					sort: ['account_id', 'statement_month'],
 					fields: ['*'],
 				}),
 				cashFlowProjectionsCollection.list({
-					filter: { fiscal_year: { _eq: year } },
+					filter: { fiscal_year: { year: { _eq: year } } },
 					sort: ['account_id', 'month'],
 					fields: ['*'],
 				}),
 				fiscalYearBudgetsCollection.list({
-					filter: { fiscal_year: { _in: [year - 2, year - 1, year, year + 1] } },
-					fields: ['*'],
+					filter: { fiscal_year: { year: { _in: [year - 2, year - 1, year, year + 1] } } },
+					fields: ['*', 'fiscal_year.*'],
 				}),
 			]);
 
@@ -86,6 +86,14 @@ export const useFinancialDashboard = () => {
 			style: 'currency',
 			currency: 'USD',
 		}).format(safeParseFloat(amount));
+	};
+
+	// Helper: Extract year number from fiscal_year field (handles M2O object or raw ID)
+	const getFiscalYearNumber = (fiscalYearField) => {
+		if (typeof fiscalYearField === 'object' && fiscalYearField !== null) {
+			return fiscalYearField.year;
+		}
+		return fiscalYearField;
 	};
 
 	// ============================================
@@ -291,12 +299,12 @@ export const useFinancialDashboard = () => {
 		try {
 			const [budgets, categories] = await Promise.all([
 				fiscalYearBudgetsCollection.list({
-					filter: { fiscal_year: { _in: years } },
-					fields: ['*'],
+					filter: { fiscal_year: { year: { _in: years } } },
+					fields: ['*', 'fiscal_year.*'],
 				}),
 				budgetCategoriesCollection.list({
-					filter: { fiscal_year: { _in: years } },
-					fields: ['*'],
+					filter: { fiscal_year: { year: { _in: years } } },
+					fields: ['*', 'fiscal_year.*'],
 				}),
 			]);
 
@@ -312,13 +320,15 @@ export const useFinancialDashboard = () => {
 		const currentYear = unref(selectedYear);
 		const years = [currentYear - 2, currentYear - 1, currentYear];
 
-		// Group categories by year
+		// Group categories by year (fiscal_year is M2O, extract year number)
 		const categoryByYear = {};
 		for (const cat of budgetCategories.value) {
-			if (!categoryByYear[cat.fiscal_year]) {
-				categoryByYear[cat.fiscal_year] = [];
+			const catYear = getFiscalYearNumber(cat.fiscal_year);
+			if (!catYear) continue;
+			if (!categoryByYear[catYear]) {
+				categoryByYear[catYear] = [];
 			}
-			categoryByYear[cat.fiscal_year].push(cat);
+			categoryByYear[catYear].push(cat);
 		}
 
 		// Find all unique category names

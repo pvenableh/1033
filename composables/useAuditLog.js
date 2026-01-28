@@ -62,6 +62,35 @@ export const useAuditLog = () => {
 	};
 
 	// Create an audit log entry
+	// Convert an object to Array<{ value: string }> format for Directus storage
+	const serializeValues = (values) => {
+		if (!values) return null;
+		if (Array.isArray(values)) return values;
+		return Object.entries(values).map(([key, val]) => ({
+			value: `${key}: ${JSON.stringify(val)}`,
+		}));
+	};
+
+	// Parse Array<{ value: string }> back to an object for display
+	const deserializeValues = (values) => {
+		if (!values) return null;
+		if (!Array.isArray(values)) return values;
+		const obj = {};
+		for (const item of values) {
+			const str = item.value || '';
+			const colonIdx = str.indexOf(': ');
+			if (colonIdx > -1) {
+				const key = str.substring(0, colonIdx);
+				try {
+					obj[key] = JSON.parse(str.substring(colonIdx + 2));
+				} catch {
+					obj[key] = str.substring(colonIdx + 2);
+				}
+			}
+		}
+		return obj;
+	};
+
 	const logAction = async (action, collection, itemId, options = {}) => {
 		try {
 			const logEntry = {
@@ -69,8 +98,8 @@ export const useAuditLog = () => {
 				collection,
 				item_id: itemId,
 				user_id: user.value?.id,
-				old_values: options.oldValues || null,
-				new_values: options.newValues || null,
+				old_values: options.oldValues ? serializeValues(options.oldValues) : null,
+				new_values: options.newValues ? serializeValues(options.newValues) : null,
 				ip_address: options.ipAddress || null,
 				user_agent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
 				notes: options.notes || null,
@@ -189,10 +218,14 @@ export const useAuditLog = () => {
 	const formatChanges = (oldValues, newValues) => {
 		if (!oldValues && !newValues) return [];
 
+		// Deserialize from Directus Array<{ value: string }> format
+		const oldObj = deserializeValues(oldValues) || {};
+		const newObj = deserializeValues(newValues) || {};
+
 		const changes = [];
 		const allKeys = new Set([
-			...Object.keys(oldValues || {}),
-			...Object.keys(newValues || {}),
+			...Object.keys(oldObj),
+			...Object.keys(newObj),
 		]);
 
 		// Fields to ignore in change display
@@ -201,8 +234,8 @@ export const useAuditLog = () => {
 		for (const key of allKeys) {
 			if (ignoredFields.includes(key)) continue;
 
-			const oldVal = oldValues?.[key];
-			const newVal = newValues?.[key];
+			const oldVal = oldObj[key];
+			const newVal = newObj[key];
 
 			if (JSON.stringify(oldVal) !== JSON.stringify(newVal)) {
 				changes.push({

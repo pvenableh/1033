@@ -6,6 +6,23 @@ export const useReserveStudy = () => {
 	const reserveComponentsCollection = useDirectusItems('reserve_components');
 	const accountsCollection = useDirectusItems('accounts');
 	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
+	const fiscalYearsCollection = useDirectusItems('fiscal_years');
+
+	// Cache: year number → fiscal_years record ID
+	const fiscalYearIdCache = {};
+
+	// Helper: resolve year number to fiscal_years record ID
+	const resolveFiscalYearId = async (yearNumber) => {
+		if (fiscalYearIdCache[yearNumber]) return fiscalYearIdCache[yearNumber];
+		const data = await fiscalYearsCollection.list({
+			filter: { year: { _eq: yearNumber } },
+			fields: ['id'],
+			limit: 1,
+		});
+		const id = data && data.length > 0 ? data[0].id : null;
+		if (id) fiscalYearIdCache[yearNumber] = id;
+		return id;
+	};
 
 	// State
 	const loading = ref(false);
@@ -25,7 +42,7 @@ export const useReserveStudy = () => {
 
 		try {
 			const data = await reserveStudiesCollection.list({
-				filter: { fiscal_year: { _eq: fiscalYear } },
+				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
 				fields: ['*'],
 				limit: 1,
 			});
@@ -64,7 +81,7 @@ export const useReserveStudy = () => {
 		try {
 			const statements = await monthlyStatementsCollection.list({
 				filter: {
-					fiscal_year: { _eq: fiscalYear },
+					fiscal_year: { year: { _eq: fiscalYear } },
 					account_id: { _eq: RESERVE_ACCOUNT_ID },
 				},
 				sort: ['-statement_month'],
@@ -87,8 +104,13 @@ export const useReserveStudy = () => {
 		error.value = null;
 
 		try {
+			const fiscalYearId = await resolveFiscalYearId(studyData.fiscal_year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${studyData.fiscal_year}. Create it in Directus first.`);
+			}
+
 			const result = await reserveStudiesCollection.create({
-				fiscal_year: studyData.fiscal_year,
+				fiscal_year: fiscalYearId,
 				study_date: studyData.study_date || new Date().toISOString().split('T')[0],
 				current_balance: studyData.current_balance || 0,
 				recommended_balance: studyData.recommended_balance || 0,

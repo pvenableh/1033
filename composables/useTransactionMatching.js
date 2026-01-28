@@ -18,7 +18,7 @@ export const useTransactionMatching = () => {
 	const fetchBudgetItems = async (fiscalYear) => {
 		try {
 			const data = await budgetItemsCollection.list({
-				filter: { fiscal_year: { _eq: fiscalYear } },
+				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
 				fields: ['*', 'category_id.*'],
 			});
 			budgetItems.value = data || [];
@@ -32,7 +32,7 @@ export const useTransactionMatching = () => {
 	const fetchBudgetCategories = async (fiscalYear) => {
 		try {
 			const data = await budgetCategoriesCollection.list({
-				filter: { fiscal_year: { _eq: fiscalYear } },
+				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
 				fields: ['*'],
 			});
 			budgetCategories.value = data || [];
@@ -300,7 +300,7 @@ export const useTransactionMatching = () => {
 	const getUncategorizedTransactions = async (fiscalYear, accountId = null) => {
 		try {
 			const filter = {
-				fiscal_year: { _eq: fiscalYear },
+				fiscal_year: { year: { _eq: fiscalYear } },
 				_or: [
 					{ category_id: { _null: true } },
 					{ budget_item_id: { _null: true } },

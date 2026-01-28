@@ -5,6 +5,23 @@ export const useAssessmentLedger = () => {
 	const assessmentLedgerCollection = useDirectusItems('assessment_ledger');
 	const unitsCollection = useDirectusItems('units');
 	const transactionsCollection = useDirectusItems('transactions');
+	const fiscalYearsCollection = useDirectusItems('fiscal_years');
+
+	// Cache: year number → fiscal_years record ID
+	const fiscalYearIdCache = {};
+
+	// Helper: resolve year number to fiscal_years record ID
+	const resolveFiscalYearId = async (yearNumber) => {
+		if (fiscalYearIdCache[yearNumber]) return fiscalYearIdCache[yearNumber];
+		const data = await fiscalYearsCollection.list({
+			filter: { year: { _eq: yearNumber } },
+			fields: ['id'],
+			limit: 1,
+		});
+		const id = data && data.length > 0 ? data[0].id : null;
+		if (id) fiscalYearIdCache[yearNumber] = id;
+		return id;
+	};
 
 	// State
 	const loading = ref(false);
@@ -44,7 +61,7 @@ export const useAssessmentLedger = () => {
 		error.value = null;
 
 		try {
-			const filter = { fiscal_year: { _eq: fiscalYear } };
+			const filter = { fiscal_year: { year: { _eq: fiscalYear } } };
 
 			if (unitId) {
 				filter.unit_id = { _eq: unitId };
@@ -72,9 +89,14 @@ export const useAssessmentLedger = () => {
 		error.value = null;
 
 		try {
+			const fiscalYearId = await resolveFiscalYearId(entryData.fiscal_year);
+			if (!fiscalYearId) {
+				throw new Error(`No fiscal year record found for ${entryData.fiscal_year}. Create it in Directus first.`);
+			}
+
 			const result = await assessmentLedgerCollection.create({
 				unit_id: entryData.unit_id,
-				fiscal_year: entryData.fiscal_year,
+				fiscal_year: fiscalYearId,
 				month: entryData.month,
 				amount_due: entryData.amount_due,
 				amount_paid: entryData.amount_paid || 0,
@@ -153,7 +175,7 @@ export const useAssessmentLedger = () => {
 		if (amountPaid >= amountDue) return 'current';
 		if (daysPastDue <= 0) return 'current';
 		if (daysPastDue <= config.delinquentDays) return 'late';
-		if (daysPastDue <= config.lienThresholdDays) return 'delinquent';
+		if (daysPastDue <= config.lienThresholdDays) return 'deliquent';
 		if (daysPastDue <= config.collectionsThresholdDays) return 'lien';
 		return 'collections';
 	};
@@ -173,8 +195,6 @@ export const useAssessmentLedger = () => {
 		const updates = [];
 
 		for (const entry of ledgerEntries.value) {
-			if (entry.fiscal_year !== fiscalYear) continue;
-
 			const amountDue = parseFloat(entry.amount_due) || 0;
 			const amountPaid = parseFloat(entry.amount_paid) || 0;
 
@@ -210,8 +230,12 @@ export const useAssessmentLedger = () => {
 
 			for (const unit of units.value) {
 				// Check if entry already exists
+				// Entries are already filtered by fiscal year, just check unit and month
 				const existing = ledgerEntries.value.find(
-					(e) => e.unit_id === unit.id && e.fiscal_year === fiscalYear && e.month === month
+					(e) => {
+						const unitId = typeof e.unit_id === 'object' ? e.unit_id?.id : e.unit_id;
+						return unitId === unit.id && e.month === month;
+					}
 				);
 
 				if (!existing) {
@@ -242,7 +266,7 @@ export const useAssessmentLedger = () => {
 	// Get delinquent accounts
 	const delinquentAccounts = computed(() => {
 		return ledgerEntries.value.filter(
-			(e) => e.payment_status === 'delinquent' ||
+			(e) => e.payment_status === 'deliquent' ||
 				e.payment_status === 'lien' ||
 				e.payment_status === 'collections'
 		);
@@ -340,7 +364,7 @@ export const useAssessmentLedger = () => {
 	const paymentStatusOptions = [
 		{ label: 'Current', value: 'current', color: 'green' },
 		{ label: 'Late (1-30 days)', value: 'late', color: 'yellow' },
-		{ label: 'Delinquent (31-90 days)', value: 'delinquent', color: 'orange' },
+		{ label: 'Delinquent (31-90 days)', value: 'deliquent', color: 'orange' },
 		{ label: 'Lien Filed', value: 'lien', color: 'red' },
 		{ label: 'Collections', value: 'collections', color: 'purple' },
 	];

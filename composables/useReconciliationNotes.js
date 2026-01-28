@@ -307,7 +307,7 @@ export const useReconciliationNotes = () => {
 				reconciliation_status: reportData.reconciliation_status || 'pending',
 				total_deposits: reportData.total_deposits,
 				total_withdrawals: reportData.total_withdrawals,
-				total_transfers_in: reportData.total_transfers_in,
+				total_transfer_in: reportData.total_transfer_in,
 				total_transfers_out: reportData.total_transfers_out,
 				total_fees: reportData.total_fees,
 				transactions_reconciled: reportData.transactions_reconciled,
@@ -334,7 +334,7 @@ export const useReconciliationNotes = () => {
 
 		try {
 			const filter = {
-				fiscal_year: { _eq: fiscalYear },
+				fiscal_year: { year: { _eq: fiscalYear } },
 			};
 
 			if (accountId) {
@@ -439,10 +439,10 @@ export const useReconciliationNotes = () => {
 			calculated_beginning_balance: beginningBalance,
 			calculated_ending_balance: calculatedEnding,
 			reconciliation_difference: difference,
-			reconciliation_status: difference < 0.01 ? 'reconciled' : 'discrepancy',
+			reconciliation_status: difference < 0.01 ? 'reconciled' : 'discrepency',
 			total_deposits: totalDeposits,
 			total_withdrawals: totalWithdrawals,
-			total_transfers_in: totalTransfersIn,
+			total_transfer_in: totalTransfersIn,
 			total_transfers_out: totalTransfersOut,
 			total_fees: totalFees,
 			transactions_reconciled: reconciled,
@@ -462,7 +462,7 @@ export const useReconciliationNotes = () => {
 	const noteTypeOptions = [
 		{ label: 'General Note', value: 'general' },
 		{ label: 'Reconciliation Note', value: 'reconciliation' },
-		{ label: 'Discrepancy', value: 'discrepancy' },
+		{ label: 'Discrepancy', value: 'discrepency' },
 		{ label: 'Approval Required', value: 'approval' },
 		{ label: 'Inquiry', value: 'inquiry' },
 	];
