@@ -130,7 +130,7 @@ export const useAssessmentLedger = () => {
 
 		return updateLedgerEntry(entryId, {
 			amount_paid: amountPaid,
-			payment_date: paymentData.payment_date || new Date().toISOString().split('T')[0],
+			payment_date: paymentData.payment_date || new Date().toISOString(),
 			payment_status: paymentStatus,
 			days_past_due: 0,
 			transaction_id: paymentData.transaction_id,
