@@ -143,6 +143,19 @@
 					</a>
 				</li>
 
+				<!-- Import Center -->
+				<li>
+					<a
+						href="/financials/import-center"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessBoardMember}"
+						@click="(e) => handleNavClick(e, '/financials/import-center', canAccessBoardMember, 'Import Center', 'board member')">
+						<UIcon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
+						Import Center
+						<UIcon v-if="!canAccessBoardMember" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- Tasks -->
 				<li>
 					<a

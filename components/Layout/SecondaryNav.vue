@@ -136,9 +136,22 @@
 							<nuxt-link
 								to="/financials"
 								class="secondary-nav__link flex"
-								:class="{active: isActiveRoute('/financials')}">
+								:class="{active: isActiveRoute('/financials') && !isActiveRoute('/financials/import-center')}">
 								<Icon name="i-heroicons-currency-dollar" class="w-6 h-6" />
 								<span class="hidden">Financials</span>
+							</nuxt-link>
+						</Tooltip>
+					</li>
+
+					<!-- Import Center - visible to board_members only -->
+					<li v-if="isBoardMember">
+						<Tooltip text="Import Center" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/financials/import-center"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/financials/import-center')}">
+								<Icon name="i-heroicons-arrow-up-tray" class="w-6 h-6" />
+								<span class="hidden">Import</span>
 							</nuxt-link>
 						</Tooltip>
 					</li>
