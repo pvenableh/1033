@@ -11,7 +11,7 @@ export const useHOAFinancialsEnhanced = () => {
 	const selectedCategory = ref('all');
 	const selectedVendor = ref('all');
 	const selectedStartMonth = ref('01'); // 'all' for YTD, or '01' for January, etc.
-	const selectedEndMonth = ref('08'); // 'all' for YTD, or '12' for December, etc.
+	const selectedEndMonth = ref('12'); // 'all' for YTD, or '12' for December, etc.
 	const searchQuery = ref('');
 	const loading = ref(false);
 	const error = ref(null);
