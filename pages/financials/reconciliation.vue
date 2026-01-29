@@ -75,6 +75,37 @@
 					<li v-if="transferAudit.broken.count > 0">{{ transferAudit.broken.count }} broken transfer links</li>
 					<li v-if="transferAudit.mismatches.count > 0">{{ transferAudit.mismatches.count }} amount mismatches</li>
 				</ul>
+				<div class="mt-3">
+					<UButton
+						v-if="canReconcile"
+						color="red"
+						variant="soft"
+						size="sm"
+						icon="i-heroicons-link"
+						:loading="autoLinking"
+						@click="runAutoLinkTransfers">
+						Auto-Link Transfers
+					</UButton>
+				</div>
+			</template>
+		</UAlert>
+
+		<!-- Auto-Link Results -->
+		<UAlert
+			v-if="autoLinkResults"
+			icon="i-heroicons-check-circle"
+			color="green"
+			variant="soft"
+			title="Transfer Linking Complete">
+			<template #description>
+				<p>Linked {{ autoLinkResults.linked }} transfer pairs. Categorized {{ autoLinkResults.categorized }} transactions. Skipped {{ autoLinkResults.skipped }}.</p>
+				<div v-if="autoLinkResults.results.length > 0" class="mt-2 space-y-1 text-xs">
+					<div v-for="r in autoLinkResults.results" :key="r.transfer_out_id" class="flex gap-2">
+						<span class="font-mono">${{ r.amount.toFixed(2) }}</span>
+						<span>{{ r.from_account }} → {{ r.to_account }}</span>
+						<UBadge v-if="r.category_assigned" color="blue" variant="soft" size="xs">{{ r.category_assigned }}</UBadge>
+					</div>
+				</div>
 			</template>
 		</UAlert>
 
@@ -116,9 +147,24 @@
 							<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
 								MONTHLY RECONCILIATION - {{ getAccountName(selectedAccount) }}
 							</h2>
-							<UBadge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
-								{{ monthlyReconciliation.isReconciled ? 'RECONCILED' : 'NOT RECONCILED' }}
-							</UBadge>
+							<div class="flex items-center gap-2">
+								<UBadge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
+									{{ monthlyReconciliation.isReconciled ? 'RECONCILED' : 'NOT RECONCILED' }}
+								</UBadge>
+								<UBadge v-if="currentMonthReportStatus" :color="currentMonthReportStatus === 'reconciled' ? 'green' : currentMonthReportStatus === 'in_progress' ? 'yellow' : 'gray'" variant="outline" size="lg">
+									{{ currentMonthReportStatus === 'reconciled' ? 'CERTIFIED CLOSED' : currentMonthReportStatus?.toUpperCase() }}
+								</UBadge>
+								<UButton
+									v-if="canReconcile && currentMonthReportStatus !== 'reconciled'"
+									color="green"
+									variant="solid"
+									size="sm"
+									icon="i-heroicons-check-badge"
+									:loading="reconcilingMonth"
+									@click="reconcileCurrentMonth">
+									{{ currentMonthReport ? 'Certify & Close Month' : 'Reconcile Month' }}
+								</UButton>
+							</div>
 						</div>
 					</template>
 
@@ -345,6 +391,191 @@
 								</tr>
 							</tbody>
 						</table>
+					</div>
+				</UCard>
+			</template>
+
+			<!-- Claude Assistant Tab -->
+			<template #assistant>
+				<UCard class="mt-4">
+					<template #header>
+						<div class="flex items-center justify-between">
+							<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
+								CLAUDE RECONCILIATION ASSISTANT
+							</h2>
+							<UButton
+								v-if="canReconcile"
+								color="violet"
+								variant="soft"
+								size="sm"
+								icon="i-heroicons-sparkles"
+								:loading="assistantLoading"
+								@click="runReconciliationAssistant">
+								{{ assistantAnalysis ? 'Re-Analyze' : 'Analyze Transactions' }}
+							</UButton>
+						</div>
+					</template>
+
+					<!-- Pre-analysis state -->
+					<div v-if="!assistantAnalysis && !assistantLoading" class="text-center py-12">
+						<UIcon name="i-heroicons-sparkles" class="w-16 h-16 mx-auto mb-4 text-violet-400" />
+						<h3 class="text-lg font-semibold dark:text-white mb-2">AI-Powered Reconciliation</h3>
+						<p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto mb-6">
+							Claude will analyze all transactions for {{ getMonthName(selectedMonth) }} {{ selectedYear }},
+							suggest categories for uncategorized items, flag entries needing notes,
+							and identify potential issues.
+						</p>
+						<UButton
+							v-if="canReconcile"
+							color="violet"
+							size="lg"
+							icon="i-heroicons-sparkles"
+							:loading="assistantLoading"
+							@click="runReconciliationAssistant">
+							Start Analysis
+						</UButton>
+					</div>
+
+					<!-- Loading state -->
+					<div v-if="assistantLoading" class="text-center py-12">
+						<div class="animate-pulse">
+							<UIcon name="i-heroicons-sparkles" class="w-16 h-16 mx-auto mb-4 text-violet-400" />
+							<p class="text-gray-600 dark:text-gray-400">Analyzing {{ reconciliationSummary.total }} transactions...</p>
+						</div>
+					</div>
+
+					<!-- Analysis Results -->
+					<div v-if="assistantAnalysis && !assistantLoading" class="space-y-6">
+						<!-- Summary -->
+						<div class="p-4 bg-violet-50 dark:bg-violet-900/20 rounded-lg">
+							<h3 class="font-semibold text-violet-900 dark:text-violet-300 mb-2">ANALYSIS SUMMARY</h3>
+							<p class="text-sm text-violet-800 dark:text-violet-200">{{ assistantAnalysis.analysis?.summary }}</p>
+						</div>
+
+						<!-- Reconciliation Assessment -->
+						<div v-if="assistantAnalysis.analysis?.reconciliation_assessment"
+							class="p-4 rounded-lg"
+							:class="{
+								'bg-green-50 dark:bg-green-900/20': assistantAnalysis.analysis.reconciliation_assessment.status === 'ready',
+								'bg-yellow-50 dark:bg-yellow-900/20': assistantAnalysis.analysis.reconciliation_assessment.status === 'needs_review',
+								'bg-red-50 dark:bg-red-900/20': assistantAnalysis.analysis.reconciliation_assessment.status === 'issues_found',
+							}">
+							<div class="flex items-center gap-2 mb-2">
+								<UBadge
+									:color="assistantAnalysis.analysis.reconciliation_assessment.status === 'ready' ? 'green' : assistantAnalysis.analysis.reconciliation_assessment.status === 'needs_review' ? 'yellow' : 'red'"
+									variant="soft" size="lg">
+									{{ assistantAnalysis.analysis.reconciliation_assessment.status?.replace('_', ' ').toUpperCase() }}
+								</UBadge>
+							</div>
+							<div v-if="assistantAnalysis.analysis.reconciliation_assessment.issues?.length" class="mb-3">
+								<h4 class="text-sm font-semibold mb-1 dark:text-white">Issues:</h4>
+								<ul class="list-disc list-inside text-sm space-y-1 text-gray-700 dark:text-gray-300">
+									<li v-for="(issue, idx) in assistantAnalysis.analysis.reconciliation_assessment.issues" :key="idx">{{ issue }}</li>
+								</ul>
+							</div>
+							<div v-if="assistantAnalysis.analysis.reconciliation_assessment.recommendations?.length">
+								<h4 class="text-sm font-semibold mb-1 dark:text-white">Recommendations:</h4>
+								<ul class="list-disc list-inside text-sm space-y-1 text-gray-700 dark:text-gray-300">
+									<li v-for="(rec, idx) in assistantAnalysis.analysis.reconciliation_assessment.recommendations" :key="idx">{{ rec }}</li>
+								</ul>
+							</div>
+						</div>
+
+						<!-- Action Items -->
+						<div v-if="assistantAnalysis.analysis?.items?.length > 0">
+							<h3 class="font-semibold uppercase tracking-wide text-lg border-b dark:border-gray-700 pb-2 mb-4 dark:text-white">
+								ACTION ITEMS ({{ assistantAnalysis.analysis.items.length }})
+							</h3>
+
+							<!-- Step-through UI -->
+							<div class="space-y-3">
+								<div
+									v-for="(item, idx) in assistantAnalysis.analysis.items"
+									:key="idx"
+									class="border dark:border-gray-700 rounded-lg p-4"
+									:class="{
+										'border-l-4 border-l-green-500': item.action === 'categorize',
+										'border-l-4 border-l-yellow-500': item.action === 'add_note' || item.action === 'flag_review',
+										'border-l-4 border-l-purple-500': item.action === 'link_transfer',
+										'border-l-4 border-l-blue-500': item.action === 'mark_future_period',
+										'opacity-50': assistantApplied[item.transaction_id + '_' + idx],
+									}">
+									<div class="flex items-start justify-between gap-4">
+										<div class="flex-1">
+											<div class="flex items-center gap-2 mb-1">
+												<UBadge
+													:color="item.action === 'categorize' ? 'green' : item.action === 'add_note' ? 'yellow' : item.action === 'link_transfer' ? 'violet' : item.action === 'mark_future_period' ? 'blue' : 'red'"
+													variant="soft" size="sm">
+													{{ item.action.replace('_', ' ') }}
+												</UBadge>
+												<UBadge
+													:color="item.confidence === 'high' ? 'green' : item.confidence === 'medium' ? 'yellow' : 'gray'"
+													variant="outline" size="xs">
+													{{ item.confidence }} confidence
+												</UBadge>
+												<span class="text-xs text-gray-400">TX #{{ item.transaction_id }}</span>
+											</div>
+											<p class="text-sm font-medium dark:text-white">{{ item.suggestion }}</p>
+											<p v-if="item.category_name" class="text-xs text-green-700 dark:text-green-400 mt-1">
+												Category: {{ item.category_name }}
+											</p>
+											<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ item.reasoning }}</p>
+										</div>
+										<div class="flex gap-1">
+											<UButton
+												v-if="canReconcile && !assistantApplied[item.transaction_id + '_' + idx]"
+												color="green"
+												variant="soft"
+												size="xs"
+												icon="i-heroicons-check"
+												:loading="applyingItem === idx"
+												@click="applyAssistantItem(item, idx)">
+												Apply
+											</UButton>
+											<UButton
+												v-if="assistantApplied[item.transaction_id + '_' + idx]"
+												color="green"
+												variant="ghost"
+												size="xs"
+												icon="i-heroicons-check-circle"
+												disabled>
+												Applied
+											</UButton>
+											<UButton
+												v-if="canReconcile && !assistantApplied[item.transaction_id + '_' + idx]"
+												color="gray"
+												variant="ghost"
+												size="xs"
+												icon="i-heroicons-x-mark"
+												@click="dismissAssistantItem(item, idx)">
+											</UButton>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Bulk Apply -->
+							<div v-if="unappliedHighConfidenceCount > 0" class="mt-4 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg flex items-center justify-between">
+								<p class="text-sm text-green-800 dark:text-green-200">
+									{{ unappliedHighConfidenceCount }} high-confidence suggestions ready to apply
+								</p>
+								<UButton
+									v-if="canReconcile"
+									color="green"
+									variant="soft"
+									size="sm"
+									icon="i-heroicons-check-badge"
+									:loading="bulkApplying"
+									@click="bulkApplyHighConfidence">
+									Apply All High-Confidence
+								</UButton>
+							</div>
+						</div>
+
+						<!-- Token Usage -->
+						<div v-if="assistantAnalysis.token_usage" class="text-xs text-gray-400 dark:text-gray-500 text-right">
+							Claude tokens: {{ assistantAnalysis.token_usage.input_tokens }} in / {{ assistantAnalysis.token_usage.output_tokens }} out
+						</div>
 					</div>
 				</UCard>
 			</template>
@@ -705,10 +936,47 @@ const generatingReport = ref(false);
 const savedReports = ref([]);
 const transactionNotesMap = ref({});
 
+// Auto-link transfers state
+const autoLinking = ref(false);
+const autoLinkResults = ref(null);
+
+// Claude Assistant state
+const assistantLoading = ref(false);
+const assistantAnalysis = ref(null);
+const assistantApplied = ref({});
+const applyingItem = ref(null);
+const bulkApplying = ref(false);
+
+const reconcilingMonth = ref(false);
+
+const transactionsCollection = useDirectusItems('transactions');
+const budgetCategoriesCollection = useDirectusItems('budget_categories');
+const reconciliationNotesCollection = useDirectusItems('reconciliation_notes');
+
+// Find the current month's reconciliation report
+const currentMonthReport = computed(() => {
+	return savedReports.value.find(
+		(r) => r.report_month === selectedMonth.value &&
+			(typeof r.account_id === 'object' ? r.account_id?.id : r.account_id) === selectedAccount.value
+	);
+});
+
+const currentMonthReportStatus = computed(() => {
+	return currentMonthReport.value?.reconciliation_status || null;
+});
+
+const unappliedHighConfidenceCount = computed(() => {
+	if (!assistantAnalysis.value?.analysis?.items) return 0;
+	return assistantAnalysis.value.analysis.items.filter(
+		(item, idx) => item.confidence === 'high' && !assistantApplied.value[item.transaction_id + '_' + idx]
+	).length;
+});
+
 // Tabs configuration
 const tabs = [
 	{ slot: 'monthly', label: 'Monthly', icon: 'i-heroicons-calendar' },
 	{ slot: 'transactions', label: 'Transactions', icon: 'i-heroicons-list-bullet' },
+	{ slot: 'assistant', label: 'Claude Assistant', icon: 'i-heroicons-sparkles' },
 	{ slot: 'ytd', label: 'Year-to-Date', icon: 'i-heroicons-chart-bar' },
 	{ slot: 'budget', label: 'Budget Tracking', icon: 'i-heroicons-currency-dollar' },
 	{ slot: 'reports', label: 'Reports', icon: 'i-heroicons-document-chart-bar' },
@@ -920,6 +1188,187 @@ const getTransactionActions = (transaction) => {
 	];
 };
 
+// ========================
+// RECONCILE CURRENT MONTH
+// ========================
+const reconcileCurrentMonth = async () => {
+	reconcilingMonth.value = true;
+
+	try {
+		const txs = monthlyReconciliation.value?.allTransactions || [];
+		const stmt = monthlyReconciliation.value?.statement;
+
+		if (currentMonthReport.value) {
+			// Report exists - certify and close it
+			await completeReconciliationReport(currentMonthReport.value.id);
+		} else {
+			// Generate report then immediately certify it
+			const reportData = await generateMonthlyReport(
+				selectedYear.value,
+				selectedAccount.value,
+				selectedMonth.value,
+				txs,
+				stmt
+			);
+
+			const report = await createReconciliationReport(reportData);
+
+			// If balances match, mark as reconciled immediately
+			if (report && monthlyReconciliation.value?.isReconciled) {
+				await completeReconciliationReport(report.id);
+			}
+		}
+
+		// Also bulk-reconcile all pending transactions for this month
+		const pendingTxIds = txs
+			.filter((t) => !t.reconciliation_status || t.reconciliation_status === 'pending')
+			.map((t) => t.id);
+
+		if (pendingTxIds.length > 0) {
+			await bulkReconcileTransactions(pendingTxIds, 'reconciled');
+		}
+
+		await loadReports();
+		await fetchData();
+	} catch (err) {
+		console.error('Error reconciling month:', err);
+	} finally {
+		reconcilingMonth.value = false;
+	}
+};
+
+// ========================
+// AUTO-LINK TRANSFERS
+// ========================
+const runAutoLinkTransfers = async () => {
+	autoLinking.value = true;
+	autoLinkResults.value = null;
+
+	try {
+		const result = await $fetch('/api/admin/auto-link-transfers', {
+			method: 'POST',
+			body: {
+				fiscal_year: selectedYear.value,
+			},
+		});
+		autoLinkResults.value = result;
+		// Refresh data to reflect linked transfers
+		await fetchData();
+	} catch (err) {
+		console.error('Auto-link transfers error:', err);
+		autoLinkResults.value = {
+			linked: 0,
+			categorized: 0,
+			skipped: 0,
+			results: [],
+			errors: [err.message || 'Auto-link failed'],
+		};
+	} finally {
+		autoLinking.value = false;
+	}
+};
+
+// ========================
+// CLAUDE ASSISTANT
+// ========================
+const runReconciliationAssistant = async () => {
+	assistantLoading.value = true;
+	assistantAnalysis.value = null;
+	assistantApplied.value = {};
+
+	try {
+		const result = await $fetch('/api/admin/reconciliation-assistant', {
+			method: 'POST',
+			body: {
+				fiscal_year: selectedYear.value,
+				account_id: selectedAccount.value,
+				month: selectedMonth.value,
+			},
+		});
+		assistantAnalysis.value = result;
+	} catch (err) {
+		console.error('Reconciliation assistant error:', err);
+		assistantAnalysis.value = {
+			analysis: {
+				summary: `Error: ${err.message || 'Analysis failed'}`,
+				items: [],
+				reconciliation_assessment: {
+					status: 'issues_found',
+					issues: [err.message || 'Analysis failed'],
+					recommendations: ['Check that ANTHROPIC_API_KEY is configured'],
+				},
+			},
+		};
+	} finally {
+		assistantLoading.value = false;
+	}
+};
+
+const applyAssistantItem = async (item, idx) => {
+	applyingItem.value = idx;
+
+	try {
+		if (item.action === 'categorize' && item.category_name) {
+			// Look up the category by name
+			const categories = await budgetCategoriesCollection.list({
+				filter: {
+					_or: [
+						{ fiscal_year: { year: { _eq: selectedYear.value } } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
+				fields: ['id', 'category_name'],
+				limit: -1,
+			});
+			const cat = categories.find((c) =>
+				c.category_name.toLowerCase() === item.category_name.toLowerCase()
+			);
+
+			if (cat) {
+				await transactionsCollection.update(item.transaction_id, {
+					category_id: cat.id,
+					auto_categorized: true,
+				});
+			}
+		} else if (item.action === 'add_note' || item.action === 'flag_review') {
+			await createNote(item.transaction_id, {
+				note: item.note_text || item.suggestion,
+				note_type: item.action === 'flag_review' ? 'inquiry' : 'general',
+			});
+		}
+
+		assistantApplied.value[item.transaction_id + '_' + idx] = true;
+	} catch (err) {
+		console.error('Error applying assistant item:', err);
+	} finally {
+		applyingItem.value = null;
+	}
+};
+
+const dismissAssistantItem = (item, idx) => {
+	assistantApplied.value[item.transaction_id + '_' + idx] = true;
+};
+
+const bulkApplyHighConfidence = async () => {
+	if (!assistantAnalysis.value?.analysis?.items) return;
+
+	bulkApplying.value = true;
+	try {
+		for (let idx = 0; idx < assistantAnalysis.value.analysis.items.length; idx++) {
+			const item = assistantAnalysis.value.analysis.items[idx];
+			if (item.confidence === 'high' && !assistantApplied.value[item.transaction_id + '_' + idx]) {
+				await applyAssistantItem(item, idx);
+			}
+		}
+		// Refresh transaction data
+		await fetchData();
+	} catch (err) {
+		console.error('Bulk apply error:', err);
+	} finally {
+		bulkApplying.value = false;
+	}
+};
+
 const generateReport = async () => {
 	generatingReport.value = true;
 	try {
@@ -963,5 +1412,9 @@ onMounted(async () => {
 // Watch for changes
 watch([selectedYear, selectedAccount, selectedMonth], async () => {
 	await loadReports();
+	// Reset assistant state when filters change
+	assistantAnalysis.value = null;
+	assistantApplied.value = {};
+	autoLinkResults.value = null;
 });
 </script>

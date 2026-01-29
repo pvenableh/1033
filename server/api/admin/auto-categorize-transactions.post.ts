@@ -238,7 +238,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'waste', 'trash', 'garbage', 'lawn', 'garden', 'a/c',
 		'air condition', 'fire equip', 'fire alarm', 'security',
 		'camera', 'gate', 'access control', 'maverick', 'gutierrez',
-		'wash multifamily', 'laundry', 'pressure wash', 'roofing',
+		'laundry', 'pressure wash', 'roofing',
 		'painting', 'electrical repair',
 	],
 	Regulatory: [
@@ -259,7 +259,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 	],
 };
 
-// Additional vendor-to-category map for common HOA vendors
+// Additional vendor-to-category map for common HOA vendors (applies to withdrawals)
 const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'fpl': 'Utilities',
 	'florida power': 'Utilities',
@@ -270,6 +270,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'att': 'Utilities',
 	'miami beach water': 'Utilities',
 	'miami-dade water': 'Utilities',
+	'betterwaste': 'Utilities',
 	'waste management': 'Maintenance',
 	'wash multifamily': 'Maintenance',
 	'maverick': 'Maintenance',
@@ -282,7 +283,20 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'dbpr': 'Regulatory',
 	'first insurance': 'Insurance',
 	'citizens': 'Insurance',
+	'1 touch elevator': 'Maintenance',
+	'1-touch': 'Maintenance',
+	'buildium': 'Professional',
+	'diana wyatt': 'Professional',
+	'harry tempkins': 'Maintenance',
+	'general deposit ub': 'Utilities',
+	'mdcbuildings': 'Maintenance',
 };
+
+// Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
+const VENDOR_DEPOSIT_REVENUE: string[] = [
+	'wash multifamily',
+	'buildium',
+];
 
 // ============================================================
 // Build a map from DB category IDs to keyword lists
@@ -500,10 +514,30 @@ function matchTransaction(
 
 	// --- Pass 3: Vendor name → category mapping ---
 	// Use known HOA vendor-to-category associations
+	// Some vendors map to Revenue when they appear as deposits (e.g., laundry income from Wash Multifamily)
 	if (!result.category_id) {
 		for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 			if (searchText.includes(vendorKey)) {
-				// Find the matching DB category
+				// Check if this vendor should be Revenue when it's a deposit
+				const isDeposit = transaction.transaction_type === 'deposit';
+				const isDepositRevenueVendor = VENDOR_DEPOSIT_REVENUE.some((v) => vendorKey.includes(v) || v.includes(vendorKey));
+
+				if (isDeposit && isDepositRevenueVendor) {
+					// Map to Revenue instead of the default vendor category
+					const revenueCategory = budgetCategories.find((cat: any) => {
+						const name = (cat.category_name || '').toLowerCase();
+						return name.includes('revenue') || name.includes('income') || name.includes('assessment');
+					});
+					if (revenueCategory) {
+						result.category_id = revenueCategory.id;
+						result.category_name = revenueCategory.category_name;
+						result.confidence = 75;
+						result.matched_by = 'vendor_deposit_revenue';
+						break;
+					}
+				}
+
+				// Standard vendor-to-category lookup for non-deposit or non-revenue vendors
 				for (const [catId, catInfo] of categoryKeywordMap) {
 					const catGroupLower = catInfo.name.toLowerCase();
 					if (
@@ -525,8 +559,8 @@ function matchTransaction(
 
 	// --- Pass 4: Transaction type heuristics ---
 	// In an HOA context, nearly all deposits are assessment/dues revenue.
-	// Match ALL deposit-type transactions to the Revenue/Income category.
-	if (!result.category_id && (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_in')) {
+	// Only match deposit-type transactions (NOT transfers) to the Revenue/Income category.
+	if (!result.category_id && transaction.transaction_type === 'deposit') {
 		// Find the revenue/income category
 		const revenueCategory = budgetCategories.find((cat: any) => {
 			const name = (cat.category_name || '').toLowerCase();

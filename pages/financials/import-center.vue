@@ -1844,6 +1844,28 @@ async function importTransactions() {
 		const fyId = resolvedStmtFiscalYearId.value;
 		const batchId = `import_${stmtFiscalYear.value}_${stmtMonth.value || 'all'}_${Date.now()}`;
 
+		// Load budget categories for mapping CSV Category names to category_ids
+		let categoryNameMap = {};
+		try {
+			const categories = await budgetCategoriesCollection.list({
+				filter: {
+					_or: [
+						{ fiscal_year: { _eq: fyId } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
+				fields: ['id', 'category_name'],
+				limit: -1,
+			});
+			for (const cat of categories) {
+				if (cat.category_name) {
+					categoryNameMap[cat.category_name.toLowerCase().trim()] = cat.id;
+				}
+			}
+		} catch (err) {
+			console.warn('Could not load budget categories for mapping:', err.message);
+		}
+
 		// Load existing transactions for duplicate detection
 		const existingFilter = {
 			account_id: { _eq: stmtAccountId.value },
@@ -1883,9 +1905,22 @@ async function importTransactions() {
 
 			try {
 				const txDate = formatTransactionDate(tx.date);
-				const txType = normalizeType(tx.type);
+				let txType = normalizeType(tx.type);
 				const txDesc = (tx.description || '').trim();
 				const txAmount = Math.abs(tx.amount);
+				const csvCategory = (tx.category || tx._raw?.Category || '').trim();
+
+				// Detect transfers: if CSV Category is "Transfer", set proper transaction_type
+				if (csvCategory.toLowerCase() === 'transfer') {
+					txType = txType === 'deposit' ? 'transfer_in' : 'transfer_out';
+				}
+
+				// Resolve CSV category name to a budget category ID
+				let categoryId = null;
+				if (csvCategory && csvCategory.toLowerCase() !== 'transfer') {
+					// Look up by exact name (case-insensitive)
+					categoryId = categoryNameMap[csvCategory.toLowerCase().trim()] || null;
+				}
 
 				// Duplicate check against existing DB records + already-imported in this batch
 				const fp = txFingerprint(txDate, txAmount, txDesc, txType);
@@ -1895,7 +1930,7 @@ async function importTransactions() {
 					continue;
 				}
 
-				await transactionsCollection.create({
+				const txRecord = {
 					fiscal_year: fyId,
 					account_id: stmtAccountId.value,
 					transaction_date: txDate,
@@ -1907,9 +1942,17 @@ async function importTransactions() {
 					statement_month: stmtMonth.value || null,
 					import_batch_id: batchId,
 					csv_source_line: tx._source_line || i + 1,
-					original_csv_data: tx._raw || { date: tx.date, description: tx.description, amount: tx.amount, type: tx.type, vendor: tx.vendor },
+					original_csv_data: tx._raw || { date: tx.date, description: tx.description, amount: tx.amount, type: tx.type, vendor: tx.vendor, category: csvCategory },
 					status: 'published',
-				});
+				};
+
+				// Set category_id if resolved from CSV Category column
+				if (categoryId) {
+					txRecord.category_id = categoryId;
+					txRecord.auto_categorized = true;
+				}
+
+				await transactionsCollection.create(txRecord);
 
 				// Add to fingerprint set so later rows in this batch are also deduplicated
 				existingFingerprints.add(fp);
