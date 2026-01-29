@@ -24,11 +24,16 @@ This document covers the HOA financial management system, including budget manag
   - [Fiscal Year Management](#fiscal-year-management)
   - [Budget CSV Import](#budget-csv-import)
   - [Statement Import (PDF / JSON / CSV)](#statement-import-pdf--json--csv)
+  - [Claude AI PDF Extraction](#claude-ai-pdf-extraction)
+  - [Duplicate Detection](#duplicate-detection)
+  - [Data Traceability](#data-traceability)
   - [Fiscal Year Auto-Detection](#fiscal-year-auto-detection)
   - [Data Maintenance & Repair](#data-maintenance--repair)
   - [Server API -- parse-statement](#server-api----parse-statement)
+  - [Server API -- extract-pdf-transactions](#server-api----extract-pdf-transactions)
   - [JSON Transaction Format](#json-transaction-format)
 - [Workflows](#workflows)
+  - [Recommended Import Workflow](#recommended-import-workflow)
   - [Setting Up a New Fiscal Year](#setting-up-a-new-fiscal-year)
   - [Monthly Reconciliation](#monthly-reconciliation)
   - [Budget Amendments](#budget-amendments)
@@ -694,7 +699,10 @@ The Import Center (`/financials/import-center`) is a unified page for authorized
 
 **Route:** `/financials/import-center`
 **Page file:** `pages/financials/import-center.vue`
-**Server endpoint:** `server/api/admin/parse-statement.post.ts`
+**Server endpoints:**
+- `server/api/admin/parse-statement.post.ts` -- CSV/JSON/PDF parsing and file upload
+- `server/api/admin/extract-pdf-transactions.post.ts` -- Claude AI PDF extraction
+**Server utility:** `server/utils/claude.ts` -- Reusable Claude API client
 
 ### Import Center Overview
 
@@ -798,12 +806,25 @@ await budgetCategoriesCollection.create({
 Import bank statement transactions into the system. Three upload methods are supported:
 
 #### PDF Upload
+Two workflows are available for PDF bank statements:
+
+**Option A: Claude AI extraction (recommended)**
 1. Select account and fiscal year
 2. Upload the PDF bank statement
-3. The PDF is stored in Directus file storage
-4. Paste or upload a JSON version of the extracted transactions
+3. Click **"Extract with Claude AI"** -- Claude reads the PDF and returns structured transactions
+4. The statement period and month are auto-detected from the PDF content
+5. Review the preview table (balances, transaction count, deposits/withdrawals totals)
+6. Import to Directus
+
+**Option B: Manual JSON entry (fallback)**
+1. Select account and fiscal year
+2. Upload the PDF bank statement
+3. Click **"Upload PDF Only"** -- the PDF is stored in Directus file storage
+4. Paste a JSON version of the extracted transactions into the text area
 5. Review the preview table
 6. Import to Directus
+
+Option B is useful when Claude AI is not configured or if the PDF format is not well-supported.
 
 #### JSON Upload
 Upload a JSON file or paste JSON directly. Two formats accepted:
@@ -863,7 +884,95 @@ await transactionsCollection.create({
 });
 ```
 
-**Duplicate detection:** Before importing, existing transactions for the same account/fiscal year/month are loaded. Each new transaction is checked against existing records by date + amount + description prefix. Duplicates are skipped.
+### Claude AI PDF Extraction
+
+The Import Center integrates with the Anthropic Claude API to extract structured transaction data from PDF bank statements.
+
+**Setup:**
+1. Obtain an API key from [Anthropic](https://console.anthropic.com/)
+2. Set the `ANTHROPIC_API_KEY` environment variable
+3. Restart the Nuxt server
+
+**How it works:**
+1. The PDF is sent to Claude's Messages API as a base64-encoded document
+2. Claude reads the full PDF and extracts every transaction with date, description, amount, type, and vendor
+3. Beginning/ending balances and statement period are also extracted
+4. The response is parsed and normalized into the standard transaction format
+5. Token usage (input + output) is displayed in the UI for cost tracking
+
+**Server utility:** `server/utils/claude.ts` provides reusable functions:
+
+```javascript
+import { callClaude, pdfToContentBlock, extractClaudeText, isClaudeConfigured } from '~/server/utils/claude';
+
+// Check if API key is configured
+isClaudeConfigured(); // true/false
+
+// Send a message to Claude
+const response = await callClaude({
+  system: 'You are a helpful assistant.',
+  messages: [
+    { role: 'user', content: 'Hello' }
+  ],
+  model: 'claude-sonnet-4-20250514',  // optional, defaults to claude-sonnet-4-20250514
+  maxTokens: 8192,                    // optional, defaults to 8192
+});
+
+// Extract text from response
+const text = extractClaudeText(response);
+
+// Build content blocks for PDFs and images
+const pdfBlock = pdfToContentBlock(pdfBuffer);
+const imgBlock = imageToContentBlock(imgBuffer, 'image/png');
+```
+
+The utility is general-purpose and can be used for any Claude API call in the application, not just PDF extraction.
+
+### Duplicate Detection
+
+Both transaction and budget imports include robust duplicate detection to prevent re-importing data that already exists.
+
+#### Transaction Duplicate Detection
+
+Transactions are deduplicated using a **fingerprint-based approach** with O(1) Set lookups:
+
+```
+fingerprint = date | amount | description | transaction_type
+```
+
+- **Full description matching** -- the entire description is compared (not just a prefix)
+- **Type-aware** -- deposits and withdrawals with the same date/amount/description are treated as distinct
+- **Amount normalization** -- amounts are compared as absolute values rounded to 2 decimal places
+- **Intra-batch deduplication** -- newly imported transactions are added to the fingerprint set during the import loop, so duplicate rows within the same upload file are also caught
+- **Warning on failure** -- if existing transactions cannot be loaded (e.g., network error), a warning is surfaced in the results instead of silently skipping detection
+
+The import results summary shows: `X created, Y duplicates skipped, Z errors`.
+
+#### Budget Duplicate Detection
+
+Budget items are deduplicated by `category_id + item_code`:
+
+- Before creating budget items, all existing items for the fiscal year are loaded
+- A Set of `"categoryId::itemCode"` keys is built from existing records
+- Items whose key already exists are skipped
+- New items created during the batch are added to the Set for intra-batch deduplication
+- Existing categories are reused (not duplicated) when the category name matches
+
+The import results summary shows: `X categories created, Y budget items created, Z duplicate items skipped`.
+
+**Re-running imports is safe and idempotent** -- uploading the same CSV or JSON file a second time will skip all previously imported records.
+
+### Data Traceability
+
+Every imported transaction records its source data for audit and debugging:
+
+| Field | Description |
+|---|---|
+| `import_batch_id` | Unique batch identifier: `import_{year}_{month}_{timestamp}` |
+| `csv_source_line` | 1-based row number from the original source file |
+| `original_csv_data` | The raw, un-normalized source object as it appeared in the CSV/JSON |
+
+These fields are populated for all import paths: server-parsed CSV, server-parsed JSON, client-side JSON paste, and Claude AI extraction.
 
 ### Data Maintenance & Repair
 
@@ -871,28 +980,35 @@ The Data Maintenance tab provides a tool to fix transactions that were imported 
 
 **How it works:**
 
-1. **Scan** -- Loads all `fiscal_years` records to build a set of valid IDs and a year-to-ID mapping. Then loads all transactions and checks whether each `fiscal_year` value is a valid record ID.
+The scan runs in multiple passes to handle how Directus treats unresolvable M2O values:
 
-2. **Identify issues** -- Transactions where `fiscal_year` is not in the valid ID set are flagged. The year number is extracted and matched against the `fiscal_years` collection to find the correct ID.
+1. **Load fiscal year records** -- Builds a set of valid record IDs and a year-to-ID mapping.
 
-3. **Repair** -- Updates each flagged transaction's `fiscal_year` to the correct M2O record ID in batch, with progress tracking.
+2. **Count correct references** -- Queries transactions for each valid fiscal year ID to count those already correctly linked.
+
+3. **Find null-value transactions** -- When Directus encounters a `fiscal_year` value like `2025` that doesn't match any record ID in the `fiscal_years` collection, it returns `null` for that M2O field. The scan queries for `fiscal_year: { _null: true }` and infers the correct year from `transaction_date`.
+
+4. **Catch raw values** -- Also scans all transactions to catch any non-null `fiscal_year` values that aren't valid record IDs (in case Directus didn't nullify them).
+
+5. **Missing years warning** -- If transactions reference years that have no `fiscal_years` record, a warning panel shows which years need to be created. The repair button is disabled until all required fiscal years exist.
+
+6. **Repair** -- Updates each flagged transaction's `fiscal_year` to the correct M2O record ID in batch, with progress tracking.
 
 ```javascript
-// Scan logic
-const validIds = new Set(fiscalYears.map(fy => fy.id));   // e.g., {1, 2, 3}
+// Year-to-ID mapping built from fiscal_years collection
 const yearToIdMap = { 2024: 1, 2025: 2, 2026: 3 };
 
-// For each transaction:
-if (!validIds.has(tx.fiscal_year)) {
-  // tx.fiscal_year is likely 2025 (raw year) instead of 2 (record ID)
-  correctId = yearToIdMap[tx.fiscal_year];  // → 2
-}
+// For null-value transactions, year is inferred from transaction_date
+const yearNum = new Date(tx.transaction_date).getFullYear(); // e.g., 2025
+const correctId = yearToIdMap[yearNum]; // → 2
 
 // Repair:
 await transactionsCollection.update(tx.id, { fiscal_year: correctId });
 ```
 
 **When to run:** After importing transactions from the older import pages (`import.vue`, `import-one.vue`, `import-two.vue`) which passed raw year numbers. The Import Center's own imports always resolve the M2O ID correctly.
+
+**Prerequisites:** All years referenced by transactions must have `fiscal_years` records. Use the Bank Accounts tab to create them before running the repair.
 
 ### Server API -- parse-statement
 
@@ -915,6 +1031,46 @@ Accepts multipart form data with a file upload. Returns parsed transaction data 
 | **PDF** | Uploads to Directus file storage, returns file ID and instructions to provide JSON |
 
 **Authentication:** Requires an authenticated session with admin/board member access. Uses `hasAdminAccess()` server-side check.
+
+### Server API -- extract-pdf-transactions
+
+**Endpoint:** `POST /api/admin/extract-pdf-transactions`
+
+Sends a PDF bank statement to Claude AI for transaction extraction. Returns structured transaction data ready for import.
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `file` | File | Yes | PDF bank statement |
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "transactions": [
+    {
+      "date": "01/02/2025",
+      "description": "Remote Deposit - Multiple Units",
+      "amount": 2300.00,
+      "type": "deposit",
+      "vendor": "Multiple Units"
+    }
+  ],
+  "beginning_balance": 46086.55,
+  "ending_balance": 64114.11,
+  "statement_period": "January 2025",
+  "account_number_last4": "5129",
+  "token_usage": { "input": 12500, "output": 3200 },
+  "message": "Claude extracted 45 transactions from the PDF statement."
+}
+```
+
+**Error responses:**
+- `503` -- `ANTHROPIC_API_KEY` not configured
+- `400` -- No file uploaded or file is not a PDF
+- `200` with `success: false` -- Claude returned invalid JSON or extraction failed
+
+**Authentication:** Same as parse-statement (admin/board member access required).
 
 ### JSON Transaction Format
 
@@ -944,10 +1100,68 @@ interface ParsedTransaction {
 
 ## Workflows
 
+### Recommended Import Workflow
+
+The optimal order for importing financial data into a new or existing system:
+
+#### Initial Setup (one-time)
+
+1. **Configure Claude AI** (optional but recommended)
+   - Set the `ANTHROPIC_API_KEY` environment variable
+   - This enables automatic PDF bank statement extraction
+
+2. **Create Fiscal Years** (Bank Accounts tab)
+   - Create a `fiscal_years` record for each year you have data for (e.g., 2024, 2025)
+   - Set status to `published` so they appear in import dropdowns
+   - Fiscal years must exist before budgets or transactions can be imported
+
+3. **Create Bank Accounts** (Bank Accounts tab, if not already present)
+   - Add each bank account (Operating, Reserve, Special Assessment)
+   - Set account number, type, and color
+
+#### Per Fiscal Year (repeat for each year)
+
+4. **Import Budget** (Budget Import tab)
+   - Select the fiscal year
+   - Upload the budget CSV
+   - Review the preview and import
+   - Budget categories and items are created with correct M2O references
+   - *Having budgets in place enables transaction auto-categorization later*
+
+5. **Import Transactions** (Statement Import tab) -- month by month
+   - Select the account, fiscal year, and month
+   - Upload via PDF (Claude AI), JSON, or CSV
+   - Review the preview table (check transaction count, totals, balances)
+   - Import -- duplicates are automatically skipped
+   - Repeat for each month's statement
+
+#### After Import
+
+6. **Run Auto-Categorization** (programmatic)
+   ```javascript
+   const { initializeMatching, batchAutoCategorize, batchApplyAutoCategorization } = useTransactionMatching();
+   await initializeMatching(2025);
+   const uncategorized = await getUncategorizedTransactions(2025, accountId);
+   const categorized = batchAutoCategorize(uncategorized);
+   await batchApplyAutoCategorization(categorized);
+   ```
+
+7. **Reconcile** -- Review and reconcile transactions monthly
+
+#### Key Points
+
+- **Order matters:** Fiscal years first, then budgets, then transactions
+- **Month-by-month is recommended** for transactions -- the `statement_month` field tags each batch and makes reconciliation easier
+- **Re-running is safe** -- duplicate detection is idempotent; uploading the same file twice skips all previously imported records
+- **Mix input methods freely** -- you can use Claude AI for some months and CSV/JSON for others within the same fiscal year and account
+- **Data Maintenance tab** is only needed for transactions imported before the fiscal year M2O system was in place
+
+---
+
 ### Setting Up a New Fiscal Year
 
-1. Create a `fiscal_years` record in Directus with the year and start date
-2. Use `useBudgetManagement`:
+1. Create a `fiscal_years` record via the Import Center (Bank Accounts tab → "+ Add Fiscal Year") or directly in Directus
+2. Use `useBudgetManagement` or the Import Center's Budget Import tab:
    ```javascript
    // Option A: Copy last year's budget
    await copyBudgetToYear(2025, 2026)
