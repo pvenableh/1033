@@ -8,112 +8,112 @@
  *
  * Requires admin/board member access.
  */
-import { hasAdminAccess, useDirectusAdmin, uploadFiles as sdkUploadFiles } from '~/server/utils/directus';
+import {hasAdminAccess, useDirectusAdmin, uploadFiles as sdkUploadFiles} from '~/server/utils/directus';
 
 interface ParsedTransaction {
-  date: string;
-  description: string;
-  amount: number;
-  type: 'deposit' | 'withdrawal' | 'fee' | 'transfer_in' | 'transfer_out';
-  vendor?: string;
-  category?: string;
-  check_number?: string;
-  balance?: number;
-  _raw?: Record<string, any>;
-  _source_line?: number;
+	date: string;
+	description: string;
+	amount: number;
+	type: 'deposit' | 'withdrawal' | 'fee' | 'transfer_in' | 'transfer_out';
+	vendor?: string;
+	category?: string;
+	check_number?: string;
+	balance?: number;
+	_raw?: Record<string, any>;
+	_source_line?: number;
 }
 
 interface StatementParseResult {
-  success: boolean;
-  file_type: 'pdf' | 'json' | 'csv';
-  file_id?: string;
-  file_name?: string;
-  transactions?: ParsedTransaction[];
-  beginning_balance?: number;
-  ending_balance?: number;
-  statement_period?: string;
-  error?: string;
-  message?: string;
+	success: boolean;
+	file_type: 'pdf' | 'json' | 'csv';
+	file_id?: string;
+	file_name?: string;
+	transactions?: ParsedTransaction[];
+	beginning_balance?: number;
+	ending_balance?: number;
+	statement_period?: string;
+	error?: string;
+	message?: string;
 }
 
 export default defineEventHandler(async (event): Promise<StatementParseResult> => {
-  const session = await getUserSession(event);
+	const session = await getUserSession(event);
 
-  if (!session?.user) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'Authentication required',
-    });
-  }
+	if (!session?.user) {
+		throw createError({
+			statusCode: 401,
+			statusMessage: 'Unauthorized',
+			message: 'Authentication required',
+		});
+	}
 
-  if (!hasAdminAccess(session)) {
-    throw createError({
-      statusCode: 403,
-      statusMessage: 'Forbidden',
-      message: 'Admin access required',
-    });
-  }
+	if (!hasAdminAccess(session)) {
+		throw createError({
+			statusCode: 403,
+			statusMessage: 'Forbidden',
+			message: 'Admin access required',
+		});
+	}
 
-  try {
-    const formData = await readMultipartFormData(event);
+	try {
+		const formData = await readMultipartFormData(event);
 
-    if (!formData || formData.length === 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Bad Request',
-        message: 'No file provided',
-      });
-    }
+		if (!formData || formData.length === 0) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Bad Request',
+				message: 'No file provided',
+			});
+		}
 
-    const file = formData.find((item) => item.name === 'file');
-    const accountId = formData.find((item) => item.name === 'account_id')?.data?.toString();
-    const fiscalYear = formData.find((item) => item.name === 'fiscal_year')?.data?.toString();
+		const file = formData.find((item) => item.name === 'file');
+		const accountId = formData.find((item) => item.name === 'account_id')?.data?.toString();
+		const fiscalYear = formData.find((item) => item.name === 'fiscal_year')?.data?.toString();
 
-    if (!file || !file.data || !file.filename) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'Bad Request',
-        message: 'No valid file found in request',
-      });
-    }
+		if (!file || !file.data || !file.filename) {
+			throw createError({
+				statusCode: 400,
+				statusMessage: 'Bad Request',
+				message: 'No valid file found in request',
+			});
+		}
 
-    const filename = file.filename.toLowerCase();
-    const mimeType = file.type || '';
+		const filename = file.filename.toLowerCase();
+		const mimeType = file.type || '';
 
-    // Handle JSON files - parse and return transaction data
-    if (filename.endsWith('.json') || mimeType === 'application/json') {
-      return handleJsonFile(file.data);
-    }
+		// Handle JSON files - parse and return transaction data
+		if (filename.endsWith('.json') || mimeType === 'application/json') {
+			return handleJsonFile(file.data);
+		}
 
-    // Handle CSV files - parse and return transaction data
-    if (filename.endsWith('.csv') || mimeType === 'text/csv') {
-      return handleCsvFile(file.data);
-    }
+		// Handle CSV files - parse and return transaction data
+		if (filename.endsWith('.csv') || mimeType === 'text/csv') {
+			return handleCsvFile(file.data);
+		}
 
-    // Handle PDF files - upload to Directus for storage
-    if (filename.endsWith('.pdf') || mimeType === 'application/pdf') {
-      return await handlePdfFile(file, accountId, fiscalYear);
-    }
+		// Handle PDF files - upload to Directus for storage
+		if (filename.endsWith('.pdf') || mimeType === 'application/pdf') {
+			return await handlePdfFile(file, accountId, fiscalYear);
+		}
 
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Bad Request',
-      message: 'Unsupported file type. Please upload a PDF, JSON, or CSV file.',
-    });
-  } catch (error: any) {
-    console.error('Statement parse error:', error);
+		throw createError({
+			statusCode: 400,
+			statusMessage: 'Bad Request',
+			message: 'Unsupported file type. Please upload a PDF, JSON, or CSV file.',
+		});
+	} catch (error: any) {
+		console.error('Statement parse error:', error);
 
-    if (error.statusCode) {
-      throw error;
-    }
+		if (error.statusCode) {
+			throw error;
+		}
 
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Internal Server Error',
-      message: error.message || 'Failed to process statement file',
-    });
-  }
+		throw createError({
+			statusCode: 500,
+			statusMessage: 'Internal Server Error',
+			message: error.message || 'Failed to process statement file',
+		});
+	}
 });
 
 /**
@@ -129,127 +129,127 @@ export default defineEventHandler(async (event): Promise<StatementParseResult> =
  * }
  */
 function handleJsonFile(data: Buffer): StatementParseResult {
-  try {
-    const jsonStr = data.toString('utf-8');
-    const parsed = JSON.parse(jsonStr);
+	try {
+		const jsonStr = data.toString('utf-8');
+		const parsed = JSON.parse(jsonStr);
 
-    // Support both array-of-transactions and object-with-transactions
-    let transactions: ParsedTransaction[] = [];
-    let beginningBalance: number | undefined;
-    let endingBalance: number | undefined;
-    let statementPeriod: string | undefined;
+		// Support both array-of-transactions and object-with-transactions
+		let transactions: ParsedTransaction[] = [];
+		let beginningBalance: number | undefined;
+		let endingBalance: number | undefined;
+		let statementPeriod: string | undefined;
 
-    if (Array.isArray(parsed)) {
-      transactions = parsed;
-    } else if (parsed.transactions && Array.isArray(parsed.transactions)) {
-      transactions = parsed.transactions;
-      beginningBalance = parsed.beginning_balance;
-      endingBalance = parsed.ending_balance;
-      statementPeriod = parsed.statement_period;
-    } else {
-      return {
-        success: false,
-        file_type: 'json',
-        error: 'Invalid JSON format. Expected an array of transactions or an object with a "transactions" array.',
-      };
-    }
+		if (Array.isArray(parsed)) {
+			transactions = parsed;
+		} else if (parsed.transactions && Array.isArray(parsed.transactions)) {
+			transactions = parsed.transactions;
+			beginningBalance = parsed.beginning_balance;
+			endingBalance = parsed.ending_balance;
+			statementPeriod = parsed.statement_period;
+		} else {
+			return {
+				success: false,
+				file_type: 'json',
+				error: 'Invalid JSON format. Expected an array of transactions or an object with a "transactions" array.',
+			};
+		}
 
-    // Validate and normalize transactions, preserving raw source data
-    const normalized = transactions.map((tx: any, index: number) => ({
-      date: tx.date || tx.Date || '',
-      description: tx.description || tx.Description || '',
-      amount: parseFloat(tx.amount || tx.Amount || 0),
-      type: normalizeTransactionType(tx.type || tx.Type || ''),
-      vendor: tx.vendor || tx.Vendor || undefined,
-      category: tx.category || tx.Category || undefined,
-      check_number: tx.check_number || tx.checkNumber || undefined,
-      balance: tx.balance ? parseFloat(tx.balance) : undefined,
-      _raw: tx,
-      _source_line: index + 1,
-    }));
+		// Validate and normalize transactions, preserving raw source data
+		const normalized = transactions.map((tx: any, index: number) => ({
+			date: tx.date || tx.Date || '',
+			description: tx.description || tx.Description || '',
+			amount: parseFloat(tx.amount || tx.Amount || 0),
+			type: normalizeTransactionType(tx.type || tx.Type || ''),
+			vendor: tx.vendor || tx.Vendor || undefined,
+			category: tx.category || tx.Category || undefined,
+			check_number: tx.check_number || tx.checkNumber || undefined,
+			balance: tx.balance ? parseFloat(tx.balance) : undefined,
+			_raw: tx,
+			_source_line: index + 1,
+		}));
 
-    return {
-      success: true,
-      file_type: 'json',
-      transactions: normalized,
-      beginning_balance: beginningBalance,
-      ending_balance: endingBalance,
-      statement_period: statementPeriod,
-      message: `Successfully parsed ${normalized.length} transactions from JSON.`,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      file_type: 'json',
-      error: `Failed to parse JSON: ${error.message}`,
-    };
-  }
+		return {
+			success: true,
+			file_type: 'json',
+			transactions: normalized,
+			beginning_balance: beginningBalance,
+			ending_balance: endingBalance,
+			statement_period: statementPeriod,
+			message: `Successfully parsed ${normalized.length} transactions from JSON.`,
+		};
+	} catch (error: any) {
+		return {
+			success: false,
+			file_type: 'json',
+			error: `Failed to parse JSON: ${error.message}`,
+		};
+	}
 }
 
 /**
  * Parse a CSV statement file (same format as existing reconciliation CSVs).
  */
 function handleCsvFile(data: Buffer): StatementParseResult {
-  try {
-    const csvText = data.toString('utf-8');
-    const lines = csvText.split('\n').filter((line) => line.trim());
+	try {
+		const csvText = data.toString('utf-8');
+		const lines = csvText.split('\n').filter((line) => line.trim());
 
-    if (lines.length < 2) {
-      return {
-        success: false,
-        file_type: 'csv',
-        error: 'CSV file is empty or has no data rows.',
-      };
-    }
+		if (lines.length < 2) {
+			return {
+				success: false,
+				file_type: 'csv',
+				error: 'CSV file is empty or has no data rows.',
+			};
+		}
 
-    const headers = parseCsvLine(lines[0]);
-    const rows = [];
+		const headers = parseCsvLine(lines[0]);
+		const rows = [];
 
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCsvLine(lines[i]);
-      if (values.length === headers.length) {
-        const row: Record<string, string> = {};
-        headers.forEach((header, idx) => {
-          row[header] = values[idx];
-        });
-        rows.push(row);
-      }
-    }
+		for (let i = 1; i < lines.length; i++) {
+			const values = parseCsvLine(lines[i]);
+			if (values.length >= headers.length) {
+				const row: Record<string, string> = {};
+				headers.forEach((header, idx) => {
+					row[header] = values[idx];
+				});
+				rows.push(row);
+			}
+		}
 
-    // Separate balances and transactions
-    const balanceRows = rows.filter((r) => r.Type === 'BALANCE');
-    const transactionRows = rows.filter((r) => r.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(r.Type));
+		// Separate balances and transactions
+		const balanceRows = rows.filter((r) => r.Type === 'BALANCE');
+		const transactionRows = rows.filter((r) => r.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(r.Type));
 
-    const beginningBalance = balanceRows.find((b) => b.SubType === 'Beginning');
-    const endingBalance = balanceRows.find((b) => b.SubType === 'Ending');
+		const beginningBalance = balanceRows.find((b) => b.SubType === 'Beginning');
+		const endingBalance = balanceRows.find((b) => b.SubType === 'Ending');
 
-    const transactions: ParsedTransaction[] = transactionRows.map((row, index) => ({
-      date: row.Date || '',
-      description: row.Description || '',
-      amount: parseFloat(row.Amount || '0'),
-      type: normalizeTransactionType(row.Type || ''),
-      vendor: row.Vendor || undefined,
-      category: row.Category || undefined,
-      _raw: row,
-      _source_line: index + 1,
-    }));
+		const transactions: ParsedTransaction[] = transactionRows.map((row, index) => ({
+			date: row.Date || '',
+			description: row.Description || '',
+			amount: parseFloat(row.Amount || '0'),
+			type: normalizeTransactionType(row.Type || ''),
+			vendor: row.Vendor || undefined,
+			category: row.Category || undefined,
+			_raw: row,
+			_source_line: index + 1,
+		}));
 
-    return {
-      success: true,
-      file_type: 'csv',
-      transactions,
-      beginning_balance: beginningBalance ? parseFloat(beginningBalance.Amount || '0') : undefined,
-      ending_balance: endingBalance ? parseFloat(endingBalance.Amount || '0') : undefined,
-      statement_period: transactionRows[0]?.Period || undefined,
-      message: `Successfully parsed ${transactions.length} transactions from CSV.`,
-    };
-  } catch (error: any) {
-    return {
-      success: false,
-      file_type: 'csv',
-      error: `Failed to parse CSV: ${error.message}`,
-    };
-  }
+		return {
+			success: true,
+			file_type: 'csv',
+			transactions,
+			beginning_balance: beginningBalance ? parseFloat(beginningBalance.Amount || '0') : undefined,
+			ending_balance: endingBalance ? parseFloat(endingBalance.Amount || '0') : undefined,
+			statement_period: transactionRows[0]?.Period || undefined,
+			message: `Successfully parsed ${transactions.length} transactions from CSV.`,
+		};
+	} catch (error: any) {
+		return {
+			success: false,
+			file_type: 'csv',
+			error: `Failed to parse CSV: ${error.message}`,
+		};
+	}
 }
 
 /**
@@ -257,94 +257,94 @@ function handleCsvFile(data: Buffer): StatementParseResult {
  * PDF text extraction happens client-side or via a future AI integration.
  */
 async function handlePdfFile(
-  file: { data: Buffer; filename?: string; type?: string },
-  accountId?: string,
-  fiscalYear?: string
+	file: {data: Buffer; filename?: string; type?: string},
+	accountId?: string,
+	fiscalYear?: string
 ): Promise<StatementParseResult> {
-  try {
-    const client = useDirectusAdmin();
+	try {
+		const client = useDirectusAdmin();
 
-    // Build FormData to upload PDF to Directus files
-    const directusFormData = new FormData();
-    const blob = new Blob([file.data], { type: 'application/pdf' });
-    const sanitizedName = file.filename || 'bank-statement.pdf';
-    directusFormData.append('file', blob, sanitizedName);
+		// Build FormData to upload PDF to Directus files
+		const directusFormData = new FormData();
+		const blob = new Blob([file.data], {type: 'application/pdf'});
+		const sanitizedName = file.filename || 'bank-statement.pdf';
+		directusFormData.append('file', blob, sanitizedName);
 
-    // Add metadata
-    if (accountId) {
-      directusFormData.append('title', `Bank Statement - Account ${accountId}`);
-    }
-    directusFormData.append('folder', 'bank-statements');
+		// Add metadata
+		if (accountId) {
+			directusFormData.append('title', `Bank Statement - Account ${accountId}`);
+		}
+		directusFormData.append('folder', 'bank-statements');
 
-    const result = await client.request(sdkUploadFiles(directusFormData));
+		const result = await client.request(sdkUploadFiles(directusFormData));
 
-    return {
-      success: true,
-      file_type: 'pdf',
-      file_id: (result as any).id,
-      file_name: sanitizedName,
-      message: `PDF "${sanitizedName}" uploaded successfully. Please provide a JSON version of the transactions or use the manual entry form to add transactions from this statement.`,
-    };
-  } catch (error: any) {
-    // If folder doesn't exist, try without folder
-    try {
-      const client = useDirectusAdmin();
-      const directusFormData = new FormData();
-      const blob = new Blob([file.data], { type: 'application/pdf' });
-      directusFormData.append('file', blob, file.filename || 'bank-statement.pdf');
+		return {
+			success: true,
+			file_type: 'pdf',
+			file_id: (result as any).id,
+			file_name: sanitizedName,
+			message: `PDF "${sanitizedName}" uploaded successfully. Please provide a JSON version of the transactions or use the manual entry form to add transactions from this statement.`,
+		};
+	} catch (error: any) {
+		// If folder doesn't exist, try without folder
+		try {
+			const client = useDirectusAdmin();
+			const directusFormData = new FormData();
+			const blob = new Blob([file.data], {type: 'application/pdf'});
+			directusFormData.append('file', blob, file.filename || 'bank-statement.pdf');
 
-      const result = await client.request(sdkUploadFiles(directusFormData));
+			const result = await client.request(sdkUploadFiles(directusFormData));
 
-      return {
-        success: true,
-        file_type: 'pdf',
-        file_id: (result as any).id,
-        file_name: file.filename || 'bank-statement.pdf',
-        message: `PDF uploaded successfully. Please provide a JSON version of the transactions to import them.`,
-      };
-    } catch (retryError: any) {
-      return {
-        success: false,
-        file_type: 'pdf',
-        error: `Failed to upload PDF: ${retryError.message}`,
-      };
-    }
-  }
+			return {
+				success: true,
+				file_type: 'pdf',
+				file_id: (result as any).id,
+				file_name: file.filename || 'bank-statement.pdf',
+				message: `PDF uploaded successfully. Please provide a JSON version of the transactions to import them.`,
+			};
+		} catch (retryError: any) {
+			return {
+				success: false,
+				file_type: 'pdf',
+				error: `Failed to upload PDF: ${retryError.message}`,
+			};
+		}
+	}
 }
 
 function parseCsvLine(line: string): string[] {
-  const result: string[] = [];
-  let current = '';
-  let inQuotes = false;
+	const result: string[] = [];
+	let current = '';
+	let inQuotes = false;
 
-  for (let i = 0; i < line.length; i++) {
-    const char = line[i];
-    const nextChar = line[i + 1];
+	for (let i = 0; i < line.length; i++) {
+		const char = line[i];
+		const nextChar = line[i + 1];
 
-    if (char === '"') {
-      if (inQuotes && nextChar === '"') {
-        current += '"';
-        i++;
-      } else {
-        inQuotes = !inQuotes;
-      }
-    } else if (char === ',' && !inQuotes) {
-      result.push(current.trim());
-      current = '';
-    } else {
-      current += char;
-    }
-  }
-  result.push(current.trim());
-  return result;
+		if (char === '"') {
+			if (inQuotes && nextChar === '"') {
+				current += '"';
+				i++;
+			} else {
+				inQuotes = !inQuotes;
+			}
+		} else if (char === ',' && !inQuotes) {
+			result.push(current.trim());
+			current = '';
+		} else {
+			current += char;
+		}
+	}
+	result.push(current.trim());
+	return result;
 }
 
 function normalizeTransactionType(type: string): ParsedTransaction['type'] {
-  const t = type.toLowerCase().trim();
-  if (t === 'deposit' || t === 'credit') return 'deposit';
-  if (t === 'withdrawal' || t === 'debit' || t === 'check') return 'withdrawal';
-  if (t === 'fee' || t === 'charge') return 'fee';
-  if (t === 'transfer_in' || t === 'transfer in') return 'transfer_in';
-  if (t === 'transfer_out' || t === 'transfer out') return 'transfer_out';
-  return 'withdrawal'; // default
+	const t = type.toLowerCase().trim();
+	if (t === 'deposit' || t === 'credit') return 'deposit';
+	if (t === 'withdrawal' || t === 'debit' || t === 'check') return 'withdrawal';
+	if (t === 'fee' || t === 'charge') return 'fee';
+	if (t === 'transfer_in' || t === 'transfer in') return 'transfer_in';
+	if (t === 'transfer_out' || t === 'transfer out') return 'transfer_out';
+	return 'withdrawal'; // default
 }

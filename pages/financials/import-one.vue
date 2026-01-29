@@ -678,7 +678,7 @@ const parseCSVText = (csvText) => {
 	const data = [];
 	for (let i = 1; i < lines.length; i++) {
 		const values = lines[i].split(',').map((v) => v.trim().replace(/"/g, ''));
-		if (values.length === headers.length) {
+		if (values.length >= headers.length) {
 			const row = {};
 			headers.forEach((header, index) => {
 				row[header] = values[index];
@@ -840,11 +840,14 @@ const importData = async () => {
 
 					if (existingStatements.length > 0) {
 						// Update existing
-						const updateResponse = await fetch(`${directusUrl.value}/items/monthly_statements/${existingStatements[0].id}`, {
-							method: 'PATCH',
-							headers: getAuthHeaders(),
-							body: JSON.stringify(statementData),
-						});
+						const updateResponse = await fetch(
+							`${directusUrl.value}/items/monthly_statements/${existingStatements[0].id}`,
+							{
+								method: 'PATCH',
+								headers: getAuthHeaders(),
+								body: JSON.stringify(statementData),
+							}
+						);
 						if (updateResponse.ok) {
 							results.statement = {action: 'updated'};
 						}
@@ -895,11 +898,14 @@ const importData = async () => {
 
 					if (existingReports.length > 0) {
 						// Update existing
-						const updateResponse = await fetch(`${directusUrl.value}/items/violation_reports/${existingReports[0].id}`, {
-							method: 'PATCH',
-							headers: getAuthHeaders(),
-							body: JSON.stringify(reportData),
-						});
+						const updateResponse = await fetch(
+							`${directusUrl.value}/items/violation_reports/${existingReports[0].id}`,
+							{
+								method: 'PATCH',
+								headers: getAuthHeaders(),
+								body: JSON.stringify(reportData),
+							}
+						);
 						if (updateResponse.ok) {
 							results.violations = {action: 'updated'};
 						}

@@ -1215,7 +1215,7 @@ const parseCSVText = (csvText) => {
 	const data = [];
 	for (let i = 1; i < lines.length; i++) {
 		const values = lines[i].split(',').map((v) => v.trim().replace(/"/g, ''));
-		if (values.length === headers.length) {
+		if (values.length >= headers.length) {
 			const row = {};
 			headers.forEach((header, index) => {
 				row[header] = values[index];
@@ -1451,7 +1451,9 @@ onMounted(async () => {
 
 		// Load all reference data in parallel
 		const [accountsResponse, categoriesResponse, vendorsResponse, budgetItemsResponse] = await Promise.all([
-			fetch(`${directusUrl.value}/items/accounts?filter[status][_eq]=published&sort=account_number`, {headers: authHeaders}),
+			fetch(`${directusUrl.value}/items/accounts?filter[status][_eq]=published&sort=account_number`, {
+				headers: authHeaders,
+			}),
 			fetch(
 				`${directusUrl.value}/items/budget_categories?filter[status][_eq]=published&filter[fiscal_year][_eq]=${selectedFiscalYear.value}&sort=category_name`,
 				{headers: authHeaders}

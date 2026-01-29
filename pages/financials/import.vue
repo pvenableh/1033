@@ -510,7 +510,7 @@ const parseCSV = (csvText) => {
 
 	for (let i = 1; i < lines.length; i++) {
 		const values = parseLine(lines[i]);
-		if (values.length === headers.length) {
+		if (values.length >= headers.length) {
 			const row = {};
 			headers.forEach((header, index) => {
 				let value = values[index];
