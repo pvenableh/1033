@@ -193,7 +193,7 @@
 									:x="(d, i) => i"
 									:y="[(d) => d.revenue, (d) => d.expenses, (d) => d.balance]"
 									:color="['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)']"
-									curveType="monotone" />
+									:curveType="CurveType.MonotoneX" />
 								<VisAxis
 									type="x"
 									:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
@@ -411,13 +411,13 @@
 											:y="(d) => budget2025.totals.monthly"
 											color="rgb(59, 130, 246)"
 											:lineWidth="2"
-											lineDashArray="5 5" />
+											:lineDashArray="[5, 5]" />
 										<VisLine
 											:x="(d, i) => i"
 											:y="(d) => d.expenses"
 											color="rgb(239, 68, 68)"
 											:lineWidth="2"
-											curveType="monotone" />
+											:curveType="CurveType.MonotoneX" />
 										<VisAxis
 											type="x"
 											:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
@@ -1075,6 +1075,7 @@
 
 <script setup>
 import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';
+import { CurveType } from '@unovis/ts';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
 
 const {
