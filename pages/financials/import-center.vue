@@ -862,6 +862,119 @@
 				</div>
 			</div>
 
+			<!-- Monthly Statements Backfill & PDF Upload -->
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4">
+					<h2 class="text-xl font-semibold text-gray-900">Monthly Statements Manager</h2>
+					<p class="text-sm text-gray-500 mt-1">
+						Create monthly_statement records from existing transactions and attach PDF bank statements.
+						Statements are used for reconciliation and balance tracking.
+					</p>
+				</div>
+				<div class="p-6 space-y-6">
+					<!-- Backfill Controls -->
+					<div class="flex items-center gap-4">
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="stmtMgrFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+						</div>
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Account:</label>
+							<select v-model="stmtMgrAccountId" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option :value="null">All Accounts</option>
+								<option v-for="acct in accounts" :key="acct.id" :value="acct.id">
+									{{ acct.account_name }} ({{ acct.account_number }})
+								</option>
+							</select>
+						</div>
+						<button
+							v-if="canCreateFinancials"
+							@click="runBackfillStatements"
+							:disabled="stmtMgrBackfilling"
+							class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 text-sm">
+							<span v-if="stmtMgrBackfilling" class="flex items-center gap-2">
+								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								Creating Statements...
+							</span>
+							<span v-else>Create Monthly Statements</span>
+						</button>
+						<button
+							v-if="stmtMgrStatements.length > 0"
+							@click="loadExistingStatements"
+							class="text-indigo-600 hover:text-indigo-800 text-sm underline">
+							Refresh List
+						</button>
+					</div>
+
+					<!-- Backfill Results -->
+					<div v-if="stmtMgrBackfillResults" class="p-4 rounded-lg border"
+						:class="stmtMgrBackfillResults.created > 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'">
+						<h3 class="font-semibold" :class="stmtMgrBackfillResults.created > 0 ? 'text-indigo-800' : 'text-gray-700'">
+							Backfill Results
+						</h3>
+						<ul class="text-sm mt-2 space-y-1">
+							<li>Created: {{ stmtMgrBackfillResults.created }}</li>
+							<li v-if="stmtMgrBackfillResults.updated > 0">Updated: {{ stmtMgrBackfillResults.updated }}</li>
+							<li v-if="stmtMgrBackfillResults.skipped > 0">Already existed: {{ stmtMgrBackfillResults.skipped }}</li>
+						</ul>
+					</div>
+
+					<!-- Existing Statements with PDF Upload -->
+					<div v-if="stmtMgrStatements.length > 0">
+						<h3 class="font-semibold text-gray-800 mb-3">Monthly Statements</h3>
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-3 py-2">Account</th>
+										<th class="text-left px-3 py-2">Month</th>
+										<th class="text-right px-3 py-2">Beginning Balance</th>
+										<th class="text-right px-3 py-2">Ending Balance</th>
+										<th class="text-center px-3 py-2">Reconciled</th>
+										<th class="text-center px-3 py-2">PDF Statement</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="stmt in stmtMgrStatements" :key="stmt.id" class="border-t">
+										<td class="px-3 py-2">{{ getAccountNameById(stmt.account_id) }}</td>
+										<td class="px-3 py-2">{{ monthLabel(stmt.statement_month) }}</td>
+										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.beginning_balance) }}</td>
+										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.ending_balance) }}</td>
+										<td class="px-3 py-2 text-center">
+											<span v-if="stmt.reconciled" class="text-green-600 text-xs font-medium">Reconciled</span>
+											<span v-else class="text-gray-400 text-xs">Pending</span>
+										</td>
+										<td class="px-3 py-2 text-center">
+											<span v-if="stmt.pdf_statement" class="inline-flex items-center gap-1 text-green-600 text-xs">
+												<Icon name="i-heroicons-document-check" class="w-4 h-4" />
+												Attached
+											</span>
+											<label v-else class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer text-xs">
+												<Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
+												Upload PDF
+												<input
+													type="file"
+													accept=".pdf"
+													class="hidden"
+													@change="(e) => uploadStatementPdf(stmt.id, e)" />
+											</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<p class="text-xs text-gray-500 mt-3">
+							To reconcile monthly statements, go to
+							<NuxtLink to="/financials/reconciliation" class="text-indigo-600 hover:underline">
+								Financials &rarr; Reconciliation
+							</NuxtLink>
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<div class="bg-white rounded-lg shadow-sm border">
 				<div class="border-b px-6 py-4">
 					<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
@@ -1000,6 +1113,14 @@ const accounts = ref([]);
 const accountsLoading = ref(true);
 const availableFiscalYears = ref([]);
 const autoCatFiscalYear = ref(new Date().getFullYear());
+
+// Monthly Statements Manager state
+const stmtMgrFiscalYear = ref(new Date().getFullYear());
+const stmtMgrAccountId = ref(null);
+const stmtMgrBackfilling = ref(false);
+const stmtMgrBackfillResults = ref(null);
+const stmtMgrStatements = ref([]);
+
 const fiscalYearIdCache = {};
 
 const monthOptions = [
@@ -1824,6 +1945,101 @@ async function runAutoCategorize(fiscalYear = null, accountId = null) {
 	} finally {
 		autoCategorizing.value = false;
 	}
+}
+
+// ======================
+// MONTHLY STATEMENTS MANAGER
+// ======================
+async function runBackfillStatements() {
+	stmtMgrBackfilling.value = true;
+	stmtMgrBackfillResults.value = null;
+
+	try {
+		const body = { fiscal_year: stmtMgrFiscalYear.value };
+		if (stmtMgrAccountId.value) {
+			body.account_id = stmtMgrAccountId.value;
+		}
+
+		const result = await $fetch('/api/admin/backfill-monthly-statements', {
+			method: 'POST',
+			body,
+		});
+
+		stmtMgrBackfillResults.value = result;
+
+		// Reload the statements list
+		await loadExistingStatements();
+	} catch (err) {
+		console.error('Backfill error:', err);
+		stmtMgrBackfillResults.value = {
+			success: false,
+			created: 0,
+			updated: 0,
+			skipped: 0,
+			errors: [err.message || 'Backfill failed'],
+		};
+	} finally {
+		stmtMgrBackfilling.value = false;
+	}
+}
+
+async function loadExistingStatements() {
+	try {
+		const data = await monthlyStatementsCollection.list({
+			filter: {
+				fiscal_year: { year: { _eq: stmtMgrFiscalYear.value } },
+				...(stmtMgrAccountId.value ? { account_id: { _eq: stmtMgrAccountId.value } } : {}),
+			},
+			fields: ['id', 'account_id', 'statement_month', 'beginning_balance', 'ending_balance', 'reconciled', 'pdf_statement'],
+			sort: ['account_id', 'statement_month'],
+			limit: -1,
+		});
+		stmtMgrStatements.value = data || [];
+	} catch (err) {
+		console.error('Failed to load statements:', err);
+	}
+}
+
+async function uploadStatementPdf(statementId, event) {
+	const file = event.target?.files?.[0];
+	if (!file) return;
+
+	try {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('statement_id', String(statementId));
+
+		await $fetch('/api/admin/attach-statement-pdf', {
+			method: 'POST',
+			body: formData,
+		});
+
+		// Refresh list to show updated PDF status
+		await loadExistingStatements();
+	} catch (err) {
+		console.error('PDF upload error:', err);
+		alert('Failed to upload PDF: ' + (err.message || 'Unknown error'));
+	}
+}
+
+function getAccountNameById(accountId) {
+	const acct = accounts.value.find((a) => a.id === accountId);
+	return acct ? acct.account_name : `Account ${accountId}`;
+}
+
+function monthLabel(monthValue) {
+	const labels = {
+		'01': 'January', '02': 'February', '03': 'March', '04': 'April',
+		'05': 'May', '06': 'June', '07': 'July', '08': 'August',
+		'09': 'September', '10': 'October', '11': 'November', '12': 'December',
+	};
+	return labels[monthValue] || monthValue;
+}
+
+function formatMoney(value) {
+	const num = parseFloat(value);
+	if (isNaN(num)) return '$0.00';
+	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
 }
 
 async function saveStatementBalances() {
