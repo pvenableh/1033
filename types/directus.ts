@@ -1364,6 +1364,41 @@ export interface ViolationReport {
 	generated_by?: string | null;
 }
 
+export interface Task {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @required */
+	title: string;
+	description?: string | null;
+	/** @description Task status workflow */
+	task_status?: 'open' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled';
+	priority?: 'low' | 'medium' | 'high' | 'urgent' | null;
+	/** @description User assigned to this task */
+	assigned_to?: DirectusUser | string | null;
+	/** @description Due date for the task */
+	due_date?: string | null;
+	/** @description Date the task was completed */
+	completed_at?: string | null;
+	/** @description User who completed the task */
+	completed_by?: DirectusUser | string | null;
+	/** @description Category/type of task */
+	category?: 'maintenance' | 'follow_up' | 'inspection' | 'communication' | 'financial' | 'administrative' | 'other' | null;
+	/** @description Polymorphic link - collection name of the related item */
+	related_collection?: string | null;
+	/** @description Polymorphic link - ID of the related item */
+	related_id?: string | null;
+	/** @description Notes or resolution details */
+	notes?: string | null;
+	/** @description AI-generated task flag */
+	ai_generated?: boolean | null;
+}
+
 export interface Vote {
 	/** @primaryKey */
 	id: string;
@@ -1883,6 +1918,7 @@ export interface Schema {
 	reaction_types: ReactionType[];
 	renderings: Rendering[];
 	requests: Request[];
+	tasks: Task[];
 	reserves: Reserf[];
 	rules: Rule[];
 	transactions: Transaction[];
@@ -1986,6 +2022,7 @@ export enum CollectionNames {
 	reaction_types = 'reaction_types',
 	renderings = 'renderings',
 	requests = 'requests',
+	tasks = 'tasks',
 	reserves = 'reserves',
 	rules = 'rules',
 	transactions = 'transactions',
