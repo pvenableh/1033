@@ -125,6 +125,19 @@
 						</Tooltip>
 					</li>
 
+					<!-- Requests - visible to board_members and owners -->
+					<li v-if="showFinancials">
+						<Tooltip text="Requests" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/requests"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/requests')}">
+								<Icon name="i-heroicons-inbox-arrow-down" class="w-6 h-6" />
+								<span class="hidden">Requests</span>
+							</nuxt-link>
+						</Tooltip>
+					</li>
+
 					<!-- Divider - only show if user has access to board member features -->
 					<li v-if="showBoardMemberNav" class="secondary-nav__divider" aria-hidden="true">
 						<span class="h-4 w-px bg-current opacity-20"></span>

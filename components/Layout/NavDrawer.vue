@@ -130,6 +130,19 @@
 					</a>
 				</li>
 
+				<!-- Requests -->
+				<li>
+					<a
+						href="/requests"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessOwner}"
+						@click="(e) => handleNavClick(e, '/requests', canAccessOwner, 'Requests', 'owner')">
+						<UIcon name="i-heroicons-inbox-arrow-down" class="w-4 h-4" />
+						Requests
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- Financials -->
 				<li>
 					<a
