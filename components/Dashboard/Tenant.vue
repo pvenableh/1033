@@ -36,6 +36,9 @@ const userUnits = computed(() => {
       dashboard-type="tenant"
     />
 
+    <!-- My Tasks -->
+    <DashboardWidgetsTasksCard />
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Lease Status Card -->

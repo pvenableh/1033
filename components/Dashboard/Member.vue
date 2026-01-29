@@ -30,6 +30,9 @@ const helpItems = [
       dashboard-type="member"
     />
 
+    <!-- My Tasks -->
+    <DashboardWidgetsTasksCard />
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <!-- Announcements - Important for all members -->
