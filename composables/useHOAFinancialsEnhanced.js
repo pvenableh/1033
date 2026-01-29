@@ -424,10 +424,10 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			const data = await budgetCategoriesCollection.list({
 				filter: {
-					fiscal_year: {_eq: unref(selectedYear)},
+					fiscal_year: { year: { _eq: unref(selectedYear) } },
 				},
 				sort: ['category_name'],
-				fields: ['*'],
+				fields: ['*', 'fiscal_year.*'],
 			});
 			budgetCategories.value = data || [];
 		} catch (e) {
@@ -440,7 +440,7 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			const data = await transactionsCollection.list({
 				filter: {
-					fiscal_year: {_eq: unref(selectedYear)},
+					fiscal_year: { year: { _eq: unref(selectedYear) } },
 				},
 				sort: ['-transaction_date'],
 				fields: ['*'],
@@ -457,7 +457,7 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			const data = await monthlyStatementsCollection.list({
 				filter: {
-					fiscal_year: {_eq: unref(selectedYear)},
+					fiscal_year: { year: { _eq: unref(selectedYear) } },
 				},
 				sort: ['statement_month'],
 				fields: ['*'],
@@ -484,7 +484,6 @@ export const useHOAFinancialsEnhanced = () => {
 				return (
 					t &&
 					t.account_id === currentAccount &&
-					t.fiscal_year === unref(selectedYear) &&
 					isMonthInRange(t.statement_month)
 				);
 			});
@@ -527,7 +526,6 @@ export const useHOAFinancialsEnhanced = () => {
 				return (
 					t &&
 					t.account_id === currentAccount &&
-					t.fiscal_year === unref(selectedYear) &&
 					isMonthInRange(t.statement_month)
 				);
 			});
@@ -1494,17 +1492,15 @@ export const useHOAFinancialsEnhanced = () => {
 	// Add to your composable
 	const latestMonthWithData = computed(() => {
 		try {
-			const currentYear = unref(selectedYear);
-
-			// Get latest month from transactions
+			// Get latest month from transactions (already filtered by fiscal year on server)
 			const transactionMonths = transactions.value
-				.filter((t) => t && t.fiscal_year === currentYear && t.statement_month)
+				.filter((t) => t && t.statement_month)
 				.map((t) => t.statement_month)
 				.filter((month) => month);
 
-			// Get latest month from statements
+			// Get latest month from statements (already filtered by fiscal year on server)
 			const statementMonths = monthlyStatements.value
-				.filter((s) => s && s.fiscal_year === currentYear && s.statement_month)
+				.filter((s) => s && s.statement_month)
 				.map((s) => s.statement_month)
 				.filter((month) => month);
 
@@ -1536,16 +1532,14 @@ export const useHOAFinancialsEnhanced = () => {
 
 	const monthsWithData = computed(() => {
 		try {
-			const currentYear = unref(selectedYear);
-
-			// Get months from transactions
+			// Get months from transactions (already filtered by fiscal year on server)
 			const transactionMonths = transactions.value
-				.filter((t) => t && t.fiscal_year === currentYear && t.statement_month)
+				.filter((t) => t && t.statement_month)
 				.map((t) => t.statement_month);
 
-			// Get months from statements
+			// Get months from statements (already filtered by fiscal year on server)
 			const statementMonths = monthlyStatements.value
-				.filter((s) => s && s.fiscal_year === currentYear && s.statement_month)
+				.filter((s) => s && s.statement_month)
 				.map((s) => s.statement_month);
 
 			// Combine and get unique months
