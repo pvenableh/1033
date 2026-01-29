@@ -1,5 +1,8 @@
 <template>
 	<div class="container mx-auto min-h-svh p-6">
+		<!-- Financial Sub-Navigation -->
+		<FinancialsSubNav />
+
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 text-center">HOA FINANCIAL DASHBOARD</h1>

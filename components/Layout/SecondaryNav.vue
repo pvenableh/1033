@@ -156,7 +156,33 @@
 						</Tooltip>
 					</li>
 
-					<!-- Import Center - visible to board_members only -->
+					<!-- Reconciliation - visible to board_members and owners -->
+					<li v-if="showFinancials">
+						<Tooltip text="Reconciliation" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/financials/reconciliation"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/financials/reconciliation')}">
+								<Icon name="i-heroicons-document-check" class="w-6 h-6" />
+								<span class="hidden">Reconciliation</span>
+							</nuxt-link>
+						</Tooltip>
+					</li>
+
+					<!-- Budget Management - visible to board_members and owners -->
+					<li v-if="showFinancials">
+						<Tooltip text="Budget Management" :popper="{placement: 'bottom'}" class="uppercase">
+							<nuxt-link
+								to="/financials/budget-management"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/financials/budget-management')}">
+								<Icon name="i-heroicons-calculator" class="w-6 h-6" />
+								<span class="hidden">Budgets</span>
+							</nuxt-link>
+						</Tooltip>
+					</li>
+
+				<!-- Import Center - visible to board_members only -->
 					<li v-if="isBoardMember">
 						<Tooltip text="Import Center" :popper="{placement: 'bottom'}" class="uppercase">
 							<nuxt-link

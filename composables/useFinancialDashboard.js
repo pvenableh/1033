@@ -23,48 +23,76 @@ export const useFinancialDashboard = () => {
 	const selectedYear = ref(new Date().getFullYear());
 	const selectedAccount = ref(1); // Default to Operating
 
-	// Fetch all data for dashboard
+	// Fetch data for a specific year
+	const fetchDataForYear = async (year) => {
+		const [txData, catData, accData, stmtData, projData, budgetData] = await Promise.all([
+			transactionsCollection.list({
+				filter: { fiscal_year: { year: { _eq: year } } },
+				sort: ['-transaction_date'],
+				fields: ['*'],
+				limit: -1,
+			}),
+			budgetCategoriesCollection.list({
+				filter: { fiscal_year: { year: { _eq: year } } },
+				fields: ['*', 'fiscal_year.*'],
+			}),
+			accountsCollection.list({ fields: ['*'] }),
+			monthlyStatementsCollection.list({
+				filter: { fiscal_year: { year: { _eq: year } } },
+				sort: ['account_id', 'statement_month'],
+				fields: ['*'],
+			}),
+			cashFlowProjectionsCollection.list({
+				filter: { fiscal_year: { year: { _eq: year } } },
+				sort: ['account_id', 'month'],
+				fields: ['*'],
+			}),
+			fiscalYearBudgetsCollection.list({
+				filter: { fiscal_year: { year: { _in: [year - 2, year - 1, year, year + 1] } } },
+				fields: ['*', 'fiscal_year.*'],
+			}),
+		]);
+
+		return {
+			transactions: txData || [],
+			budgetCategories: catData || [],
+			accounts: accData || [],
+			monthlyStatements: stmtData || [],
+			cashFlowProjections: projData || [],
+			fiscalYearBudgets: budgetData || [],
+		};
+	};
+
+	// Check if fetched data has meaningful financial content
+	const hasFinancialData = (data) => {
+		return (data.transactions.length > 0 || data.monthlyStatements.length > 0 || data.budgetCategories.length > 0);
+	};
+
+	// Fetch all data for dashboard, with automatic fallback to previous year if current year is empty
 	const fetchDashboardData = async () => {
 		loading.value = true;
 		error.value = null;
 
 		try {
 			const year = unref(selectedYear);
+			let data = await fetchDataForYear(year);
 
-			const [txData, catData, accData, stmtData, projData, budgetData] = await Promise.all([
-				transactionsCollection.list({
-					filter: { fiscal_year: { year: { _eq: year } } },
-					sort: ['-transaction_date'],
-					fields: ['*'],
-					limit: -1,
-				}),
-				budgetCategoriesCollection.list({
-					filter: { fiscal_year: { year: { _eq: year } } },
-					fields: ['*', 'fiscal_year.*'],
-				}),
-				accountsCollection.list({ fields: ['*'] }),
-				monthlyStatementsCollection.list({
-					filter: { fiscal_year: { year: { _eq: year } } },
-					sort: ['account_id', 'statement_month'],
-					fields: ['*'],
-				}),
-				cashFlowProjectionsCollection.list({
-					filter: { fiscal_year: { year: { _eq: year } } },
-					sort: ['account_id', 'month'],
-					fields: ['*'],
-				}),
-				fiscalYearBudgetsCollection.list({
-					filter: { fiscal_year: { year: { _in: [year - 2, year - 1, year, year + 1] } } },
-					fields: ['*', 'fiscal_year.*'],
-				}),
-			]);
+			// If current year has no financial data, try the previous year as fallback
+			if (!hasFinancialData(data)) {
+				const prevYear = year - 1;
+				const prevData = await fetchDataForYear(prevYear);
+				if (hasFinancialData(prevData)) {
+					data = prevData;
+					selectedYear.value = prevYear;
+				}
+			}
 
-			transactions.value = txData || [];
-			budgetCategories.value = catData || [];
-			accounts.value = accData || [];
-			monthlyStatements.value = stmtData || [];
-			cashFlowProjections.value = projData || [];
-			fiscalYearBudgets.value = budgetData || [];
+			transactions.value = data.transactions;
+			budgetCategories.value = data.budgetCategories;
+			accounts.value = data.accounts;
+			monthlyStatements.value = data.monthlyStatements;
+			cashFlowProjections.value = data.cashFlowProjections;
+			fiscalYearBudgets.value = data.fiscalYearBudgets;
 		} catch (e) {
 			error.value = e.message || 'Error fetching dashboard data';
 			console.error('Error fetching dashboard data:', e);
