@@ -1243,12 +1243,20 @@ const getVendorDisplayName = (vendorValue) => {
 
 const getCategoryName = (categoryId) => {
 	if (!categoryId) return 'Uncategorized';
+	// Handle expanded object (category_id returned as {id, category_name, ...})
+	if (typeof categoryId === 'object' && categoryId !== null) {
+		return categoryId.category_name || 'Unknown Category';
+	}
 	const category = budgetCategories.value.find((c) => c.id === categoryId);
 	return category ? category.category_name : 'Unknown Category';
 };
 
 const getCategoryColor = (categoryId) => {
 	if (!categoryId) return '#6B7280';
+	// Handle expanded object (category_id returned as {id, category_name, color, ...})
+	if (typeof categoryId === 'object' && categoryId !== null) {
+		return categoryId.color || '#6B7280';
+	}
 	const category = budgetCategories.value.find((c) => c.id === categoryId);
 	return category ? category.color : '#6B7280';
 };
