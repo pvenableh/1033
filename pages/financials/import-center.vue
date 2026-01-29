@@ -130,6 +130,120 @@
 					</div>
 				</div>
 			</div>
+
+			<!-- Fiscal Years Management -->
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4 flex items-center justify-between">
+					<div>
+						<h2 class="text-xl font-semibold text-gray-900">Fiscal Years</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Fiscal years are required before importing budgets or transactions. Each financial record references a fiscal year via M2O relationship.
+						</p>
+					</div>
+					<button
+						v-if="canCreateFinancials"
+						@click="showCreateFiscalYear = !showCreateFiscalYear"
+						class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
+						{{ showCreateFiscalYear ? 'Cancel' : '+ Add Fiscal Year' }}
+					</button>
+				</div>
+
+				<!-- Create Fiscal Year Form -->
+				<div v-if="showCreateFiscalYear" class="p-6 bg-blue-50 border-b">
+					<h3 class="text-lg font-medium text-gray-900 mb-4">New Fiscal Year</h3>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+							<input
+								v-model.number="newFiscalYear.year"
+								type="number"
+								min="2020"
+								max="2050"
+								placeholder="e.g., 2026"
+								class="w-full border rounded-lg px-3 py-2 text-sm" />
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+							<input
+								v-model="newFiscalYear.start_date"
+								type="date"
+								class="w-full border rounded-lg px-3 py-2 text-sm" />
+						</div>
+						<div>
+							<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+							<select v-model="newFiscalYear.status" class="w-full border rounded-lg px-3 py-2 text-sm">
+								<option value="published">Published (Active)</option>
+								<option value="draft">Draft</option>
+								<option value="archived">Archived</option>
+							</select>
+						</div>
+					</div>
+					<div v-if="newFiscalYear.year && fiscalYearExists(newFiscalYear.year)" class="mt-3 text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+						A fiscal year record for {{ newFiscalYear.year }} already exists.
+					</div>
+					<div class="mt-4">
+						<button
+							@click="createFiscalYear"
+							:disabled="!newFiscalYear.year || !newFiscalYear.start_date || fiscalYearSaving || fiscalYearExists(newFiscalYear.year)"
+							class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
+							{{ fiscalYearSaving ? 'Creating...' : 'Create Fiscal Year' }}
+						</button>
+					</div>
+				</div>
+
+				<!-- Fiscal Years List -->
+				<div class="p-6">
+					<div v-if="fiscalYearsLoading" class="text-center py-8">
+						<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+						<p class="text-gray-500 text-sm">Loading fiscal years...</p>
+					</div>
+					<div v-else-if="allFiscalYears.length === 0" class="text-center py-8 text-gray-500">
+						No fiscal years found. Create one to start importing financial data.
+					</div>
+					<div v-else class="space-y-3">
+						<div
+							v-for="fy in allFiscalYears"
+							:key="fy.id"
+							class="flex items-center justify-between p-4 rounded-lg border"
+							:class="fy.status === 'published' ? 'bg-green-50 border-green-200' : fy.status === 'archived' ? 'bg-gray-100 border-gray-300' : 'bg-yellow-50 border-yellow-200'">
+							<div class="flex items-center gap-4">
+								<div class="text-2xl font-bold" :class="fy.status === 'published' ? 'text-green-700' : fy.status === 'archived' ? 'text-gray-500' : 'text-yellow-700'">
+									{{ fy.year }}
+								</div>
+								<div>
+									<p class="text-sm text-gray-600">
+										Start: {{ fy.start_date || 'Not set' }}
+									</p>
+									<p class="text-xs text-gray-400">
+										Record ID: {{ fy.id }}
+									</p>
+								</div>
+							</div>
+							<div class="flex items-center gap-3">
+								<span
+									class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+									:class="{
+										'bg-green-100 text-green-800': fy.status === 'published',
+										'bg-yellow-100 text-yellow-800': fy.status === 'draft',
+										'bg-gray-200 text-gray-600': fy.status === 'archived',
+									}">
+									{{ fy.status }}
+								</span>
+								<!-- Status toggle for admins -->
+								<select
+									v-if="canUpdateFinancials"
+									:value="fy.status"
+									@change="updateFiscalYearStatus(fy.id, ($event.target as HTMLSelectElement).value)"
+									class="border rounded px-2 py-1 text-xs">
+									<option value="published">Published</option>
+									<option value="draft">Draft</option>
+									<option value="archived">Archived</option>
+								</select>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
 
 		<!-- ==================== -->
@@ -670,14 +784,35 @@
 							</ul>
 						</div>
 
+						<!-- Missing fiscal years warning -->
+						<div v-if="repairScanResults.issueCount > 0 && repairScanResults.missingYears?.length > 0" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+							<h3 class="font-semibold text-red-800">Missing Fiscal Year Records</h3>
+							<p class="text-sm text-red-700 mt-1">
+								The following year(s) were found in transactions but have no matching <code class="bg-red-100 px-1 rounded">fiscal_years</code> record in Directus:
+							</p>
+							<div class="flex flex-wrap gap-2 mt-3">
+								<span v-for="year in repairScanResults.missingYears" :key="year" class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+									{{ year }}
+									<span class="ml-1 text-red-500 text-xs">({{ repairScanResults.yearBreakdown[year] }} transactions)</span>
+								</span>
+							</div>
+							<p class="text-sm text-red-700 mt-3">
+								You must create these fiscal years before the repair can run. Go to the
+								<button @click="activeTab = 'accounts'" class="underline font-medium hover:text-red-900">Bank Accounts tab</button>
+								and use "+ Add Fiscal Year" to create them, then scan again.
+							</p>
+						</div>
+
 						<!-- Repair Button -->
 						<div v-if="repairScanResults.issueCount > 0" class="flex items-center gap-4">
 							<button
 								v-if="canUpdateFinancials"
 								@click="repairFiscalYears"
-								:disabled="repairRunning"
+								:disabled="repairRunning || (repairScanResults.repairableCount === 0)"
 								class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm">
-								{{ repairRunning ? `Repairing... (${repairProgress}/${repairScanResults.issueCount})` : `Repair ${repairScanResults.issueCount} Transactions` }}
+								<span v-if="repairRunning">Repairing... ({{ repairProgress }}/{{ repairScanResults.repairableCount }})</span>
+								<span v-else-if="repairScanResults.repairableCount === 0">No Repairable Transactions (create fiscal years first)</span>
+								<span v-else>Repair {{ repairScanResults.repairableCount }} Transactions</span>
 							</button>
 							<p v-if="!canUpdateFinancials" class="text-sm text-red-600">
 								You need financials update permission to run repairs.
@@ -904,6 +1039,95 @@ async function createAccount() {
 }
 
 // ======================
+// FISCAL YEARS MANAGEMENT
+// ======================
+const showCreateFiscalYear = ref(false);
+const fiscalYearSaving = ref(false);
+const fiscalYearsLoading = ref(true);
+const allFiscalYears = ref([]);
+const newFiscalYear = ref({
+	year: new Date().getFullYear() + 1,
+	start_date: `${new Date().getFullYear() + 1}-01-01`,
+	status: 'published',
+});
+
+function fiscalYearExists(year) {
+	return allFiscalYears.value.some((fy) => fy.year === year);
+}
+
+async function loadAllFiscalYears() {
+	fiscalYearsLoading.value = true;
+	try {
+		allFiscalYears.value = await fiscalYearsCollection.list({
+			sort: ['-year'],
+			fields: ['id', 'year', 'start_date', 'status'],
+			limit: -1,
+		});
+	} catch (err) {
+		console.error('Failed to load fiscal years:', err);
+		allFiscalYears.value = [];
+	} finally {
+		fiscalYearsLoading.value = false;
+	}
+}
+
+async function createFiscalYear() {
+	if (!newFiscalYear.value.year || !newFiscalYear.value.start_date) return;
+	if (fiscalYearExists(newFiscalYear.value.year)) return;
+
+	fiscalYearSaving.value = true;
+	try {
+		const created = await fiscalYearsCollection.create({
+			year: newFiscalYear.value.year,
+			start_date: newFiscalYear.value.start_date,
+			status: newFiscalYear.value.status,
+		});
+		allFiscalYears.value.unshift(created);
+		allFiscalYears.value.sort((a, b) => b.year - a.year);
+
+		// Update the available fiscal years for other tabs
+		const currentYear = new Date().getFullYear();
+		availableFiscalYears.value = allFiscalYears.value
+			.filter((fy) => fy.status === 'published')
+			.map((fy) => ({ ...fy, is_current: fy.year === currentYear }));
+
+		// Update cache
+		fiscalYearIdCache[created.year] = created.id;
+
+		showCreateFiscalYear.value = false;
+		newFiscalYear.value = {
+			year: new Date().getFullYear() + 1,
+			start_date: `${new Date().getFullYear() + 1}-01-01`,
+			status: 'published',
+		};
+	} catch (err) {
+		console.error('Failed to create fiscal year:', err);
+		alert('Failed to create fiscal year: ' + (err.message || 'Unknown error'));
+	} finally {
+		fiscalYearSaving.value = false;
+	}
+}
+
+async function updateFiscalYearStatus(id, newStatus) {
+	try {
+		await fiscalYearsCollection.update(id, { status: newStatus });
+
+		// Update local state
+		const fy = allFiscalYears.value.find((f) => f.id === id);
+		if (fy) fy.status = newStatus;
+
+		// Refresh available years for other tabs (only published years)
+		const currentYear = new Date().getFullYear();
+		availableFiscalYears.value = allFiscalYears.value
+			.filter((f) => f.status === 'published')
+			.map((f) => ({ ...f, is_current: f.year === currentYear }));
+	} catch (err) {
+		console.error('Failed to update fiscal year:', err);
+		alert('Failed to update status: ' + (err.message || 'Unknown error'));
+	}
+}
+
+// ======================
 // BUDGET IMPORT TAB
 // ======================
 const budgetFiscalYear = ref(new Date().getFullYear());
@@ -998,7 +1222,7 @@ async function importBudget() {
 	budgetImporting.value = true;
 	budgetImportProgress.value = 0;
 
-	const results = { success: true, message: '', categoriesCreated: 0, itemsCreated: 0 };
+	const results = { success: true, message: '', categoriesCreated: 0, itemsCreated: 0, itemsSkipped: 0 };
 
 	try {
 		const fyId = resolvedBudgetFiscalYearId.value;
@@ -1020,6 +1244,20 @@ async function importBudget() {
 		const categoryMap = {};
 		existingCategories.forEach((c) => (categoryMap[c.category_name] = c.id));
 
+		// Load existing budget items for duplicate detection
+		const existingItems = await budgetItemsCollection.list({
+			filter: { fiscal_year: { _eq: fyId } },
+			fields: ['id', 'item_code', 'category_id', 'description'],
+			limit: -1,
+		});
+		// Build a set of existing item keys: "categoryId::itemCode"
+		const existingItemKeys = new Set(
+			existingItems.map((it) => {
+				const catId = typeof it.category_id === 'object' ? it.category_id?.id : it.category_id;
+				return `${catId}::${it.item_code}`;
+			})
+		);
+
 		// Create categories + items
 		for (const [catName, items] of Object.entries(categoryGroups)) {
 			let categoryId = categoryMap[catName];
@@ -1036,10 +1274,19 @@ async function importBudget() {
 					status: 'published',
 				});
 				categoryId = created.id;
+				categoryMap[catName] = categoryId;
 				results.categoriesCreated++;
 			}
 
 			for (const item of items) {
+				// Duplicate check: skip if same item_code already exists under this category
+				const itemKey = `${categoryId}::${item.item_code}`;
+				if (existingItemKeys.has(itemKey)) {
+					results.itemsSkipped++;
+					budgetImportProgress.value++;
+					continue;
+				}
+
 				await budgetItemsCollection.create({
 					fiscal_year: fyId,
 					category_id: categoryId,
@@ -1050,11 +1297,18 @@ async function importBudget() {
 					status: 'published',
 				});
 				results.itemsCreated++;
+				existingItemKeys.add(itemKey);
 				budgetImportProgress.value++;
 			}
 		}
 
-		results.message = `Created ${results.categoriesCreated} categories and ${results.itemsCreated} budget items for fiscal year ${budgetFiscalYear.value}.`;
+		const parts = [];
+		if (results.categoriesCreated) parts.push(`${results.categoriesCreated} categories created`);
+		if (results.itemsCreated) parts.push(`${results.itemsCreated} budget items created`);
+		if (results.itemsSkipped) parts.push(`${results.itemsSkipped} duplicate items skipped`);
+		results.message = parts.length > 0
+			? `${parts.join(', ')} for fiscal year ${budgetFiscalYear.value}.`
+			: `No new items to import for fiscal year ${budgetFiscalYear.value} (all duplicates).`;
 	} catch (err) {
 		results.success = false;
 		results.message = 'Budget import failed: ' + (err.message || 'Unknown error');
@@ -1266,20 +1520,33 @@ async function importTransactions() {
 			account_id: { _eq: stmtAccountId.value },
 			fiscal_year: { _eq: fyId },
 		};
-		if (stmtMonth.value) {
-			existingFilter.statement_month = { _eq: stmtMonth.value };
-		}
 
 		let existingTransactions = [];
 		try {
 			existingTransactions = await transactionsCollection.list({
 				filter: existingFilter,
-				fields: ['id', 'transaction_date', 'amount', 'description'],
+				fields: ['id', 'transaction_date', 'amount', 'description', 'transaction_type'],
 				limit: -1,
 			});
-		} catch {
-			// Continue without duplicate detection
+		} catch (err) {
+			console.warn('Could not load existing transactions for duplicate check:', err.message);
+			results.errors.push('Warning: duplicate detection unavailable — existing transactions could not be loaded.');
 		}
+
+		// Build a fingerprint set from existing transactions for O(1) lookups
+		function txFingerprint(date, amount, description, type) {
+			const d = (date || '').substring(0, 10);
+			const a = Math.abs(parseFloat(amount) || 0).toFixed(2);
+			const desc = (description || '').trim().toLowerCase();
+			const t = (type || 'withdrawal').toLowerCase();
+			return `${d}|${a}|${desc}|${t}`;
+		}
+
+		const existingFingerprints = new Set(
+			existingTransactions.map((et) =>
+				txFingerprint(et.transaction_date, et.amount, et.description, et.transaction_type)
+			)
+		);
 
 		// Import each transaction
 		for (let i = 0; i < stmtTransactions.value.length; i++) {
@@ -1287,18 +1554,13 @@ async function importTransactions() {
 
 			try {
 				const txDate = formatTransactionDate(tx.date);
+				const txType = normalizeType(tx.type);
+				const txDesc = (tx.description || '').trim();
+				const txAmount = Math.abs(tx.amount);
 
-				// Duplicate check
-				const isDuplicate = existingTransactions.some((existing) => {
-					const existingDate = existing.transaction_date?.substring(0, 10);
-					return (
-						existingDate === txDate &&
-						Math.abs(existing.amount - tx.amount) < 0.01 &&
-						existing.description?.substring(0, 30) === (tx.description || '').substring(0, 30)
-					);
-				});
-
-				if (isDuplicate) {
+				// Duplicate check against existing DB records + already-imported in this batch
+				const fp = txFingerprint(txDate, txAmount, txDesc, txType);
+				if (existingFingerprints.has(fp)) {
 					results.skipped++;
 					stmtImportProgress.value++;
 					continue;
@@ -1308,16 +1570,18 @@ async function importTransactions() {
 					fiscal_year: fyId,
 					account_id: stmtAccountId.value,
 					transaction_date: txDate,
-					description: tx.description || '',
+					description: txDesc,
 					vendor: tx.vendor || null,
-					amount: Math.abs(tx.amount),
-					transaction_type: tx.type || 'withdrawal',
+					amount: txAmount,
+					transaction_type: txType,
 					auto_categorized: false,
 					statement_month: stmtMonth.value || null,
 					import_batch_id: batchId,
 					status: 'published',
 				});
 
+				// Add to fingerprint set so later rows in this batch are also deduplicated
+				existingFingerprints.add(fp);
 				results.created++;
 			} catch (err) {
 				results.errors.push(`Row ${i + 1}: ${err.message}`);
@@ -1494,6 +1758,15 @@ async function scanFiscalYearIssues() {
 			}
 		}
 
+		// Identify which years have no fiscal_years record
+		const missingYears = Object.keys(yearBreakdown)
+			.map(Number)
+			.filter((y) => !yearToIdMap[y])
+			.sort();
+
+		// Count how many transactions can actually be repaired (have a matching fiscal year)
+		const repairableCount = transactionsToFix.filter((tx) => tx.correctId !== null).length;
+
 		repairScanResults.value = {
 			totalScanned: transactions.length,
 			correctCount,
@@ -1501,6 +1774,8 @@ async function scanFiscalYearIssues() {
 			yearBreakdown: Object.keys(yearBreakdown).length > 0 ? yearBreakdown : null,
 			transactionsToFix,
 			yearToIdMap,
+			missingYears,
+			repairableCount,
 		};
 	} catch (err) {
 		console.error('Scan error:', err);
@@ -1568,6 +1843,6 @@ async function repairFiscalYears() {
 // INITIALIZATION
 // ======================
 onMounted(async () => {
-	await Promise.all([loadAccounts(), loadFiscalYears()]);
+	await Promise.all([loadAccounts(), loadFiscalYears(), loadAllFiscalYears()]);
 });
 </script>
