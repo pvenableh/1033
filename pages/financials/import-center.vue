@@ -2283,7 +2283,7 @@ async function saveStatementBalances() {
 	const beginBal = stmtBeginningBalance.value;
 	const endBal = stmtEndingBalance.value;
 
-	if (beginBal == null && endBal == null) return;
+	if (beginBal == null && endBal == null && !extractedPdfFileId.value) return;
 
 	try {
 		const fyId = resolvedStmtFiscalYearId.value;
@@ -2297,7 +2297,7 @@ async function saveStatementBalances() {
 				statement_month: { _eq: month },
 				fiscal_year: { _eq: fyId },
 			},
-			fields: ['id', 'beginning_balance', 'ending_balance'],
+			fields: ['id', 'beginning_balance', 'ending_balance', 'pdf_statement'],
 			limit: 1,
 		});
 
@@ -2307,11 +2307,12 @@ async function saveStatementBalances() {
 		if (extractedPdfFileId.value) updates.pdf_statement = extractedPdfFileId.value;
 
 		if (existing && existing.length > 0) {
-			// Update existing record (only overwrite if values were missing)
+			// Update existing record (overwrite if values were missing or PDF needs attaching)
 			const record = existing[0];
 			const needsUpdate =
 				(beginBal != null && !record.beginning_balance) ||
-				(endBal != null && !record.ending_balance);
+				(endBal != null && !record.ending_balance) ||
+				(extractedPdfFileId.value && !record.pdf_statement);
 
 			if (needsUpdate) {
 				await monthlyStatementsCollection.update(record.id, updates);

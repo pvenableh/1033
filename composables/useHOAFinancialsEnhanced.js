@@ -250,10 +250,21 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	};
 
+	// Normalize category_id to integer (handles expanded objects from Directus)
+	const normalizeCategoryId = (categoryId) => {
+		if (!categoryId) return null;
+		if (typeof categoryId === 'object' && categoryId !== null) return categoryId.id;
+		return categoryId;
+	};
+
 	// Helper functions
 	const getCategoryName = (categoryId) => {
 		try {
 			if (categoryId === 'uncategorized' || !categoryId) return 'Uncategorized';
+			// Handle expanded object (category_id returned as {id, category_name, ...})
+			if (typeof categoryId === 'object' && categoryId !== null) {
+				return categoryId.category_name || 'Unknown Category';
+			}
 			if (!budgetCategories.value || !Array.isArray(budgetCategories.value)) return 'Unknown Category';
 			const category = budgetCategories.value.find((c) => c && c.id === categoryId);
 			return category ? category.category_name : 'Unknown Category';
@@ -266,6 +277,10 @@ export const useHOAFinancialsEnhanced = () => {
 	const getCategoryColor = (categoryId) => {
 		try {
 			if (categoryId === 'uncategorized' || !categoryId) return '#6B7280';
+			// Handle expanded object (category_id returned as {id, category_name, color, ...})
+			if (typeof categoryId === 'object' && categoryId !== null) {
+				return categoryId.color || '#6B7280';
+			}
 			if (!budgetCategories.value || !Array.isArray(budgetCategories.value)) return '#6B7280';
 			const category = budgetCategories.value.find((c) => c && c.id === categoryId);
 			return category ? category.color || '#6B7280' : '#6B7280';
@@ -424,7 +439,10 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			const data = await budgetCategoriesCollection.list({
 				filter: {
-					fiscal_year: { year: { _eq: unref(selectedYear) } },
+					_or: [
+						{ fiscal_year: { year: { _eq: unref(selectedYear) } } },
+						{ fiscal_year: { _null: true } },
+					],
 				},
 				sort: ['category_name'],
 				fields: ['*', 'fiscal_year.*'],
@@ -494,7 +512,7 @@ export const useHOAFinancialsEnhanced = () => {
 					if (currentCategory === 'uncategorized') {
 						return !t.category_id;
 					}
-					return t.category_id === parseInt(currentCategory);
+					return normalizeCategoryId(t.category_id) === parseInt(currentCategory);
 				});
 			}
 
@@ -615,8 +633,8 @@ export const useHOAFinancialsEnhanced = () => {
 			transactions.forEach((t) => {
 				if (!t || isTransferTransaction(t) || t.is_violation) return;
 
-				const categoryId = t.category_id || 'uncategorized';
-				const categoryName = getCategoryName(categoryId);
+				const categoryId = normalizeCategoryId(t.category_id) || 'uncategorized';
+				const categoryName = getCategoryName(t.category_id);
 				const isRevenue = t.transaction_type === 'deposit';
 				const amount = safeParseFloat(t.amount);
 
@@ -896,7 +914,7 @@ export const useHOAFinancialsEnhanced = () => {
 			return expenseCategories.map((category) => {
 				const categoryTransactions = transactions.filter((t) => {
 					return (
-						t.category_id === category.id &&
+						normalizeCategoryId(t.category_id) === category.id &&
 						t.transaction_type === 'withdrawal' &&
 						!t.is_violation &&
 						!isTransferTransaction(t)
