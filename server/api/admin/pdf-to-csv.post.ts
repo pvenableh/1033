@@ -53,6 +53,11 @@ interface PdfToCsvResult {
 	message?: string;
 }
 
+// Extend Vercel timeout for AI endpoints
+export const config = {
+	maxDuration: 120,
+}
+
 export default defineEventHandler(async (event): Promise<PdfToCsvResult> => {
 	const session = await getUserSession(event);
 

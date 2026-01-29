@@ -24,6 +24,11 @@ import {
 } from '~/server/utils/directus';
 import { isClaudeConfigured, callClaude, extractClaudeText } from '~/server/utils/claude';
 
+// Extend Vercel timeout for AI endpoints
+export const config = {
+	maxDuration: 120,
+}
+
 export default defineEventHandler(async (event) => {
 	const session = await getUserSession(event);
 

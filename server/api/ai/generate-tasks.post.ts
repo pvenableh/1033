@@ -14,6 +14,11 @@
 import { callClaude, extractClaudeText, isClaudeConfigured } from '~/server/utils/claude'
 import { useDirectusAdmin, readItems } from '~/server/utils/directus'
 
+// Extend Vercel timeout for AI endpoints
+export const config = {
+  maxDuration: 120,
+}
+
 export default defineEventHandler(async (event) => {
   // Check Claude is configured
   if (!isClaudeConfigured()) {
@@ -50,9 +55,9 @@ export default defineEventHandler(async (event) => {
           assigned_to: { _eq: userId },
           task_status: { _in: ['open', 'in_progress', 'on_hold'] },
         },
-        fields: ['id', 'title', 'task_status', 'priority', 'due_date', 'category', 'related_collection', 'related_id'],
+        fields: ['id', 'title', 'task_status', 'priority', 'due_date', 'category'],
         sort: ['-priority', 'due_date'],
-        limit: 50,
+        limit: 25,
       } as any)
     ).catch(() => []),
 
@@ -64,7 +69,7 @@ export default defineEventHandler(async (event) => {
         },
         fields: ['id', 'status', 'category', 'priority', 'subject', 'name', 'date_created'],
         sort: ['-date_created'],
-        limit: 30,
+        limit: 15,
       } as any)
     ).catch(() => []),
 
@@ -77,7 +82,7 @@ export default defineEventHandler(async (event) => {
         },
         fields: ['id', 'name', 'start_date', 'target_end_date'],
         sort: ['target_end_date'],
-        limit: 20,
+        limit: 10,
       } as any)
     ).catch(() => []),
 
@@ -105,9 +110,9 @@ export default defineEventHandler(async (event) => {
               status: { _eq: 'published' },
               fiscal_year: { _eq: new Date().getFullYear() },
             },
-            fields: ['id', 'transaction_date', 'description', 'amount', 'transaction_type', 'vendor'],
+            fields: ['id', 'transaction_date', 'description', 'amount', 'transaction_type'],
             sort: ['-transaction_date'],
-            limit: 100,
+            limit: 50,
           } as any)
         ).catch(() => []),
 
@@ -117,8 +122,8 @@ export default defineEventHandler(async (event) => {
               status: { _eq: 'published' },
               fiscal_year: { _eq: new Date().getFullYear() },
             },
-            fields: ['item_code', 'description', 'monthly_budget', 'yearly_budget'],
-            limit: 50,
+            fields: ['description', 'yearly_budget'],
+            limit: 30,
           } as any)
         ).catch(() => []),
 
@@ -150,7 +155,6 @@ FINANCIAL DATA (${new Date().getFullYear()}):
 - Net: $${(totalIncome - totalExpenses).toLocaleString()}
 - Annual Budget: $${totalBudgeted.toLocaleString()}
 - Budget Utilization: ${totalBudgeted > 0 ? Math.round((totalExpenses / totalBudgeted) * 100) : 0}%
-- Recent transactions: ${(transactions as any[]).slice(0, 10).map((t: any) => `${t.transaction_date}: ${t.description} ($${Math.abs(t.amount || 0)})`).join('; ')}
 `
     } catch (e) {
       financialContext = '\nFinancial data could not be loaded.\n'
@@ -158,22 +162,9 @@ FINANCIAL DATA (${new Date().getFullYear()}):
   }
 
   // Build the prompt
-  const systemPrompt = `You are an AI assistant for 1033 Lenox Park, a condominium association. You help board members and staff manage tasks efficiently.
+  const systemPrompt = `You are an AI assistant for 1033 Lenox Park, a condominium association. Generate a concise JSON response with actionable tasks.
 
-You will generate a structured JSON response with two sections:
-1. "tasks" - A prioritized to-do list based on the current state of requests, projects, and existing tasks
-2. "financial_summary" - A brief financial summary (only if financial data is provided)
-
-For tasks, consider:
-- Unresolved requests that need follow-up tasks created
-- Overdue or approaching-deadline tasks that need attention
-- Projects that may need check-ins or action items
-- Routine administrative tasks based on the time of year
-- Any gaps in current task coverage
-
-Each task should have: title, description, priority (low/medium/high/urgent), category (maintenance/follow_up/inspection/communication/financial/administrative/other), and suggested_due_date (ISO format).
-
-Respond ONLY with valid JSON in this format:
+Respond ONLY with valid JSON:
 {
   "tasks": [
     {
@@ -181,38 +172,35 @@ Respond ONLY with valid JSON in this format:
       "description": "string",
       "priority": "low|medium|high|urgent",
       "category": "maintenance|follow_up|inspection|communication|financial|administrative|other",
-      "suggested_due_date": "YYYY-MM-DD",
-      "related_collection": "string or null",
-      "related_id": "string or null"
+      "suggested_due_date": "YYYY-MM-DD"
     }
   ],
   "financial_summary": "string or null"
 }`
 
-  const userMessage = `Generate a to-do list for ${userName} based on the following data:
+  const userMessage = `Generate a to-do list for ${userName}. Today: ${new Date().toISOString().split('T')[0]}
 
-CURRENT OPEN TASKS (${(openTasks as any[]).length}):
-${(openTasks as any[]).map((t: any) => `- [${t.task_status}] ${t.title} (Priority: ${t.priority || 'none'}, Due: ${t.due_date || 'none'})`).join('\n') || 'No current tasks'}
+OPEN TASKS (${(openTasks as any[]).length}):
+${(openTasks as any[]).map((t: any) => `- [${t.task_status}] ${t.title} (P: ${t.priority || '-'}, Due: ${t.due_date || '-'})`).join('\n') || 'None'}
 
-OPEN REQUESTS (${(openRequests as any[]).length}):
-${(openRequests as any[]).map((r: any) => `- [${r.status}] ${r.subject} (Category: ${r.category || 'none'}, Priority: ${r.priority || 'none'}, From: ${r.name || 'Unknown'}, Created: ${r.date_created || 'unknown'})`).join('\n') || 'No open requests'}
+REQUESTS (${(openRequests as any[]).length}):
+${(openRequests as any[]).map((r: any) => `- [${r.status}] ${r.subject} (${r.category || '-'}, P: ${r.priority || '-'}, From: ${r.name || '?'})`).join('\n') || 'None'}
 
-ACTIVE PROJECTS (${(activeProjects as any[]).length}):
-${(activeProjects as any[]).map((p: any) => `- ${p.name} (Started: ${p.start_date}, Target End: ${p.target_end_date || 'none'})`).join('\n') || 'No active projects'}
+PROJECTS (${(activeProjects as any[]).length}):
+${(activeProjects as any[]).map((p: any) => `- ${p.name} (End: ${p.target_end_date || '-'})`).join('\n') || 'None'}
 
-RECENT ANNOUNCEMENTS:
-${(recentAnnouncements as any[]).map((a: any) => `- ${a.title} (${a.date_sent})`).join('\n') || 'No recent announcements'}
-${financialContext}
-${additionalContext ? `\nADDITIONAL CONTEXT:\n${additionalContext}` : ''}
+ANNOUNCEMENTS:
+${(recentAnnouncements as any[]).map((a: any) => `- ${a.title} (${a.date_sent})`).join('\n') || 'None'}
+${financialContext}${additionalContext ? `\nCONTEXT: ${additionalContext}` : ''}
 
-Today's date: ${new Date().toISOString().split('T')[0]}
-
-Generate practical, actionable tasks. Do not duplicate existing open tasks. Focus on gaps and items that need attention.`
+Do not duplicate existing tasks. Focus on gaps and actionable items.`
 
   try {
     const response = await callClaude({
       system: systemPrompt,
       messages: [{ role: 'user', content: userMessage }],
+      model: 'claude-3-5-haiku-20241022',
+      maxTokens: 4096,
     })
 
     const text = extractClaudeText(response)

@@ -79,6 +79,11 @@ interface ExtractionResult {
   message?: string;
 }
 
+// Extend Vercel timeout for AI endpoints
+export const config = {
+  maxDuration: 120,
+}
+
 export default defineEventHandler(async (event): Promise<ExtractionResult> => {
   const session = await getUserSession(event);
 
