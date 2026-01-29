@@ -466,7 +466,7 @@
 								<Icon name="i-heroicons-document" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
 								<p class="text-lg text-gray-600 mb-2">Drop your PDF bank statement here</p>
 								<p class="text-sm text-gray-500 mb-4">
-									The PDF will be uploaded and stored. You'll then need to provide a JSON version of the transactions.
+									Claude AI will extract transactions automatically, or you can provide JSON manually.
 								</p>
 								<button
 									@click="$refs.stmtFileInput.click()"
@@ -484,21 +484,42 @@
 							</div>
 						</div>
 
-						<div v-if="stmtFile" class="text-center">
+						<!-- PDF Action Buttons -->
+						<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
+							<button
+								@click="extractPdfWithClaude"
+								:disabled="claudeExtracting"
+								class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
+								<Icon v-if="claudeExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
+								<Icon v-else name="i-heroicons-sparkles" class="w-5 h-5" />
+								{{ claudeExtracting ? 'Claude is reading PDF...' : 'Extract with Claude AI' }}
+							</button>
 							<button
 								@click="uploadPdf"
 								:disabled="stmtUploading"
-								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-								{{ stmtUploading ? 'Uploading...' : 'Upload PDF Statement' }}
+								class="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm">
+								{{ stmtUploading ? 'Uploading...' : 'Upload PDF Only (provide JSON later)' }}
 							</button>
 						</div>
 
-						<!-- PDF Upload Result -->
-						<div v-if="pdfUploadResult" class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+						<!-- Claude Extraction Error -->
+						<div v-if="claudeExtractionError" class="p-4 bg-red-50 rounded-lg border border-red-200">
+							<h3 class="font-semibold text-red-800">Extraction Failed</h3>
+							<p class="text-sm text-red-600 mt-1">{{ claudeExtractionError }}</p>
+							<p class="text-sm text-gray-600 mt-2">You can try again, or paste JSON manually below.</p>
+						</div>
+
+						<!-- Claude Token Usage -->
+						<div v-if="claudeTokenUsage" class="text-xs text-gray-400 text-center">
+							Claude API usage: {{ claudeTokenUsage.input.toLocaleString() }} input + {{ claudeTokenUsage.output.toLocaleString() }} output tokens
+						</div>
+
+						<!-- PDF Upload Result (store-only fallback) -->
+						<div v-if="pdfUploadResult && !stmtTransactions.length" class="p-4 bg-blue-50 rounded-lg border border-blue-200">
 							<h3 class="font-semibold text-blue-800">PDF Uploaded Successfully</h3>
 							<p class="text-sm text-blue-600 mt-1">{{ pdfUploadResult.message }}</p>
 							<p class="text-sm text-blue-600 mt-2">
-								Now upload a JSON file with the extracted transactions, or paste JSON below.
+								Paste the transaction JSON below to continue.
 							</p>
 							<div class="mt-4">
 								<label class="block text-sm font-medium text-gray-700 mb-1">Paste Transaction JSON</label>
@@ -899,7 +920,7 @@ const monthOptions = [
 ];
 
 const fileTypes = [
-	{ id: 'pdf', label: 'PDF Statement', icon: 'i-heroicons-document', description: 'Upload PDF, then provide JSON' },
+	{ id: 'pdf', label: 'PDF Statement', icon: 'i-heroicons-document', description: 'Upload PDF — extract with Claude AI or provide JSON' },
 	{ id: 'json', label: 'JSON Transactions', icon: 'i-heroicons-code-bracket', description: 'Structured transaction data' },
 	{ id: 'csv', label: 'CSV Statement', icon: 'i-heroicons-table-cells', description: 'Reconciliation CSV format' },
 ];
@@ -1340,6 +1361,9 @@ const stmtEndingBalance = ref(null);
 const stmtImportResults = ref(null);
 const pastedJson = ref('');
 const pdfUploadResult = ref(null);
+const claudeExtracting = ref(false);
+const claudeExtractionError = ref('');
+const claudeTokenUsage = ref(null);
 const resolvedStmtFiscalYearId = ref(null);
 
 const selectedAccountName = computed(() => {
@@ -1384,6 +1408,8 @@ function clearStmtFile() {
 	pdfUploadResult.value = null;
 	stmtDetectedYear.value = null;
 	stmtDetectedMonth.value = '';
+	claudeExtractionError.value = '';
+	claudeTokenUsage.value = null;
 }
 
 async function uploadPdf() {
@@ -1433,6 +1459,55 @@ async function parseStmtFile() {
 		alert('Failed to parse file: ' + (err.data?.message || err.message || 'Unknown error'));
 	} finally {
 		stmtParsing.value = false;
+	}
+}
+
+async function extractPdfWithClaude() {
+	if (!stmtFile.value) return;
+	claudeExtracting.value = true;
+	claudeExtractionError.value = '';
+	claudeTokenUsage.value = null;
+
+	try {
+		const formData = new FormData();
+		formData.append('file', stmtFile.value);
+
+		const result = await $fetch('/api/admin/extract-pdf-transactions', {
+			method: 'POST',
+			body: formData,
+		});
+
+		if (result.token_usage) {
+			claudeTokenUsage.value = result.token_usage;
+		}
+
+		if (result.success && result.transactions) {
+			applyParsedTransactions({
+				success: true,
+				transactions: result.transactions,
+				beginning_balance: result.beginning_balance,
+				ending_balance: result.ending_balance,
+				statement_period: result.statement_period,
+			});
+
+			// If Claude detected a statement period, try to auto-detect month from it
+			if (result.statement_period && !stmtMonth.value) {
+				const periodLower = result.statement_period.toLowerCase();
+				const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+					'july', 'august', 'september', 'october', 'november', 'december'];
+				const matchedIdx = monthNames.findIndex((m) => periodLower.includes(m));
+				if (matchedIdx >= 0) {
+					stmtMonth.value = String(matchedIdx + 1).padStart(2, '0');
+				}
+			}
+		} else {
+			claudeExtractionError.value = result.error || 'Claude could not extract transactions from this PDF.';
+		}
+	} catch (err) {
+		console.error('Claude extraction error:', err);
+		claudeExtractionError.value = err.data?.message || err.message || 'Failed to connect to Claude API.';
+	} finally {
+		claudeExtracting.value = false;
 	}
 }
 
