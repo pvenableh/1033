@@ -7,7 +7,7 @@ const props = defineProps<{
   user: DirectusUser
 }>()
 
-const { linkedPerson, isBoardMember } = useRoles()
+const { linkedPerson, isBoardMember, isAdmin } = useRoles()
 
 // Financial dashboard data (for board members / admins)
 const {
@@ -20,6 +20,102 @@ const {
   fetchDashboardData,
   formatCurrency,
 } = useFinancialDashboard()
+
+// Fetch user units from API (includes vehicles, pets, people)
+const { data: unitsData, pending: unitsPending } = useLazyFetch<{ units: any[] }>(
+  '/api/directus/users/me/units',
+  {
+    server: false,
+    default: () => ({ units: [] }),
+  }
+)
+
+const userUnits = computed(() => unitsData.value?.units || [])
+const units = computed(() => userUnits.value.map((u: any) => u.units_id).filter(Boolean))
+
+// Filter tenants from fetched units
+const tenants = computed(() => {
+  const result: any[] = []
+  for (const unit of units.value) {
+    if (unit.people) {
+      for (const person of unit.people) {
+        if (person.people_id && person.people_id.category === 'Tenant') {
+          result.push(person.people_id)
+        }
+      }
+    }
+  }
+  return result
+})
+
+// Collect all people names in the user's units (for transaction matching)
+const unitPeopleNames = computed(() => {
+  const names: string[] = []
+  // Add the logged-in user's own name
+  const firstName = props.user.first_name || ''
+  const lastName = props.user.last_name || ''
+  if (firstName || lastName) {
+    names.push(`${firstName} ${lastName}`.trim().toLowerCase())
+  }
+  // Add names from all people in the user's units
+  for (const unit of units.value) {
+    if (unit.people) {
+      for (const person of unit.people) {
+        const p = person.people_id
+        if (p && (p.first_name || p.last_name)) {
+          names.push(`${p.first_name || ''} ${p.last_name || ''}`.trim().toLowerCase())
+        }
+      }
+    }
+  }
+  return [...new Set(names)].filter(Boolean)
+})
+
+// Quick stats
+const totalUnits = computed(() => units.value.length)
+const totalTenants = computed(() => tenants.value.length)
+const totalVehicles = computed(() => {
+  return units.value.reduce((acc: number, unit: any) => {
+    return acc + (unit.vehicles?.length || 0)
+  }, 0)
+})
+const totalPets = computed(() => {
+  return units.value.reduce((acc: number, unit: any) => {
+    return acc + (unit.pets?.length || 0)
+  }, 0)
+})
+
+// Fetch recent transactions matching the user's name or unit residents
+const transactionsCollection = useDirectusItems('transactions')
+const recentTransactions = ref<any[]>([])
+const transactionsLoading = ref(false)
+
+async function fetchUserTransactions() {
+  if (unitPeopleNames.value.length === 0) return
+  transactionsLoading.value = true
+  try {
+    // Build OR filters for vendor or description matching any person name
+    const orFilters: any[] = []
+    for (const name of unitPeopleNames.value) {
+      orFilters.push({ vendor: { _icontains: name } })
+      orFilters.push({ description: { _icontains: name } })
+    }
+    const data = await transactionsCollection.list({
+      filter: {
+        _or: orFilters,
+        status: { _eq: 'published' },
+      },
+      sort: ['-transaction_date'],
+      fields: ['id', 'transaction_date', 'description', 'vendor', 'amount', 'transaction_type', 'category_id'],
+      limit: 10,
+    })
+    recentTransactions.value = data || []
+  } catch (err) {
+    console.error('Error fetching user transactions:', err)
+  } finally {
+    transactionsLoading.value = false
+  }
+}
 
 // Get board member info for current year
 function getBoardMemberByYear(obj: any, targetYear: string) {
@@ -50,38 +146,6 @@ function getBoardMemberByYear(obj: any, targetYear: string) {
 
 const currentYear = new Date().getFullYear().toString()
 const boardMember = getBoardMemberByYear(props.user, currentYear)
-
-// Filter tenants from user units
-function filterTenants(obj: any): any[] {
-  if (Array.isArray(obj)) {
-    return obj.flatMap((item) => filterTenants(item))
-  } else if (typeof obj === 'object' && obj !== null) {
-    if (obj.people_id && obj.people_id.category === 'Tenant') {
-      return [obj.people_id]
-    } else {
-      return Object.values(obj).flatMap((value) => filterTenants(value))
-    }
-  }
-  return []
-}
-
-const extUser = props.user as any
-const tenants = computed(() => filterTenants(extUser?.units || []))
-const userUnits = computed(() => extUser?.units || [])
-
-// Quick stats
-const totalUnits = computed(() => userUnits.value.length)
-const totalTenants = computed(() => tenants.value.length)
-const totalVehicles = computed(() => {
-  return userUnits.value.reduce((acc: number, unit: any) => {
-    return acc + (unit.units_id?.vehicles?.length || 0)
-  }, 0)
-})
-const totalPets = computed(() => {
-  return userUnits.value.reduce((acc: number, unit: any) => {
-    return acc + (unit.units_id?.pets?.length || 0)
-  }, 0)
-})
 
 // Quick actions for owner dashboard
 const quickActions = [
@@ -131,16 +195,28 @@ const varianceChartData = computed(() => {
     }))
 })
 
-// Load financial data on mount for board members
+function formatTransactionAmount(amount: any) {
+  const num = parseFloat(amount) || 0
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num)
+}
+
+// Load data on mount
 onMounted(() => {
   if (isBoardMember.value) {
     fetchDashboardData()
   }
 })
+
+// Fetch transactions once unit data is loaded
+watch(unitPeopleNames, (names) => {
+  if (names.length > 0) {
+    fetchUserTransactions()
+  }
+}, { immediate: true })
 </script>
 
 <template>
-  <div class="space-y-6">
+  <div class="max-w-7xl mx-auto space-y-6">
     <!-- Welcome Header -->
     <DashboardWidgetsWelcomeHeader
       :first-name="user.first_name || ''"
@@ -148,7 +224,17 @@ onMounted(() => {
     />
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div v-if="unitsPending" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <Card v-for="i in 4" :key="i">
+        <CardContent class="pt-6">
+          <div class="animate-pulse space-y-2">
+            <div class="h-4 bg-muted rounded w-20"></div>
+            <div class="h-8 bg-muted rounded w-12"></div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+    <div v-else class="grid grid-cols-2 md:grid-cols-4 gap-4">
       <DashboardWidgetsStatCard
         title="Units"
         :value="totalUnits"
@@ -157,9 +243,9 @@ onMounted(() => {
       />
       <DashboardWidgetsStatCard
         title="Tenants"
-        :value="totalTenants"
+        :value="totalTenants > 0 ? totalTenants : 'Owner-Occupied'"
         icon="heroicons:users"
-        description="Active tenants"
+        :description="totalTenants > 0 ? 'Active tenants' : 'No tenants'"
       />
       <DashboardWidgetsStatCard
         title="Vehicles"
@@ -428,19 +514,123 @@ onMounted(() => {
       </div>
     </template>
 
+    <!-- My Units Detail -->
+    <Card v-if="!unitsPending && units.length > 0">
+      <CardHeader class="pb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="text-base">My Units</CardTitle>
+            <CardDescription>Your property details</CardDescription>
+          </div>
+          <Icon name="heroicons:home-modern" class="h-5 w-5 text-muted-foreground" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div class="space-y-4">
+          <div
+            v-for="unit in units"
+            :key="unit.id"
+            class="p-4 rounded-lg border bg-muted/30"
+          >
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="font-medium">Unit {{ unit.number }}</h3>
+              <span class="text-xs px-2 py-1 rounded bg-muted">
+                {{ unit.occupant ? unit.occupant + '-Occupied' : 'Owner-Occupied' }}
+              </span>
+            </div>
+
+            <!-- People -->
+            <div v-if="unit.people && unit.people.length > 0" class="mb-3">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Residents</p>
+              <div class="flex flex-wrap gap-2">
+                <span
+                  v-for="person in unit.people"
+                  :key="person.id"
+                  class="text-sm bg-muted px-2 py-1 rounded"
+                >
+                  {{ person.people_id?.first_name }} {{ person.people_id?.last_name }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Vehicles -->
+            <div v-if="unit.vehicles && unit.vehicles.length > 0" class="mb-3">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Vehicles</p>
+              <div class="space-y-1">
+                <div v-for="v in unit.vehicles" :key="v.id" class="text-sm flex items-center gap-2">
+                  <Icon name="heroicons:truck" class="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{{ v.year }} {{ v.make }} {{ v.model }}</span>
+                  <span v-if="v.color" class="text-muted-foreground">({{ v.color }})</span>
+                  <span v-if="v.license_plate" class="text-xs text-muted-foreground ml-auto">{{ v.state }} {{ v.license_plate }}</span>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-muted-foreground mb-2">No vehicles registered.</p>
+
+            <!-- Pets -->
+            <div v-if="unit.pets && unit.pets.length > 0">
+              <p class="text-xs text-muted-foreground uppercase tracking-wide mb-2">Pets</p>
+              <div class="space-y-1">
+                <div v-for="pet in unit.pets" :key="pet.id" class="text-sm flex items-center gap-2">
+                  <Icon name="heroicons:heart" class="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>{{ pet.name }}</span>
+                  <span v-if="pet.breed" class="text-muted-foreground">({{ pet.breed }})</span>
+                  <span class="text-xs text-muted-foreground">{{ pet.category }}</span>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-muted-foreground">No pets registered.</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
+    <!-- Recent Transactions (linked to user/unit names) -->
+    <Card v-if="recentTransactions.length > 0 || transactionsLoading">
+      <CardHeader class="pb-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <CardTitle class="text-base">Recent Transactions</CardTitle>
+            <CardDescription>Transactions connected to your name or unit</CardDescription>
+          </div>
+          <Icon name="heroicons:banknotes" class="h-5 w-5 text-muted-foreground" />
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div v-if="transactionsLoading" class="flex items-center justify-center py-8">
+          <Icon name="heroicons:arrow-path" class="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+        <div v-else class="space-y-2">
+          <div
+            v-for="tx in recentTransactions"
+            :key="tx.id"
+            class="flex items-center justify-between p-3 rounded-lg bg-muted/30 border"
+          >
+            <div class="min-w-0 flex-1">
+              <p class="text-sm font-medium truncate">{{ tx.description }}</p>
+              <div class="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+                <span>{{ tx.transaction_date }}</span>
+                <span v-if="tx.vendor" class="truncate">&middot; {{ tx.vendor }}</span>
+              </div>
+            </div>
+            <span
+              class="text-sm font-semibold ml-4 whitespace-nowrap"
+              :class="tx.transaction_type === 'deposit' ? 'text-green-600' : 'text-foreground'"
+            >
+              {{ tx.transaction_type === 'deposit' ? '+' : '-' }}{{ formatTransactionAmount(tx.amount) }}
+            </span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <!-- Units Summary -->
-      <InsightsPerson :user="user" />
-
       <!-- Board Meetings -->
       <InsightsMeetings />
 
       <!-- Announcements -->
       <InsightsAnnouncements />
-
-      <!-- Newsletter -->
-      <InsightsNewsletter />
     </div>
 
     <!-- Quick Actions -->
@@ -449,13 +639,10 @@ onMounted(() => {
     <!-- Board of Directors -->
     <InsightsBoard />
 
-    <!-- Full Units Summary -->
-    <InsightsUnits />
-
-    <!-- Manage Units Link -->
-    <div class="flex justify-center">
+    <!-- Manage All Units Link (admins only) -->
+    <div v-if="isAdmin" class="flex justify-center">
       <nuxt-link
-        to="/units"
+        to="/admin/units"
         class="inline-flex items-center gap-2 text-sm text-primary hover:underline"
       >
         Manage All Units

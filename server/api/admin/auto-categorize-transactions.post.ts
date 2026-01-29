@@ -287,7 +287,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'1-touch': 'Maintenance',
 	'buildium': 'Professional',
 	'diana wyatt': 'Professional',
-	'harry tempkins': 'Maintenance',
+	'harry tompkins': 'Professional',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
 };

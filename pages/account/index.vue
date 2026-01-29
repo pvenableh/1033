@@ -53,20 +53,20 @@
 					<!-- Content Panels -->
 					<div class="flex-1 account-content opacity-0">
 						<div class="t-bg-elevated border t-border-divider p-6 lg:p-8">
-							<transition-group name="fade" mode="out-in">
+							<transition name="fade" mode="out-in">
 								<div v-if="panel === 1" key="1">
 									<AccountProfile />
 								</div>
-								<div v-if="panel === 2" key="2">
+								<div v-else-if="panel === 2" key="2">
 									<AccountUnitInfo />
 								</div>
-								<div v-if="panel === 3" key="3">
+								<div v-else-if="panel === 3" key="3">
 									<AccountPets />
 								</div>
-								<div v-if="panel === 4" key="4">
+								<div v-else-if="panel === 4" key="4">
 									<AccountVehicles />
 								</div>
-							</transition-group>
+							</transition>
 						</div>
 					</div>
 				</div>
@@ -79,11 +79,26 @@
 import {ref, onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
 
-const {user} = useDirectusAuth();
+const {user: sessionUser} = useDirectusAuth();
 
 definePageMeta({
 	layout: 'default',
 	middleware: ['auth'],
+});
+
+// Fetch fresh user data from API (session may not always have name fields)
+const { data: meData } = useLazyFetch<any>('/api/directus/users/me', {
+	server: false,
+	default: () => null,
+});
+
+// Use API data with session fallback
+const user = computed(() => {
+	const me = meData.value;
+	const s = sessionUser.value as any;
+	if (me && me.first_name) return me;
+	if (s) return s;
+	return null;
 });
 
 const navItems = [
@@ -99,9 +114,9 @@ const avatar = computed(() => {
 	} else {
 		return (
 			'https://ui-avatars.com/api/?name=' +
-			user.value?.first_name +
+			(user.value?.first_name || '') +
 			' ' +
-			user.value?.last_name +
+			(user.value?.last_name || '') +
 			'&background=C9A96E&color=ffffff'
 		);
 	}

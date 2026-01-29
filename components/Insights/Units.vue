@@ -11,21 +11,30 @@ function setBackgroundColor(occupant: string) {
   }
 }
 
-const {
-  data: units,
-  pending,
-  error,
-} = await useAsyncData('units', () => {
-  return useDirectus(
-    readItems('units', {
-      fields: ['*'],
-      sort: 'number',
+const unitsCollection = useDirectusItems('units')
+const units = ref<any[]>([])
+const pending = ref(true)
+const error = ref<Error | null>(null)
+
+onMounted(async () => {
+  try {
+    const data = await unitsCollection.list({
+      fields: ['id', 'number', 'occupant', 'status'],
+      filter: { status: { _eq: 'published' } },
+      sort: ['number'],
+      limit: -1,
     })
-  )
+    units.value = data || []
+  } catch (err: any) {
+    console.error('Error loading units:', err)
+    error.value = err
+  } finally {
+    pending.value = false
+  }
 })
 
 const occupantTotals = computed(() => {
-  if (!units.value) return {}
+  if (!units.value.length) return {}
   return units.value.reduce((totals: Record<string, number>, property: any) => {
     const occupant = property.occupant
     if (occupant === 'Owner' || occupant === 'Tenant') {
@@ -41,7 +50,7 @@ const occupantTotals = computed(() => {
 const labels = computed(() => Object.keys(occupantTotals.value))
 const values = computed(() => Object.values(occupantTotals.value) as number[])
 const ownershipPercentage = computed(() => {
-  if (!units.value || values.value.length === 0) return 0
+  if (!units.value.length || values.value.length === 0) return 0
   return percentage(values.value[0], units.value.length)
 })
 
@@ -68,9 +77,10 @@ const subtitle = computed(() => ownershipPercentage.value + '% of units are owne
     </CardHeader>
     <CardContent>
       <div v-if="pending" class="py-8 text-center text-muted-foreground">
+        <Icon name="heroicons:arrow-path" class="h-6 w-6 animate-spin mx-auto mb-2" />
         Loading...
       </div>
-      <div v-else-if="units" class="flex flex-col lg:flex-row items-start justify-center gap-8">
+      <div v-else-if="units.length > 0" class="flex flex-col lg:flex-row items-start justify-center gap-8">
         <div class="flex-none">
           <ChartsLegend :legendValues="legendValues" :subtitle="subtitle" />
           <ClientOnly fallback-tag="span" fallback="Loading chart...">
