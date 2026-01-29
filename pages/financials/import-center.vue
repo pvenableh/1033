@@ -233,7 +233,7 @@
 								<select
 									v-if="canUpdateFinancials"
 									:value="fy.status"
-									@change="updateFiscalYearStatus(fy.id, ($event.target as HTMLSelectElement).value)"
+									@change="updateFiscalYearStatus(fy.id, $event.target.value)"
 									class="border rounded px-2 py-1 text-xs">
 									<option value="published">Published</option>
 									<option value="draft">Draft</option>
