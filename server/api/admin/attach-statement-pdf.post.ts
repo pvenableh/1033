@@ -69,10 +69,12 @@ export default defineEventHandler(async (event) => {
 
 		const client = useDirectusAdmin();
 
-		// Upload file to Directus
+		// Upload file to Directus in the bank statements folder
+		const STATEMENTS_FOLDER = 'b538fbe2-698d-4131-9160-f049949c8a0b';
 		const directusFormData = new FormData();
 		const blob = new Blob([fileField.data], { type: fileField.type || 'application/pdf' });
 		directusFormData.append('file', blob, fileField.filename);
+		directusFormData.append('folder', STATEMENTS_FOLDER);
 
 		const uploadResult = await client.request(sdkUploadFiles(directusFormData));
 		const fileId = uploadResult?.id;

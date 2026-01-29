@@ -908,6 +908,23 @@
 						</button>
 					</div>
 
+					<!-- Starting Balances -->
+					<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+						<h4 class="text-sm font-medium text-gray-700 mb-2">Starting Balances (Jan 1 opening balance from bank)</h4>
+						<p class="text-xs text-gray-500 mb-3">Enter the beginning balance from each account's January statement so running balances are accurate.</p>
+						<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+							<div v-for="acct in accounts" :key="'bal-' + acct.id" class="flex items-center gap-2">
+								<label class="text-xs text-gray-600 whitespace-nowrap">{{ acct.account_name }}:</label>
+								<input
+									type="number"
+									step="0.01"
+									v-model.number="startingBalances[acct.id]"
+									placeholder="$0.00"
+									class="border border-gray-300 rounded px-2 py-1 text-sm w-32 font-mono" />
+							</div>
+						</div>
+					</div>
+
 					<!-- Backfill Results -->
 					<div v-if="stmtMgrBackfillResults" class="p-4 rounded-lg border"
 						:class="stmtMgrBackfillResults.created > 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'">
@@ -1120,6 +1137,7 @@ const stmtMgrAccountId = ref(null);
 const stmtMgrBackfilling = ref(false);
 const stmtMgrBackfillResults = ref(null);
 const stmtMgrStatements = ref([]);
+const startingBalances = reactive({});
 
 const fiscalYearIdCache = {};
 
@@ -1582,6 +1600,7 @@ const autoCategorizing = ref(false);
 const autoCategorizeResults = ref(null);
 const pastedJson = ref('');
 const pdfUploadResult = ref(null);
+const extractedPdfFileId = ref(null);
 const claudeExtracting = ref(false);
 const claudeExtractionError = ref('');
 const claudeTokenUsage = ref(null);
@@ -1628,6 +1647,7 @@ function clearStmtFile() {
 	stmtImportResults.value = null;
 	autoCategorizeResults.value = null;
 	pdfUploadResult.value = null;
+	extractedPdfFileId.value = null;
 	stmtDetectedYear.value = null;
 	stmtDetectedMonth.value = '';
 	claudeExtractionError.value = '';
@@ -1704,6 +1724,11 @@ async function extractPdfWithClaude() {
 		}
 
 		if (result.success && result.transactions) {
+			// Save PDF file ID if uploaded to Directus
+			if (result.pdf_file_id) {
+				extractedPdfFileId.value = result.pdf_file_id;
+			}
+
 			applyParsedTransactions({
 				success: true,
 				transactions: result.transactions,
@@ -1960,6 +1985,15 @@ async function runBackfillStatements() {
 			body.account_id = stmtMgrAccountId.value;
 		}
 
+		// Include starting balances if any are set
+		const balances = {};
+		for (const [id, val] of Object.entries(startingBalances)) {
+			if (val && val > 0) balances[id] = val;
+		}
+		if (Object.keys(balances).length > 0) {
+			body.starting_balances = balances;
+		}
+
 		const result = await $fetch('/api/admin/backfill-monthly-statements', {
 			method: 'POST',
 			body,
@@ -2067,6 +2101,7 @@ async function saveStatementBalances() {
 		const updates = { status: 'published' };
 		if (beginBal != null) updates.beginning_balance = beginBal;
 		if (endBal != null) updates.ending_balance = endBal;
+		if (extractedPdfFileId.value) updates.pdf_statement = extractedPdfFileId.value;
 
 		if (existing && existing.length > 0) {
 			// Update existing record (only overwrite if values were missing)

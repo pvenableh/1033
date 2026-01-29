@@ -2,7 +2,8 @@
  * POST /api/admin/auto-categorize-transactions
  *
  * Finds uncategorized transactions and attempts to match them to budget categories
- * and budget items using vendor patterns, keywords, and description matching.
+ * and budget items using vendor patterns, keywords, description matching, and
+ * HOA-specific keyword dictionaries.
  *
  * Accepts optional filters:
  *   - fiscal_year: number (e.g. 2025) — required
@@ -73,19 +74,29 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const client = useDirectusAdmin();
 
 	try {
-		// 1. Fetch budget items with category info for this fiscal year
+		// 1. Fetch budget items with category info for this fiscal year OR with no fiscal year
 		const budgetItems = await client.request(
 			readItems('budget_items', {
-				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
+				filter: {
+					_or: [
+						{ fiscal_year: { year: { _eq: fiscalYear } } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
 				fields: ['*', 'category_id.id', 'category_id.category_name'],
 				limit: -1,
 			})
 		);
 
-		// 2. Fetch budget categories for this fiscal year
+		// 2. Fetch budget categories for this fiscal year OR with no fiscal year (global categories)
 		const budgetCategories = await client.request(
 			readItems('budget_categories', {
-				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
+				filter: {
+					_or: [
+						{ fiscal_year: { year: { _eq: fiscalYear } } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
 				fields: ['*'],
 				limit: -1,
 			})
@@ -122,7 +133,11 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			})
 		);
 
-		// 5. Run matching algorithm
+		// 5. Build the category lookup by resolving DB category names
+		//    to our keyword dictionary using fuzzy name matching
+		const categoryKeywordMap = buildCategoryKeywordMap(budgetCategories);
+
+		// 6. Run matching algorithm
 		const result: CategorizationResult = {
 			success: true,
 			total_uncategorized: transactions.length,
@@ -135,10 +150,9 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 
 		for (const tx of transactions) {
 			try {
-				const match = matchTransaction(tx, budgetItems, budgetCategories, vendors);
+				const match = matchTransaction(tx, budgetItems, budgetCategories, vendors, categoryKeywordMap);
 
 				if (match.confidence >= minConfidence) {
-					// Apply the match to the database
 					const updates: Record<string, any> = {
 						auto_categorized: true,
 					};
@@ -197,9 +211,147 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 });
 
 // ============================================================
-// Matching logic (server-side port of useTransactionMatching)
+// HOA-specific keyword dictionary
+// Each group lists keywords that map to a logical category.
+// The group name is fuzzy-matched to actual DB category names.
 // ============================================================
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+	Insurance: [
+		'insurance', 'premium', 'coverage', 'policy', 'insur',
+		'first insurance', 'flood insurance', 'building insurance',
+		'citizens', 'fednat', 'heritage',
+	],
+	Professional: [
+		'management', 'legal', 'attorney', 'cpa', 'accountant', 'audit',
+		'boir', 'consulting', 'vte', 'law office', 'law firm',
+		'accounting', 'bookkeeping', 'tax prep',
+	],
+	Utilities: [
+		'electric', 'water', 'gas', 'internet', 'cable', 'fpl',
+		'att', 'comcast', 'utility', 'sewer', 'teco', 'people gas',
+		'breezeline', 'power', 'florida power', 'miami-dade water',
+		'miami beach water',
+	],
+	Maintenance: [
+		'repair', 'maintenance', 'cleaning', 'janitorial', 'landscaping',
+		'pool', 'elevator', 'hvac', 'plumbing', 'pest', 'exterminator',
+		'waste', 'trash', 'garbage', 'lawn', 'garden', 'a/c',
+		'air condition', 'fire equip', 'fire alarm', 'security',
+		'camera', 'gate', 'access control', 'maverick', 'gutierrez',
+		'wash multifamily', 'laundry', 'pressure wash', 'roofing',
+		'painting', 'electrical repair',
+	],
+	Regulatory: [
+		'permit', 'license', 'inspection', 'certificate', 'compliance',
+		'fire marshal', 'code enforcement', 'sunbiz', 'dbpr',
+		'miami beach', 'miami-dade', 'city of', 'county',
+		'department of', 'validation permit', 'annual inspection',
+	],
+	Banking: [
+		'bank fee', 'service charge', 'wire fee', 'ach fee',
+		'monthly maintenance fee', 'account fee', 'overdraft',
+		'nsf', 'returned item', 'chase fee',
+	],
+	Other: [
+		'office', 'supply', 'supplies', 'printing', 'postage',
+		'fedex', 'ups', 'shipping', 'miscellaneous', 'misc',
+		'phone line', 'telephone', '1-touch',
+	],
+};
 
+// Additional vendor-to-category map for common HOA vendors
+const VENDOR_CATEGORY_MAP: Record<string, string> = {
+	'fpl': 'Utilities',
+	'florida power': 'Utilities',
+	'teco': 'Utilities',
+	'people gas': 'Utilities',
+	'breezeline': 'Utilities',
+	'comcast': 'Utilities',
+	'att': 'Utilities',
+	'miami beach water': 'Utilities',
+	'miami-dade water': 'Utilities',
+	'waste management': 'Maintenance',
+	'wash multifamily': 'Maintenance',
+	'maverick': 'Maintenance',
+	'gutierrez': 'Maintenance',
+	'a plus fire': 'Maintenance',
+	'vte consulting': 'Professional',
+	'vte': 'Professional',
+	'chase': 'Banking',
+	'sunbiz': 'Regulatory',
+	'dbpr': 'Regulatory',
+	'first insurance': 'Insurance',
+	'citizens': 'Insurance',
+};
+
+// ============================================================
+// Build a map from DB category IDs to keyword lists
+// ============================================================
+function buildCategoryKeywordMap(
+	budgetCategories: any[]
+): Map<number, { name: string; keywords: string[] }> {
+	const map = new Map<number, { name: string; keywords: string[] }>();
+
+	for (const category of budgetCategories) {
+		const catName = (category.category_name || '').trim();
+		const catNameLower = catName.toLowerCase();
+
+		// Find the best matching keyword group
+		let bestGroup: string | null = null;
+		let bestScore = 0;
+
+		for (const [groupName, _keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+			const groupLower = groupName.toLowerCase();
+
+			// Exact match
+			if (catNameLower === groupLower) {
+				bestGroup = groupName;
+				bestScore = 100;
+				break;
+			}
+
+			// DB name contains group name or vice versa
+			if (catNameLower.includes(groupLower) || groupLower.includes(catNameLower)) {
+				const score = 80;
+				if (score > bestScore) {
+					bestGroup = groupName;
+					bestScore = score;
+				}
+			}
+
+			// Word overlap
+			const catWords = catNameLower.split(/\s+/);
+			const groupWords = groupLower.split(/\s+/);
+			const overlap = catWords.filter((w: string) =>
+				groupWords.some((gw: string) => w.includes(gw) || gw.includes(w))
+			);
+			if (overlap.length > 0) {
+				const score = 60 + overlap.length * 10;
+				if (score > bestScore) {
+					bestGroup = groupName;
+					bestScore = score;
+				}
+			}
+		}
+
+		if (bestGroup && bestScore >= 60) {
+			map.set(category.id, {
+				name: catName,
+				keywords: CATEGORY_KEYWORDS[bestGroup],
+			});
+		} else {
+			// If no match found, use the category name itself and 'Other' keywords as fallback
+			const keywords = [catNameLower, ...(CATEGORY_KEYWORDS['Other'] || [])];
+			map.set(category.id, { name: catName, keywords });
+		}
+	}
+
+	return map;
+}
+
+// ============================================================
+// Matching logic
+// ============================================================
 interface MatchResult {
 	category_id: number | null;
 	category_name: string | null;
@@ -215,7 +367,8 @@ function matchTransaction(
 	transaction: any,
 	budgetItems: any[],
 	budgetCategories: any[],
-	vendors: any[]
+	vendors: any[],
+	categoryKeywordMap: Map<number, { name: string; keywords: string[] }>
 ): MatchResult {
 	const result: MatchResult = {
 		category_id: null,
@@ -230,6 +383,7 @@ function matchTransaction(
 
 	const description = (transaction.description || '').toLowerCase().trim();
 	const vendorField = (transaction.vendor || '').toLowerCase().trim();
+	const searchText = `${description} ${vendorField}`;
 	const amount = Math.abs(parseFloat(transaction.amount) || 0);
 
 	// --- Pass 1: Match to a specific budget item ---
@@ -249,26 +403,41 @@ function matchTransaction(
 			}
 		}
 
-		// Check keywords (medium priority)
+		// Check keywords
 		const keywords: string[] = item.keywords || [];
 		for (const keyword of keywords) {
 			const kw = keyword.toLowerCase().trim();
-			if (kw && description.includes(kw)) {
+			if (kw && (description.includes(kw) || vendorField.includes(kw))) {
 				score += 50;
 			}
 		}
 
 		// Check item description similarity
 		const itemDesc = (item.description || '').toLowerCase();
-		if (itemDesc && (description.includes(itemDesc) || itemDesc.includes(description.split(' ')[0]))) {
-			score += 25;
+		if (itemDesc) {
+			// Multi-word match: check if any significant words from the item desc appear in the tx
+			const itemWords = itemDesc.split(/\s+/).filter((w: string) => w.length > 3);
+			const matchedWords = itemWords.filter((w: string) => searchText.includes(w));
+			if (matchedWords.length >= 2) {
+				score += 40;
+			} else if (matchedWords.length === 1) {
+				score += 20;
+			}
+		}
+
+		// Check item code
+		const itemCode = (item.item_code || '').toLowerCase();
+		if (itemCode && itemCode.length > 3 && searchText.includes(itemCode)) {
+			score += 30;
 		}
 
 		// Amount range check
 		const monthlyBudget = parseFloat(item.monthly_budget) || 0;
 		if (monthlyBudget > 0 && amount > 0) {
 			const variance = Math.abs(amount - monthlyBudget) / monthlyBudget;
-			if (variance < 0.2) {
+			if (variance < 0.1) {
+				score += 15;
+			} else if (variance < 0.2) {
 				score += 10;
 			}
 		}
@@ -295,40 +464,121 @@ function matchTransaction(
 		result.matched_by = bestItemScore >= 100 ? 'vendor_pattern' : bestItemScore >= 50 ? 'keyword' : 'similarity';
 	}
 
-	// --- Pass 2: Fallback to category-level matching if no item match ---
+	// --- Pass 2: Keyword-based category matching ---
+	// This uses the expanded keyword dictionary, matched against actual DB categories
 	if (!result.category_id) {
-		const categoryPatterns: Record<string, string[]> = {
-			Insurance: ['insurance', 'premium', 'coverage', 'policy'],
-			Professional: ['management', 'legal', 'attorney', 'cpa', 'accountant', 'audit', 'boir'],
-			Utilities: ['electric', 'water', 'gas', 'internet', 'cable', 'fpl', 'att', 'comcast', 'utility'],
-			Maintenance: ['repair', 'maintenance', 'cleaning', 'janitorial', 'landscaping', 'pool', 'elevator', 'hvac'],
-			Regulatory: ['permit', 'license', 'inspection', 'certificate', 'compliance', 'fire marshal'],
-			Banking: ['bank', 'fee', 'charge', 'wire', 'ach'],
-		};
+		let bestCatScore = 0;
+		let bestCatId: number | null = null;
+		let bestCatName: string | null = null;
 
-		for (const category of budgetCategories) {
-			const categoryName = category.category_name;
-			const patterns = categoryPatterns[categoryName] || [];
+		for (const [catId, catInfo] of categoryKeywordMap) {
+			let score = 0;
+			let matchCount = 0;
 
-			for (const pattern of patterns) {
-				if (description.includes(pattern) || vendorField.includes(pattern)) {
-					result.category_id = category.id;
-					result.category_name = categoryName;
-					result.confidence = 75;
-					result.matched_by = 'category_keyword';
-					break;
+			for (const keyword of catInfo.keywords) {
+				if (searchText.includes(keyword)) {
+					score += 50;
+					matchCount++;
+					if (matchCount >= 2) break; // cap at 2 keyword matches per category
 				}
 			}
-			if (result.category_id) break;
+
+			if (score > bestCatScore) {
+				bestCatScore = score;
+				bestCatId = catId;
+				bestCatName = catInfo.name;
+			}
+		}
+
+		if (bestCatScore >= 50 && bestCatId) {
+			result.category_id = bestCatId;
+			result.category_name = bestCatName;
+			result.confidence = Math.min(bestCatScore, 100);
+			result.matched_by = 'category_keyword';
 		}
 	}
 
-	// --- Pass 3: Vendor matching (always attempt, adds vendor info) ---
+	// --- Pass 3: Vendor name → category mapping ---
+	// Use known HOA vendor-to-category associations
+	if (!result.category_id) {
+		for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
+			if (searchText.includes(vendorKey)) {
+				// Find the matching DB category
+				for (const [catId, catInfo] of categoryKeywordMap) {
+					const catGroupLower = catInfo.name.toLowerCase();
+					if (
+						catGroupLower === groupName.toLowerCase() ||
+						catGroupLower.includes(groupName.toLowerCase()) ||
+						groupName.toLowerCase().includes(catGroupLower)
+					) {
+						result.category_id = catId;
+						result.category_name = catInfo.name;
+						result.confidence = 70;
+						result.matched_by = 'vendor_lookup';
+						break;
+					}
+				}
+				if (result.category_id) break;
+			}
+		}
+	}
+
+	// --- Pass 4: Transaction type heuristics ---
+	// In an HOA context, nearly all deposits are assessment/dues revenue.
+	// Match ALL deposit-type transactions to the Revenue/Income category.
+	if (!result.category_id && (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_in')) {
+		// Find the revenue/income category
+		const revenueCategory = budgetCategories.find((cat: any) => {
+			const name = (cat.category_name || '').toLowerCase();
+			return name.includes('revenue') || name.includes('income') || name.includes('assessment');
+		});
+
+		if (revenueCategory) {
+			// High-confidence deposit keywords (owner payments)
+			const highConfidenceKeywords = [
+				'zelle', 'venmo', 'assessment', 'dues', 'hoa',
+				'maintenance fee', 'condo fee', 'remote deposit',
+				'remote online deposit', 'mobile deposit', 'check deposit',
+				'online transfer', 'ach deposit', 'direct deposit',
+			];
+
+			const isHighConfidence = highConfidenceKeywords.some((kw) => searchText.includes(kw));
+
+			if (isHighConfidence) {
+				result.category_id = revenueCategory.id;
+				result.category_name = revenueCategory.category_name;
+				result.confidence = 75;
+				result.matched_by = 'deposit_heuristic';
+			} else {
+				// All other deposits still likely revenue in HOA context
+				result.category_id = revenueCategory.id;
+				result.category_name = revenueCategory.category_name;
+				result.confidence = 50;
+				result.matched_by = 'deposit_type_fallback';
+			}
+		}
+	}
+
+	// Fees
+	if (!result.category_id && transaction.transaction_type === 'fee') {
+		for (const cat of budgetCategories) {
+			const name = (cat.category_name || '').toLowerCase();
+			if (name.includes('bank') || name.includes('fee') || name.includes('other')) {
+				result.category_id = cat.id;
+				result.category_name = cat.category_name;
+				result.confidence = 65;
+				result.matched_by = 'fee_type';
+				break;
+			}
+		}
+	}
+
+	// --- Pass 5: Vendor record matching (adds vendor info to any match) ---
 	for (const vendor of vendors) {
 		const vendorTitle = (vendor.title || '').toLowerCase();
 		const matchingKeywords: string[] = vendor.matching_keywords || [];
 
-		if (vendorTitle && description.includes(vendorTitle)) {
+		if (vendorTitle && (description.includes(vendorTitle) || vendorField.includes(vendorTitle))) {
 			result.vendor_id = vendor.id;
 			result.vendor_name = vendor.title;
 			break;
@@ -336,7 +586,7 @@ function matchTransaction(
 
 		let matched = false;
 		for (const keyword of matchingKeywords) {
-			if (keyword && description.includes(keyword.toLowerCase())) {
+			if (keyword && searchText.includes(keyword.toLowerCase())) {
 				result.vendor_id = vendor.id;
 				result.vendor_name = vendor.title;
 				matched = true;

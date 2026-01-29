@@ -6,8 +6,10 @@
  *
  * Requires admin/board member access and ANTHROPIC_API_KEY to be configured.
  */
-import { hasAdminAccess } from '~/server/utils/directus';
+import { hasAdminAccess, useDirectusAdmin, uploadFiles as sdkUploadFiles } from '~/server/utils/directus';
 import { isClaudeConfigured, callClaude, pdfToContentBlock, extractClaudeText } from '~/server/utils/claude';
+
+const STATEMENTS_FOLDER = 'b538fbe2-698d-4131-9160-f049949c8a0b';
 
 const EXTRACTION_SYSTEM_PROMPT = `You are a financial data extraction assistant. You extract transactions from bank statement PDFs into structured JSON.
 
@@ -71,6 +73,7 @@ interface ExtractionResult {
   ending_balance?: number;
   statement_period?: string;
   account_number_last4?: string;
+  pdf_file_id?: string;
   token_usage?: { input: number; output: number };
   error?: string;
   message?: string;
@@ -180,6 +183,21 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
       _source_line: index + 1,
     }));
 
+    // Upload the original PDF to Directus in the statements folder
+    let pdf_file_id: string | undefined;
+    try {
+      const client = useDirectusAdmin();
+      const directusFormData = new FormData();
+      const blob = new Blob([fileField.data], { type: 'application/pdf' });
+      const filename = fileField.filename || `statement-${parsed.statement_period || 'unknown'}.pdf`;
+      directusFormData.append('file', blob, filename);
+      directusFormData.append('folder', STATEMENTS_FOLDER);
+      const uploadResult = await client.request(sdkUploadFiles(directusFormData));
+      pdf_file_id = uploadResult?.id;
+    } catch (uploadErr: any) {
+      console.warn('Could not upload PDF to Directus:', uploadErr.message);
+    }
+
     return {
       success: true,
       transactions,
@@ -187,6 +205,7 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
       ending_balance: parsed.ending_balance ? parseFloat(parsed.ending_balance) : undefined,
       statement_period: parsed.statement_period || undefined,
       account_number_last4: parsed.account_number_last4 || undefined,
+      pdf_file_id,
       token_usage: {
         input: response.usage.input_tokens,
         output: response.usage.output_tokens,
