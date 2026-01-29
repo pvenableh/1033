@@ -487,12 +487,20 @@
 						<!-- PDF Action Buttons -->
 						<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
 							<button
+								@click="extractPdfToCsv"
+								:disabled="claudeExtracting || pdfToCsvExtracting"
+								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
+								<Icon v-if="pdfToCsvExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
+								<Icon v-else name="i-heroicons-table-cells" class="w-5 h-5" />
+								{{ pdfToCsvExtracting ? 'Claude is extracting CSV...' : 'PDF → CSV (Recommended)' }}
+							</button>
+							<button
 								@click="extractPdfWithClaude"
-								:disabled="claudeExtracting"
+								:disabled="claudeExtracting || pdfToCsvExtracting"
 								class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
 								<Icon v-if="claudeExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
 								<Icon v-else name="i-heroicons-sparkles" class="w-5 h-5" />
-								{{ claudeExtracting ? 'Claude is reading PDF...' : 'Extract with Claude AI' }}
+								{{ claudeExtracting ? 'Claude is reading PDF...' : 'Extract Raw (No Categories)' }}
 							</button>
 							<button
 								@click="uploadPdf"
@@ -500,6 +508,46 @@
 								class="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm">
 								{{ stmtUploading ? 'Uploading...' : 'Upload PDF Only (provide JSON later)' }}
 							</button>
+						</div>
+
+						<!-- PDF → CSV Success Banner -->
+						<div v-if="pdfToCsvResult && pdfToCsvResult.success" class="p-4 bg-green-50 rounded-lg border border-green-200 space-y-3">
+							<div class="flex items-center gap-2">
+								<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-600" />
+								<h3 class="font-semibold text-green-800">PDF Extracted with Categories</h3>
+							</div>
+							<p class="text-sm text-green-600">{{ pdfToCsvResult.message }}</p>
+							<div class="flex flex-wrap gap-3 text-sm">
+								<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+									{{ pdfToCsvResult.transactions?.length || 0 }} transactions
+								</span>
+								<span v-if="pdfToCsvResult.beginning_balance != null" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+									Begin: ${{ pdfToCsvResult.beginning_balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+								</span>
+								<span v-if="pdfToCsvResult.ending_balance != null" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+									End: ${{ pdfToCsvResult.ending_balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
+								</span>
+								<span v-if="pdfToCsvResult.statement_period" class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+									{{ pdfToCsvResult.statement_period }}
+								</span>
+								<span v-if="pdfToCsvResult.pdf_file_id" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+									PDF saved to Directus
+								</span>
+							</div>
+							<div class="flex gap-3">
+								<button
+									@click="downloadCsvFromPdf"
+									class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm inline-flex items-center gap-2">
+									<Icon name="i-heroicons-arrow-down-tray" class="w-4 h-4" />
+									Download CSV File
+								</button>
+								<button
+									@click="loadPdfCsvIntoPreview"
+									class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm inline-flex items-center gap-2">
+									<Icon name="i-heroicons-arrow-right" class="w-4 h-4" />
+									Load into Import Preview
+								</button>
+							</div>
 						</div>
 
 						<!-- Claude Extraction Error -->
@@ -1162,7 +1210,7 @@ const monthOptions = [
 ];
 
 const fileTypes = [
-	{ id: 'pdf', label: 'PDF Statement', icon: 'i-heroicons-document', description: 'Upload PDF — extract with Claude AI or provide JSON' },
+	{ id: 'pdf', label: 'PDF Statement', icon: 'i-heroicons-document', description: 'Upload PDF — Claude extracts CSV with categories' },
 	{ id: 'json', label: 'JSON Transactions', icon: 'i-heroicons-code-bracket', description: 'Structured transaction data' },
 	{ id: 'csv', label: 'CSV Statement', icon: 'i-heroicons-table-cells', description: 'Reconciliation CSV format' },
 ];
@@ -1609,6 +1657,8 @@ const extractedPdfFileId = ref(null);
 const claudeExtracting = ref(false);
 const claudeExtractionError = ref('');
 const claudeTokenUsage = ref(null);
+const pdfToCsvExtracting = ref(false);
+const pdfToCsvResult = ref(null);
 const resolvedStmtFiscalYearId = ref(null);
 
 const selectedAccountName = computed(() => {
@@ -1657,6 +1707,7 @@ function clearStmtFile() {
 	stmtDetectedMonth.value = '';
 	claudeExtractionError.value = '';
 	claudeTokenUsage.value = null;
+	pdfToCsvResult.value = null;
 }
 
 async function uploadPdf() {
@@ -1761,6 +1812,107 @@ async function extractPdfWithClaude() {
 	} finally {
 		claudeExtracting.value = false;
 	}
+}
+
+async function extractPdfToCsv() {
+	if (!stmtFile.value) return;
+	pdfToCsvExtracting.value = true;
+	pdfToCsvResult.value = null;
+	claudeExtractionError.value = '';
+	claudeTokenUsage.value = null;
+
+	try {
+		const formData = new FormData();
+		formData.append('file', stmtFile.value);
+
+		const result = await $fetch('/api/admin/pdf-to-csv', {
+			method: 'POST',
+			body: formData,
+		});
+
+		if (result.token_usage) {
+			claudeTokenUsage.value = result.token_usage;
+		}
+
+		if (result.success) {
+			pdfToCsvResult.value = result;
+
+			// Save PDF file ID if uploaded to Directus
+			if (result.pdf_file_id) {
+				extractedPdfFileId.value = result.pdf_file_id;
+			}
+
+			// Auto-detect statement period for month selection
+			if (result.statement_period && !stmtMonth.value) {
+				const periodLower = result.statement_period.toLowerCase();
+				const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
+					'july', 'august', 'september', 'october', 'november', 'december'];
+				const matchedIdx = monthNames.findIndex((m) => periodLower.includes(m));
+				if (matchedIdx >= 0) {
+					stmtMonth.value = String(matchedIdx + 1).padStart(2, '0');
+					stmtDetectedMonth.value = stmtMonth.value;
+				}
+			}
+
+			// Auto-detect fiscal year from transaction dates
+			if (result.transactions && result.transactions.length > 0) {
+				const detectedYear = detectFiscalYearFromDates(result.transactions);
+				if (detectedYear) {
+					stmtDetectedYear.value = detectedYear;
+					const currentYear = new Date().getFullYear();
+					if (stmtFiscalYear.value === currentYear && detectedYear !== currentYear) {
+						stmtFiscalYear.value = detectedYear;
+					}
+				}
+			}
+		} else {
+			claudeExtractionError.value = result.error || 'Claude could not extract transactions from this PDF.';
+		}
+	} catch (err) {
+		console.error('PDF-to-CSV extraction error:', err);
+		claudeExtractionError.value = err.data?.message || err.message || 'Failed to connect to Claude API.';
+	} finally {
+		pdfToCsvExtracting.value = false;
+	}
+}
+
+function downloadCsvFromPdf() {
+	if (!pdfToCsvResult.value?.csv_text) return;
+
+	const blob = new Blob([pdfToCsvResult.value.csv_text], { type: 'text/csv' });
+	const url = URL.createObjectURL(blob);
+	const link = document.createElement('a');
+	link.href = url;
+	const period = pdfToCsvResult.value.statement_period || 'statement';
+	link.download = `${period.toLowerCase().replace(/\s+/g, '-')}-transactions.csv`;
+	document.body.appendChild(link);
+	link.click();
+	document.body.removeChild(link);
+	URL.revokeObjectURL(url);
+}
+
+function loadPdfCsvIntoPreview() {
+	if (!pdfToCsvResult.value?.transactions) return;
+
+	const txs = pdfToCsvResult.value.transactions.map((tx, index) => ({
+		date: tx.date || '',
+		description: tx.description || '',
+		amount: Math.abs(parseFloat(tx.amount) || 0),
+		type: normalizeType(tx.type || ''),
+		vendor: tx.vendor || '',
+		category: tx.category || '',
+		period: tx.period || '',
+		_raw: { ...tx, Category: tx.category, Period: tx.period },
+		_source_line: index + 1,
+	}));
+
+	applyParsedTransactions({
+		success: true,
+		transactions: txs,
+		beginning_balance: pdfToCsvResult.value.beginning_balance ?? null,
+		ending_balance: pdfToCsvResult.value.ending_balance ?? null,
+		statement_period: pdfToCsvResult.value.statement_period || null,
+	});
 }
 
 function parseJsonFromPaste() {
