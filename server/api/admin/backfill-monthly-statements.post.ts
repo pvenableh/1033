@@ -10,6 +10,7 @@
  *   - account_id: number — optional, limit to specific account (does all if omitted)
  *   - starting_balances: Record<number, number> — optional, map of account_id to starting balance
  *     e.g. { "1": 46086.55 } to set the Jan 1 opening balance for account 1
+ *   - force: boolean — optional, if true, recalculates and overwrites existing statement balances
  *
  * Requires admin/board member access.
  */
@@ -61,6 +62,7 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 	const fiscalYear = body?.fiscal_year;
 	const filterAccountId = body?.account_id || null;
 	const startingBalances: Record<string, number> = body?.starting_balances || {};
+	const forceRecalculate = body?.force === true;
 
 	if (!fiscalYear) {
 		throw createError({
@@ -148,8 +150,51 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 
 			if (monthsWithTx.length === 0) continue;
 
-			// Use provided starting balance or default to 0
-			const startBal = startingBalances[String(account.id)] ?? 0;
+			// Collect existing statements with real balances for this account
+			const existingWithBalances: Array<{ month: string; beginning_balance: number; ending_balance: number }> = [];
+			for (const month of monthsWithTx) {
+				const existing = existingMap.get(`${account.id}-${month}`);
+				if (existing && existing.ending_balance !== null && existing.ending_balance !== undefined) {
+					existingWithBalances.push({
+						month,
+						beginning_balance: safeParseFloat(existing.beginning_balance),
+						ending_balance: safeParseFloat(existing.ending_balance),
+					});
+				}
+			}
+
+			// Determine starting balance:
+			// 1. User-provided starting_balances takes priority
+			// 2. If an existing statement has real balances, back-calculate the starting balance
+			// 3. Default to 0
+			let startBal: number;
+			const userStartBal = startingBalances[String(account.id)];
+
+			if (userStartBal !== undefined && userStartBal !== null) {
+				startBal = Number(userStartBal);
+			} else if (existingWithBalances.length > 0) {
+				// Use the earliest existing statement to back-calculate Jan 1 balance
+				const earliest = existingWithBalances[0];
+				// beginning_balance of the earliest statement = balance before that month's transactions
+				// So we need to figure out what the running balance was at the start of that month
+				// by subtracting the net of all prior months from the earliest beginning balance
+				const earliestMonthIndex = monthsWithTx.indexOf(earliest.month);
+				let priorNet = 0;
+				for (let i = 0; i < earliestMonthIndex; i++) {
+					const mTx = accountTx.filter((t: any) => t.statement_month === monthsWithTx[i]);
+					const mIn = mTx
+						.filter((t: any) => t.transaction_type === 'deposit' || t.transaction_type === 'transfer_in')
+						.reduce((sum: number, t: any) => sum + safeParseFloat(t.amount), 0);
+					const mOut = mTx
+						.filter((t: any) => t.transaction_type === 'withdrawal' || t.transaction_type === 'fee' || t.transaction_type === 'transfer_out')
+						.reduce((sum: number, t: any) => sum + safeParseFloat(t.amount), 0);
+					priorNet += mIn - mOut;
+				}
+				startBal = earliest.beginning_balance - priorNet;
+			} else {
+				startBal = 0;
+			}
+
 			let runningBalance = startBal;
 
 			for (const month of monthsWithTx) {
@@ -173,21 +218,32 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 				const key = `${account.id}-${month}`;
 				const existing = existingMap.get(key);
 
+				// If existing statement has real balances from bank PDF, use those as anchors
+				// (but not when force-recalculating with a user-provided starting balance)
+				const hasRealBalances = !forceRecalculate && existing &&
+					existing.beginning_balance !== null && existing.beginning_balance !== undefined &&
+					existing.ending_balance !== null && existing.ending_balance !== undefined;
+
+				if (hasRealBalances) {
+					// Anchor to the real ending balance for subsequent months
+					runningBalance = safeParseFloat(existing.ending_balance);
+				}
+
+				const beginBal = hasRealBalances ? safeParseFloat(existing.beginning_balance) : Math.round(prevBalance * 100) / 100;
+				const endBal = hasRealBalances ? safeParseFloat(existing.ending_balance) : Math.round(runningBalance * 100) / 100;
+
 				try {
 					if (existing) {
-						// Update if balances are missing
-						const needsUpdate =
-							(!existing.beginning_balance && existing.beginning_balance !== 0) ||
-							(!existing.ending_balance && existing.ending_balance !== 0);
+						// Update if balances are missing OR if force recalculate is enabled
+						const needsUpdate = forceRecalculate ||
+							(existing.beginning_balance === null || existing.beginning_balance === undefined) ||
+							(existing.ending_balance === null || existing.ending_balance === undefined);
 
 						if (needsUpdate) {
-							const updates: any = {};
-							if (!existing.beginning_balance && existing.beginning_balance !== 0) {
-								updates.beginning_balance = Math.round(prevBalance * 100) / 100;
-							}
-							if (!existing.ending_balance && existing.ending_balance !== 0) {
-								updates.ending_balance = Math.round(runningBalance * 100) / 100;
-							}
+							const updates: any = {
+								beginning_balance: beginBal,
+								ending_balance: endBal,
+							};
 
 							await client.request(updateItem('monthly_statements', existing.id, updates));
 							result.updated++;
@@ -195,8 +251,8 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 								account_id: account.id,
 								account_name: account.account_name,
 								month,
-								beginning_balance: Math.round(prevBalance * 100) / 100,
-								ending_balance: Math.round(runningBalance * 100) / 100,
+								beginning_balance: beginBal,
+								ending_balance: endBal,
 								transaction_count: monthTx.length,
 								action: 'updated',
 							});
@@ -219,8 +275,8 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 								account_id: account.id,
 								statement_month: month,
 								fiscal_year: fiscalYearId,
-								beginning_balance: Math.round(prevBalance * 100) / 100,
-								ending_balance: Math.round(runningBalance * 100) / 100,
+								beginning_balance: beginBal,
+								ending_balance: endBal,
 								status: 'published',
 							})
 						);
@@ -229,8 +285,8 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 							account_id: account.id,
 							account_name: account.account_name,
 							month,
-							beginning_balance: Math.round(prevBalance * 100) / 100,
-							ending_balance: Math.round(runningBalance * 100) / 100,
+							beginning_balance: beginBal,
+							ending_balance: endBal,
 							transaction_count: monthTx.length,
 							action: 'created',
 						});
