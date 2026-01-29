@@ -220,8 +220,17 @@ function handleCsvFile(data: Buffer): StatementParseResult {
 		const balanceRows = rows.filter((r) => r.Type === 'BALANCE');
 		const transactionRows = rows.filter((r) => r.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(r.Type));
 
-		const beginningBalance = balanceRows.find((b) => b.SubType === 'Beginning');
-		const endingBalance = balanceRows.find((b) => b.SubType === 'Ending');
+		// Support both SubType column and Category column for balance detection
+		const beginningBalance = balanceRows.find((b) =>
+			b.SubType === 'Beginning' ||
+			(b.Category || '').toLowerCase() === 'beginning' ||
+			(b.Description || '').toLowerCase().includes('beginning balance')
+		);
+		const endingBalance = balanceRows.find((b) =>
+			b.SubType === 'Ending' ||
+			(b.Category || '').toLowerCase() === 'ending' ||
+			(b.Description || '').toLowerCase().includes('ending balance')
+		);
 
 		const transactions: ParsedTransaction[] = transactionRows.map((row, index) => ({
 			date: row.Date || '',
