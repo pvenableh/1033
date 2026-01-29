@@ -74,19 +74,29 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const client = useDirectusAdmin();
 
 	try {
-		// 1. Fetch budget items with category info for this fiscal year
+		// 1. Fetch budget items with category info for this fiscal year OR with no fiscal year
 		const budgetItems = await client.request(
 			readItems('budget_items', {
-				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
+				filter: {
+					_or: [
+						{ fiscal_year: { year: { _eq: fiscalYear } } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
 				fields: ['*', 'category_id.id', 'category_id.category_name'],
 				limit: -1,
 			})
 		);
 
-		// 2. Fetch budget categories for this fiscal year
+		// 2. Fetch budget categories for this fiscal year OR with no fiscal year (global categories)
 		const budgetCategories = await client.request(
 			readItems('budget_categories', {
-				filter: { fiscal_year: { year: { _eq: fiscalYear } } },
+				filter: {
+					_or: [
+						{ fiscal_year: { year: { _eq: fiscalYear } } },
+						{ fiscal_year: { _null: true } },
+					],
+				},
 				fields: ['*'],
 				limit: -1,
 			})
@@ -514,27 +524,37 @@ function matchTransaction(
 	}
 
 	// --- Pass 4: Transaction type heuristics ---
-	// Deposits with common HOA patterns
-	if (!result.category_id && transaction.transaction_type === 'deposit') {
-		const depositKeywords = [
-			'assessment', 'dues', 'hoa', 'maintenance fee', 'condo fee',
-			'remote deposit', 'mobile deposit', 'check deposit',
-			'zelle', 'venmo', 'google pay', 'apple pay',
-		];
-		for (const kw of depositKeywords) {
-			if (searchText.includes(kw)) {
-				// Try to find a revenue/income category
-				for (const cat of budgetCategories) {
-					const name = (cat.category_name || '').toLowerCase();
-					if (name.includes('revenue') || name.includes('income') || name.includes('assessment')) {
-						result.category_id = cat.id;
-						result.category_name = cat.category_name;
-						result.confidence = 60;
-						result.matched_by = 'deposit_heuristic';
-						break;
-					}
-				}
-				if (result.category_id) break;
+	// In an HOA context, nearly all deposits are assessment/dues revenue.
+	// Match ALL deposit-type transactions to the Revenue/Income category.
+	if (!result.category_id && (transaction.transaction_type === 'deposit' || transaction.transaction_type === 'transfer_in')) {
+		// Find the revenue/income category
+		const revenueCategory = budgetCategories.find((cat: any) => {
+			const name = (cat.category_name || '').toLowerCase();
+			return name.includes('revenue') || name.includes('income') || name.includes('assessment');
+		});
+
+		if (revenueCategory) {
+			// High-confidence deposit keywords (owner payments)
+			const highConfidenceKeywords = [
+				'zelle', 'venmo', 'assessment', 'dues', 'hoa',
+				'maintenance fee', 'condo fee', 'remote deposit',
+				'remote online deposit', 'mobile deposit', 'check deposit',
+				'online transfer', 'ach deposit', 'direct deposit',
+			];
+
+			const isHighConfidence = highConfidenceKeywords.some((kw) => searchText.includes(kw));
+
+			if (isHighConfidence) {
+				result.category_id = revenueCategory.id;
+				result.category_name = revenueCategory.category_name;
+				result.confidence = 75;
+				result.matched_by = 'deposit_heuristic';
+			} else {
+				// All other deposits still likely revenue in HOA context
+				result.category_id = revenueCategory.id;
+				result.category_name = revenueCategory.category_name;
+				result.confidence = 50;
+				result.matched_by = 'deposit_type_fallback';
 			}
 		}
 	}
