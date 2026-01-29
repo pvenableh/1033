@@ -1451,13 +1451,15 @@ function parseJsonFromPaste() {
 			endBalance = parsed.ending_balance;
 		}
 
-		const normalized = transactions.map((tx) => ({
+		const normalized = transactions.map((tx, index) => ({
 			date: tx.date || tx.Date || '',
 			description: tx.description || tx.Description || '',
 			amount: parseFloat(tx.amount || tx.Amount || 0),
 			type: normalizeType(tx.type || tx.Type || ''),
 			vendor: tx.vendor || tx.Vendor || '',
 			category: tx.category || tx.Category || '',
+			_raw: tx,
+			_source_line: index + 1,
 		}));
 
 		applyParsedTransactions({
@@ -1577,6 +1579,8 @@ async function importTransactions() {
 					auto_categorized: false,
 					statement_month: stmtMonth.value || null,
 					import_batch_id: batchId,
+					csv_source_line: tx._source_line || i + 1,
+					original_csv_data: tx._raw || { date: tx.date, description: tx.description, amount: tx.amount, type: tx.type, vendor: tx.vendor },
 					status: 'published',
 				});
 
