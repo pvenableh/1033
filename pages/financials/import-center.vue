@@ -784,14 +784,35 @@
 							</ul>
 						</div>
 
+						<!-- Missing fiscal years warning -->
+						<div v-if="repairScanResults.issueCount > 0 && repairScanResults.missingYears?.length > 0" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+							<h3 class="font-semibold text-red-800">Missing Fiscal Year Records</h3>
+							<p class="text-sm text-red-700 mt-1">
+								The following year(s) were found in transactions but have no matching <code class="bg-red-100 px-1 rounded">fiscal_years</code> record in Directus:
+							</p>
+							<div class="flex flex-wrap gap-2 mt-3">
+								<span v-for="year in repairScanResults.missingYears" :key="year" class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+									{{ year }}
+									<span class="ml-1 text-red-500 text-xs">({{ repairScanResults.yearBreakdown[year] }} transactions)</span>
+								</span>
+							</div>
+							<p class="text-sm text-red-700 mt-3">
+								You must create these fiscal years before the repair can run. Go to the
+								<button @click="activeTab = 'accounts'" class="underline font-medium hover:text-red-900">Bank Accounts tab</button>
+								and use "+ Add Fiscal Year" to create them, then scan again.
+							</p>
+						</div>
+
 						<!-- Repair Button -->
 						<div v-if="repairScanResults.issueCount > 0" class="flex items-center gap-4">
 							<button
 								v-if="canUpdateFinancials"
 								@click="repairFiscalYears"
-								:disabled="repairRunning"
+								:disabled="repairRunning || (repairScanResults.repairableCount === 0)"
 								class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm">
-								{{ repairRunning ? `Repairing... (${repairProgress}/${repairScanResults.issueCount})` : `Repair ${repairScanResults.issueCount} Transactions` }}
+								<span v-if="repairRunning">Repairing... ({{ repairProgress }}/{{ repairScanResults.repairableCount }})</span>
+								<span v-else-if="repairScanResults.repairableCount === 0">No Repairable Transactions (create fiscal years first)</span>
+								<span v-else>Repair {{ repairScanResults.repairableCount }} Transactions</span>
 							</button>
 							<p v-if="!canUpdateFinancials" class="text-sm text-red-600">
 								You need financials update permission to run repairs.
@@ -1697,6 +1718,15 @@ async function scanFiscalYearIssues() {
 			}
 		}
 
+		// Identify which years have no fiscal_years record
+		const missingYears = Object.keys(yearBreakdown)
+			.map(Number)
+			.filter((y) => !yearToIdMap[y])
+			.sort();
+
+		// Count how many transactions can actually be repaired (have a matching fiscal year)
+		const repairableCount = transactionsToFix.filter((tx) => tx.correctId !== null).length;
+
 		repairScanResults.value = {
 			totalScanned: transactions.length,
 			correctCount,
@@ -1704,6 +1734,8 @@ async function scanFiscalYearIssues() {
 			yearBreakdown: Object.keys(yearBreakdown).length > 0 ? yearBreakdown : null,
 			transactionsToFix,
 			yearToIdMap,
+			missingYears,
+			repairableCount,
 		};
 	} catch (err) {
 		console.error('Scan error:', err);
