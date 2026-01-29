@@ -13,7 +13,7 @@
 						</p>
 					</div>
 					<div class="flex items-center gap-4">
-						<USelect
+						<Select
 							v-model="selectedFiscalYear"
 							:options="yearOptions"
 							placeholder="Fiscal Year"
@@ -193,7 +193,7 @@
 			</div>
 
 			<!-- Main Dashboard Tabs -->
-			<UTabs :items="dashboardTabs" class="mb-8">
+			<Tabs :items="dashboardTabs" class="mb-8">
 				<!-- Variance Analysis Tab -->
 				<template #variance>
 					<UCard class="mt-4">
@@ -513,7 +513,7 @@
 						</div>
 					</UCard>
 				</template>
-			</UTabs>
+			</Tabs>
 
 			<!-- Quick Actions -->
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
