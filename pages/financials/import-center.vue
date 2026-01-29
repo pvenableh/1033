@@ -1714,48 +1714,111 @@ async function scanFiscalYearIssues() {
 		});
 
 		const validIds = new Set(fiscalYears.map((fy) => fy.id));
+		// Map year numbers to fiscal_year record IDs (coerce keys to numbers for reliable lookup)
 		const yearToIdMap = {};
 		fiscalYears.forEach((fy) => {
-			yearToIdMap[fy.year] = fy.id;
+			yearToIdMap[Number(fy.year)] = fy.id;
 		});
 
+		console.log('Fiscal year records found:', fiscalYears.length, 'yearToIdMap:', JSON.stringify(yearToIdMap));
+
 		// Get all transactions with their fiscal_year field
-		const transactions = await transactionsCollection.list({
-			fields: ['id', 'fiscal_year'],
-			limit: -1,
-		});
+		// Request the raw FK value — Directus may return null if it tries to resolve
+		// an M2O to a non-existent record. So we query in two passes:
+		// 1. Transactions where fiscal_year is a valid M2O (already correct)
+		// 2. Transactions where fiscal_year is null or not in validIds (needs repair)
 
 		let correctCount = 0;
 		let issueCount = 0;
 		const yearBreakdown = {};
 		const transactionsToFix = [];
 
-		for (const tx of transactions) {
-			const fyValue = tx.fiscal_year;
-
-			if (!fyValue) {
-				issueCount++;
-				continue;
-			}
-
-			// If the value is a valid fiscal_years record ID, it's correct
-			// fiscal_year could be returned as an object (M2O expanded) or as an ID
-			const fyId = typeof fyValue === 'object' ? fyValue.id : fyValue;
-
-			if (validIds.has(fyId)) {
-				correctCount++;
-			} else {
-				// It's likely a raw year number (e.g., 2025)
-				issueCount++;
-				const yearNum = typeof fyValue === 'object' ? fyValue.year : fyValue;
-				yearBreakdown[yearNum] = (yearBreakdown[yearNum] || 0) + 1;
-				transactionsToFix.push({
-					id: tx.id,
-					currentValue: fyValue,
-					yearNumber: yearNum,
-					correctId: yearToIdMap[yearNum] || null,
+		// Pass 1: count transactions that already have correct M2O references
+		for (const fyId of validIds) {
+			try {
+				const batch = await transactionsCollection.list({
+					filter: { fiscal_year: { _eq: fyId } },
+					fields: ['id'],
+					limit: -1,
 				});
+				correctCount += batch.length;
+			} catch {
+				// skip
 			}
+		}
+
+		// Pass 2: find transactions that DON'T match any valid fiscal year record
+		// These are the ones with raw year numbers (e.g., 2025 stored as FK)
+		// Directus returns null for unresolvable M2O values, so query for null fiscal_year
+		const nullFyTransactions = await transactionsCollection.list({
+			filter: { fiscal_year: { _null: true } },
+			fields: ['id'],
+			limit: -1,
+		});
+
+		// For null-value transactions, we need to figure out what year they belong to.
+		// Use the transaction_date to infer the year since the raw FK value is lost when
+		// Directus returns null for unresolvable M2O references.
+		if (nullFyTransactions.length > 0) {
+			const nullTxDetails = await transactionsCollection.list({
+				filter: { fiscal_year: { _null: true } },
+				fields: ['id', 'transaction_date', 'fiscal_year'],
+				limit: -1,
+			});
+
+			for (const tx of nullTxDetails) {
+				issueCount++;
+				// Infer year from transaction_date
+				let yearNum = null;
+				if (tx.transaction_date) {
+					yearNum = new Date(tx.transaction_date).getFullYear();
+				}
+				if (yearNum) {
+					yearBreakdown[yearNum] = (yearBreakdown[yearNum] || 0) + 1;
+					transactionsToFix.push({
+						id: tx.id,
+						currentValue: null,
+						yearNumber: yearNum,
+						correctId: yearToIdMap[yearNum] || null,
+					});
+				} else {
+					// No date to infer from — still count as issue but can't auto-repair
+					transactionsToFix.push({
+						id: tx.id,
+						currentValue: null,
+						yearNumber: null,
+						correctId: null,
+					});
+				}
+			}
+		}
+
+		// Also check for transactions with non-null fiscal_year that aren't valid M2O IDs
+		// (in case Directus returns the raw value instead of null for some configurations)
+		const allTransactions = await transactionsCollection.list({
+			fields: ['id', 'fiscal_year', 'transaction_date'],
+			limit: -1,
+		});
+		const alreadyCounted = new Set([
+			...transactionsToFix.map((t) => t.id),
+		]);
+		for (const tx of allTransactions) {
+			if (alreadyCounted.has(tx.id)) continue;
+			const fyValue = tx.fiscal_year;
+			if (!fyValue) continue; // already handled above
+			const fyId = typeof fyValue === 'object' ? fyValue.id : fyValue;
+			if (validIds.has(fyId)) continue; // already counted as correct
+
+			// Raw year number that Directus didn't nullify
+			issueCount++;
+			const yearNum = Number(typeof fyValue === 'object' ? fyValue.year : fyValue);
+			yearBreakdown[yearNum] = (yearBreakdown[yearNum] || 0) + 1;
+			transactionsToFix.push({
+				id: tx.id,
+				currentValue: fyValue,
+				yearNumber: yearNum,
+				correctId: yearToIdMap[yearNum] || null,
+			});
 		}
 
 		// Identify which years have no fiscal_years record
@@ -1767,8 +1830,11 @@ async function scanFiscalYearIssues() {
 		// Count how many transactions can actually be repaired (have a matching fiscal year)
 		const repairableCount = transactionsToFix.filter((tx) => tx.correctId !== null).length;
 
+		console.log('Scan results:', { correctCount, issueCount, repairableCount, missingYears, yearBreakdown, yearToIdMap });
+
+		const totalScanned = correctCount + issueCount;
 		repairScanResults.value = {
-			totalScanned: transactions.length,
+			totalScanned,
 			correctCount,
 			issueCount,
 			yearBreakdown: Object.keys(yearBreakdown).length > 0 ? yearBreakdown : null,
