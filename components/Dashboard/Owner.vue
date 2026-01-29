@@ -48,27 +48,54 @@ const tenants = computed(() => {
   return result
 })
 
-// Collect all people names in the user's units (for transaction matching)
+// Collect all people names for transaction matching
 const unitPeopleNames = computed(() => {
   const names: string[] = []
-  // Add the logged-in user's own name
+  // Add the logged-in user's full name and last name
   const firstName = props.user.first_name || ''
   const lastName = props.user.last_name || ''
-  if (firstName || lastName) {
+  if (firstName && lastName) {
     names.push(`${firstName} ${lastName}`.trim().toLowerCase())
+  }
+  if (lastName) {
+    names.push(lastName.trim().toLowerCase())
   }
   // Add names from all people in the user's units
   for (const unit of units.value) {
     if (unit.people) {
       for (const person of unit.people) {
         const p = person.people_id
-        if (p && (p.first_name || p.last_name)) {
-          names.push(`${p.first_name || ''} ${p.last_name || ''}`.trim().toLowerCase())
+        if (p) {
+          const pFirst = p.first_name || ''
+          const pLast = p.last_name || ''
+          if (pFirst && pLast) {
+            names.push(`${pFirst} ${pLast}`.trim().toLowerCase())
+          }
+          if (pLast) {
+            names.push(pLast.trim().toLowerCase())
+          }
         }
       }
     }
   }
   return [...new Set(names)].filter(Boolean)
+})
+
+// Collect unit number search terms with contextual prefixes to avoid false positives
+// e.g. unit "314" should match "Unit 314" but not "$3,140" or "1314"
+const unitNumberTerms = computed(() => {
+  const terms: string[] = []
+  for (const unit of units.value) {
+    if (unit.number) {
+      const num = unit.number.toString()
+      terms.push(`unit ${num}`)
+      terms.push(`unit #${num}`)
+      terms.push(`#${num}`)
+      terms.push(`apt ${num}`)
+      terms.push(`apt. ${num}`)
+    }
+  }
+  return [...new Set(terms)]
 })
 
 // Quick stats
@@ -91,7 +118,7 @@ const recentTransactions = ref<any[]>([])
 const transactionsLoading = ref(false)
 
 async function fetchUserTransactions() {
-  if (unitPeopleNames.value.length === 0) return
+  if (unitPeopleNames.value.length === 0 && unitNumberTerms.value.length === 0) return
   transactionsLoading.value = true
   try {
     // Build OR filters for vendor or description matching any person name
@@ -100,6 +127,11 @@ async function fetchUserTransactions() {
       orFilters.push({ vendor: { _icontains: name } })
       orFilters.push({ description: { _icontains: name } })
     }
+    // Add unit number terms (prefixed to avoid partial numeric matches)
+    for (const term of unitNumberTerms.value) {
+      orFilters.push({ description: { _icontains: term } })
+    }
+    if (orFilters.length === 0) return
     const data = await transactionsCollection.list({
       filter: {
         _or: orFilters,
@@ -200,16 +232,18 @@ function formatTransactionAmount(amount: any) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num)
 }
 
-// Load data on mount
-onMounted(() => {
-  if (isBoardMember.value) {
+// Load financial data when board member status resolves
+// Using watch instead of onMounted because isBoardMember depends on async user data
+// that may not be available at mount time
+watch(isBoardMember, (val) => {
+  if (val) {
     fetchDashboardData()
   }
-})
+}, { immediate: true })
 
 // Fetch transactions once unit data is loaded
-watch(unitPeopleNames, (names) => {
-  if (names.length > 0) {
+watch([unitPeopleNames, unitNumberTerms], ([names, terms]) => {
+  if (names.length > 0 || terms.length > 0) {
     fetchUserTransactions()
   }
 }, { immediate: true })
@@ -623,6 +657,9 @@ watch(unitPeopleNames, (names) => {
         </div>
       </CardContent>
     </Card>
+
+    <!-- My Tasks -->
+    <DashboardWidgetsTasksCard />
 
     <!-- Main Content Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">

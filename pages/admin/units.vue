@@ -19,6 +19,7 @@ const actionLoading = ref(false);
 // Filters
 const searchQuery = ref('');
 const occupantFilter = ref('all');
+const showArchivedPeople = ref(false);
 
 const occupantOptions = [
   { label: 'All Units', value: 'all' },
@@ -41,6 +42,13 @@ const newLeaseStart = ref('');
 const newLeaseEnd = ref('');
 const leaseFileInput = ref<HTMLInputElement | null>(null);
 
+// Helper: filter people entries based on archived toggle
+function filterPeople(people: any[]) {
+  if (!people) return [];
+  if (showArchivedPeople.value) return people;
+  return people.filter((p: any) => p.people_id?.status === 'published');
+}
+
 // Computed
 const filteredUnits = computed(() => {
   let result = units.value;
@@ -56,6 +64,7 @@ const filteredUnits = computed(() => {
       const assignedNames = (u.assignedUsers || []).map((au: any) =>
         `${au.first_name || ''} ${au.last_name || ''}`.toLowerCase()
       ).join(' ');
+      // Search across all people (including archived) so units aren't hidden
       const peopleNames = (u.people || []).map((p: any) =>
         `${p.people_id?.first_name || ''} ${p.people_id?.last_name || ''}`.toLowerCase()
       ).join(' ');
@@ -83,7 +92,7 @@ async function fetchUnits() {
     const data = await unitsCollection.list({
       fields: [
         'id', 'number', 'occupant', 'parking_spot', 'status',
-        'people.id', 'people.people_id.id', 'people.people_id.first_name', 'people.people_id.last_name', 'people.people_id.category', 'people.people_id.email', 'people.people_id.phone',
+        'people.id', 'people.people_id.id', 'people.people_id.first_name', 'people.people_id.last_name', 'people.people_id.category', 'people.people_id.email', 'people.people_id.phone', 'people.people_id.status',
         'people.people_id.leases.id', 'people.people_id.leases.start', 'people.people_id.leases.finish', 'people.people_id.leases.status',
         'vehicles.id', 'vehicles.make', 'vehicles.model', 'vehicles.year', 'vehicles.color', 'vehicles.license_plate', 'vehicles.state',
         'pets.id', 'pets.name', 'pets.category', 'pets.breed',
@@ -387,7 +396,7 @@ onMounted(async () => {
     <!-- Unit Management -->
     <template v-else>
       <!-- Filters -->
-      <div class="flex flex-col md:flex-row gap-4 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-4 mb-6">
         <Input
           v-model="searchQuery"
           icon="i-heroicons-magnifying-glass"
@@ -399,6 +408,13 @@ onMounted(async () => {
           value-attribute="value"
           option-attribute="label"
           class="md:w-48" />
+        <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer whitespace-nowrap">
+          <input
+            v-model="showArchivedPeople"
+            type="checkbox"
+            class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+          Show archived residents
+        </label>
       </div>
 
       <!-- Units Table -->
@@ -425,13 +441,16 @@ onMounted(async () => {
           </template>
 
           <template #people-data="{ row }">
-            <div v-if="row.people && row.people.length > 0" class="space-y-0.5">
+            <div v-if="filterPeople(row.people).length > 0" class="space-y-0.5">
               <div
-                v-for="person in row.people"
+                v-for="person in filterPeople(row.people)"
                 :key="person.id"
                 class="text-sm flex items-center gap-1.5">
                 <span>{{ person.people_id?.first_name }} {{ person.people_id?.last_name }}</span>
                 <span v-if="person.people_id?.category" class="text-xs text-gray-500">({{ person.people_id.category }})</span>
+                <span
+                  v-if="person.people_id?.status && person.people_id.status !== 'published'"
+                  class="text-xs text-orange-500">({{ person.people_id.status }})</span>
                 <Icon
                   v-if="person.people_id?.leases?.length > 0"
                   name="i-heroicons-document-text"
@@ -559,16 +578,28 @@ onMounted(async () => {
 
           <!-- Residents -->
           <div>
-            <label class="block text-sm font-medium mb-2">Residents</label>
-            <div v-if="selectedUnit.people?.length > 0" class="space-y-2">
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-sm font-medium">Residents</label>
+              <label class="flex items-center gap-2 text-xs text-gray-500 cursor-pointer">
+                <input
+                  v-model="showArchivedPeople"
+                  type="checkbox"
+                  class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                Show archived
+              </label>
+            </div>
+            <div v-if="filterPeople(selectedUnit.people).length > 0" class="space-y-2">
               <div
-                v-for="person in selectedUnit.people"
+                v-for="person in filterPeople(selectedUnit.people)"
                 :key="person.id"
                 class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div class="flex items-center justify-between">
                   <div>
                     <p class="font-medium text-sm">
                       {{ person.people_id?.first_name }} {{ person.people_id?.last_name }}
+                      <span
+                        v-if="person.people_id?.status && person.people_id.status !== 'published'"
+                        class="text-xs text-orange-500 font-normal ml-1">({{ person.people_id.status }})</span>
                     </p>
                     <div class="flex gap-4 text-xs text-gray-500 mt-1">
                       <span v-if="person.people_id?.category">{{ person.people_id.category }}</span>
