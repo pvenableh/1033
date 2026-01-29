@@ -889,6 +889,10 @@
 								</option>
 							</select>
 						</div>
+						<label class="flex items-center gap-2 text-sm text-gray-700">
+							<input type="checkbox" v-model="stmtMgrForceRecalc" class="rounded border-gray-300" />
+							Force recalculate existing
+						</label>
 						<button
 							v-if="canCreateFinancials"
 							@click="runBackfillStatements"
@@ -1138,6 +1142,7 @@ const stmtMgrBackfilling = ref(false);
 const stmtMgrBackfillResults = ref(null);
 const stmtMgrStatements = ref([]);
 const startingBalances = reactive({});
+const stmtMgrForceRecalc = ref(false);
 
 const fiscalYearIdCache = {};
 
@@ -1984,11 +1989,14 @@ async function runBackfillStatements() {
 		if (stmtMgrAccountId.value) {
 			body.account_id = stmtMgrAccountId.value;
 		}
+		if (stmtMgrForceRecalc.value) {
+			body.force = true;
+		}
 
 		// Include starting balances if any are set
 		const balances = {};
 		for (const [id, val] of Object.entries(startingBalances)) {
-			if (val && val > 0) balances[id] = val;
+			if (val !== undefined && val !== null && val !== '') balances[id] = Number(val);
 		}
 		if (Object.keys(balances).length > 0) {
 			body.starting_balances = balances;
