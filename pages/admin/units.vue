@@ -29,6 +29,17 @@ const occupantOptions = [
 // Collections
 const unitsCollection = useDirectusItems('units');
 const junctionCollection = useDirectusItems('junction_directus_users_units');
+const leasesCollection = useDirectusItems('leases');
+
+// Lease management state
+const showLeaseModal = ref(false);
+const selectedPerson = ref<any | null>(null);
+const personLeases = ref<any[]>([]);
+const leasesLoading = ref(false);
+const leaseUploading = ref(false);
+const newLeaseStart = ref('');
+const newLeaseEnd = ref('');
+const leaseFileInput = ref<HTMLInputElement | null>(null);
 
 // Computed
 const filteredUnits = computed(() => {
@@ -73,6 +84,7 @@ async function fetchUnits() {
       fields: [
         'id', 'number', 'occupant', 'parking_spot', 'status',
         'people.id', 'people.people_id.id', 'people.people_id.first_name', 'people.people_id.last_name', 'people.people_id.category', 'people.people_id.email', 'people.people_id.phone',
+        'people.people_id.leases.id', 'people.people_id.leases.start', 'people.people_id.leases.finish', 'people.people_id.leases.status',
         'vehicles.id', 'vehicles.make', 'vehicles.model', 'vehicles.year', 'vehicles.color', 'vehicles.license_plate', 'vehicles.state',
         'pets.id', 'pets.name', 'pets.category', 'pets.breed',
       ],
@@ -229,6 +241,110 @@ async function updateOccupantType(unit: any, occupant: string) {
   }
 }
 
+// Lease management
+async function openLeaseModal(person: any) {
+  selectedPerson.value = person;
+  personLeases.value = [];
+  showLeaseModal.value = true;
+  await fetchPersonLeases(person.id);
+}
+
+async function fetchPersonLeases(personId: number) {
+  leasesLoading.value = true;
+  try {
+    const data = await leasesCollection.list({
+      fields: ['id', 'status', 'start', 'finish', 'file.id', 'file.filename_download', 'file.type', 'person.id', 'person.first_name', 'person.last_name'],
+      filter: { person: { _eq: personId } },
+      sort: ['-start'],
+      limit: -1,
+    });
+    personLeases.value = data || [];
+  } catch (error) {
+    console.error('Failed to fetch leases:', error);
+    toast.add({ title: 'Error', description: 'Failed to load leases', color: 'red' });
+  } finally {
+    leasesLoading.value = false;
+  }
+}
+
+async function uploadLeaseWithPdf() {
+  if (!selectedPerson.value || !newLeaseStart.value || !newLeaseEnd.value) {
+    toast.add({ title: 'Error', description: 'Please fill in lease start and end dates', color: 'red' });
+    return;
+  }
+
+  leaseUploading.value = true;
+  try {
+    let fileId = null;
+
+    // Upload PDF if selected
+    const fileInput = leaseFileInput.value;
+    if (fileInput?.files?.length) {
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      const uploadResult: any = await $fetch('/api/directus/files/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      fileId = uploadResult?.id || null;
+    }
+
+    // Create lease record
+    await leasesCollection.create({
+      person: selectedPerson.value.id,
+      start: newLeaseStart.value,
+      finish: newLeaseEnd.value,
+      file: fileId,
+      status: 'published',
+    });
+
+    toast.add({ title: 'Lease Created', description: 'Lease has been added successfully.', color: 'green' });
+
+    // Reset form
+    newLeaseStart.value = '';
+    newLeaseEnd.value = '';
+    if (fileInput) fileInput.value = '';
+
+    // Refresh leases
+    await fetchPersonLeases(selectedPerson.value.id);
+  } catch (error: any) {
+    console.error('Failed to create lease:', error);
+    toast.add({ title: 'Error', description: error.data?.message || 'Failed to create lease', color: 'red' });
+  } finally {
+    leaseUploading.value = false;
+  }
+}
+
+async function deleteLease(leaseId: number) {
+  actionLoading.value = true;
+  try {
+    await leasesCollection.remove(leaseId);
+    toast.add({ title: 'Lease Removed', description: 'Lease has been deleted.', color: 'green' });
+    if (selectedPerson.value) {
+      await fetchPersonLeases(selectedPerson.value.id);
+    }
+  } catch (error: any) {
+    console.error('Failed to delete lease:', error);
+    toast.add({ title: 'Error', description: error.data?.message || 'Failed to delete lease', color: 'red' });
+  } finally {
+    actionLoading.value = false;
+  }
+}
+
+function getLeaseStatus(lease: any) {
+  const now = new Date();
+  const end = new Date(lease.finish);
+  const start = new Date(lease.start);
+  if (now > end) return { label: 'Expired', color: 'red' };
+  if (now < start) return { label: 'Upcoming', color: 'blue' };
+  return { label: 'Active', color: 'green' };
+}
+
+function formatDate(dateStr: string) {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
 function getOccupantColor(occupant: string) {
   if (occupant === 'Owner') return 'blue';
   if (occupant === 'Tenant') return 'cyan';
@@ -310,13 +426,18 @@ onMounted(async () => {
 
           <template #people-data="{ row }">
             <div v-if="row.people && row.people.length > 0" class="space-y-0.5">
-              <p
+              <div
                 v-for="person in row.people"
                 :key="person.id"
-                class="text-sm">
-                {{ person.people_id?.first_name }} {{ person.people_id?.last_name }}
+                class="text-sm flex items-center gap-1.5">
+                <span>{{ person.people_id?.first_name }} {{ person.people_id?.last_name }}</span>
                 <span v-if="person.people_id?.category" class="text-xs text-gray-500">({{ person.people_id.category }})</span>
-              </p>
+                <Icon
+                  v-if="person.people_id?.leases?.length > 0"
+                  name="i-heroicons-document-text"
+                  class="w-3.5 h-3.5 text-primary-500"
+                  title="Has lease on file" />
+              </div>
             </div>
             <span v-else class="text-sm text-gray-400">None</span>
           </template>
@@ -444,13 +565,26 @@ onMounted(async () => {
                 v-for="person in selectedUnit.people"
                 :key="person.id"
                 class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <p class="font-medium text-sm">
-                  {{ person.people_id?.first_name }} {{ person.people_id?.last_name }}
-                </p>
-                <div class="flex gap-4 text-xs text-gray-500 mt-1">
-                  <span v-if="person.people_id?.category">{{ person.people_id.category }}</span>
-                  <span v-if="person.people_id?.email">{{ person.people_id.email }}</span>
-                  <span v-if="person.people_id?.phone">{{ person.people_id.phone }}</span>
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="font-medium text-sm">
+                      {{ person.people_id?.first_name }} {{ person.people_id?.last_name }}
+                    </p>
+                    <div class="flex gap-4 text-xs text-gray-500 mt-1">
+                      <span v-if="person.people_id?.category">{{ person.people_id.category }}</span>
+                      <span v-if="person.people_id?.email">{{ person.people_id.email }}</span>
+                      <span v-if="person.people_id?.phone">{{ person.people_id.phone }}</span>
+                    </div>
+                  </div>
+                  <Button
+                    v-if="person.people_id?.category === 'Tenant'"
+                    size="xs"
+                    color="primary"
+                    variant="soft"
+                    icon="i-heroicons-document-text"
+                    @click="openLeaseModal(person.people_id)">
+                    Leases
+                  </Button>
                 </div>
               </div>
             </div>
@@ -571,6 +705,122 @@ onMounted(async () => {
         <template #footer>
           <div class="flex justify-end">
             <Button color="gray" variant="ghost" @click="showAssignModal = false">
+              Close
+            </Button>
+          </div>
+        </template>
+      </Card>
+    </Modal>
+    <!-- Lease Management Modal -->
+    <Modal v-model="showLeaseModal">
+      <Card v-if="selectedPerson">
+        <template #header>
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-semibold">
+              Leases &mdash; {{ selectedPerson.first_name }} {{ selectedPerson.last_name }}
+            </h3>
+            <Button
+              color="gray"
+              variant="ghost"
+              icon="i-heroicons-x-mark"
+              @click="showLeaseModal = false" />
+          </div>
+        </template>
+
+        <div class="space-y-6">
+          <!-- Existing Leases -->
+          <div>
+            <label class="block text-sm font-medium mb-2">Lease History</label>
+            <div v-if="leasesLoading" class="text-center py-4">
+              <Icon name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin text-gray-400" />
+            </div>
+            <div v-else-if="personLeases.length > 0" class="space-y-3">
+              <div
+                v-for="lease in personLeases"
+                :key="lease.id"
+                class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                  <Badge
+                    :color="getLeaseStatus(lease).color"
+                    variant="soft"
+                    size="sm">
+                    {{ getLeaseStatus(lease).label }}
+                  </Badge>
+                  <Button
+                    size="xs"
+                    color="red"
+                    variant="soft"
+                    icon="i-heroicons-trash"
+                    :loading="actionLoading"
+                    @click="deleteLease(lease.id)">
+                    Delete
+                  </Button>
+                </div>
+                <div class="text-sm space-y-1">
+                  <p>
+                    <span class="text-gray-500">Period:</span>
+                    {{ formatDate(lease.start) }} &mdash; {{ formatDate(lease.finish) }}
+                  </p>
+                  <div v-if="lease.file" class="flex items-center gap-2">
+                    <Icon name="i-heroicons-paper-clip" class="w-3.5 h-3.5 text-gray-400" />
+                    <a
+                      :href="`https://admin.1033lenox.com/assets/${typeof lease.file === 'object' ? lease.file.id : lease.file}`"
+                      target="_blank"
+                      class="text-sm text-primary-500 hover:underline">
+                      {{ typeof lease.file === 'object' ? lease.file.filename_download : 'View PDF' }}
+                    </a>
+                  </div>
+                  <p v-else class="text-xs text-gray-400">No document attached</p>
+                </div>
+              </div>
+            </div>
+            <p v-else class="text-sm text-gray-400">No leases on record.</p>
+          </div>
+
+          <!-- Add New Lease -->
+          <div class="border-t pt-4">
+            <label class="block text-sm font-medium mb-3">Add New Lease</label>
+            <div class="space-y-3">
+              <div class="grid grid-cols-2 gap-3">
+                <FormGroup label="Start Date">
+                  <Input
+                    v-model="newLeaseStart"
+                    type="date" />
+                </FormGroup>
+                <FormGroup label="End Date">
+                  <Input
+                    v-model="newLeaseEnd"
+                    type="date" />
+                </FormGroup>
+              </div>
+              <FormGroup label="Lease PDF (optional)">
+                <input
+                  ref="leaseFileInput"
+                  type="file"
+                  accept=".pdf"
+                  class="block w-full text-sm text-gray-500
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-primary-50 file:text-primary-700
+                    hover:file:bg-primary-100
+                    dark:file:bg-primary-900 dark:file:text-primary-300" />
+              </FormGroup>
+              <Button
+                color="primary"
+                :loading="leaseUploading"
+                :disabled="!newLeaseStart || !newLeaseEnd"
+                @click="uploadLeaseWithPdf">
+                <Icon name="i-heroicons-plus" class="w-4 h-4 mr-1" />
+                Add Lease
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end">
+            <Button color="gray" variant="ghost" @click="showLeaseModal = false">
               Close
             </Button>
           </div>
