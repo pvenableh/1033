@@ -14,6 +14,12 @@ const adminLinks = [
     to: '/admin/users',
   },
   {
+    title: 'Unit Management',
+    description: 'Manage units, assign users, and view occupancy details',
+    icon: 'i-heroicons-home-modern',
+    to: '/admin/units',
+  },
+  {
     title: 'User Permissions',
     description: 'Configure granular CRUD permissions for individual users',
     icon: 'i-heroicons-key',
