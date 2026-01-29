@@ -8,6 +8,8 @@
  * Accepts:
  *   - fiscal_year: number (e.g. 2025) — required
  *   - account_id: number — optional, limit to specific account (does all if omitted)
+ *   - starting_balances: Record<number, number> — optional, map of account_id to starting balance
+ *     e.g. { "1": 46086.55 } to set the Jan 1 opening balance for account 1
  *
  * Requires admin/board member access.
  */
@@ -58,6 +60,7 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 	const body = await readBody(event);
 	const fiscalYear = body?.fiscal_year;
 	const filterAccountId = body?.account_id || null;
+	const startingBalances: Record<string, number> = body?.starting_balances || {};
 
 	if (!fiscalYear) {
 		throw createError({
@@ -145,8 +148,9 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 
 			if (monthsWithTx.length === 0) continue;
 
-			// Calculate running balance per month
-			let runningBalance = 0;
+			// Use provided starting balance or default to 0
+			const startBal = startingBalances[String(account.id)] ?? 0;
+			let runningBalance = startBal;
 
 			for (const month of monthsWithTx) {
 				const monthTx = accountTx.filter((t: any) => t.statement_month === month);
