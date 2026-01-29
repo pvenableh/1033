@@ -19,6 +19,8 @@ interface ParsedTransaction {
   category?: string;
   check_number?: string;
   balance?: number;
+  _raw?: Record<string, any>;
+  _source_line?: number;
 }
 
 interface StatementParseResult {
@@ -152,8 +154,8 @@ function handleJsonFile(data: Buffer): StatementParseResult {
       };
     }
 
-    // Validate and normalize transactions
-    const normalized = transactions.map((tx: any) => ({
+    // Validate and normalize transactions, preserving raw source data
+    const normalized = transactions.map((tx: any, index: number) => ({
       date: tx.date || tx.Date || '',
       description: tx.description || tx.Description || '',
       amount: parseFloat(tx.amount || tx.Amount || 0),
@@ -162,6 +164,8 @@ function handleJsonFile(data: Buffer): StatementParseResult {
       category: tx.category || tx.Category || undefined,
       check_number: tx.check_number || tx.checkNumber || undefined,
       balance: tx.balance ? parseFloat(tx.balance) : undefined,
+      _raw: tx,
+      _source_line: index + 1,
     }));
 
     return {
@@ -219,13 +223,15 @@ function handleCsvFile(data: Buffer): StatementParseResult {
     const beginningBalance = balanceRows.find((b) => b.SubType === 'Beginning');
     const endingBalance = balanceRows.find((b) => b.SubType === 'Ending');
 
-    const transactions: ParsedTransaction[] = transactionRows.map((row) => ({
+    const transactions: ParsedTransaction[] = transactionRows.map((row, index) => ({
       date: row.Date || '',
       description: row.Description || '',
       amount: parseFloat(row.Amount || '0'),
       type: normalizeTransactionType(row.Type || ''),
       vendor: row.Vendor || undefined,
       category: row.Category || undefined,
+      _raw: row,
+      _source_line: index + 1,
     }));
 
     return {
