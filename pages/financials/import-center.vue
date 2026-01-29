@@ -968,6 +968,7 @@ const fiscalYearsCollection = useDirectusItems('fiscal_years');
 const budgetCategoriesCollection = useDirectusItems('budget_categories');
 const budgetItemsCollection = useDirectusItems('budget_items');
 const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
+const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 // Permission checks
 const { canCreate, canRead, canUpdate, canDelete, hasFullAccess } = useUserPermissions();
@@ -1772,6 +1773,12 @@ async function importTransactions() {
 		if (results.errors.length > 0 && results.created === 0) {
 			results.success = false;
 		}
+
+		// Save statement balances to monthly_statements if available
+		if (results.success && results.created > 0 && stmtMonth.value && stmtAccountId.value) {
+			await saveStatementBalances();
+		}
+
 		// Auto-categorize after successful import
 		if (results.success && results.created > 0) {
 			await runAutoCategorize(stmtFiscalYear.value, stmtAccountId.value);
@@ -1816,6 +1823,56 @@ async function runAutoCategorize(fiscalYear = null, accountId = null) {
 		};
 	} finally {
 		autoCategorizing.value = false;
+	}
+}
+
+async function saveStatementBalances() {
+	const beginBal = stmtBeginningBalance.value;
+	const endBal = stmtEndingBalance.value;
+
+	if (beginBal == null && endBal == null) return;
+
+	try {
+		const fyId = resolvedStmtFiscalYearId.value;
+		const month = stmtMonth.value;
+		const accountId = stmtAccountId.value;
+
+		// Check if a monthly_statements record already exists for this account/month
+		const existing = await monthlyStatementsCollection.list({
+			filter: {
+				account_id: { _eq: accountId },
+				statement_month: { _eq: month },
+				fiscal_year: { _eq: fyId },
+			},
+			fields: ['id', 'beginning_balance', 'ending_balance'],
+			limit: 1,
+		});
+
+		const updates = { status: 'published' };
+		if (beginBal != null) updates.beginning_balance = beginBal;
+		if (endBal != null) updates.ending_balance = endBal;
+
+		if (existing && existing.length > 0) {
+			// Update existing record (only overwrite if values were missing)
+			const record = existing[0];
+			const needsUpdate =
+				(beginBal != null && !record.beginning_balance) ||
+				(endBal != null && !record.ending_balance);
+
+			if (needsUpdate) {
+				await monthlyStatementsCollection.update(record.id, updates);
+			}
+		} else {
+			// Create new monthly_statements record
+			await monthlyStatementsCollection.create({
+				account_id: accountId,
+				statement_month: month,
+				fiscal_year: fyId,
+				...updates,
+			});
+		}
+	} catch (err) {
+		console.warn('Could not save statement balances:', err.message);
 	}
 }
 
