@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
 import type { Task } from '~/types/directus'
+import type { UnifiedTask, TaskSource } from '~/composables/useTasks'
 
 definePageMeta({
   layout: 'default',
@@ -20,6 +21,7 @@ const {
   fetchAllTasks,
   createTask,
   updateTask,
+  updateProjectTask,
   deleteTask,
   priorityLabel,
   priorityColor,
@@ -38,6 +40,7 @@ const viewMode = ref<'my' | 'all'>('my')
 const filterStatus = ref<string>('active')
 const filterPriority = ref<string>('')
 const filterAssignee = ref<string>('')
+const filterSource = ref<string>('')
 const searchQuery = ref('')
 
 // Task counts
@@ -120,6 +123,9 @@ async function loadTasks() {
   if (filterAssignee.value && viewMode.value === 'all') {
     filters.assigned_to = filterAssignee.value
   }
+  if (filterSource.value) {
+    filters.source = filterSource.value
+  }
 
   if (viewMode.value === 'my') {
     await fetchMyTasks(filters)
@@ -173,17 +179,30 @@ async function handleCreateTask() {
   await loadTasks()
 }
 
-// Update task status
-async function handleStatusChange(task: Task, newStatus: string) {
-  await updateTask(task.id, { task_status: newStatus as any })
+// Update task status (handles both collections)
+async function handleStatusChange(task: UnifiedTask, newStatus: string) {
+  if (task._source === 'project_tasks') {
+    await updateProjectTask(task.id, newStatus === 'completed')
+  } else {
+    await updateTask(task.id, { task_status: newStatus as any })
+  }
   await loadTasks()
 }
 
-// Delete task
-async function handleDelete(task: Task) {
+// Delete task (only for tasks collection)
+async function handleDelete(task: UnifiedTask) {
+  if (task._source === 'project_tasks') return
   if (!confirm(`Delete task "${task.title}"?`)) return
   await deleteTask(task.id)
   await loadTasks()
+}
+
+// Get link for a task based on its source
+function getTaskLink(task: UnifiedTask): string {
+  if (task._source === 'project_tasks' && task._project_event_id) {
+    return `/projects?event=${task._project_event_id}`
+  }
+  return `/tasks/${task.id}`
 }
 
 // Edit task
@@ -296,7 +315,7 @@ onMounted(async () => {
 })
 
 // Watch filters
-watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
+watch([filterStatus, filterPriority, filterAssignee, filterSource, viewMode], () => {
   loadTasks()
 })
 </script>
@@ -308,7 +327,7 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
       <div>
         <h1 class="text-2xl font-bold">Tasks</h1>
         <p class="text-sm text-muted-foreground mt-1">
-          Manage and track your assigned tasks
+          Manage and track your assigned tasks and project tasks
         </p>
       </div>
       <div class="flex items-center gap-2 flex-wrap">
@@ -541,6 +560,16 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
             <option value="low">Low</option>
           </select>
 
+          <!-- Source Filter -->
+          <select
+            v-model="filterSource"
+            class="text-sm border rounded-lg px-3 py-1.5 bg-background"
+          >
+            <option value="">All Sources</option>
+            <option value="tasks">General Tasks</option>
+            <option value="project_tasks">Project Tasks</option>
+          </select>
+
           <!-- Assignee Filter (admin view) -->
           <select
             v-if="viewMode === 'all'"
@@ -581,7 +610,7 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
     <div v-else class="space-y-2">
       <Card
         v-for="task in displayTasks"
-        :key="task.id"
+        :key="`${task._source}-${task.id}`"
         class="hover:shadow-md transition-shadow"
         :class="{ 'border-red-300 dark:border-red-700': isOverdue(task) }"
       >
@@ -603,12 +632,20 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2 flex-wrap">
                 <NuxtLink
-                  :to="`/tasks/${task.id}`"
+                  :to="getTaskLink(task)"
                   class="font-medium text-sm hover:text-primary transition-colors"
                   :class="{ 'line-through text-muted-foreground': task.task_status === 'completed' }"
                 >
                   {{ task.title }}
                 </NuxtLink>
+                <!-- Source badge -->
+                <span
+                  v-if="task._source === 'project_tasks'"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400"
+                >
+                  <Icon name="heroicons:squares-2x2" class="h-3 w-3" />
+                  Project
+                </span>
                 <span
                   v-if="task.ai_generated"
                   class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs bg-purple-50 dark:bg-purple-950 text-purple-600 dark:text-purple-400"
@@ -635,6 +672,11 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
                 </span>
               </div>
 
+              <!-- Project context for project_tasks -->
+              <p v-if="task._source === 'project_tasks' && (task._project_name || task._event_title)" class="text-xs text-indigo-600 dark:text-indigo-400 mt-0.5">
+                {{ task._project_name }}<span v-if="task._event_title"> &mdash; {{ task._event_title }}</span>
+              </p>
+
               <p v-if="task.description" class="text-xs text-muted-foreground mt-1 line-clamp-1">
                 {{ task.description }}
               </p>
@@ -652,7 +694,7 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
                   <Icon name="heroicons:user" class="h-3 w-3" />
                   {{ formatAssignee(task.assigned_to) }}
                 </span>
-                <span v-if="task.related_collection" class="flex items-center gap-1">
+                <span v-if="task._source !== 'project_tasks' && task.related_collection" class="flex items-center gap-1">
                   <Icon name="heroicons:link" class="h-3 w-3" />
                   {{ task.related_collection }}
                 </span>
@@ -661,32 +703,45 @@ watch([filterStatus, filterPriority, filterAssignee, viewMode], () => {
 
             <!-- Actions -->
             <div class="flex items-center gap-1 shrink-0">
-              <!-- Status dropdown -->
-              <select
-                :value="task.task_status"
-                class="text-xs border rounded px-1.5 py-1 bg-background"
-                @change="handleStatusChange(task, ($event.target as HTMLSelectElement).value)"
-              >
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="on_hold">On Hold</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <button
-                class="p-1.5 rounded hover:bg-muted transition-colors"
-                title="Edit"
-                @click="openEdit(task)"
-              >
-                <Icon name="heroicons:pencil-square" class="h-4 w-4 text-muted-foreground" />
-              </button>
-              <button
-                class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
-                title="Delete"
-                @click="handleDelete(task)"
-              >
-                <Icon name="heroicons:trash" class="h-4 w-4 text-red-500" />
-              </button>
+              <!-- Status dropdown (full workflow for tasks, simple toggle for project_tasks) -->
+              <template v-if="task._source === 'project_tasks'">
+                <button
+                  class="px-2 py-1 text-xs font-medium rounded border transition-colors"
+                  :class="task.task_status === 'completed'
+                    ? 'bg-green-50 dark:bg-green-950 text-green-600 dark:text-green-400 border-green-200 dark:border-green-800'
+                    : 'hover:bg-muted'"
+                  @click="handleStatusChange(task, task.task_status === 'completed' ? 'open' : 'completed')"
+                >
+                  {{ task.task_status === 'completed' ? 'Done' : 'Mark Done' }}
+                </button>
+              </template>
+              <template v-else>
+                <select
+                  :value="task.task_status"
+                  class="text-xs border rounded px-1.5 py-1 bg-background"
+                  @change="handleStatusChange(task, ($event.target as HTMLSelectElement).value)"
+                >
+                  <option value="open">Open</option>
+                  <option value="in_progress">In Progress</option>
+                  <option value="on_hold">On Hold</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+                <button
+                  class="p-1.5 rounded hover:bg-muted transition-colors"
+                  title="Edit"
+                  @click="openEdit(task)"
+                >
+                  <Icon name="heroicons:pencil-square" class="h-4 w-4 text-muted-foreground" />
+                </button>
+                <button
+                  class="p-1.5 rounded hover:bg-red-50 dark:hover:bg-red-950 transition-colors"
+                  title="Delete"
+                  @click="handleDelete(task)"
+                >
+                  <Icon name="heroicons:trash" class="h-4 w-4 text-red-500" />
+                </button>
+              </template>
             </div>
           </div>
         </CardContent>

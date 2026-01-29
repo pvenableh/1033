@@ -2,6 +2,7 @@
  * useTasks - Task management composable
  *
  * Provides CRUD operations and filtered views for the universal tasks collection.
+ * Also merges project_tasks into a unified view so users see all assigned work.
  * Tasks can be linked to any collection (requests, projects, etc.) via
  * related_collection and related_id polymorphic fields.
  *
@@ -14,6 +15,14 @@ import type { Task, DirectusUser } from '~/types/directus'
 export type TaskStatus = 'open' | 'in_progress' | 'on_hold' | 'completed' | 'cancelled'
 export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
 export type TaskCategory = 'maintenance' | 'follow_up' | 'inspection' | 'communication' | 'financial' | 'administrative' | 'other'
+export type TaskSource = 'tasks' | 'project_tasks'
+
+export interface UnifiedTask extends Task {
+  _source: TaskSource
+  _project_event_id?: string
+  _project_name?: string
+  _event_title?: string
+}
 
 export interface TaskFilters {
   task_status?: TaskStatus | TaskStatus[]
@@ -23,6 +32,7 @@ export interface TaskFilters {
   related_collection?: string
   related_id?: string
   search?: string
+  source?: TaskSource
 }
 
 const TASK_FIELDS = [
@@ -54,12 +64,40 @@ const TASK_FIELDS = [
   'ai_generated',
 ]
 
+const PROJECT_TASK_FIELDS = [
+  'id',
+  'status',
+  'date_created',
+  'user_created.id',
+  'user_created.first_name',
+  'user_created.last_name',
+  'title',
+  'description',
+  'assignee_id.id',
+  'assignee_id.first_name',
+  'assignee_id.last_name',
+  'assignee_id.email',
+  'assignee_id.avatar',
+  'completed',
+  'completed_at',
+  'completed_by.id',
+  'completed_by.first_name',
+  'completed_by.last_name',
+  'due_date',
+  'priority',
+  'event_id.id',
+  'event_id.title',
+  'event_id.project_id.id',
+  'event_id.project_id.name',
+]
+
 export function useTasks() {
   const collection = useDirectusItems<Task>('tasks')
+  const projectTaskCollection = useDirectusItems('project_tasks')
   const { user } = useDirectusAuth()
 
-  const myTasks = ref<Task[]>([])
-  const allTasks = ref<Task[]>([])
+  const myTasks = ref<UnifiedTask[]>([])
+  const allTasks = ref<UnifiedTask[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
@@ -107,7 +145,121 @@ export function useTasks() {
   }
 
   /**
-   * Fetch tasks assigned to the current user
+   * Normalize a project_task into a UnifiedTask shape
+   */
+  function normalizeProjectTask(pt: any): UnifiedTask {
+    const eventObj = typeof pt.event_id === 'object' ? pt.event_id : null
+    const projectObj = eventObj?.project_id && typeof eventObj.project_id === 'object' ? eventObj.project_id : null
+
+    return {
+      id: pt.id,
+      status: pt.status,
+      date_created: pt.date_created,
+      date_updated: null,
+      user_created: pt.user_created,
+      title: pt.title || 'Untitled',
+      description: pt.description,
+      task_status: pt.completed ? 'completed' : 'open',
+      priority: pt.priority || null,
+      assigned_to: pt.assignee_id,
+      due_date: pt.due_date,
+      completed_at: pt.completed_at,
+      completed_by: pt.completed_by,
+      category: null,
+      related_collection: 'project_events',
+      related_id: eventObj?.id || (typeof pt.event_id === 'string' ? pt.event_id : null),
+      notes: null,
+      ai_generated: false,
+      _source: 'project_tasks',
+      _project_event_id: eventObj?.id || (typeof pt.event_id === 'string' ? pt.event_id : undefined),
+      _project_name: projectObj?.name || undefined,
+      _event_title: eventObj?.title || undefined,
+    } as UnifiedTask
+  }
+
+  /**
+   * Tag a tasks-collection result as a UnifiedTask
+   */
+  function tagTask(t: any): UnifiedTask {
+    return { ...t, _source: 'tasks' as TaskSource }
+  }
+
+  /**
+   * Build project_tasks filter matching the same criteria as tasks filter
+   */
+  function buildProjectTaskFilter(filters: TaskFilters = {}, userId?: string) {
+    const filter: Record<string, any> = {
+      status: { _eq: 'published' },
+    }
+
+    if (userId) {
+      filter.assignee_id = { _eq: userId }
+    }
+    if (filters.assigned_to) {
+      filter.assignee_id = { _eq: filters.assigned_to }
+    }
+
+    // Map task_status filter to completed boolean
+    if (filters.task_status) {
+      const statuses = Array.isArray(filters.task_status) ? filters.task_status : [filters.task_status]
+      const hasCompleted = statuses.includes('completed')
+      const hasActive = statuses.some(s => s !== 'completed' && s !== 'cancelled')
+
+      if (hasCompleted && !hasActive) {
+        filter.completed = { _eq: true }
+      } else if (hasActive && !hasCompleted) {
+        filter.completed = { _eq: false }
+      }
+      // If both or cancelled, don't filter on completed — show all
+    }
+
+    if (filters.priority) {
+      if (Array.isArray(filters.priority)) {
+        filter.priority = { _in: filters.priority }
+      } else {
+        filter.priority = { _eq: filters.priority }
+      }
+    }
+
+    return filter
+  }
+
+  /**
+   * Fetch project_tasks and normalize them
+   */
+  async function fetchProjectTasks(filter: Record<string, any>): Promise<UnifiedTask[]> {
+    try {
+      const results = await projectTaskCollection.list({
+        fields: PROJECT_TASK_FIELDS,
+        filter,
+        sort: ['-priority', 'due_date', '-date_created'],
+        limit: -1,
+      })
+      return (results as any[]).map(normalizeProjectTask)
+    } catch {
+      return []
+    }
+  }
+
+  /**
+   * Sort unified tasks by priority then due date
+   */
+  function sortUnifiedTasks(tasks: UnifiedTask[]): UnifiedTask[] {
+    return tasks.sort((a, b) => {
+      const pa = priorityOrder[a.priority || ''] ?? 99
+      const pb = priorityOrder[b.priority || ''] ?? 99
+      if (pa !== pb) return pa - pb
+      // Then by due date (nulls last)
+      if (a.due_date && b.due_date) return new Date(a.due_date).getTime() - new Date(b.due_date).getTime()
+      if (a.due_date) return -1
+      if (b.due_date) return 1
+      // Then by date_created descending
+      return new Date(b.date_created || 0).getTime() - new Date(a.date_created || 0).getTime()
+    })
+  }
+
+  /**
+   * Fetch tasks assigned to the current user (from both collections)
    */
   async function fetchMyTasks(filters: TaskFilters = {}) {
     if (!user.value?.id) return []
@@ -116,17 +268,29 @@ export function useTasks() {
     error.value = null
 
     try {
-      const result = await collection.list({
-        fields: TASK_FIELDS,
-        filter: {
-          ...buildFilter(filters),
-          assigned_to: { _eq: user.value.id },
-        },
-        sort: ['-priority', 'due_date', '-date_created'],
-        limit: -1,
-      })
-      myTasks.value = result
-      return result
+      const onlySource = filters.source
+
+      const [tasksResult, projectTasksResult] = await Promise.all([
+        onlySource === 'project_tasks'
+          ? Promise.resolve([])
+          : collection.list({
+              fields: TASK_FIELDS,
+              filter: {
+                ...buildFilter(filters),
+                assigned_to: { _eq: user.value.id },
+              },
+              sort: ['-priority', 'due_date', '-date_created'],
+              limit: -1,
+            }).then((r: any[]) => r.map(tagTask)),
+
+        onlySource === 'tasks'
+          ? Promise.resolve([])
+          : fetchProjectTasks(buildProjectTaskFilter(filters, user.value.id)),
+      ])
+
+      const merged = sortUnifiedTasks([...tasksResult, ...projectTasksResult])
+      myTasks.value = merged
+      return merged
     } catch (e: any) {
       error.value = e.message || 'Failed to fetch tasks'
       return []
@@ -136,27 +300,38 @@ export function useTasks() {
   }
 
   /**
-   * Fetch all tasks (admin view) with optional filters
+   * Fetch all tasks (admin view) with optional filters (from both collections)
    */
   async function fetchAllTasks(filters: TaskFilters = {}) {
     loading.value = true
     error.value = null
 
     try {
-      const query: Record<string, any> = {
+      const onlySource = filters.source
+
+      const taskQuery: Record<string, any> = {
         fields: TASK_FIELDS,
         filter: buildFilter(filters),
         sort: ['-priority', 'due_date', '-date_created'],
         limit: -1,
       }
-
       if (filters.search) {
-        query.search = filters.search
+        taskQuery.search = filters.search
       }
 
-      const result = await collection.list(query)
-      allTasks.value = result
-      return result
+      const [tasksResult, projectTasksResult] = await Promise.all([
+        onlySource === 'project_tasks'
+          ? Promise.resolve([])
+          : collection.list(taskQuery).then((r: any[]) => r.map(tagTask)),
+
+        onlySource === 'tasks'
+          ? Promise.resolve([])
+          : fetchProjectTasks(buildProjectTaskFilter(filters)),
+      ])
+
+      const merged = sortUnifiedTasks([...tasksResult, ...projectTasksResult])
+      allTasks.value = merged
+      return merged
     } catch (e: any) {
       error.value = e.message || 'Failed to fetch tasks'
       return []
@@ -236,27 +411,60 @@ export function useTasks() {
   }
 
   /**
-   * Get task counts by status for the current user
+   * Update a project_task (toggle completed boolean)
+   */
+  async function updateProjectTask(id: string, completed: boolean) {
+    try {
+      const data: Record<string, any> = { completed }
+      if (completed) {
+        data.completed_at = new Date().toISOString()
+        data.completed_by = user.value?.id
+      } else {
+        data.completed_at = null
+        data.completed_by = null
+      }
+      return await projectTaskCollection.update(id, data)
+    } catch (e: any) {
+      error.value = e.message || 'Failed to update project task'
+      throw e
+    }
+  }
+
+  /**
+   * Get task counts by status for the current user (both collections)
    */
   async function getMyTaskCounts() {
     if (!user.value?.id) return { open: 0, in_progress: 0, on_hold: 0, completed: 0 }
 
     try {
-      const tasks = await collection.list({
-        fields: ['task_status'],
-        filter: {
-          status: { _eq: 'published' },
-          assigned_to: { _eq: user.value.id },
-          task_status: { _nin: ['cancelled'] },
-        },
-        limit: -1,
-      })
+      const [tasks, projectTasks] = await Promise.all([
+        collection.list({
+          fields: ['task_status'],
+          filter: {
+            status: { _eq: 'published' },
+            assigned_to: { _eq: user.value.id },
+            task_status: { _nin: ['cancelled'] },
+          },
+          limit: -1,
+        }),
+        projectTaskCollection.list({
+          fields: ['completed'],
+          filter: {
+            status: { _eq: 'published' },
+            assignee_id: { _eq: user.value.id },
+          },
+          limit: -1,
+        }),
+      ])
+
+      const ptOpen = (projectTasks as any[]).filter((t: any) => !t.completed).length
+      const ptCompleted = (projectTasks as any[]).filter((t: any) => t.completed).length
 
       return {
-        open: tasks.filter((t: any) => t.task_status === 'open').length,
+        open: tasks.filter((t: any) => t.task_status === 'open').length + ptOpen,
         in_progress: tasks.filter((t: any) => t.task_status === 'in_progress').length,
         on_hold: tasks.filter((t: any) => t.task_status === 'on_hold').length,
-        completed: tasks.filter((t: any) => t.task_status === 'completed').length,
+        completed: tasks.filter((t: any) => t.task_status === 'completed').length + ptCompleted,
       }
     } catch {
       return { open: 0, in_progress: 0, on_hold: 0, completed: 0 }
@@ -327,7 +535,7 @@ export function useTasks() {
   /**
    * Check if a task is overdue
    */
-  function isOverdue(task: Task): boolean {
+  function isOverdue(task: Task | UnifiedTask): boolean {
     if (!task.due_date || task.task_status === 'completed' || task.task_status === 'cancelled') return false
     return new Date(task.due_date) < new Date()
   }
@@ -345,6 +553,7 @@ export function useTasks() {
     fetchRelatedTasks,
     createTask,
     updateTask,
+    updateProjectTask,
     deleteTask,
 
     // Helpers
