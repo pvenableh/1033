@@ -48,7 +48,7 @@ const tenants = computed(() => {
   return result
 })
 
-// Collect all people names and unit numbers for transaction matching
+// Collect all people names for transaction matching
 const unitPeopleNames = computed(() => {
   const names: string[] = []
   // Add the logged-in user's full name and last name
@@ -77,12 +77,25 @@ const unitPeopleNames = computed(() => {
         }
       }
     }
-    // Also match unit number in descriptions (e.g. "Unit 302")
-    if (unit.number) {
-      names.push(`unit ${unit.number}`.toLowerCase())
-    }
   }
   return [...new Set(names)].filter(Boolean)
+})
+
+// Collect unit number search terms with contextual prefixes to avoid false positives
+// e.g. unit "314" should match "Unit 314" but not "$3,140" or "1314"
+const unitNumberTerms = computed(() => {
+  const terms: string[] = []
+  for (const unit of units.value) {
+    if (unit.number) {
+      const num = unit.number.toString()
+      terms.push(`unit ${num}`)
+      terms.push(`unit #${num}`)
+      terms.push(`#${num}`)
+      terms.push(`apt ${num}`)
+      terms.push(`apt. ${num}`)
+    }
+  }
+  return [...new Set(terms)]
 })
 
 // Quick stats
@@ -105,7 +118,7 @@ const recentTransactions = ref<any[]>([])
 const transactionsLoading = ref(false)
 
 async function fetchUserTransactions() {
-  if (unitPeopleNames.value.length === 0) return
+  if (unitPeopleNames.value.length === 0 && unitNumberTerms.value.length === 0) return
   transactionsLoading.value = true
   try {
     // Build OR filters for vendor or description matching any person name
@@ -114,6 +127,11 @@ async function fetchUserTransactions() {
       orFilters.push({ vendor: { _icontains: name } })
       orFilters.push({ description: { _icontains: name } })
     }
+    // Add unit number terms (prefixed to avoid partial numeric matches)
+    for (const term of unitNumberTerms.value) {
+      orFilters.push({ description: { _icontains: term } })
+    }
+    if (orFilters.length === 0) return
     const data = await transactionsCollection.list({
       filter: {
         _or: orFilters,
@@ -224,8 +242,8 @@ watch(isBoardMember, (val) => {
 }, { immediate: true })
 
 // Fetch transactions once unit data is loaded
-watch(unitPeopleNames, (names) => {
-  if (names.length > 0) {
+watch([unitPeopleNames, unitNumberTerms], ([names, terms]) => {
+  if (names.length > 0 || terms.length > 0) {
     fetchUserTransactions()
   }
 }, { immediate: true })
