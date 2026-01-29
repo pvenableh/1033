@@ -1222,7 +1222,7 @@ async function importBudget() {
 	budgetImporting.value = true;
 	budgetImportProgress.value = 0;
 
-	const results = { success: true, message: '', categoriesCreated: 0, itemsCreated: 0 };
+	const results = { success: true, message: '', categoriesCreated: 0, itemsCreated: 0, itemsSkipped: 0 };
 
 	try {
 		const fyId = resolvedBudgetFiscalYearId.value;
@@ -1244,6 +1244,20 @@ async function importBudget() {
 		const categoryMap = {};
 		existingCategories.forEach((c) => (categoryMap[c.category_name] = c.id));
 
+		// Load existing budget items for duplicate detection
+		const existingItems = await budgetItemsCollection.list({
+			filter: { fiscal_year: { _eq: fyId } },
+			fields: ['id', 'item_code', 'category_id', 'description'],
+			limit: -1,
+		});
+		// Build a set of existing item keys: "categoryId::itemCode"
+		const existingItemKeys = new Set(
+			existingItems.map((it) => {
+				const catId = typeof it.category_id === 'object' ? it.category_id?.id : it.category_id;
+				return `${catId}::${it.item_code}`;
+			})
+		);
+
 		// Create categories + items
 		for (const [catName, items] of Object.entries(categoryGroups)) {
 			let categoryId = categoryMap[catName];
@@ -1260,10 +1274,19 @@ async function importBudget() {
 					status: 'published',
 				});
 				categoryId = created.id;
+				categoryMap[catName] = categoryId;
 				results.categoriesCreated++;
 			}
 
 			for (const item of items) {
+				// Duplicate check: skip if same item_code already exists under this category
+				const itemKey = `${categoryId}::${item.item_code}`;
+				if (existingItemKeys.has(itemKey)) {
+					results.itemsSkipped++;
+					budgetImportProgress.value++;
+					continue;
+				}
+
 				await budgetItemsCollection.create({
 					fiscal_year: fyId,
 					category_id: categoryId,
@@ -1274,11 +1297,18 @@ async function importBudget() {
 					status: 'published',
 				});
 				results.itemsCreated++;
+				existingItemKeys.add(itemKey);
 				budgetImportProgress.value++;
 			}
 		}
 
-		results.message = `Created ${results.categoriesCreated} categories and ${results.itemsCreated} budget items for fiscal year ${budgetFiscalYear.value}.`;
+		const parts = [];
+		if (results.categoriesCreated) parts.push(`${results.categoriesCreated} categories created`);
+		if (results.itemsCreated) parts.push(`${results.itemsCreated} budget items created`);
+		if (results.itemsSkipped) parts.push(`${results.itemsSkipped} duplicate items skipped`);
+		results.message = parts.length > 0
+			? `${parts.join(', ')} for fiscal year ${budgetFiscalYear.value}.`
+			: `No new items to import for fiscal year ${budgetFiscalYear.value} (all duplicates).`;
 	} catch (err) {
 		results.success = false;
 		results.message = 'Budget import failed: ' + (err.message || 'Unknown error');
@@ -1490,20 +1520,33 @@ async function importTransactions() {
 			account_id: { _eq: stmtAccountId.value },
 			fiscal_year: { _eq: fyId },
 		};
-		if (stmtMonth.value) {
-			existingFilter.statement_month = { _eq: stmtMonth.value };
-		}
 
 		let existingTransactions = [];
 		try {
 			existingTransactions = await transactionsCollection.list({
 				filter: existingFilter,
-				fields: ['id', 'transaction_date', 'amount', 'description'],
+				fields: ['id', 'transaction_date', 'amount', 'description', 'transaction_type'],
 				limit: -1,
 			});
-		} catch {
-			// Continue without duplicate detection
+		} catch (err) {
+			console.warn('Could not load existing transactions for duplicate check:', err.message);
+			results.errors.push('Warning: duplicate detection unavailable — existing transactions could not be loaded.');
 		}
+
+		// Build a fingerprint set from existing transactions for O(1) lookups
+		function txFingerprint(date, amount, description, type) {
+			const d = (date || '').substring(0, 10);
+			const a = Math.abs(parseFloat(amount) || 0).toFixed(2);
+			const desc = (description || '').trim().toLowerCase();
+			const t = (type || 'withdrawal').toLowerCase();
+			return `${d}|${a}|${desc}|${t}`;
+		}
+
+		const existingFingerprints = new Set(
+			existingTransactions.map((et) =>
+				txFingerprint(et.transaction_date, et.amount, et.description, et.transaction_type)
+			)
+		);
 
 		// Import each transaction
 		for (let i = 0; i < stmtTransactions.value.length; i++) {
@@ -1511,18 +1554,13 @@ async function importTransactions() {
 
 			try {
 				const txDate = formatTransactionDate(tx.date);
+				const txType = normalizeType(tx.type);
+				const txDesc = (tx.description || '').trim();
+				const txAmount = Math.abs(tx.amount);
 
-				// Duplicate check
-				const isDuplicate = existingTransactions.some((existing) => {
-					const existingDate = existing.transaction_date?.substring(0, 10);
-					return (
-						existingDate === txDate &&
-						Math.abs(existing.amount - tx.amount) < 0.01 &&
-						existing.description?.substring(0, 30) === (tx.description || '').substring(0, 30)
-					);
-				});
-
-				if (isDuplicate) {
+				// Duplicate check against existing DB records + already-imported in this batch
+				const fp = txFingerprint(txDate, txAmount, txDesc, txType);
+				if (existingFingerprints.has(fp)) {
 					results.skipped++;
 					stmtImportProgress.value++;
 					continue;
@@ -1532,16 +1570,18 @@ async function importTransactions() {
 					fiscal_year: fyId,
 					account_id: stmtAccountId.value,
 					transaction_date: txDate,
-					description: tx.description || '',
+					description: txDesc,
 					vendor: tx.vendor || null,
-					amount: Math.abs(tx.amount),
-					transaction_type: tx.type || 'withdrawal',
+					amount: txAmount,
+					transaction_type: txType,
 					auto_categorized: false,
 					statement_month: stmtMonth.value || null,
 					import_batch_id: batchId,
 					status: 'published',
 				});
 
+				// Add to fingerprint set so later rows in this batch are also deduplicated
+				existingFingerprints.add(fp);
 				results.created++;
 			} catch (err) {
 				results.errors.push(`Row ${i + 1}: ${err.message}`);
