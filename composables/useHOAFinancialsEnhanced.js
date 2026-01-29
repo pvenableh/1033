@@ -724,7 +724,7 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
-	// Monthly trend for current account
+	// Monthly trend for current account (with balance fallback)
 	const accountMonthlyTrend = computed(() => {
 		try {
 			const transactions = allAccountTransactions.value || [];
@@ -735,7 +735,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 			const monthsInData = [...new Set(transactions.map((t) => t.statement_month).filter((m) => m))].sort();
 
-			return monthsInData.map((month) => {
+			const result = monthsInData.map((month) => {
 				const monthTransactions = transactions.filter((t) => t.statement_month === month);
 
 				const revenue = monthTransactions
@@ -782,7 +782,38 @@ export const useHOAFinancialsEnhanced = () => {
 					transfersIn,
 					transfersOut,
 					netCashFlow: revenue - expenses,
-					balance: statement ? safeParseFloat(statement.ending_balance) : 0,
+					statementBalance: statement ? safeParseFloat(statement.ending_balance) : null,
+				};
+			});
+
+			// If any month has a statement balance, use those directly
+			const hasStatementBalances = result.some((m) => m.statementBalance !== null);
+
+			if (hasStatementBalances) {
+				return result.map((m) => ({
+					...m,
+					balance: m.statementBalance || 0,
+				}));
+			}
+
+			// Fallback: compute running balance from transactions
+			let runningBalance = 0;
+			return result.map((m) => {
+				const monthTx = transactions.filter((t) => t.statement_month === m.monthValue);
+
+				const totalIn = monthTx
+					.filter((t) => t.transaction_type === 'deposit' || t.transaction_type === 'transfer_in')
+					.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+				const totalOut = monthTx
+					.filter((t) => t.transaction_type === 'withdrawal' || t.transaction_type === 'fee' || t.transaction_type === 'transfer_out')
+					.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+				runningBalance += totalIn - totalOut;
+
+				return {
+					...m,
+					balance: runningBalance,
 				};
 			});
 		} catch (error) {
@@ -791,7 +822,7 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
-	// Current account balance
+	// Current account balance (with transaction-based fallback)
 	const currentAccountBalance = computed(() => {
 		try {
 			const currentAccount = unref(selectedAccount);
@@ -804,11 +835,40 @@ export const useHOAFinancialsEnhanced = () => {
 
 			const latestStatement = accountStatements[accountStatements.length - 1];
 
+			if (latestStatement) {
+				return {
+					account,
+					current: safeParseFloat(latestStatement.ending_balance),
+					previous: safeParseFloat(latestStatement.beginning_balance),
+					statementMonth: latestStatement.statement_month,
+				};
+			}
+
+			// Fallback: calculate balance from transactions
+			const txs = allAccountTransactions.value || [];
+			if (txs.length === 0) {
+				return { account, current: 0, previous: 0, statementMonth: null };
+			}
+
+			const totalDeposits = txs
+				.filter((t) => t.transaction_type === 'deposit' || t.transaction_type === 'transfer_in')
+				.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+			const totalWithdrawals = txs
+				.filter((t) => t.transaction_type === 'withdrawal' || t.transaction_type === 'fee' || t.transaction_type === 'transfer_out')
+				.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+
+			const netBalance = totalDeposits - totalWithdrawals;
+
+			// Get the latest month for context
+			const months = [...new Set(txs.map((t) => t.statement_month).filter((m) => m))].sort();
+			const latestMonth = months[months.length - 1] || null;
+
 			return {
 				account,
-				current: latestStatement ? safeParseFloat(latestStatement.ending_balance) : 0,
-				previous: latestStatement ? safeParseFloat(latestStatement.beginning_balance) : 0,
-				statementMonth: latestStatement ? latestStatement.statement_month : null,
+				current: netBalance,
+				previous: 0,
+				statementMonth: latestMonth,
 			};
 		} catch (error) {
 			console.error('Error in currentAccountBalance computed:', error);

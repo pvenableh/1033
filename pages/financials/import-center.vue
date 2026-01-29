@@ -750,6 +750,21 @@
 							<li v-if="stmtImportResults.skipped">{{ stmtImportResults.skipped }} duplicates skipped</li>
 							<li v-if="stmtImportResults.errors?.length">{{ stmtImportResults.errors.length }} errors</li>
 						</ul>
+						<!-- Auto-categorization results -->
+						<div v-if="autoCategorizing" class="mt-3 flex items-center gap-2 text-sm text-blue-600">
+							<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+							Auto-categorizing transactions...
+						</div>
+						<div v-if="autoCategorizeResults" class="mt-3 p-3 rounded border"
+							:class="autoCategorizeResults.categorized > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'">
+							<p class="text-sm font-medium" :class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
+								Auto-Categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} transactions matched to budget categories
+							</p>
+							<p v-if="autoCategorizeResults.skipped > 0" class="text-xs text-gray-500 mt-1">
+								{{ autoCategorizeResults.skipped }} transactions could not be matched (no matching keywords found)
+							</p>
+						</div>
+
 						<div v-if="stmtImportResults.success" class="mt-4">
 							<NuxtLink
 								to="/financials"
@@ -766,6 +781,200 @@
 		<!-- TAB: Data Maintenance    -->
 		<!-- ======================== -->
 		<div v-if="activeTab === 'maintenance'" class="space-y-6">
+			<!-- Auto-Categorize Transactions -->
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4">
+					<h2 class="text-xl font-semibold text-gray-900">Auto-Categorize Transactions</h2>
+					<p class="text-sm text-gray-500 mt-1">
+						Scan uncategorized transactions and automatically match them to budget categories using vendor patterns, keywords, and description matching.
+					</p>
+				</div>
+				<div class="p-6 space-y-6">
+					<div class="flex items-center gap-4">
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="autoCatFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+						</div>
+						<button
+							v-if="canCreateFinancials"
+							@click="runAutoCategorize(autoCatFiscalYear)"
+							:disabled="autoCategorizing || !autoCatFiscalYear"
+							class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm">
+							<span v-if="autoCategorizing" class="flex items-center gap-2">
+								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								Categorizing...
+							</span>
+							<span v-else>Run Auto-Categorize</span>
+						</button>
+					</div>
+
+					<!-- Results -->
+					<div v-if="autoCategorizeResults" class="p-4 rounded-lg border"
+						:class="autoCategorizeResults.categorized > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50 border-gray-200'">
+						<h3 class="font-semibold" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-800' : 'text-gray-700'">
+							Auto-Categorization Results
+						</h3>
+						<ul class="text-sm mt-2 space-y-1" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
+							<li>Total uncategorized: {{ autoCategorizeResults.total_uncategorized }}</li>
+							<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
+							<li v-if="autoCategorizeResults.skipped > 0">Skipped (low confidence): {{ autoCategorizeResults.skipped }}</li>
+							<li v-if="autoCategorizeResults.failed > 0" class="text-red-600">Failed: {{ autoCategorizeResults.failed }}</li>
+						</ul>
+						<!-- Detailed matches -->
+						<div v-if="autoCategorizeResults.results?.length > 0 && autoCategorizeResults.categorized > 0" class="mt-4">
+							<details class="text-sm">
+								<summary class="cursor-pointer text-purple-700 font-medium">View matched transactions</summary>
+								<div class="mt-2 max-h-64 overflow-y-auto">
+									<table class="w-full text-xs">
+										<thead class="bg-purple-100 sticky top-0">
+											<tr>
+												<th class="text-left px-2 py-1">Description</th>
+												<th class="text-left px-2 py-1">Category</th>
+												<th class="text-left px-2 py-1">Budget Item</th>
+												<th class="text-left px-2 py-1">Matched By</th>
+												<th class="text-right px-2 py-1">Confidence</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="r in autoCategorizeResults.results.filter(r => r.confidence >= 25)" :key="r.transaction_id" class="border-t border-purple-100">
+												<td class="px-2 py-1 truncate max-w-[200px]">{{ r.description }}</td>
+												<td class="px-2 py-1">{{ r.matched_category || '-' }}</td>
+												<td class="px-2 py-1 truncate max-w-[150px]">{{ r.matched_budget_item || '-' }}</td>
+												<td class="px-2 py-1">{{ r.matched_by }}</td>
+												<td class="px-2 py-1 text-right">{{ r.confidence }}%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</details>
+						</div>
+						<div v-if="autoCategorizeResults.errors?.length > 0" class="mt-3">
+							<details class="text-sm text-red-600">
+								<summary class="cursor-pointer font-medium">View errors ({{ autoCategorizeResults.errors.length }})</summary>
+								<ul class="mt-1 space-y-1 text-xs">
+									<li v-for="(err, i) in autoCategorizeResults.errors" :key="i">{{ err }}</li>
+								</ul>
+							</details>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Monthly Statements Backfill & PDF Upload -->
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4">
+					<h2 class="text-xl font-semibold text-gray-900">Monthly Statements Manager</h2>
+					<p class="text-sm text-gray-500 mt-1">
+						Create monthly_statement records from existing transactions and attach PDF bank statements.
+						Statements are used for reconciliation and balance tracking.
+					</p>
+				</div>
+				<div class="p-6 space-y-6">
+					<!-- Backfill Controls -->
+					<div class="flex items-center gap-4">
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="stmtMgrFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+						</div>
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Account:</label>
+							<select v-model="stmtMgrAccountId" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option :value="null">All Accounts</option>
+								<option v-for="acct in accounts" :key="acct.id" :value="acct.id">
+									{{ acct.account_name }} ({{ acct.account_number }})
+								</option>
+							</select>
+						</div>
+						<button
+							v-if="canCreateFinancials"
+							@click="runBackfillStatements"
+							:disabled="stmtMgrBackfilling"
+							class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 text-sm">
+							<span v-if="stmtMgrBackfilling" class="flex items-center gap-2">
+								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								Creating Statements...
+							</span>
+							<span v-else>Create Monthly Statements</span>
+						</button>
+						<button
+							v-if="stmtMgrStatements.length > 0"
+							@click="loadExistingStatements"
+							class="text-indigo-600 hover:text-indigo-800 text-sm underline">
+							Refresh List
+						</button>
+					</div>
+
+					<!-- Backfill Results -->
+					<div v-if="stmtMgrBackfillResults" class="p-4 rounded-lg border"
+						:class="stmtMgrBackfillResults.created > 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'">
+						<h3 class="font-semibold" :class="stmtMgrBackfillResults.created > 0 ? 'text-indigo-800' : 'text-gray-700'">
+							Backfill Results
+						</h3>
+						<ul class="text-sm mt-2 space-y-1">
+							<li>Created: {{ stmtMgrBackfillResults.created }}</li>
+							<li v-if="stmtMgrBackfillResults.updated > 0">Updated: {{ stmtMgrBackfillResults.updated }}</li>
+							<li v-if="stmtMgrBackfillResults.skipped > 0">Already existed: {{ stmtMgrBackfillResults.skipped }}</li>
+						</ul>
+					</div>
+
+					<!-- Existing Statements with PDF Upload -->
+					<div v-if="stmtMgrStatements.length > 0">
+						<h3 class="font-semibold text-gray-800 mb-3">Monthly Statements</h3>
+						<div class="overflow-x-auto">
+							<table class="w-full text-sm">
+								<thead class="bg-gray-50">
+									<tr>
+										<th class="text-left px-3 py-2">Account</th>
+										<th class="text-left px-3 py-2">Month</th>
+										<th class="text-right px-3 py-2">Beginning Balance</th>
+										<th class="text-right px-3 py-2">Ending Balance</th>
+										<th class="text-center px-3 py-2">Reconciled</th>
+										<th class="text-center px-3 py-2">PDF Statement</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr v-for="stmt in stmtMgrStatements" :key="stmt.id" class="border-t">
+										<td class="px-3 py-2">{{ getAccountNameById(stmt.account_id) }}</td>
+										<td class="px-3 py-2">{{ monthLabel(stmt.statement_month) }}</td>
+										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.beginning_balance) }}</td>
+										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.ending_balance) }}</td>
+										<td class="px-3 py-2 text-center">
+											<span v-if="stmt.reconciled" class="text-green-600 text-xs font-medium">Reconciled</span>
+											<span v-else class="text-gray-400 text-xs">Pending</span>
+										</td>
+										<td class="px-3 py-2 text-center">
+											<span v-if="stmt.pdf_statement" class="inline-flex items-center gap-1 text-green-600 text-xs">
+												<Icon name="i-heroicons-document-check" class="w-4 h-4" />
+												Attached
+											</span>
+											<label v-else class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer text-xs">
+												<Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
+												Upload PDF
+												<input
+													type="file"
+													accept=".pdf"
+													class="hidden"
+													@change="(e) => uploadStatementPdf(stmt.id, e)" />
+											</label>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						<p class="text-xs text-gray-500 mt-3">
+							To reconcile monthly statements, go to
+							<NuxtLink to="/financials/reconciliation" class="text-indigo-600 hover:underline">
+								Financials &rarr; Reconciliation
+							</NuxtLink>
+						</p>
+					</div>
+				</div>
+			</div>
+
 			<div class="bg-white rounded-lg shadow-sm border">
 				<div class="border-b px-6 py-4">
 					<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
@@ -872,6 +1081,7 @@ const fiscalYearsCollection = useDirectusItems('fiscal_years');
 const budgetCategoriesCollection = useDirectusItems('budget_categories');
 const budgetItemsCollection = useDirectusItems('budget_items');
 const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
+const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 // Permission checks
 const { canCreate, canRead, canUpdate, canDelete, hasFullAccess } = useUserPermissions();
@@ -902,6 +1112,15 @@ const activeTab = ref('statements');
 const accounts = ref([]);
 const accountsLoading = ref(true);
 const availableFiscalYears = ref([]);
+const autoCatFiscalYear = ref(new Date().getFullYear());
+
+// Monthly Statements Manager state
+const stmtMgrFiscalYear = ref(new Date().getFullYear());
+const stmtMgrAccountId = ref(null);
+const stmtMgrBackfilling = ref(false);
+const stmtMgrBackfillResults = ref(null);
+const stmtMgrStatements = ref([]);
+
 const fiscalYearIdCache = {};
 
 const monthOptions = [
@@ -1359,6 +1578,8 @@ const stmtTransactions = ref([]);
 const stmtBeginningBalance = ref(null);
 const stmtEndingBalance = ref(null);
 const stmtImportResults = ref(null);
+const autoCategorizing = ref(false);
+const autoCategorizeResults = ref(null);
 const pastedJson = ref('');
 const pdfUploadResult = ref(null);
 const claudeExtracting = ref(false);
@@ -1405,6 +1626,7 @@ function clearStmtFile() {
 	stmtBeginningBalance.value = null;
 	stmtEndingBalance.value = null;
 	stmtImportResults.value = null;
+	autoCategorizeResults.value = null;
 	pdfUploadResult.value = null;
 	stmtDetectedYear.value = null;
 	stmtDetectedMonth.value = '';
@@ -1672,6 +1894,16 @@ async function importTransactions() {
 		if (results.errors.length > 0 && results.created === 0) {
 			results.success = false;
 		}
+
+		// Save statement balances to monthly_statements if available
+		if (results.success && results.created > 0 && stmtMonth.value && stmtAccountId.value) {
+			await saveStatementBalances();
+		}
+
+		// Auto-categorize after successful import
+		if (results.success && results.created > 0) {
+			await runAutoCategorize(stmtFiscalYear.value, stmtAccountId.value);
+		}
 	} catch (err) {
 		results.success = false;
 		results.errors.push('Import failed: ' + (err.message || 'Unknown error'));
@@ -1679,6 +1911,184 @@ async function importTransactions() {
 	} finally {
 		stmtImporting.value = false;
 		stmtImportResults.value = results;
+	}
+}
+
+async function runAutoCategorize(fiscalYear = null, accountId = null) {
+	autoCategorizing.value = true;
+	autoCategorizeResults.value = null;
+
+	try {
+		const body = {
+			fiscal_year: fiscalYear || stmtFiscalYear.value,
+		};
+
+		if (accountId) {
+			body.account_id = accountId;
+		}
+
+		const result = await $fetch('/api/admin/auto-categorize-transactions', {
+			method: 'POST',
+			body,
+		});
+
+		autoCategorizeResults.value = result;
+	} catch (err) {
+		console.error('Auto-categorize error:', err);
+		autoCategorizeResults.value = {
+			success: false,
+			categorized: 0,
+			skipped: 0,
+			total_uncategorized: 0,
+			errors: [err.message || 'Auto-categorization failed'],
+		};
+	} finally {
+		autoCategorizing.value = false;
+	}
+}
+
+// ======================
+// MONTHLY STATEMENTS MANAGER
+// ======================
+async function runBackfillStatements() {
+	stmtMgrBackfilling.value = true;
+	stmtMgrBackfillResults.value = null;
+
+	try {
+		const body = { fiscal_year: stmtMgrFiscalYear.value };
+		if (stmtMgrAccountId.value) {
+			body.account_id = stmtMgrAccountId.value;
+		}
+
+		const result = await $fetch('/api/admin/backfill-monthly-statements', {
+			method: 'POST',
+			body,
+		});
+
+		stmtMgrBackfillResults.value = result;
+
+		// Reload the statements list
+		await loadExistingStatements();
+	} catch (err) {
+		console.error('Backfill error:', err);
+		stmtMgrBackfillResults.value = {
+			success: false,
+			created: 0,
+			updated: 0,
+			skipped: 0,
+			errors: [err.message || 'Backfill failed'],
+		};
+	} finally {
+		stmtMgrBackfilling.value = false;
+	}
+}
+
+async function loadExistingStatements() {
+	try {
+		const data = await monthlyStatementsCollection.list({
+			filter: {
+				fiscal_year: { year: { _eq: stmtMgrFiscalYear.value } },
+				...(stmtMgrAccountId.value ? { account_id: { _eq: stmtMgrAccountId.value } } : {}),
+			},
+			fields: ['id', 'account_id', 'statement_month', 'beginning_balance', 'ending_balance', 'reconciled', 'pdf_statement'],
+			sort: ['account_id', 'statement_month'],
+			limit: -1,
+		});
+		stmtMgrStatements.value = data || [];
+	} catch (err) {
+		console.error('Failed to load statements:', err);
+	}
+}
+
+async function uploadStatementPdf(statementId, event) {
+	const file = event.target?.files?.[0];
+	if (!file) return;
+
+	try {
+		const formData = new FormData();
+		formData.append('file', file);
+		formData.append('statement_id', String(statementId));
+
+		await $fetch('/api/admin/attach-statement-pdf', {
+			method: 'POST',
+			body: formData,
+		});
+
+		// Refresh list to show updated PDF status
+		await loadExistingStatements();
+	} catch (err) {
+		console.error('PDF upload error:', err);
+		alert('Failed to upload PDF: ' + (err.message || 'Unknown error'));
+	}
+}
+
+function getAccountNameById(accountId) {
+	const acct = accounts.value.find((a) => a.id === accountId);
+	return acct ? acct.account_name : `Account ${accountId}`;
+}
+
+function monthLabel(monthValue) {
+	const labels = {
+		'01': 'January', '02': 'February', '03': 'March', '04': 'April',
+		'05': 'May', '06': 'June', '07': 'July', '08': 'August',
+		'09': 'September', '10': 'October', '11': 'November', '12': 'December',
+	};
+	return labels[monthValue] || monthValue;
+}
+
+function formatMoney(value) {
+	const num = parseFloat(value);
+	if (isNaN(num)) return '$0.00';
+	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+}
+
+async function saveStatementBalances() {
+	const beginBal = stmtBeginningBalance.value;
+	const endBal = stmtEndingBalance.value;
+
+	if (beginBal == null && endBal == null) return;
+
+	try {
+		const fyId = resolvedStmtFiscalYearId.value;
+		const month = stmtMonth.value;
+		const accountId = stmtAccountId.value;
+
+		// Check if a monthly_statements record already exists for this account/month
+		const existing = await monthlyStatementsCollection.list({
+			filter: {
+				account_id: { _eq: accountId },
+				statement_month: { _eq: month },
+				fiscal_year: { _eq: fyId },
+			},
+			fields: ['id', 'beginning_balance', 'ending_balance'],
+			limit: 1,
+		});
+
+		const updates = { status: 'published' };
+		if (beginBal != null) updates.beginning_balance = beginBal;
+		if (endBal != null) updates.ending_balance = endBal;
+
+		if (existing && existing.length > 0) {
+			// Update existing record (only overwrite if values were missing)
+			const record = existing[0];
+			const needsUpdate =
+				(beginBal != null && !record.beginning_balance) ||
+				(endBal != null && !record.ending_balance);
+
+			if (needsUpdate) {
+				await monthlyStatementsCollection.update(record.id, updates);
+			}
+		} else {
+			// Create new monthly_statements record
+			await monthlyStatementsCollection.create({
+				account_id: accountId,
+				statement_month: month,
+				fiscal_year: fyId,
+				...updates,
+			});
+		}
+	} catch (err) {
+		console.warn('Could not save statement balances:', err.message);
 	}
 }
 
