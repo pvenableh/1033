@@ -750,6 +750,21 @@
 							<li v-if="stmtImportResults.skipped">{{ stmtImportResults.skipped }} duplicates skipped</li>
 							<li v-if="stmtImportResults.errors?.length">{{ stmtImportResults.errors.length }} errors</li>
 						</ul>
+						<!-- Auto-categorization results -->
+						<div v-if="autoCategorizing" class="mt-3 flex items-center gap-2 text-sm text-blue-600">
+							<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+							Auto-categorizing transactions...
+						</div>
+						<div v-if="autoCategorizeResults" class="mt-3 p-3 rounded border"
+							:class="autoCategorizeResults.categorized > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'">
+							<p class="text-sm font-medium" :class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
+								Auto-Categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} transactions matched to budget categories
+							</p>
+							<p v-if="autoCategorizeResults.skipped > 0" class="text-xs text-gray-500 mt-1">
+								{{ autoCategorizeResults.skipped }} transactions could not be matched (no matching keywords found)
+							</p>
+						</div>
+
 						<div v-if="stmtImportResults.success" class="mt-4">
 							<NuxtLink
 								to="/financials"
@@ -766,6 +781,87 @@
 		<!-- TAB: Data Maintenance    -->
 		<!-- ======================== -->
 		<div v-if="activeTab === 'maintenance'" class="space-y-6">
+			<!-- Auto-Categorize Transactions -->
+			<div class="bg-white rounded-lg shadow-sm border">
+				<div class="border-b px-6 py-4">
+					<h2 class="text-xl font-semibold text-gray-900">Auto-Categorize Transactions</h2>
+					<p class="text-sm text-gray-500 mt-1">
+						Scan uncategorized transactions and automatically match them to budget categories using vendor patterns, keywords, and description matching.
+					</p>
+				</div>
+				<div class="p-6 space-y-6">
+					<div class="flex items-center gap-4">
+						<div class="flex items-center gap-3">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="autoCatFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+						</div>
+						<button
+							v-if="canCreateFinancials"
+							@click="runAutoCategorize(autoCatFiscalYear)"
+							:disabled="autoCategorizing || !autoCatFiscalYear"
+							class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm">
+							<span v-if="autoCategorizing" class="flex items-center gap-2">
+								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								Categorizing...
+							</span>
+							<span v-else>Run Auto-Categorize</span>
+						</button>
+					</div>
+
+					<!-- Results -->
+					<div v-if="autoCategorizeResults" class="p-4 rounded-lg border"
+						:class="autoCategorizeResults.categorized > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50 border-gray-200'">
+						<h3 class="font-semibold" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-800' : 'text-gray-700'">
+							Auto-Categorization Results
+						</h3>
+						<ul class="text-sm mt-2 space-y-1" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
+							<li>Total uncategorized: {{ autoCategorizeResults.total_uncategorized }}</li>
+							<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
+							<li v-if="autoCategorizeResults.skipped > 0">Skipped (low confidence): {{ autoCategorizeResults.skipped }}</li>
+							<li v-if="autoCategorizeResults.failed > 0" class="text-red-600">Failed: {{ autoCategorizeResults.failed }}</li>
+						</ul>
+						<!-- Detailed matches -->
+						<div v-if="autoCategorizeResults.results?.length > 0 && autoCategorizeResults.categorized > 0" class="mt-4">
+							<details class="text-sm">
+								<summary class="cursor-pointer text-purple-700 font-medium">View matched transactions</summary>
+								<div class="mt-2 max-h-64 overflow-y-auto">
+									<table class="w-full text-xs">
+										<thead class="bg-purple-100 sticky top-0">
+											<tr>
+												<th class="text-left px-2 py-1">Description</th>
+												<th class="text-left px-2 py-1">Category</th>
+												<th class="text-left px-2 py-1">Budget Item</th>
+												<th class="text-left px-2 py-1">Matched By</th>
+												<th class="text-right px-2 py-1">Confidence</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr v-for="r in autoCategorizeResults.results.filter(r => r.confidence >= 25)" :key="r.transaction_id" class="border-t border-purple-100">
+												<td class="px-2 py-1 truncate max-w-[200px]">{{ r.description }}</td>
+												<td class="px-2 py-1">{{ r.matched_category || '-' }}</td>
+												<td class="px-2 py-1 truncate max-w-[150px]">{{ r.matched_budget_item || '-' }}</td>
+												<td class="px-2 py-1">{{ r.matched_by }}</td>
+												<td class="px-2 py-1 text-right">{{ r.confidence }}%</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+							</details>
+						</div>
+						<div v-if="autoCategorizeResults.errors?.length > 0" class="mt-3">
+							<details class="text-sm text-red-600">
+								<summary class="cursor-pointer font-medium">View errors ({{ autoCategorizeResults.errors.length }})</summary>
+								<ul class="mt-1 space-y-1 text-xs">
+									<li v-for="(err, i) in autoCategorizeResults.errors" :key="i">{{ err }}</li>
+								</ul>
+							</details>
+						</div>
+					</div>
+				</div>
+			</div>
+
 			<div class="bg-white rounded-lg shadow-sm border">
 				<div class="border-b px-6 py-4">
 					<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
@@ -902,6 +998,7 @@ const activeTab = ref('statements');
 const accounts = ref([]);
 const accountsLoading = ref(true);
 const availableFiscalYears = ref([]);
+const autoCatFiscalYear = ref(new Date().getFullYear());
 const fiscalYearIdCache = {};
 
 const monthOptions = [
@@ -1359,6 +1456,8 @@ const stmtTransactions = ref([]);
 const stmtBeginningBalance = ref(null);
 const stmtEndingBalance = ref(null);
 const stmtImportResults = ref(null);
+const autoCategorizing = ref(false);
+const autoCategorizeResults = ref(null);
 const pastedJson = ref('');
 const pdfUploadResult = ref(null);
 const claudeExtracting = ref(false);
@@ -1405,6 +1504,7 @@ function clearStmtFile() {
 	stmtBeginningBalance.value = null;
 	stmtEndingBalance.value = null;
 	stmtImportResults.value = null;
+	autoCategorizeResults.value = null;
 	pdfUploadResult.value = null;
 	stmtDetectedYear.value = null;
 	stmtDetectedMonth.value = '';
@@ -1672,6 +1772,10 @@ async function importTransactions() {
 		if (results.errors.length > 0 && results.created === 0) {
 			results.success = false;
 		}
+		// Auto-categorize after successful import
+		if (results.success && results.created > 0) {
+			await runAutoCategorize(stmtFiscalYear.value, stmtAccountId.value);
+		}
 	} catch (err) {
 		results.success = false;
 		results.errors.push('Import failed: ' + (err.message || 'Unknown error'));
@@ -1679,6 +1783,39 @@ async function importTransactions() {
 	} finally {
 		stmtImporting.value = false;
 		stmtImportResults.value = results;
+	}
+}
+
+async function runAutoCategorize(fiscalYear = null, accountId = null) {
+	autoCategorizing.value = true;
+	autoCategorizeResults.value = null;
+
+	try {
+		const body = {
+			fiscal_year: fiscalYear || stmtFiscalYear.value,
+		};
+
+		if (accountId) {
+			body.account_id = accountId;
+		}
+
+		const result = await $fetch('/api/admin/auto-categorize-transactions', {
+			method: 'POST',
+			body,
+		});
+
+		autoCategorizeResults.value = result;
+	} catch (err) {
+		console.error('Auto-categorize error:', err);
+		autoCategorizeResults.value = {
+			success: false,
+			categorized: 0,
+			skipped: 0,
+			total_uncategorized: 0,
+			errors: [err.message || 'Auto-categorization failed'],
+		};
+	} finally {
+		autoCategorizing.value = false;
 	}
 }
 
