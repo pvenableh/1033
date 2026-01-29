@@ -14,23 +14,8 @@
 		<div class="w-full md:px-6 lg:hidden mt-0">
 			<Tabs
 				:items="tabs"
-				class="w-full"
-				:ui="{
-					list: {
-						background: 'bg-zinc-600',
-						marker: {
-							background: 'bg-[#330df2]',
-							rounded: 'rounded-[3px]',
-						},
-						rounded: 'rounded-[3px]',
-						tab: {
-							base: 'relative inline-flex items-center justify-center flex-shrink-0 w-full ui-focus-visible:outline-0 ui-focus-visible:ring-2 ui-focus-visible:ring-primary-500 dark:ui-focus-visible:ring-primary-400 ui-not-focus-visible:outline-none focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors duration-200 ease-out uppercase tracking-wide  rounded-none text-white hover:text-white/80 font-semibold',
-							rounded: 'rounded-[3px]',
-						},
-					},
-				}">
-				<template #item="{item}">
-					<div v-if="item.key === 'activity'">
+				class="w-full">
+				<template #activity>
 						<!-- Activity Feed Content -->
 						<div class="bg-zinc-950 border border-zinc-800 shadow-2xl overflow-hidden mt-4">
 							<!-- Activity Header with Toggle -->
@@ -198,8 +183,8 @@
 								</div>
 							</div>
 						</div>
-					</div>
-					<div v-if="item.key === 'directory'">
+				</template>
+				<template #directory>
 						<!-- Tenants Directory Content -->
 						<div class="bg-zinc-950 shadow-2xl overflow-hidden mt-4">
 							<!-- Directory Header with Toggle -->
@@ -281,7 +266,6 @@
 								</div>
 							</div>
 						</div>
-					</div>
 				</template>
 			</Tabs>
 		</div>
@@ -641,13 +625,13 @@ const REFRESH_INTERVAL_MS = 1 * 60 * 1000;
 // Tabs for mobile
 const tabs = [
 	{
-		key: 'directory',
 		label: 'Directory',
+		slot: 'directory',
 		icon: 'i-heroicons-users',
 	},
 	{
-		key: 'activity',
 		label: 'Activity',
+		slot: 'activity',
 		icon: 'i-heroicons-clock',
 	},
 ];
