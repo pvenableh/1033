@@ -147,9 +147,24 @@
 							<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
 								MONTHLY RECONCILIATION - {{ getAccountName(selectedAccount) }}
 							</h2>
-							<UBadge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
-								{{ monthlyReconciliation.isReconciled ? 'RECONCILED' : 'NOT RECONCILED' }}
-							</UBadge>
+							<div class="flex items-center gap-2">
+								<UBadge :color="monthlyReconciliation.isReconciled ? 'green' : 'red'" variant="soft" size="lg">
+									{{ monthlyReconciliation.isReconciled ? 'RECONCILED' : 'NOT RECONCILED' }}
+								</UBadge>
+								<UBadge v-if="currentMonthReportStatus" :color="currentMonthReportStatus === 'reconciled' ? 'green' : currentMonthReportStatus === 'in_progress' ? 'yellow' : 'gray'" variant="outline" size="lg">
+									{{ currentMonthReportStatus === 'reconciled' ? 'CERTIFIED CLOSED' : currentMonthReportStatus?.toUpperCase() }}
+								</UBadge>
+								<UButton
+									v-if="canReconcile && currentMonthReportStatus !== 'reconciled'"
+									color="green"
+									variant="solid"
+									size="sm"
+									icon="i-heroicons-check-badge"
+									:loading="reconcilingMonth"
+									@click="reconcileCurrentMonth">
+									{{ currentMonthReport ? 'Certify & Close Month' : 'Reconcile Month' }}
+								</UButton>
+							</div>
 						</div>
 					</template>
 
@@ -932,9 +947,23 @@ const assistantApplied = ref({});
 const applyingItem = ref(null);
 const bulkApplying = ref(false);
 
+const reconcilingMonth = ref(false);
+
 const transactionsCollection = useDirectusItems('transactions');
 const budgetCategoriesCollection = useDirectusItems('budget_categories');
 const reconciliationNotesCollection = useDirectusItems('reconciliation_notes');
+
+// Find the current month's reconciliation report
+const currentMonthReport = computed(() => {
+	return savedReports.value.find(
+		(r) => r.report_month === selectedMonth.value &&
+			(typeof r.account_id === 'object' ? r.account_id?.id : r.account_id) === selectedAccount.value
+	);
+});
+
+const currentMonthReportStatus = computed(() => {
+	return currentMonthReport.value?.reconciliation_status || null;
+});
 
 const unappliedHighConfidenceCount = computed(() => {
 	if (!assistantAnalysis.value?.analysis?.items) return 0;
@@ -1157,6 +1186,55 @@ const getTransactionActions = (transaction) => {
 			},
 		],
 	];
+};
+
+// ========================
+// RECONCILE CURRENT MONTH
+// ========================
+const reconcileCurrentMonth = async () => {
+	reconcilingMonth.value = true;
+
+	try {
+		const txs = monthlyReconciliation.value?.allTransactions || [];
+		const stmt = monthlyReconciliation.value?.statement;
+
+		if (currentMonthReport.value) {
+			// Report exists - certify and close it
+			await completeReconciliationReport(currentMonthReport.value.id);
+		} else {
+			// Generate report then immediately certify it
+			const reportData = await generateMonthlyReport(
+				selectedYear.value,
+				selectedAccount.value,
+				selectedMonth.value,
+				txs,
+				stmt
+			);
+
+			const report = await createReconciliationReport(reportData);
+
+			// If balances match, mark as reconciled immediately
+			if (report && monthlyReconciliation.value?.isReconciled) {
+				await completeReconciliationReport(report.id);
+			}
+		}
+
+		// Also bulk-reconcile all pending transactions for this month
+		const pendingTxIds = txs
+			.filter((t) => !t.reconciliation_status || t.reconciliation_status === 'pending')
+			.map((t) => t.id);
+
+		if (pendingTxIds.length > 0) {
+			await bulkReconcileTransactions(pendingTxIds, 'reconciled');
+		}
+
+		await loadReports();
+		await fetchData();
+	} catch (err) {
+		console.error('Error reconciling month:', err);
+	} finally {
+		reconcilingMonth.value = false;
+	}
 };
 
 // ========================
