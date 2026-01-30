@@ -1077,6 +1077,8 @@
 </template>
 
 <script setup>
+definePageMeta({ layout: 'admin' })
+
 import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';
 import { CurveType } from '@unovis/ts';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';

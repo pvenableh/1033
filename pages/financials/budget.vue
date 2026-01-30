@@ -359,6 +359,8 @@
 </template>
 
 <script setup lang="ts">
+definePageMeta({ layout: 'admin' })
+
 import {useBudgetData} from '~/composables/useBudgetData';
 
 const {budget2025: budget} = useBudgetData();

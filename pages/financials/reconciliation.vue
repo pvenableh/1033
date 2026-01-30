@@ -890,6 +890,8 @@
 </template>
 
 <script setup>
+definePageMeta({ layout: 'admin' })
+
 const {
 	selectedYear,
 	selectedAccount,

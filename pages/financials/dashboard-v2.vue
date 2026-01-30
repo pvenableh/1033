@@ -1,5 +1,5 @@
 <script setup>
-definePageMeta({ layout: 'default' })
+definePageMeta({ layout: 'admin' })
 
 const { isAdmin, isBoardMember } = useRoles()
 const { user } = useDirectusAuth()
