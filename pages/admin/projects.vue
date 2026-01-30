@@ -3,7 +3,7 @@ import type {Project, ProjectCategory} from '~/types/projects';
 import {PERMISSION_CATEGORIES, CRUD_ACTIONS} from '~/composables/useUserPermissions';
 
 definePageMeta({
-	layout: 'default',
+	layout: 'admin',
 	middleware: ['auth', 'role'],
 });
 

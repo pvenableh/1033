@@ -11,7 +11,7 @@ import {
 } from '~/composables/useUserPermissions';
 
 definePageMeta({
-	layout: 'default',
+	layout: 'admin',
 	middleware: ['auth', 'role'],
 });
 

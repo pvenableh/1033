@@ -156,6 +156,32 @@
 					</a>
 				</li>
 
+				<!-- Reconciliation -->
+				<li>
+					<a
+						href="/financials/reconciliation"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessOwner}"
+						@click="(e) => handleNavClick(e, '/financials/reconciliation', canAccessOwner, 'Reconciliation', 'owner')">
+						<UIcon name="i-heroicons-document-check" class="w-4 h-4" />
+						Reconciliation
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
+				<!-- Budget Management -->
+				<li>
+					<a
+						href="/financials/budget-management"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessOwner}"
+						@click="(e) => handleNavClick(e, '/financials/budget-management', canAccessOwner, 'Budget Management', 'owner')">
+						<UIcon name="i-heroicons-calculator" class="w-4 h-4" />
+						Budget Management
+						<UIcon v-if="!canAccessOwner" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- Import Center -->
 				<li>
 					<a

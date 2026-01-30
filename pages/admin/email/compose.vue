@@ -2,7 +2,7 @@
 import type { Announcement, DirectusFile, DirectusFolder } from '~/types/directus';
 
 definePageMeta({
-  layout: 'default',
+  layout: 'admin',
   middleware: ['auth'],
 });
 
