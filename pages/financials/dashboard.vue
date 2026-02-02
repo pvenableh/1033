@@ -583,7 +583,7 @@
 
 <script setup>
 definePageMeta({
-	layout: 'financials',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

@@ -3,7 +3,7 @@ import type { ProjectWithRelations, ProjectEvent, ProjectTask, ProjectEventWithR
 import { PERMISSION_CATEGORIES } from '~/composables/useUserPermissions';
 
 definePageMeta({
-  layout: 'admin',
+  layout: 'default',
   middleware: ['auth', 'role'],
 });
 

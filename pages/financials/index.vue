@@ -1074,7 +1074,7 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: 'financials' })
+definePageMeta({ layout: 'default' })
 
 import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';
 import { CurveType } from '@unovis/ts';

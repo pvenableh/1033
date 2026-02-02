@@ -314,7 +314,7 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: 'financials' })
+definePageMeta({ layout: 'default' })
 
 const {
 	selectedYear,

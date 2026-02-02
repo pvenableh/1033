@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, CheckCircle, ShieldAlert } from "lucide-vue-next";
 
 definePageMeta({
-  layout: "admin",
+  layout: "default",
   middleware: ["auth", "role"],
 });
 

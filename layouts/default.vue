@@ -1,31 +1,33 @@
 <template>
-	<div
-		class="min-h-screen w-full transition duration-300 flex items-center justify-start flex-col relative"
-		:style="{
-			backgroundColor: 'var(--theme-bg-primary)',
-			color: 'var(--theme-text-primary)',
-		}">
-		<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
-		<LayoutHeader :links="headerLinks" />
-		<LayoutSecondaryNav />
-		<div class="page-content" :class="{'has-secondary-nav': showSecondaryNav}">
-			<slot />
-		</div>
+	<SidebarProvider>
+		<AppSidebar />
+		<SidebarInset>
+			<div
+				class="min-h-screen w-full transition duration-300 flex items-center justify-start flex-col relative"
+				:style="{
+					backgroundColor: 'var(--theme-bg-primary)',
+					color: 'var(--theme-text-primary)',
+				}">
+				<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
+				<LayoutHeader :links="headerLinks" />
+				<div class="page-content">
+					<slot />
+				</div>
 
-		<LayoutFooter :links="footerLinks" />
-		<LayoutMobileToolbar :links="toolbarLinks" />
-		<!-- <LayoutNavButton /> -->
-		<LayoutNavDrawer />
-		<transition name="screen">
-			<LayoutScreen v-if="screen" />
-		</transition>
-	</div>
+				<LayoutFooter :links="footerLinks" />
+				<LayoutMobileToolbar :links="toolbarLinks" />
+				<LayoutNavDrawer />
+				<transition name="screen">
+					<LayoutScreen v-if="screen" />
+				</transition>
+			</div>
+		</SidebarInset>
+	</SidebarProvider>
 </template>
 <script setup lang="ts">
+import { SidebarProvider, SidebarInset } from '~/components/ui/sidebar'
+
 const {initTheme} = useTheme();
-const {user} = useDirectusAuth();
-const {isApproved} = useRoles();
-const {isSecondaryNavVisible} = useSecondaryNavToggle();
 
 interface Link {
 	name: string;
@@ -39,11 +41,6 @@ const props = defineProps({
 		type: Array as PropType<Link[]>,
 		default: () => [],
 	},
-});
-
-// Check if secondary nav should be visible (for padding adjustment)
-const showSecondaryNav = computed(() => {
-	return !!user.value && isApproved.value && isSecondaryNavVisible.value;
 });
 
 // Initialize theme on client side
