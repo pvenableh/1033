@@ -104,7 +104,7 @@ const togglePassword = () => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center flex-col min-h-[90svh] px-4">
+  <div class="flex items-center justify-center flex-col min-h-[90svh] px-4 text-foreground">
     <transition name="fade" mode="out-in">
       <div v-if="expired" class="w-full max-w-md">
         <h3 class="text-xl font-semibold mb-1">
