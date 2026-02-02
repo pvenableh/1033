@@ -50,21 +50,28 @@
 						</div>
 					</template>
 
-					<div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-						<div
-							v-for="(factor, key) in financialHealthScore.factors"
-							:key="key"
-							class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-						>
-							<div class="text-2xl font-bold" :class="getScoreColor(factor.score)">
-								{{ factor.score }}
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+							<div class="text-2xl font-bold" :class="getScoreColor(financialHealthScore.score)">
+								{{ financialHealthScore.score }}
 							</div>
-							<div class="text-sm text-gray-600 dark:text-gray-300 capitalize">
-								{{ key.replace(/([A-Z])/g, ' $1').trim() }}
+							<div class="text-sm text-gray-600 dark:text-gray-300">Score</div>
+						</div>
+						<div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+							<div class="text-2xl font-bold" :class="getScoreColor(financialHealthScore.score)">
+								{{ financialHealthScore.grade }}
 							</div>
-							<div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								{{ factor.weight }}% weight
+							<div class="text-sm text-gray-600 dark:text-gray-300">Grade</div>
+						</div>
+						<div class="text-center p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+							<div class="text-2xl font-bold capitalize" :class="{
+								'text-green-600': financialHealthScore.status === 'healthy',
+								'text-yellow-600': financialHealthScore.status === 'caution',
+								'text-red-600': financialHealthScore.status === 'critical'
+							}">
+								{{ financialHealthScore.status }}
 							</div>
+							<div class="text-sm text-gray-600 dark:text-gray-300">Status</div>
 						</div>
 					</div>
 
@@ -78,6 +85,12 @@
 								{{ getHealthSummary() }}
 							</span>
 						</div>
+						<div v-if="financialHealthScore.issues.length > 0" class="mt-2 space-y-1">
+							<div v-for="(issue, idx) in financialHealthScore.issues" :key="idx" class="text-sm text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+								<UIcon name="i-heroicons-exclamation-circle" class="w-4 h-4" />
+								{{ issue }}
+							</div>
+						</div>
 					</div>
 				</UCard>
 			</div>
@@ -89,11 +102,11 @@
 					<div class="text-center">
 						<UIcon name="i-heroicons-banknotes" class="w-8 h-8 text-green-500 mx-auto mb-2" />
 						<div class="text-2xl font-bold text-gray-900 dark:text-white">
-							{{ formatCurrency(cashFlowSummary.currentCash) }}
+							{{ formatCurrency(cashFlowSummary.currentBalance) }}
 						</div>
 						<div class="text-sm text-gray-500 dark:text-gray-400">Total Cash Position</div>
-						<div class="mt-2 text-xs" :class="cashFlowSummary.monthlyNetCashFlow >= 0 ? 'text-green-600' : 'text-red-600'">
-							{{ cashFlowSummary.monthlyNetCashFlow >= 0 ? '+' : '' }}{{ formatCurrency(cashFlowSummary.monthlyNetCashFlow) }}/mo
+						<div class="mt-2 text-xs" :class="cashFlowSummary.avgNetCashFlow >= 0 ? 'text-green-600' : 'text-red-600'">
+							{{ cashFlowSummary.avgNetCashFlow >= 0 ? '+' : '' }}{{ formatCurrency(cashFlowSummary.avgNetCashFlow) }}/mo
 						</div>
 					</div>
 				</UCard>
@@ -121,7 +134,7 @@
 						</div>
 						<div class="text-sm text-gray-500 dark:text-gray-400">YTD Budget Variance</div>
 						<div class="mt-2 text-xs text-gray-600 dark:text-gray-300">
-							{{ varianceSummary.categoriesOverBudget }} categories over budget
+							{{ varianceSummary.overBudgetCount }} categories over budget
 						</div>
 					</div>
 				</UCard>
@@ -220,10 +233,10 @@
 										class="border-b border-gray-100 dark:border-gray-800"
 									>
 										<td class="py-3 px-4 font-medium text-gray-900 dark:text-white">
-											{{ item.categoryName }}
+											{{ item.category }}
 										</td>
 										<td class="py-3 px-4 text-right text-gray-600 dark:text-gray-300">
-											{{ formatCurrency(item.budgeted) }}
+											{{ formatCurrency(item.budget) }}
 										</td>
 										<td class="py-3 px-4 text-right text-gray-600 dark:text-gray-300">
 											{{ formatCurrency(item.actual) }}
@@ -231,8 +244,8 @@
 										<td class="py-3 px-4 text-right" :class="item.variance >= 0 ? 'text-green-600' : 'text-red-600'">
 											{{ item.variance >= 0 ? '+' : '' }}{{ formatCurrency(item.variance) }}
 										</td>
-										<td class="py-3 px-4 text-right" :class="item.variancePercent >= 0 ? 'text-green-600' : 'text-red-600'">
-											{{ item.variancePercent >= 0 ? '+' : '' }}{{ item.variancePercent.toFixed(1) }}%
+										<td class="py-3 px-4 text-right" :class="item.percentVariance >= 0 ? 'text-green-600' : 'text-red-600'">
+											{{ item.percentVariance >= 0 ? '+' : '' }}{{ item.percentVariance.toFixed(1) }}%
 										</td>
 										<td class="py-3 px-4 text-center">
 											<UBadge :color="getVarianceStatusColor(item.status)" size="sm">
@@ -245,7 +258,7 @@
 									<tr class="bg-gray-50 dark:bg-gray-800 font-semibold">
 										<td class="py-3 px-4 text-gray-900 dark:text-white">Total</td>
 										<td class="py-3 px-4 text-right text-gray-900 dark:text-white">
-											{{ formatCurrency(varianceSummary.totalBudgeted) }}
+											{{ formatCurrency(varianceSummary.totalBudget) }}
 										</td>
 										<td class="py-3 px-4 text-right text-gray-900 dark:text-white">
 											{{ formatCurrency(varianceSummary.totalActual) }}
@@ -253,8 +266,8 @@
 										<td class="py-3 px-4 text-right" :class="varianceSummary.totalVariance >= 0 ? 'text-green-600' : 'text-red-600'">
 											{{ varianceSummary.totalVariance >= 0 ? '+' : '' }}{{ formatCurrency(varianceSummary.totalVariance) }}
 										</td>
-										<td class="py-3 px-4 text-right" :class="varianceSummary.totalVariancePercent >= 0 ? 'text-green-600' : 'text-red-600'">
-											{{ varianceSummary.totalVariancePercent >= 0 ? '+' : '' }}{{ varianceSummary.totalVariancePercent.toFixed(1) }}%
+										<td class="py-3 px-4 text-right" :class="varianceSummary.percentVariance >= 0 ? 'text-green-600' : 'text-red-600'">
+											{{ varianceSummary.percentVariance >= 0 ? '+' : '' }}{{ varianceSummary.percentVariance.toFixed(1) }}%
 										</td>
 										<td></td>
 									</tr>
@@ -273,23 +286,23 @@
 
 						<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 							<div class="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg">
-								<div class="text-sm text-green-600 dark:text-green-400">Projected Revenue</div>
+								<div class="text-sm text-green-600 dark:text-green-400">Avg Monthly Income</div>
 								<div class="text-2xl font-bold text-green-700 dark:text-green-300">
-									{{ formatCurrency(cashFlowSummary.projectedRevenue) }}
+									{{ formatCurrency(cashFlowSummary.avgMonthlyIncome) }}
 								</div>
 							</div>
 							<div class="bg-red-50 dark:bg-red-900/20 p-4 rounded-lg">
-								<div class="text-sm text-red-600 dark:text-red-400">Projected Expenses</div>
+								<div class="text-sm text-red-600 dark:text-red-400">Avg Monthly Expenses</div>
 								<div class="text-2xl font-bold text-red-700 dark:text-red-300">
-									{{ formatCurrency(cashFlowSummary.projectedExpenses) }}
+									{{ formatCurrency(cashFlowSummary.avgMonthlyExpenses) }}
 								</div>
 							</div>
-							<div class="p-4 rounded-lg" :class="cashFlowSummary.projectedEndingCash >= 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-orange-50 dark:bg-orange-900/20'">
-								<div class="text-sm" :class="cashFlowSummary.projectedEndingCash >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'">
-									Year-End Projected
+							<div class="p-4 rounded-lg" :class="cashFlowSummary.projectedBalance6Mo >= 0 ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-orange-50 dark:bg-orange-900/20'">
+								<div class="text-sm" :class="cashFlowSummary.projectedBalance6Mo >= 0 ? 'text-blue-600 dark:text-blue-400' : 'text-orange-600 dark:text-orange-400'">
+									6-Month Projected Balance
 								</div>
-								<div class="text-2xl font-bold" :class="cashFlowSummary.projectedEndingCash >= 0 ? 'text-blue-700 dark:text-blue-300' : 'text-orange-700 dark:text-orange-300'">
-									{{ formatCurrency(cashFlowSummary.projectedEndingCash) }}
+								<div class="text-2xl font-bold" :class="cashFlowSummary.projectedBalance6Mo >= 0 ? 'text-blue-700 dark:text-blue-300' : 'text-orange-700 dark:text-orange-300'">
+									{{ formatCurrency(cashFlowSummary.projectedBalance6Mo) }}
 								</div>
 							</div>
 						</div>
@@ -307,7 +320,7 @@
 								</thead>
 								<tbody>
 									<tr
-										v-for="projection in cashFlowProjections"
+										v-for="projection in cashFlowProjectionsData"
 										:key="projection.month"
 										class="border-b border-gray-100 dark:border-gray-800"
 									>
@@ -318,10 +331,10 @@
 											{{ formatCurrency(projection.beginningBalance) }}
 										</td>
 										<td class="py-3 px-4 text-right text-green-600">
-											+{{ formatCurrency(projection.projectedInflows) }}
+											+{{ formatCurrency(projection.projectedIncome) }}
 										</td>
 										<td class="py-3 px-4 text-right text-red-600">
-											-{{ formatCurrency(projection.projectedOutflows) }}
+											-{{ formatCurrency(projection.projectedExpenses) }}
 										</td>
 										<td class="py-3 px-4 text-right font-medium" :class="projection.endingBalance >= 0 ? 'text-gray-900 dark:text-white' : 'text-red-600'">
 											{{ formatCurrency(projection.endingBalance) }}
@@ -344,39 +357,53 @@
 							<table class="w-full text-sm">
 								<thead>
 									<tr class="border-b border-gray-200 dark:border-gray-700">
-										<th class="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Fiscal Year</th>
-										<th class="text-right py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Total Revenue</th>
-										<th class="text-right py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Total Expenses</th>
-										<th class="text-right py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Net</th>
+										<th class="text-left py-3 px-4 font-medium text-gray-600 dark:text-gray-300">Category</th>
+										<th
+											v-for="year in multiYearComparison.years"
+											:key="year"
+											class="text-right py-3 px-4 font-medium text-gray-600 dark:text-gray-300"
+										>
+											FY {{ year }}
+										</th>
 										<th class="text-right py-3 px-4 font-medium text-gray-600 dark:text-gray-300">YoY Change</th>
 									</tr>
 								</thead>
 								<tbody>
 									<tr
-										v-for="(year, index) in multiYearComparison"
-										:key="year.fiscalYear"
+										v-for="cat in multiYearComparison.categories"
+										:key="cat.category"
 										class="border-b border-gray-100 dark:border-gray-800"
 									>
 										<td class="py-3 px-4 font-medium text-gray-900 dark:text-white">
-											FY {{ year.fiscalYear }}
+											{{ cat.category }}
 										</td>
-										<td class="py-3 px-4 text-right text-green-600">
-											{{ formatCurrency(year.totalRevenue) }}
+										<td
+											v-for="year in multiYearComparison.years"
+											:key="year"
+											class="py-3 px-4 text-right text-gray-600 dark:text-gray-300"
+										>
+											{{ formatCurrency(cat[`year_${year}`] || 0) }}
 										</td>
-										<td class="py-3 px-4 text-right text-red-600">
-											{{ formatCurrency(year.totalExpenses) }}
-										</td>
-										<td class="py-3 px-4 text-right" :class="year.netIncome >= 0 ? 'text-green-600' : 'text-red-600'">
-											{{ formatCurrency(year.netIncome) }}
-										</td>
-										<td class="py-3 px-4 text-right">
-											<span v-if="index > 0" :class="year.expenseChange >= 0 ? 'text-red-600' : 'text-green-600'">
-												{{ year.expenseChange >= 0 ? '+' : '' }}{{ year.expenseChange.toFixed(1) }}%
-											</span>
-											<span v-else class="text-gray-400">-</span>
+										<td class="py-3 px-4 text-right" :class="cat.yoyPercent >= 0 ? 'text-red-600' : 'text-green-600'">
+											{{ cat.yoyPercent >= 0 ? '+' : '' }}{{ cat.yoyPercent.toFixed(1) }}%
 										</td>
 									</tr>
 								</tbody>
+								<tfoot>
+									<tr class="bg-gray-50 dark:bg-gray-800 font-semibold">
+										<td class="py-3 px-4 text-gray-900 dark:text-white">{{ multiYearComparison.totals.category }}</td>
+										<td
+											v-for="year in multiYearComparison.years"
+											:key="year"
+											class="py-3 px-4 text-right text-gray-900 dark:text-white"
+										>
+											{{ formatCurrency(multiYearComparison.totals[`year_${year}`] || 0) }}
+										</td>
+										<td class="py-3 px-4 text-right" :class="multiYearComparison.totals.yoyPercent >= 0 ? 'text-red-600' : 'text-green-600'">
+											{{ multiYearComparison.totals.yoyPercent >= 0 ? '+' : '' }}{{ multiYearComparison.totals.yoyPercent.toFixed(1) }}%
+										</td>
+									</tr>
+								</tfoot>
 							</table>
 						</div>
 
@@ -385,25 +412,25 @@
 							<h4 class="font-medium text-gray-900 dark:text-white mb-4">Budget Trend Analysis</h4>
 							<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
 								<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-									<div class="text-sm text-gray-600 dark:text-gray-300">Avg Revenue Growth</div>
-									<div class="text-xl font-bold" :class="budgetTrendAnalysis.avgRevenueGrowth >= 0 ? 'text-green-600' : 'text-red-600'">
-										{{ budgetTrendAnalysis.avgRevenueGrowth >= 0 ? '+' : '' }}{{ budgetTrendAnalysis.avgRevenueGrowth.toFixed(1) }}%
+									<div class="text-sm text-gray-600 dark:text-gray-300">YoY Budget Change</div>
+									<div class="text-xl font-bold" :class="budgetTrendAnalysis.totalChangePercent <= 0 ? 'text-green-600' : 'text-red-600'">
+										{{ budgetTrendAnalysis.totalChangePercent >= 0 ? '+' : '' }}{{ budgetTrendAnalysis.totalChangePercent.toFixed(1) }}%
 									</div>
 								</div>
 								<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-									<div class="text-sm text-gray-600 dark:text-gray-300">Avg Expense Growth</div>
-									<div class="text-xl font-bold" :class="budgetTrendAnalysis.avgExpenseGrowth <= 0 ? 'text-green-600' : 'text-red-600'">
-										{{ budgetTrendAnalysis.avgExpenseGrowth >= 0 ? '+' : '' }}{{ budgetTrendAnalysis.avgExpenseGrowth.toFixed(1) }}%
+									<div class="text-sm text-gray-600 dark:text-gray-300">Net Change Amount</div>
+									<div class="text-xl font-bold" :class="budgetTrendAnalysis.totalChange <= 0 ? 'text-green-600' : 'text-red-600'">
+										{{ formatCurrency(budgetTrendAnalysis.totalChange) }}
 									</div>
 								</div>
 								<div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
 									<div class="text-sm text-gray-600 dark:text-gray-300">Trend</div>
 									<div class="text-xl font-bold capitalize" :class="{
-										'text-green-600': budgetTrendAnalysis.trend === 'improving',
-										'text-yellow-600': budgetTrendAnalysis.trend === 'stable',
-										'text-red-600': budgetTrendAnalysis.trend === 'declining'
+										'text-green-600': budgetTrendAnalysis.overallTrend === 'decreasing',
+										'text-yellow-600': budgetTrendAnalysis.overallTrend === 'stable',
+										'text-red-600': budgetTrendAnalysis.overallTrend === 'increasing'
 									}">
-										{{ budgetTrendAnalysis.trend }}
+										{{ budgetTrendAnalysis.overallTrend }}
 									</div>
 								</div>
 							</div>
@@ -576,14 +603,20 @@ const {
 	loading: dashboardLoading,
 	varianceAnalysis,
 	varianceSummary,
-	cashFlowProjections,
+	generateCashFlowProjections,
 	cashFlowSummary,
 	multiYearComparison,
 	budgetTrendAnalysis,
 	financialHealthScore,
 	fetchDashboardData,
 	formatCurrency,
+	selectedAccount,
 } = useFinancialDashboard();
+
+// Local computed for cash flow projections table
+const cashFlowProjectionsData = computed(() => {
+	return generateCashFlowProjections(selectedAccount.value || 1, 12);
+});
 
 const {
 	loading: alertsLoading,
@@ -666,10 +699,9 @@ const getSeverityColor = (severity) => {
 
 const getVarianceStatusColor = (status) => {
 	const colors = {
-		'under budget': 'green',
-		'on track': 'blue',
-		'over budget': 'red',
-		'significantly over': 'red',
+		'under': 'green',
+		'on_target': 'blue',
+		'over': 'red',
 	};
 	return colors[status] || 'gray';
 };
