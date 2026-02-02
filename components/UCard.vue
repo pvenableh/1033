@@ -2,10 +2,14 @@
 /**
  * UCard - NuxtUI-compatible Card wrapper for shadcn-vue
  * This component provides backward compatibility with the NuxtUI Card API
+ *
+ * When used inside a modal (UModal), the card strips its own border/shadow
+ * to avoid double borders and shadows from the migration to shadcn-vue.
  */
 import type { HTMLAttributes } from "vue"
 import { Card, CardHeader, CardContent, CardFooter } from "~/components/ui/card"
 import { cn } from "~/lib/utils"
+import { inject } from 'vue'
 
 interface Props {
   class?: HTMLAttributes["class"]
@@ -16,6 +20,9 @@ const props = defineProps<Props>()
 
 const slots = useSlots()
 
+// Detect if we're inside a modal context (provided by UModal)
+const isInsideModal = inject('umodal-context', false)
+
 // Handle NuxtUI's ui prop for custom styling
 const uiClasses = computed(() => {
   if (!props.ui) return ""
@@ -23,7 +30,11 @@ const uiClasses = computed(() => {
 })
 
 const cardClasses = computed(() => {
-  return cn(props.class, uiClasses.value)
+  return cn(
+    isInsideModal ? 'border-0 shadow-none rounded-none bg-transparent' : '',
+    props.class,
+    uiClasses.value,
+  )
 })
 
 const hasHeader = computed(() => !!slots.header)

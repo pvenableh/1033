@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide } from 'vue'
 import {
   DialogClose,
   DialogContent,
@@ -9,6 +9,10 @@ import {
 } from 'reka-ui'
 import { cn } from '~/lib/utils'
 import { X } from 'lucide-vue-next'
+
+// Provide modal context so child UCard components can detect they're inside a modal
+// and strip their own border/shadow to avoid double styling
+provide('umodal-context', true)
 
 interface ModalUI {
   width?: string

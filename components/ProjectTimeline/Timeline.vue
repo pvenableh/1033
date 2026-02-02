@@ -22,12 +22,24 @@
         :focused-id="focusedProjectId"
         @focus="focusedProjectId = $event"
       />
-      <TimelineControls
-        v-model:zoom="zoomLevel"
-        v-model:focused-project="focusedProjectId"
-        :projects="rootProjects"
-        @reset="resetView"
-      />
+      <div class="flex items-center gap-2">
+        <UButton
+          v-if="isBoardMember"
+          color="primary"
+          variant="soft"
+          size="sm"
+          icon="i-heroicons-plus"
+          @click="showAddEventModal = true"
+        >
+          Add Event
+        </UButton>
+        <TimelineControls
+          v-model:zoom="zoomLevel"
+          v-model:focused-project="focusedProjectId"
+          :projects="rootProjects"
+          @reset="resetView"
+        />
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -94,10 +106,57 @@
         v-if="selectedEvent"
         :event="selectedEvent"
         :project="selectedEventProject"
+        :can-edit="isBoardMember"
         @close="selectedEventId = null"
         @task-toggle="handleTaskToggle"
+        @add-task="handleAddTask"
       />
     </Teleport>
+
+    <!-- Add Event Modal -->
+    <UModal v-model="showAddEventModal">
+      <UCard>
+        <template #header>
+          <h3 class="text-lg font-semibold">Add Event to Timeline</h3>
+        </template>
+
+        <div class="space-y-4">
+          <UFormGroup label="Project" required>
+            <USelectMenu
+              v-model="eventForm.project_id"
+              :options="projectOptions"
+              placeholder="Select a project"
+            />
+          </UFormGroup>
+
+          <UFormGroup label="Event Title" required>
+            <UInput v-model="eventForm.title" placeholder="e.g., Board Meeting Held" />
+          </UFormGroup>
+
+          <UFormGroup label="Event Date" required>
+            <UInput v-model="eventForm.event_date" type="date" />
+          </UFormGroup>
+
+          <UFormGroup label="Description">
+            <UTextarea v-model="eventForm.description" placeholder="Brief description of this event" rows="3" />
+          </UFormGroup>
+
+          <div class="flex items-center gap-2">
+            <UCheckbox v-model="eventForm.is_milestone" />
+            <label class="text-sm">Mark as milestone</label>
+          </div>
+        </div>
+
+        <template #footer>
+          <div class="flex justify-end gap-2">
+            <UButton color="gray" variant="ghost" @click="showAddEventModal = false">Cancel</UButton>
+            <UButton color="primary" :loading="savingEvent" @click="saveEvent">
+              Create Event
+            </UButton>
+          </div>
+        </template>
+      </UCard>
+    </UModal>
   </div>
 </template>
 
@@ -122,14 +181,34 @@ const props = defineProps<Props>();
 
 // Composables
 const { user, fetch: fetchSession, loggedIn } = useDirectusAuth();
-const { projects, loading, error, refresh, fetchProject, toggleTask } = useProjectTimeline();
+const { projects, loading, error, refresh, fetchProject, toggleTask, createEvent, createTask } = useProjectTimeline();
 const { celebrate } = useConfetti();
+const { isBoardMember } = useRoles();
 
 // View state
 const canvasContainer = ref<HTMLElement | null>(null);
 const zoomLevel = ref(1);
 const focusedProjectId = ref<string | null>(props.initialFocus || null);
 const selectedEventId = ref<string | null>(null);
+
+// Add Event modal state
+const showAddEventModal = ref(false);
+const savingEvent = ref(false);
+const eventForm = ref({
+  project_id: '',
+  title: '',
+  description: '',
+  event_date: new Date().toISOString().split('T')[0],
+  is_milestone: false,
+});
+
+// Project options for the event form select
+const projectOptions = computed(() =>
+  projects.value.map((p) => ({
+    value: p.id,
+    label: p.name,
+  }))
+);
 
 // Live clock
 const currentTime = ref(new Date());
@@ -215,6 +294,48 @@ const handleTaskToggle = async (taskId: string, completed: boolean) => {
   // Celebrate if completing a task!
   if (completed) {
     celebrate();
+  }
+};
+
+const saveEvent = async () => {
+  if (!eventForm.value.project_id || !eventForm.value.title || !eventForm.value.event_date) return;
+
+  savingEvent.value = true;
+  try {
+    await createEvent({
+      project_id: eventForm.value.project_id,
+      title: eventForm.value.title,
+      description: eventForm.value.description || null,
+      event_date: eventForm.value.event_date,
+      is_milestone: eventForm.value.is_milestone,
+    });
+    showAddEventModal.value = false;
+    // Reset form
+    eventForm.value = {
+      project_id: '',
+      title: '',
+      description: '',
+      event_date: new Date().toISOString().split('T')[0],
+      is_milestone: false,
+    };
+  } catch (e) {
+    console.error('Error creating event:', e);
+  } finally {
+    savingEvent.value = false;
+  }
+};
+
+const handleAddTask = async (taskData: { event_id: string; title: string; description?: string; due_date?: string; priority?: string }) => {
+  try {
+    await createTask({
+      event_id: taskData.event_id,
+      title: taskData.title,
+      description: taskData.description || null,
+      due_date: taskData.due_date || null,
+      priority: (taskData.priority as 'low' | 'medium' | 'high') || null,
+    });
+  } catch (e) {
+    console.error('Error creating task:', e);
   }
 };
 

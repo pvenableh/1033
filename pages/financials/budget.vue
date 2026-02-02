@@ -1,8 +1,5 @@
 <template>
 	<div class="container mx-auto p-6">
-		<!-- Financial Sub-Navigation -->
-		<FinancialsSubNav />
-
 		<!-- Header -->
 		<div class="mb-8">
 			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 text-center">2025 OPERATING BUDGET</h1>
@@ -359,7 +356,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'financials' })
 
 import {useBudgetData} from '~/composables/useBudgetData';
 

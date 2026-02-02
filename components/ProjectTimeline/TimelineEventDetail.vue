@@ -107,6 +107,68 @@
           />
         </div>
 
+        <!-- Add Task (board members only) -->
+        <div v-if="canEdit">
+          <button
+            v-if="!showAddTaskForm"
+            class="flex items-center gap-1.5 text-sm text-gold hover:text-gold/80 transition-colors"
+            @click="showAddTaskForm = true"
+          >
+            <UIcon name="i-heroicons-plus-circle" class="w-4 h-4" />
+            Add Task
+          </button>
+
+          <div v-else class="border border-divider rounded-lg p-4 space-y-3 bg-gray-50">
+            <div>
+              <label class="block text-xs font-medium text-gray-600 mb-1">Task Title</label>
+              <input
+                v-model="taskForm.title"
+                type="text"
+                placeholder="What needs to be done?"
+                class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold bg-white"
+                @keydown.enter="submitTask"
+              />
+            </div>
+            <div class="flex gap-3">
+              <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Due Date</label>
+                <input
+                  v-model="taskForm.due_date"
+                  type="date"
+                  class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold bg-white"
+                />
+              </div>
+              <div class="flex-1">
+                <label class="block text-xs font-medium text-gray-600 mb-1">Priority</label>
+                <select
+                  v-model="taskForm.priority"
+                  class="w-full px-3 py-1.5 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-gold focus:border-gold bg-white"
+                >
+                  <option value="">None</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button
+                class="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800 transition-colors"
+                @click="showAddTaskForm = false; taskForm = { title: '', due_date: '', priority: '' }"
+              >
+                Cancel
+              </button>
+              <button
+                :disabled="!taskForm.title.trim() || addingTask"
+                class="px-3 py-1.5 text-sm bg-gold text-white rounded-md hover:bg-gold/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                @click="submitTask"
+              >
+                {{ addingTask ? 'Adding...' : 'Add Task' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Files -->
         <div v-if="event.files && event.files.length > 0">
           <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3">
@@ -177,13 +239,43 @@ import TimelineFileList from './TimelineFileList.vue';
 interface Props {
   event: ProjectEventWithRelations;
   project: ProjectWithRelations | null;
+  canEdit?: boolean;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  canEdit: false,
+});
 const emit = defineEmits<{
   close: [];
   'task-toggle': [taskId: string, completed: boolean];
+  'add-task': [taskData: { event_id: string; title: string; description?: string; due_date?: string; priority?: string }];
 }>();
+
+// Add task form state
+const showAddTaskForm = ref(false);
+const addingTask = ref(false);
+const taskForm = ref({
+  title: '',
+  due_date: '',
+  priority: '' as '' | 'low' | 'medium' | 'high',
+});
+
+const submitTask = async () => {
+  if (!taskForm.value.title.trim()) return;
+  addingTask.value = true;
+  try {
+    emit('add-task', {
+      event_id: props.event.id,
+      title: taskForm.value.title.trim(),
+      due_date: taskForm.value.due_date || undefined,
+      priority: taskForm.value.priority || undefined,
+    });
+    taskForm.value = { title: '', due_date: '', priority: '' };
+    showAddTaskForm.value = false;
+  } finally {
+    addingTask.value = false;
+  }
+};
 
 const panelRef = ref<HTMLElement | null>(null);
 const { getImageUrl } = useDirectusFiles();
