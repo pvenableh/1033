@@ -89,7 +89,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
             :tooltip="item.title"
           >
             <nuxt-link :to="item.to">
-              <Icon :name="item.icon" />
+              <Icon :name="item.icon" class="size-4 shrink-0" />
               <span>{{ item.title }}</span>
             </nuxt-link>
           </SidebarMenuButton>
@@ -103,7 +103,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Financial - Single collapsible entry -->
       <SidebarGroup v-if="canAccessFinancials">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-banknotes" class="mr-1" />
+          <Icon name="i-heroicons-banknotes" class="size-4 shrink-0 mr-1" />
           Financial
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -119,7 +119,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                     :is-active="isFinancialsActive"
                     tooltip="Financials"
                   >
-                    <Icon name="i-heroicons-banknotes" />
+                    <Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
                     <span>Financials</span>
                     <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
@@ -149,7 +149,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Communications Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-chat-bubble-left-right" class="mr-1" />
+          <Icon name="i-heroicons-chat-bubble-left-right" class="size-4 shrink-0 mr-1" />
           Communications
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -161,7 +161,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -173,7 +173,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Management Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-cog-6-tooth" class="mr-1" />
+          <Icon name="i-heroicons-cog-6-tooth" class="size-4 shrink-0 mr-1" />
           Management
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -185,7 +185,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -197,7 +197,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Operations Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-wrench-screwdriver" class="mr-1" />
+          <Icon name="i-heroicons-wrench-screwdriver" class="size-4 shrink-0 mr-1" />
           Operations
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -209,7 +209,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -224,7 +224,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
         <SidebarMenuItem>
           <SidebarMenuButton as-child tooltip="Back to Site">
             <nuxt-link to="/">
-              <Icon name="i-heroicons-arrow-left" />
+              <Icon name="i-heroicons-arrow-left" class="size-4 shrink-0" />
               <span>Back to Site</span>
             </nuxt-link>
           </SidebarMenuButton>
