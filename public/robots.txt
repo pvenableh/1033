@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /account/
+Disallow: /auth/
+Disallow: /api/
+Disallow: /channels/
+Disallow: /tasks/
+Disallow: /meetings/
+Disallow: /documents/
+Disallow: /units/
+Disallow: /announcements/
+
+Sitemap: https://1033lenox.com/sitemap.xml

@@ -56,14 +56,12 @@
 					class="-mt-44 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-6 lg:mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
 				</p>
+				<h1 class="sr-only">1033 Lenox — Boutique Condo and Apartment Building in Miami Beach</h1>
 				<NewLogo
 					class="hero-title mx-auto mb-6 backdrop:lg:mb-8 opacity-0 w-52 sm:w-72 md:w-[375px] lg:w-[425px] xl:w-[525px]"
 					fill="#ffffff"
-					stroke="#ffffff" />
-				<!-- <h1
-					class="hero-title t-heading text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
-					1033 Lenox
-				</h1> -->
+					stroke="#ffffff"
+					aria-hidden="true" />
 				<div class="hero-divider w-16 h-px t-bg-accent mx-auto mb-4 lg:mb-8 opacity-0 scale-x-0"></div>
 				<p class="hero-tagline t-heading text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
 					The Smart Life in South Beach
@@ -1201,13 +1199,104 @@ onUnmounted(() => {
 });
 
 // SEO
+const siteUrl = 'https://1033lenox.com';
+const ogImage = 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge';
+const pageTitle = '1033 Lenox | Boutique Condo & Apartment Building in Miami Beach';
+const pageDescription =
+	"Boutique condo and apartment building in Miami Beach's Flamingo Park. 28-unit residence with oversized balconies, modern security, and walkable South Beach living. Fully renovated and turnkey ready.";
+
 useHead({
-	title: '1033 Lenox | Boutique Residence in Miami Beach',
+	title: pageTitle,
 	meta: [
+		{name: 'description', content: pageDescription},
+		{name: 'keywords', content: 'boutique condo Miami Beach, apartment building Miami Beach, Miami Beach condos for sale, Flamingo Park condos, South Beach apartments, 1033 Lenox, boutique residence Miami Beach, one bedroom condo Miami Beach'},
+	],
+	link: [
+		{rel: 'canonical', href: siteUrl},
+	],
+});
+
+useSeoMeta({
+	ogType: 'website',
+	ogTitle: pageTitle,
+	ogDescription: pageDescription,
+	ogImage: ogImage,
+	ogImageAlt: '1033 Lenox - Boutique condo building in Miami Beach',
+	ogUrl: siteUrl,
+	ogSiteName: '1033 Lenox',
+	ogLocale: 'en_US',
+	twitterCard: 'summary_large_image',
+	twitterTitle: pageTitle,
+	twitterDescription: pageDescription,
+	twitterImage: ogImage,
+});
+
+// JSON-LD Structured Data
+useHead({
+	script: [
 		{
-			name: 'description',
-			content:
-				"28-unit boutique residence in Miami Beach's Flamingo Park neighborhood. One-bedrooms only. Oversized balconies. The smarter side of South Beach.",
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'ApartmentComplex',
+				name: '1033 Lenox',
+				description: pageDescription,
+				url: siteUrl,
+				image: ogImage,
+				address: {
+					'@type': 'PostalAddress',
+					streetAddress: '1033 Lenox Avenue',
+					addressLocality: 'Miami Beach',
+					addressRegion: 'FL',
+					postalCode: '33139',
+					addressCountry: 'US',
+				},
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 25.7743,
+					longitude: -80.1408,
+				},
+				numberOfAccommodationUnits: 28,
+				petsAllowed: true,
+				amenityFeature: [
+					{'@type': 'LocationFeatureSpecification', name: 'Central Courtyard', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Deeded Garage Parking', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'On-Site Laundry', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Clubhouse', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Bike Storage', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Facial Recognition Security', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Impact Windows', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Oversized Balconies', value: true},
+				],
+			}),
+		},
+		{
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'LocalBusiness',
+				'@id': `${siteUrl}/#organization`,
+				name: '1033 Lenox Condominium Association',
+				url: siteUrl,
+				image: ogImage,
+				address: {
+					'@type': 'PostalAddress',
+					streetAddress: '1033 Lenox Avenue',
+					addressLocality: 'Miami Beach',
+					addressRegion: 'FL',
+					postalCode: '33139',
+					addressCountry: 'US',
+				},
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 25.7743,
+					longitude: -80.1408,
+				},
+				areaServed: {
+					'@type': 'City',
+					name: 'Miami Beach',
+				},
+			}),
 		},
 	],
 });
