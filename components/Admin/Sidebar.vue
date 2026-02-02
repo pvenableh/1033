@@ -10,10 +10,18 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
 } from '~/components/ui/sidebar'
 import { ChevronRight } from 'lucide-vue-next'
+import {
+  CollapsibleRoot,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from 'reka-ui'
 
 const route = useRoute()
 const { isBoardMember, isOwner, isAdmin } = useRoles()
@@ -25,10 +33,13 @@ const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
-// Navigation groups organized by mode
-const financialLinks = [
+// Check if any financial route is active (for collapsible default state)
+const isFinancialsActive = computed(() => route.path.startsWith('/financials'))
+
+// Financial sub-links for the collapsible group
+const financialSubLinks = [
   { title: 'Transactions', icon: 'i-heroicons-currency-dollar', to: '/financials' },
-  { title: 'Financial Dashboard', icon: 'i-heroicons-chart-bar', to: '/financials/dashboard' },
+  { title: 'Dashboard', icon: 'i-heroicons-chart-bar', to: '/financials/dashboard' },
   { title: 'Reconciliation', icon: 'i-heroicons-document-check', to: '/financials/reconciliation' },
   { title: 'Budget Management', icon: 'i-heroicons-calculator', to: '/financials/budget-management' },
   { title: 'Budget Overview', icon: 'i-heroicons-chart-pie', to: '/financials/budget' },
@@ -78,7 +89,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
             :tooltip="item.title"
           >
             <nuxt-link :to="item.to">
-              <Icon :name="item.icon" />
+              <Icon :name="item.icon" class="size-4 shrink-0" />
               <span>{{ item.title }}</span>
             </nuxt-link>
           </SidebarMenuButton>
@@ -89,27 +100,48 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
     <SidebarSeparator />
 
     <SidebarContent>
-      <!-- Financial Mode -->
+      <!-- Financial - Single collapsible entry -->
       <SidebarGroup v-if="canAccessFinancials">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-banknotes" class="mr-1" />
+          <Icon name="i-heroicons-banknotes" class="size-4 shrink-0 mr-1" />
           Financial
         </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
-            <SidebarMenuItem v-for="item in financialLinks" :key="item.to">
-              <SidebarMenuButton
-                v-if="!item.boardOnly || isBoardMember"
-                as-child
-                :is-active="isActive(item.to)"
-                :tooltip="item.title"
-              >
-                <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
-                  <span>{{ item.title }}</span>
-                </nuxt-link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            <CollapsibleRoot
+              as="li"
+              :default-open="isFinancialsActive"
+              class="group/collapsible"
+            >
+              <SidebarMenuItem>
+                <CollapsibleTrigger as-child>
+                  <SidebarMenuButton
+                    :is-active="isFinancialsActive"
+                    tooltip="Financials"
+                  >
+                    <Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
+                    <span>Financials</span>
+                    <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                  </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                  <SidebarMenuSub>
+                    <template v-for="sub in financialSubLinks" :key="sub.to">
+                      <SidebarMenuSubItem v-if="!sub.boardOnly || isBoardMember">
+                        <SidebarMenuSubButton
+                          as-child
+                          :is-active="isActive(sub.to)"
+                        >
+                          <nuxt-link :to="sub.to">
+                            <span>{{ sub.title }}</span>
+                          </nuxt-link>
+                        </SidebarMenuSubButton>
+                      </SidebarMenuSubItem>
+                    </template>
+                  </SidebarMenuSub>
+                </CollapsibleContent>
+              </SidebarMenuItem>
+            </CollapsibleRoot>
           </SidebarMenu>
         </SidebarGroupContent>
       </SidebarGroup>
@@ -117,7 +149,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Communications Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-chat-bubble-left-right" class="mr-1" />
+          <Icon name="i-heroicons-chat-bubble-left-right" class="size-4 shrink-0 mr-1" />
           Communications
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -129,7 +161,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -141,7 +173,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Management Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-cog-6-tooth" class="mr-1" />
+          <Icon name="i-heroicons-cog-6-tooth" class="size-4 shrink-0 mr-1" />
           Management
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -153,7 +185,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -165,7 +197,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
       <!-- Operations Mode -->
       <SidebarGroup v-if="isBoardMember">
         <SidebarGroupLabel>
-          <Icon name="i-heroicons-wrench-screwdriver" class="mr-1" />
+          <Icon name="i-heroicons-wrench-screwdriver" class="size-4 shrink-0 mr-1" />
           Operations
         </SidebarGroupLabel>
         <SidebarGroupContent>
@@ -177,7 +209,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                 :tooltip="item.title"
               >
                 <nuxt-link :to="item.to">
-                  <Icon :name="item.icon" />
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
                   <span>{{ item.title }}</span>
                 </nuxt-link>
               </SidebarMenuButton>
@@ -192,7 +224,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
         <SidebarMenuItem>
           <SidebarMenuButton as-child tooltip="Back to Site">
             <nuxt-link to="/">
-              <Icon name="i-heroicons-arrow-left" />
+              <Icon name="i-heroicons-arrow-left" class="size-4 shrink-0" />
               <span>Back to Site</span>
             </nuxt-link>
           </SidebarMenuButton>
