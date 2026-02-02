@@ -836,8 +836,10 @@ const amenities = [
 ];
 
 const investmentPoints = [
-	'Competitively priced insurance with flood coverage',
+	'Competitively priced insurance',
+	'Flood Insurance coverage',
 	'Fully hurricane-certified',
+	'Reasonably priced HOA for Miami Beach',
 	'Transparent financials via owner portal',
 ];
 
