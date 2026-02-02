@@ -19,7 +19,7 @@ function movePanel(val: string) {
 </script>
 
 <template>
-	<div class="flex items-center justify-center flex-col px-12 login">
+	<div class="flex items-center justify-center flex-col px-12 login text-foreground">
 		<Alert
 			v-if="errorMessage"
 			class="mb-6 max-w-md"
@@ -92,6 +92,7 @@ function movePanel(val: string) {
 
 .login-panel__nav-button {
 	font-size: 14px;
+	color: var(--theme-text-secondary);
 	@apply uppercase tracking-wider;
 }
 

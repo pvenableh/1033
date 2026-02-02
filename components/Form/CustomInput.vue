@@ -25,7 +25,7 @@ const inputClasses = computed(() => {
   if (props.variant === "underline") {
     return cn(
       base,
-      "border-0 border-b-2 rounded-none px-0 shadow-none focus-visible:ring-0",
+      "border-0 border-b-2 rounded-none px-0 shadow-none focus-visible:ring-0 bg-transparent",
       props.errorMessage
         ? "border-destructive focus-visible:border-destructive"
         : "border-input focus-visible:border-primary"

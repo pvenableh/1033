@@ -116,7 +116,7 @@ const onSubmit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center flex-col min-h-screen px-4">
+  <div class="flex items-center justify-center flex-col min-h-screen px-4 text-foreground">
     <div
       v-motion="{
         initial: {
