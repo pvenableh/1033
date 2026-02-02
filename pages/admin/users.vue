@@ -2,7 +2,7 @@
 import type { DirectusUser, DirectusRole } from '~/types/directus';
 
 definePageMeta({
-  layout: 'admin',
+  layout: 'default',
   middleware: ['auth', 'role'],
 });
 

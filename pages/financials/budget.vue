@@ -356,7 +356,7 @@
 </template>
 
 <script setup lang="ts">
-definePageMeta({ layout: 'financials' })
+definePageMeta({ layout: 'default' })
 
 import {useBudgetData} from '~/composables/useBudgetData';
 

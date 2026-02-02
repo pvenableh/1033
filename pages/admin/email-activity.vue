@@ -2,7 +2,7 @@
 import type {EmailActivity, Announcement} from '~/types/directus';
 
 definePageMeta({
-	layout: 'admin',
+	layout: 'default',
 	middleware: ['auth'],
 });
 

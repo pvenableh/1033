@@ -681,7 +681,7 @@
 </template>
 
 <script setup>
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'default' })
 
 const {
 	selectedYear,

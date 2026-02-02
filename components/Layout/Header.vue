@@ -1,12 +1,13 @@
 <script setup>
+import { SidebarTrigger } from '~/components/ui/sidebar'
+
 const {isScrollingDown} = useScrollDirection();
 const {user} = useDirectusAuth();
-const {isApproved} = useRoles();
-const {isSecondaryNavVisible, toggleSecondaryNav} = useSecondaryNavToggle();
+const {isBoardMember, isOwner, isAdmin} = useRoles();
 
-// Show toggle only for logged-in and approved users
-const showNavToggle = computed(() => {
-	return !!user.value && isApproved.value;
+// Show sidebar trigger only for users with admin access
+const showSidebarTrigger = computed(() => {
+	return !!user.value && (isBoardMember.value || isOwner.value || isAdmin.value);
 });
 
 const avatar = computed(() => {
@@ -28,30 +29,13 @@ const avatar = computed(() => {
 		class="w-full flex items-center justify-center fixed top-0 left-0 z-20 transition-all header pt-safe"
 		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
-		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row">
-			<!-- <DarkModeToggle class="hidden" />
-			<client-only>
-				<InsightsWeather class="sm:pl-1 md:px-6" />
-			</client-only> -->
+		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row gap-1">
+			<SidebarTrigger v-if="showSidebarTrigger" class="sidebar-trigger" />
 			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
 			</nuxt-link>
-			<button
-				v-if="showNavToggle"
-				@click="toggleSecondaryNav"
-				class="nav-toggle-btn flex items-center justify-center w-6 h-6 rounded-full transition-all duration-200 hover:bg-black/10 dark:hover:bg-white/10"
-				:title="isSecondaryNavVisible ? 'Hide navigation' : 'Show navigation'"
-				aria-label="Toggle secondary navigation">
-				<UIcon
-					name="i-heroicons-chevron-down"
-					class="w-4 h-4 transition-transform duration-300"
-					:class="{'rotate-180': !isSecondaryNavVisible}" />
-			</button>
 		</div>
-		<!-- <client-only>
-			<InsightsWeather class="absolute left-[5px] sm:pl-1 md:px-6 -mt-[4px]" />
-		</client-only> -->
 		<div class="flex items-center gap-1">
 			<nuxt-link to="/">
 				<NewLogo class="new-logo" />
@@ -90,19 +74,26 @@ header.retracted {
 	}
 }
 
+.sidebar-trigger {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
+	transition: background-color 0.2s ease;
+	cursor: pointer;
+	color: var(--theme-text-secondary, #666);
+}
+
+.sidebar-trigger:hover {
+	background-color: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
 .new-logo {
 	width: 130px;
 	max-width: 380px;
 	@apply px-6 py-3;
-
-	/* filter: drop-shadow(0 0.2rem 0.25rem rgba(0, 0, 0, 0.5)); */
-	/* @media (min-width: theme('screens.sm')) {
-		width: 120px;
-	}
-
-	@media (min-width: theme('screens.md')) {
-		width: 180px;
-	} */
 
 	path {
 		opacity: 0.4;
