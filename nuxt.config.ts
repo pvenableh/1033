@@ -60,7 +60,6 @@ export default defineNuxtConfig({
 
 	modules: [
 		'shadcn-nuxt', // https://www.shadcn-vue.com/docs/installation/nuxt
-		'@formkit/nuxt', // https://formkit.com/getting-started/installation#with-nuxt
 		'@nuxt/devtools', // https://devtools.nuxtjs.org/
 		'@nuxt/icon', // https://nuxt.com/modules/icon - replaces NuxtUI icons
 		'@nuxt/image',
