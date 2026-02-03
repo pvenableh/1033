@@ -9,7 +9,9 @@ useSeoMeta({
 	description: 'Learn how to set up and configure Google Analytics 4 dashboards for comprehensive tracking',
 });
 
-const {isAdmin} = useRoles();
+const {isAdmin, isBoardMember} = useRoles();
+
+const canAccessAnalytics = computed(() => isAdmin.value || isBoardMember.value);
 
 const sections = [
 	{
@@ -279,10 +281,10 @@ watch(user, (newUser) => {
 				</p>
 			</div>
 
-			<div v-if="!isAdmin" class="text-center py-12">
+			<div v-if="!canAccessAnalytics" class="text-center py-12">
 				<UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
 				<h2 class="text-xl font-semibold mb-2">Access Denied</h2>
-				<p class="text-gray-600 dark:text-gray-400">You do not have administrator privileges.</p>
+				<p class="text-gray-600 dark:text-gray-400">You do not have permission to view analytics.</p>
 			</div>
 
 			<div v-else class="flex flex-col lg:flex-row gap-8">
