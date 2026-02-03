@@ -8,49 +8,51 @@
 			</FormVButton>
 		</slot>
 
-		<!-- Teleport the sheet to body -->
-		<Teleport to="body">
-			<!-- Overlay -->
-			<Transition
-				enter-active-class="transition-opacity duration-300 ease-out"
-				leave-active-class="transition-opacity duration-200 ease-in"
-				enter-from-class="opacity-0"
-				leave-to-class="opacity-0">
-				<div v-if="isOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 z-40" @click="closeSheet" />
-			</Transition>
+		<!-- Teleport the sheet to body - wrapped in ClientOnly to prevent hydration mismatch -->
+		<ClientOnly>
+			<Teleport to="body">
+				<!-- Overlay -->
+				<Transition
+					enter-active-class="transition-opacity duration-300 ease-out"
+					leave-active-class="transition-opacity duration-200 ease-in"
+					enter-from-class="opacity-0"
+					leave-to-class="opacity-0">
+					<div v-if="isOpen" class="fixed inset-0 bg-gray-500 bg-opacity-75 z-40" @click="closeSheet" />
+				</Transition>
 
-			<!-- Bottom Sheet -->
-			<div
-				ref="bottomSheet"
-				class="fixed left-0 right-0 bottom-0 z-50 transform translate-y-full"
-				:class="[{'pointer-events-none': !isOpen}, maxWidthClass]">
+				<!-- Bottom Sheet -->
 				<div
-					ref="sheetContent"
-					class="bg-background rounded-t-2xl shadow-xl mx-auto w-full overflow-y-auto no-scrollbar"
-					:class="[maxHeightClass]">
-					<!-- Handle -->
-					<div v-if="showHandle" class="w-full flex justify-center pt-4 pb-2 touch-none cursor-grab" ref="handle">
-						<div class="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
-					</div>
-
-					<!-- Header slot -->
-					<slot name="header" />
-
-					<!-- Content -->
+					ref="bottomSheet"
+					class="fixed left-0 right-0 bottom-0 z-50 transform translate-y-full"
+					:class="[{'pointer-events-none': !isOpen}, maxWidthClass]">
 					<div
-						:class="contentClass"
-						class="flex-1"
-						ref="content"
-						@touchstart="onContentTouchStart"
-						@touchmove="onContentTouchMove">
-						<slot />
-					</div>
+						ref="sheetContent"
+						class="bg-background rounded-t-2xl shadow-xl mx-auto w-full overflow-y-auto no-scrollbar"
+						:class="[maxHeightClass]">
+						<!-- Handle -->
+						<div v-if="showHandle" class="w-full flex justify-center pt-4 pb-2 touch-none cursor-grab" ref="handle">
+							<div class="w-12 h-1.5 bg-muted-foreground/30 rounded-full" />
+						</div>
 
-					<!-- Footer slot -->
-					<slot name="footer" />
+						<!-- Header slot -->
+						<slot name="header" />
+
+						<!-- Content -->
+						<div
+							:class="contentClass"
+							class="flex-1"
+							ref="content"
+							@touchstart="onContentTouchStart"
+							@touchmove="onContentTouchMove">
+							<slot />
+						</div>
+
+						<!-- Footer slot -->
+						<slot name="footer" />
+					</div>
 				</div>
-			</div>
-		</Teleport>
+			</Teleport>
+		</ClientOnly>
 	</div>
 </template>
 

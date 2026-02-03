@@ -118,19 +118,25 @@ export const useDirectusAuth = () => {
 
   /**
    * Refresh current user session with fresh data from Directus
+   * Note: The server endpoint updates the session cookie directly,
+   * so we don't need to call session.fetch() which can cause context issues
+   * when called after async operations in middleware.
    */
   const refreshUser = async () => {
     try {
-      await $fetch('/api/auth/refresh-session', {
+      const response = await $fetch('/api/auth/refresh-session', {
         method: 'POST',
       });
 
-      // Fetch the updated session
-      await session.fetch();
-      return session.user.value;
+      // The session cookie is already updated by the server endpoint.
+      // Return the user data from the response instead of calling session.fetch()
+      // which can fail with "composable called outside setup function" errors
+      // when used in middleware after async operations.
+      return (response as any)?.user || session.user.value;
     } catch (error: any) {
-      // Fallback to just refreshing the session
-      await session.fetch();
+      // If refresh fails, return current session user
+      // Don't call session.fetch() to avoid context issues
+      console.error('Session refresh error:', error?.message || error);
       return session.user.value;
     }
   };

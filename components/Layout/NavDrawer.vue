@@ -104,17 +104,6 @@
 					</a>
 				</li>
 
-				<!-- Channels -->
-				<li v-if="canAccessChannels">
-					<a
-						href="/channels"
-						class="flex items-center gap-2"
-						@click="(e) => handleNavClick(e, '/channels', canAccessChannels, 'Channels', 'channel membership')">
-						<UIcon name="i-lucide-messages-square" class="w-4 h-4" />
-						Channels
-					</a>
-				</li>
-
 				<!-- Security -->
 				<li v-if="canAccessOwner">
 					<a
@@ -126,14 +115,16 @@
 					</a>
 				</li>
 
-				<!-- Requests -->
-				<li v-if="canAccessOwner">
+				<!-- My Requests - for approved users to submit and track requests -->
+				<li>
 					<a
-						href="/requests"
+						href="/my-requests"
 						class="flex items-center gap-2"
-						@click="(e) => handleNavClick(e, '/requests', canAccessOwner, 'Requests', 'owner')">
-						<UIcon name="i-heroicons-inbox-arrow-down" class="w-4 h-4" />
-						Requests
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/my-requests', canAccessApproved, 'My Requests')">
+						<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
+						My Requests
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 
@@ -176,54 +167,9 @@ const {isBoardMember, isOwner, isApproved} = useRoles();
 const toast = useToast();
 const router = useRouter();
 
-// Check if user has channel membership
-const hasChannelMembership = ref(false);
-
-// Fetch user's channel membership status
-const checkChannelMembership = async () => {
-	if (!user.value?.id) {
-		hasChannelMembership.value = false;
-		return;
-	}
-
-	try {
-		const {getChannels} = useChannels();
-		const channels = await getChannels();
-
-		// Check if user is a member of any channel
-		hasChannelMembership.value = channels.some((channel: any) => {
-			if (!channel.members) return false;
-			return channel.members.some((member: any) => {
-				const memberId = typeof member.user_id === 'string' ? member.user_id : member.user_id?.id;
-				return memberId === user.value?.id;
-			});
-		});
-	} catch (error) {
-		console.error('Failed to check channel membership:', error);
-		hasChannelMembership.value = false;
-	}
-};
-
-// Check channel membership on mount
-onMounted(() => {
-	checkChannelMembership();
-});
-
-// Re-check when user changes
-watch(
-	() => user.value?.id,
-	() => {
-		checkChannelMembership();
-	}
-);
-
 // Computed properties for access checks (used for styling and click handling)
 const canAccessApproved = computed(() => {
 	return user.value && isApproved.value;
-});
-
-const canAccessChannels = computed(() => {
-	return user.value && (isBoardMember.value || hasChannelMembership.value);
 });
 
 const canAccessOwner = computed(() => {

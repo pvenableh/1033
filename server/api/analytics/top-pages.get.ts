@@ -1,15 +1,20 @@
-import { getGA4Client, getGA4PropertyId, getDateRange, formatDuration } from '~/server/utils/ga4-client';
+import { getGA4Client, getGA4PropertyId, getDateRange, formatDuration, isGA4Configured, createNotConfiguredResponse } from '~/server/utils/ga4-client';
 
 /**
  * Fetch top pages from GA4
  * Returns page path, title, views, avg time on page, bounce rate
  */
 export default defineEventHandler(async (event) => {
+	// Check if GA4 is configured
+	if (!isGA4Configured()) {
+		return createNotConfiguredResponse();
+	}
+
 	const query = getQuery(event);
 	const dateRangePreset = (query.dateRange as string) || '7d';
 	const limit = parseInt((query.limit as string) || '10', 10);
 
-	const propertyId = getGA4PropertyId();
+	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
 	const { startDate, endDate } = getDateRange(dateRangePreset);
 

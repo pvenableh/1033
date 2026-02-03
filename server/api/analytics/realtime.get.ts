@@ -1,11 +1,16 @@
-import { getGA4Client, getGA4PropertyId } from '~/server/utils/ga4-client';
+import { getGA4Client, getGA4PropertyId, isGA4Configured, createNotConfiguredResponse } from '~/server/utils/ga4-client';
 
 /**
  * Fetch real-time analytics from GA4
  * Returns current active users and recent activity
  */
 export default defineEventHandler(async (event) => {
-	const propertyId = getGA4PropertyId();
+	// Check if GA4 is configured
+	if (!isGA4Configured()) {
+		return createNotConfiguredResponse();
+	}
+
+	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
 
 	try {

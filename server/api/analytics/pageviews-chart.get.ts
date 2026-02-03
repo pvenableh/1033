@@ -1,14 +1,19 @@
-import { getGA4Client, getGA4PropertyId, getDateRange } from '~/server/utils/ga4-client';
+import { getGA4Client, getGA4PropertyId, getDateRange, isGA4Configured, createNotConfiguredResponse } from '~/server/utils/ga4-client';
 
 /**
  * Fetch page views over time for chart
  * Returns daily page views for the selected date range
  */
 export default defineEventHandler(async (event) => {
+	// Check if GA4 is configured
+	if (!isGA4Configured()) {
+		return createNotConfiguredResponse();
+	}
+
 	const query = getQuery(event);
 	const dateRangePreset = (query.dateRange as string) || '7d';
 
-	const propertyId = getGA4PropertyId();
+	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
 	const { startDate, endDate } = getDateRange(dateRangePreset);
 
