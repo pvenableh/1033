@@ -634,10 +634,10 @@ export interface MonthlyStatement {
 	/** @description Upload the PDF statement from Chase */
 	pdf_statement?: string | null;
 	reconciled?: boolean | null;
-	reconciled_by?: string | null;
 	reconciled_date?: string | null;
 	/** @required */
 	fiscal_year: FiscalYear | string;
+	reconciled_by?: DirectusUser | string | null;
 }
 
 export interface Newsletter {
