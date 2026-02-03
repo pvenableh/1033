@@ -212,12 +212,12 @@ const engagementMetrics = ref([
 
 // Event tracking summary
 const eventsSummary = ref([
+	{event: 'user_identified', count: 1247, category: 'Users'},
 	{event: 'button_click', count: 3421, category: 'Engagement'},
 	{event: 'form_submit', count: 856, category: 'Conversion'},
 	{event: 'outbound_click', count: 432, category: 'Navigation'},
 	{event: 'file_download', count: 287, category: 'Content'},
-	{event: 'video_start', count: 156, category: 'Media'},
-	{event: 'search', count: 98, category: 'Discovery'},
+	{event: 'user_logout', count: 234, category: 'Users'},
 ]);
 
 // Device breakdown
@@ -253,6 +253,90 @@ const trafficSources = ref([
 	{source: 'Referral', sessions: 654, percentage: 15},
 	{source: 'Social', sessions: 432, percentage: 10},
 	{source: 'Email', sessions: 174, percentage: 4},
+]);
+
+// User activity data
+const userActivity = ref([
+	{
+		id: '1',
+		name: 'John Smith',
+		email: 'john.smith@example.com',
+		role: 'Board Member',
+		lastActive: '2 minutes ago',
+		pageViews: 47,
+		sessionsToday: 3,
+		lastPage: '/dashboard',
+		status: 'online',
+	},
+	{
+		id: '2',
+		name: 'Sarah Johnson',
+		email: 'sarah.j@example.com',
+		role: 'Admin',
+		lastActive: '15 minutes ago',
+		pageViews: 28,
+		sessionsToday: 2,
+		lastPage: '/admin/users',
+		status: 'online',
+	},
+	{
+		id: '3',
+		name: 'Michael Chen',
+		email: 'mchen@example.com',
+		role: 'Owner',
+		lastActive: '1 hour ago',
+		pageViews: 15,
+		sessionsToday: 1,
+		lastPage: '/financials',
+		status: 'away',
+	},
+	{
+		id: '4',
+		name: 'Emily Davis',
+		email: 'emily.d@example.com',
+		role: 'Board Member',
+		lastActive: '3 hours ago',
+		pageViews: 12,
+		sessionsToday: 1,
+		lastPage: '/meetings',
+		status: 'offline',
+	},
+	{
+		id: '5',
+		name: 'Robert Wilson',
+		email: 'rwilson@example.com',
+		role: 'Owner',
+		lastActive: 'Yesterday',
+		pageViews: 34,
+		sessionsToday: 0,
+		lastPage: '/documents',
+		status: 'offline',
+	},
+]);
+
+// User role breakdown for chart
+const userRoleData = computed(() => ({
+	labels: ['Board Members', 'Owners', 'Admins', 'Staff'],
+	datasets: [
+		{
+			data: [8, 42, 3, 12],
+			backgroundColor: [
+				themeColors.chart1Hex,
+				themeColors.chart2Hex,
+				themeColors.chart4Hex,
+				themeColors.chart5Hex,
+			],
+			borderWidth: 0,
+		},
+	],
+}));
+
+// User metrics summary
+const userMetrics = ref([
+	{label: 'Total Identified Users', value: '65', icon: 'i-heroicons-users', change: '+12%'},
+	{label: 'Active Today', value: '23', icon: 'i-heroicons-user-circle', change: '+5%'},
+	{label: 'Logins Today', value: '31', icon: 'i-heroicons-arrow-right-on-rectangle', change: '+8%'},
+	{label: 'Avg. Pages/User', value: '4.2', icon: 'i-heroicons-document-duplicate', change: '+3%'},
 ]);
 
 // Real-time stats (simulated)
@@ -473,6 +557,134 @@ onUnmounted(() => {
 							<span class="inline-block mt-2 text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded">
 								{{ event.category }}
 							</span>
+						</div>
+					</div>
+				</div>
+
+				<!-- User Activity Section -->
+				<div class="mb-8">
+					<h3 class="text-lg font-semibold mb-4">User Activity Tracking</h3>
+					<p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+						Track individual user behavior by email, ID, and name
+					</p>
+
+					<!-- User Metrics -->
+					<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+						<div
+							v-for="metric in userMetrics"
+							:key="metric.label"
+							class="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+							<div class="flex items-center justify-between mb-2">
+								<UIcon :name="metric.icon" class="w-6 h-6 text-primary-500" />
+								<span class="text-xs font-medium text-green-500">{{ metric.change }}</span>
+							</div>
+							<p class="text-2xl font-bold">{{ metric.value }}</p>
+							<p class="text-xs text-gray-600 dark:text-gray-400 mt-1">{{ metric.label }}</p>
+						</div>
+					</div>
+
+					<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+						<!-- User Activity Table -->
+						<div class="lg:col-span-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+							<h4 class="font-semibold mb-4">Recent User Activity</h4>
+							<div class="overflow-x-auto">
+								<table class="w-full text-sm">
+									<thead>
+										<tr class="text-left text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+											<th class="pb-3 font-medium">User</th>
+											<th class="pb-3 font-medium">Role</th>
+											<th class="pb-3 font-medium">Last Active</th>
+											<th class="pb-3 font-medium text-right">Page Views</th>
+											<th class="pb-3 font-medium">Last Page</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr
+											v-for="userItem in userActivity"
+											:key="userItem.id"
+											class="border-b border-gray-100 dark:border-gray-700 last:border-0">
+											<td class="py-3">
+												<div class="flex items-center">
+													<span
+														class="w-2 h-2 rounded-full mr-2"
+														:class="{
+															'bg-green-500': userItem.status === 'online',
+															'bg-yellow-500': userItem.status === 'away',
+															'bg-gray-400': userItem.status === 'offline',
+														}"></span>
+													<div>
+														<p class="font-medium">{{ userItem.name }}</p>
+														<p class="text-xs text-gray-500">{{ userItem.email }}</p>
+													</div>
+												</div>
+											</td>
+											<td class="py-3">
+												<span
+													class="inline-block px-2 py-1 text-xs rounded"
+													:class="{
+														'bg-primary-100 text-primary-700 dark:bg-primary-900/30 dark:text-primary-400':
+															userItem.role === 'Admin',
+														'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400':
+															userItem.role === 'Board Member',
+														'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400':
+															userItem.role === 'Owner',
+													}">
+													{{ userItem.role }}
+												</span>
+											</td>
+											<td class="py-3 text-gray-600 dark:text-gray-400">
+												{{ userItem.lastActive }}
+											</td>
+											<td class="py-3 text-right font-medium">
+												{{ userItem.pageViews }}
+											</td>
+											<td class="py-3">
+												<code class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded">
+													{{ userItem.lastPage }}
+												</code>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+
+						<!-- User Role Breakdown -->
+						<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+							<h4 class="font-semibold mb-4">Users by Role</h4>
+							<ChartContainer :config="chartConfig" class="h-48">
+								<Doughnut :data="userRoleData" :options="deviceOptions" />
+							</ChartContainer>
+							<div class="mt-4 space-y-2">
+								<div class="flex items-center justify-between text-sm">
+									<div class="flex items-center">
+										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart1Hex}"></span>
+										<span>Board Members</span>
+									</div>
+									<span class="font-medium">8</span>
+								</div>
+								<div class="flex items-center justify-between text-sm">
+									<div class="flex items-center">
+										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart2Hex}"></span>
+										<span>Owners</span>
+									</div>
+									<span class="font-medium">42</span>
+								</div>
+								<div class="flex items-center justify-between text-sm">
+									<div class="flex items-center">
+										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart4Hex}"></span>
+										<span>Admins</span>
+									</div>
+									<span class="font-medium">3</span>
+								</div>
+								<div class="flex items-center justify-between text-sm">
+									<div class="flex items-center">
+										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart5Hex}"></span>
+										<span>Staff</span>
+									</div>
+									<span class="font-medium">12</span>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
