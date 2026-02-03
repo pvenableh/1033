@@ -12,7 +12,7 @@ useSeoMeta({
 });
 
 const { user } = useDirectusAuth();
-const { readItems } = useDirectusItems();
+const requestsItems = useDirectusItems<Request>('requests');
 const router = useRouter();
 
 // Fetch user's requests
@@ -25,7 +25,7 @@ const { data: requests, pending, error, refresh } = await useAsyncData(
     const userEmail = user.value.email;
     const userId = user.value.id;
 
-    const result = await readItems<Request>('requests', {
+    const result = await requestsItems.list({
       filter: {
         _or: [
           { user_created: { _eq: userId } },

@@ -123,6 +123,11 @@ export const useDirectusAuth = () => {
    * when called after async operations in middleware.
    */
   const refreshUser = async () => {
+    // Don't attempt refresh if not logged in
+    if (!session.loggedIn.value) {
+      return session.user.value;
+    }
+
     try {
       const response = await $fetch('/api/auth/refresh-session', {
         method: 'POST',
@@ -134,8 +139,19 @@ export const useDirectusAuth = () => {
       // when used in middleware after async operations.
       return (response as any)?.user || session.user.value;
     } catch (error: any) {
-      // If refresh fails, return current session user
-      // Don't call session.fetch() to avoid context issues
+      // Handle 401 errors silently - they're expected when session expires
+      const statusCode = error?.statusCode || error?.data?.statusCode;
+      if (statusCode === 401) {
+        // Session has expired, clear local state silently
+        try {
+          await session.clear();
+        } catch {
+          // Ignore clear errors
+        }
+        return null;
+      }
+
+      // For other errors, log but don't throw
       console.error('Session refresh error:', error?.message || error);
       return session.user.value;
     }
