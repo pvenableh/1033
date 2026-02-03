@@ -7,6 +7,16 @@
 import {useImage} from '@vueuse/core';
 const {readFiles} = useDirectusFiles();
 
+useHead({
+	title: '1033 Lenox | Before & After — Miami Beach Condo Renovation',
+	meta: [
+		{
+			name: 'description',
+			content: 'See the before and after renovation photos of 1033 Lenox, a fully renovated boutique condo building in Miami Beach.',
+		},
+	],
+});
+
 const images = await readFiles({
 	filter: {
 		type: {
@@ -33,6 +43,13 @@ const images = await readFiles({
 				class="masonry-item bg-gray-200 bg-center bg-cover bg-no-repeat"
 				:style="'background-image: url(https://admin.1033lenox.com/assets/' + image.id + '?key=medium)'"
 				alt="1033 Lenox Design "></div>
+		</div>
+		<div class="w-full flex items-center justify-center py-12">
+			<NuxtLink
+				to="/"
+				class="text-sm tracking-[0.15em] uppercase hover:underline transition-colors duration-200">
+				← Back to 1033 Lenox — Boutique Apartment Building in Miami Beach
+			</NuxtLink>
 		</div>
 	</div>
 </template>

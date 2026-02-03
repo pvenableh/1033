@@ -2,6 +2,17 @@
 definePageMeta({
 	layout: 'email',
 });
+
+useHead({
+	title: '1033 Lenox | Boutique Condo Amenities in Miami Beach',
+	meta: [
+		{
+			name: 'description',
+			content:
+				'Explore the amenities at 1033 Lenox, a boutique condo and apartment building in Miami Beach. Oversized balconies, secure parking, courtyard, and more in Flamingo Park.',
+		},
+	],
+});
 </script>
 <template>
 	<div class="min-h-dvh flex items-center flex-col w-full intro">
@@ -91,6 +102,15 @@ definePageMeta({
 						<h5>Exercise Room</h5>
 					</div>
 				</div>
+			</div>
+		</div>
+		<div class="w-full flex items-center justify-center py-16 bg-white dark:bg-gray-800 dark:text-white">
+			<div class="text-center">
+				<NuxtLink
+					to="/"
+					class="text-sm tracking-[0.15em] uppercase hover:underline transition-colors duration-200">
+					Discover 1033 Lenox — Boutique Condo in Miami Beach →
+				</NuxtLink>
 			</div>
 		</div>
 	</div>

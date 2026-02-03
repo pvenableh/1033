@@ -3,7 +3,7 @@
 		<div class="max-w-6xl mx-auto">
 			<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 				<div class="content-label flex flex-col gap-2 opacity-0">
-					<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">09</span>
+					<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">10</span>
 					<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Availability</span>
 				</div>
 				<div class="content-main max-w-4xl">

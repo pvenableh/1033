@@ -652,6 +652,41 @@
 
 		<!-- Investment Section -->
 
+		<!-- FAQ Section -->
+		<section ref="faqRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
+			<div class="max-w-6xl mx-auto">
+				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
+					<div class="content-label flex flex-col gap-2 opacity-0">
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">09</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">FAQ</span>
+					</div>
+					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+						<h2
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							Common Questions
+						</h2>
+						<div class="faq-list flex flex-col gap-0">
+							<details
+								v-for="(faq, index) in faqs"
+								:key="index"
+								class="faq-item border-b t-border-divider opacity-0 group">
+								<summary
+									class="flex items-center justify-between gap-4 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+									<span class="text-[0.9375rem] font-medium t-text">{{ faq.question }}</span>
+									<UIcon
+										name="i-heroicons-chevron-down"
+										class="w-5 h-5 t-text-tertiary flex-shrink-0 transition-transform duration-200 group-open:rotate-180" />
+								</summary>
+								<p class="text-[0.9375rem] leading-relaxed t-text-secondary pb-5 pl-0">
+									{{ faq.answer }}
+								</p>
+							</details>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<AvailableListings />
 		<Marquee
 			v-if="marqueeImages.length"
@@ -764,6 +799,7 @@ const amenitiesRef = ref(null);
 const investmentRef = ref(null);
 const communityRef = ref(null);
 const petsRef = ref(null);
+const faqRef = ref(null);
 const galleryRef = ref(null);
 const ctaRef = ref(null);
 
@@ -877,6 +913,41 @@ const lifestyleImages = [
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
+	},
+];
+
+const faqs = [
+	{
+		question: 'How many units are in the building?',
+		answer: '1033 Lenox is a boutique 28-unit condominium. All residences are one-bedroom apartments with oversized balconies.',
+	},
+	{
+		question: 'Is parking included?',
+		answer: 'Yes. Every residence comes with one deeded garage parking space in the secured parking garage.',
+	},
+	{
+		question: 'Are pets allowed at 1033 Lenox?',
+		answer: 'Yes, 1033 Lenox is pet-friendly. One approved pet is allowed per residence.',
+	},
+	{
+		question: 'Has the building passed its 40-year recertification?',
+		answer: 'Yes. The 40-year recertification is fully complete with no pending assessments or deferred maintenance. The building is turnkey ready.',
+	},
+	{
+		question: 'What security features does the building have?',
+		answer: 'The building features facial recognition entry via Swiftlane, building-wide camera coverage including the elevator, secured and well-lit walkways, and doorbell cameras installed on 98% of residences.',
+	},
+	{
+		question: 'How far is 1033 Lenox from the beach?',
+		answer: "It's a 6-minute walk to the ocean and a 2-minute walk to the bay. Whole Foods is one block away, and Flamingo Park is one block in the other direction.",
+	},
+	{
+		question: 'Is the building hurricane certified?',
+		answer: 'Yes. 1033 Lenox is fully hurricane-certified with impact windows and doors throughout every unit and in all common areas.',
+	},
+	{
+		question: 'What renovations have been completed?',
+		answer: 'Recent capital improvements include complete concrete restoration, full electrical infrastructure upgrade, hurricane-impact windows and doors, new roof, new elevator cab, modern railings, new garage and asphalt, new security systems, new access control, and new laundry facilities.',
 	},
 ];
 
@@ -1076,6 +1147,9 @@ onMounted(() => {
 		// Investment section
 		animateSection(investmentRef, ['.content-label', '.section-title', '.investment-point', '.section-tagline']);
 
+		// FAQ section
+		animateSection(faqRef, ['.content-label', '.section-title', '.faq-item']);
+
 		// Pets section
 		animateSection(petsRef, ['.pet-title', '.pet-policy', '.pet-tagline', '.section-image']);
 
@@ -1213,6 +1287,7 @@ useHead({
 	],
 	link: [
 		{rel: 'canonical', href: siteUrl},
+		{rel: 'preload', as: 'image', href: 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge'},
 	],
 });
 
@@ -1296,6 +1371,21 @@ useHead({
 					'@type': 'City',
 					name: 'Miami Beach',
 				},
+			}),
+		},
+		{
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: faqs.map((faq) => ({
+					'@type': 'Question',
+					name: faq.question,
+					acceptedAnswer: {
+						'@type': 'Answer',
+						text: faq.answer,
+					},
+				})),
 			}),
 		},
 	],
