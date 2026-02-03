@@ -120,6 +120,9 @@ export default defineNuxtConfig({
 		sendgridAccessRequestUserTemplate: process.env.SENDGRID_ACCESS_REQUEST_USER_TEMPLATE || '',
 		anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 		staticToken: process.env.DIRECTUS_SERVER_TOKEN || '',
+		// Google Analytics Data API (for server-side analytics queries)
+		ga4PropertyId: process.env.GA4_PROPERTY_ID || '', // e.g., "properties/123456789"
+		googleAnalyticsCredentials: process.env.GOOGLE_ANALYTICS_CREDENTIALS || '', // JSON string of service account
 		public: {
 			assetsUrl: process.env.DIRECTUS_ASSETS_URL || 'https://admin.1033lenox.com/assets/',
 			websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || 'wss://admin.1033lenox.com/websocket',

@@ -15,6 +15,11 @@ const canAccessAnalytics = computed(() => isAdmin.value || isBoardMember.value);
 
 const sections = [
 	{
+		id: 'api-setup',
+		title: 'GA4 Data API Setup',
+		icon: 'i-heroicons-server',
+	},
+	{
 		id: 'events',
 		title: 'Events Being Tracked',
 		icon: 'i-heroicons-cursor-arrow-rays',
@@ -41,7 +46,7 @@ const sections = [
 	},
 ];
 
-const activeSection = ref('events');
+const activeSection = ref('api-setup');
 
 const trackedEvents = [
 	{
@@ -340,6 +345,168 @@ analytics.clearUserIdentity();
 
 				<!-- Main Content -->
 				<div class="flex-1 max-w-4xl">
+					<!-- GA4 Data API Setup -->
+					<section v-show="activeSection === 'api-setup'" class="space-y-6">
+						<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
+							<h2 class="text-xl font-semibold mb-4">GA4 Data API Configuration</h2>
+							<p class="text-gray-600 dark:text-gray-400 mb-6">
+								Configure the Google Analytics 4 Data API to enable live analytics data in the dashboard.
+								This allows the application to fetch metrics directly from GA4.
+							</p>
+
+							<div class="space-y-8">
+								<!-- Step 1: Install Package -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">1</span>
+										Install the GA4 Data API Package
+									</h3>
+									<p class="text-gray-600 dark:text-gray-400 mb-3 ml-10">
+										Install the official Google Analytics Data API client library:
+									</p>
+									<pre class="ml-10 bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code>npm install @google-analytics/data</code></pre>
+								</div>
+
+								<!-- Step 2: Create Service Account -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">2</span>
+										Create a Service Account in Google Cloud
+									</h3>
+									<ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400 ml-10">
+										<li>
+											Go to
+											<a href="https://console.cloud.google.com" target="_blank" class="text-primary-500 underline">
+												Google Cloud Console
+											</a>
+										</li>
+										<li>Create a new project or select an existing one</li>
+										<li>Navigate to <strong>IAM & Admin &gt; Service Accounts</strong></li>
+										<li>Click <strong>Create Service Account</strong></li>
+										<li>Give it a name (e.g., "ga4-data-api")</li>
+										<li>Skip the optional permissions step</li>
+										<li>Click <strong>Done</strong> to create the account</li>
+										<li>Click on the newly created service account</li>
+										<li>Go to the <strong>Keys</strong> tab</li>
+										<li>Click <strong>Add Key &gt; Create new key</strong></li>
+										<li>Select <strong>JSON</strong> and click <strong>Create</strong></li>
+										<li>Save the downloaded JSON file securely</li>
+									</ol>
+								</div>
+
+								<!-- Step 3: Enable the API -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">3</span>
+										Enable the Google Analytics Data API
+									</h3>
+									<ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400 ml-10">
+										<li>
+											Go to
+											<a href="https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com" target="_blank" class="text-primary-500 underline">
+												Analytics Data API
+											</a>
+											in Google Cloud Console
+										</li>
+										<li>Make sure you have the correct project selected</li>
+										<li>Click <strong>Enable</strong></li>
+									</ol>
+								</div>
+
+								<!-- Step 4: Add to GA4 -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">4</span>
+										Add Service Account to GA4 Property
+									</h3>
+									<ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400 ml-10">
+										<li>
+											Go to
+											<a href="https://analytics.google.com" target="_blank" class="text-primary-500 underline">
+												Google Analytics
+											</a>
+										</li>
+										<li>Navigate to <strong>Admin</strong> (gear icon at bottom left)</li>
+										<li>Under Property, click <strong>Property Access Management</strong></li>
+										<li>Click the <strong>+</strong> button and select <strong>Add users</strong></li>
+										<li>
+											Enter the service account email from the JSON file
+											<br />
+											<span class="text-sm text-gray-500">(looks like: name@project-id.iam.gserviceaccount.com)</span>
+										</li>
+										<li>Set the role to <strong>Viewer</strong></li>
+										<li>Click <strong>Add</strong></li>
+									</ol>
+								</div>
+
+								<!-- Step 5: Get Property ID -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">5</span>
+										Get Your GA4 Property ID
+									</h3>
+									<ol class="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400 ml-10">
+										<li>In Google Analytics, go to <strong>Admin</strong></li>
+										<li>Under Property, click <strong>Property Settings</strong></li>
+										<li>The <strong>Property ID</strong> is shown at the top (e.g., 123456789)</li>
+										<li>Note this ID for the next step</li>
+									</ol>
+								</div>
+
+								<!-- Step 6: Set Environment Variables -->
+								<div>
+									<h3 class="font-semibold text-lg mb-3 flex items-center">
+										<span class="w-7 h-7 rounded-full bg-primary-500 text-white text-sm flex items-center justify-center mr-3">6</span>
+										Set Environment Variables
+									</h3>
+									<p class="text-gray-600 dark:text-gray-400 mb-3 ml-10">
+										Add the following variables to your <code class="bg-gray-200 dark:bg-gray-700 px-1 rounded">.env</code> file:
+									</p>
+									<pre class="ml-10 bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto text-sm"><code># Your GA4 Property ID (prefix with "properties/")
+GA4_PROPERTY_ID=properties/123456789
+
+# The full JSON credentials from the service account key file
+# Option 1: Paste the entire JSON (escape quotes if needed)
+GOOGLE_ANALYTICS_CREDENTIALS='{"type":"service_account","project_id":"your-project","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"ga4-api@your-project.iam.gserviceaccount.com","client_id":"...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token"}'
+
+# Option 2: Base64 encode the JSON file contents
+# GOOGLE_ANALYTICS_CREDENTIALS_BASE64=eyJ0eXBlIjoic2VydmljZV9hY2NvdW50Ii...</code></pre>
+								</div>
+
+								<!-- Verification -->
+								<div class="bg-green-50 dark:bg-green-900/20 rounded-lg p-4 border border-green-200 dark:border-green-700">
+									<h4 class="font-semibold text-green-800 dark:text-green-200 mb-2 flex items-center">
+										<UIcon name="i-heroicons-check-circle" class="w-5 h-5 mr-2" />
+										Verification
+									</h4>
+									<p class="text-sm text-green-700 dark:text-green-300 mb-2">
+										After completing the setup, restart your development server. The analytics dashboard
+										should now display live data from GA4. If the API isn't configured correctly, the
+										dashboard will show placeholder values ("-") instead of errors.
+									</p>
+									<p class="text-sm text-green-700 dark:text-green-300">
+										Check the server console for any authentication errors if data isn't loading.
+									</p>
+								</div>
+
+								<!-- Troubleshooting -->
+								<div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg p-4 border border-yellow-200 dark:border-yellow-700">
+									<h4 class="font-semibold text-yellow-800 dark:text-yellow-200 mb-2 flex items-center">
+										<UIcon name="i-heroicons-exclamation-triangle" class="w-5 h-5 mr-2" />
+										Troubleshooting
+									</h4>
+									<ul class="list-disc list-inside text-sm text-yellow-700 dark:text-yellow-300 space-y-1">
+										<li>Ensure the Analytics Data API is enabled in Google Cloud Console</li>
+										<li>Verify the service account email has access to the GA4 property</li>
+										<li>Check that the Property ID includes the "properties/" prefix</li>
+										<li>Make sure the JSON credentials are properly formatted (no line breaks except in private_key)</li>
+										<li>Wait a few minutes after granting access for permissions to propagate</li>
+									</ul>
+								</div>
+							</div>
+						</div>
+					</section>
+
 					<!-- Events Being Tracked -->
 					<section v-show="activeSection === 'events'" class="space-y-6">
 						<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">

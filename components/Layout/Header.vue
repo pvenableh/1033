@@ -26,7 +26,7 @@ const avatar = computed(() => {
 </script>
 <template>
 	<header
-		class="w-full flex items-center justify-center fixed top-0 left-0 z-20 transition-all header pt-safe"
+		class="w-full flex items-center justify-center sticky top-0 z-20 transition-all header pt-safe"
 		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row gap-1">

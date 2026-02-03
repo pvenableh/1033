@@ -81,52 +81,64 @@ const dateRangeOptions = [
 	{label: 'Year to date', value: 'ytd'},
 ];
 
-// Sample metrics data (in production, this would come from GA4 API or your backend)
-const overviewMetrics = ref([
-	{
-		label: 'Total Page Views',
-		value: '12,847',
-		change: '+12.5%',
-		changeType: 'positive',
-		icon: 'i-heroicons-eye',
-	},
-	{
-		label: 'Unique Visitors',
-		value: '3,421',
-		change: '+8.2%',
-		changeType: 'positive',
-		icon: 'i-heroicons-users',
-	},
-	{
-		label: 'Avg. Session Duration',
-		value: '4m 32s',
-		change: '+5.1%',
-		changeType: 'positive',
-		icon: 'i-heroicons-clock',
-	},
-	{
-		label: 'Bounce Rate',
-		value: '34.2%',
-		change: '-2.3%',
-		changeType: 'positive',
-		icon: 'i-heroicons-arrow-uturn-left',
-	},
-]);
+// Loading states
+const analyticsLoading = ref(true);
+const ga4Configured = ref<boolean | null>(null); // null = unknown, true = configured, false = not configured
 
-// Page views chart data
-const pageViewsChartData = computed(() => ({
-	labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-	datasets: [
-		{
+// GA4 data refs
+const overviewData = ref<any>(null);
+const pageViewsData = ref<any>(null);
+const topPagesData = ref<any[]>([]);
+const devicesData = ref<any>(null);
+const trafficSourcesData = ref<any[]>([]);
+const engagementData = ref<any>(null);
+const eventsData = ref<any>(null);
+const realtimeData = ref<any>(null);
+
+// Check if GA4 needs configuration
+const needsConfiguration = computed(() => ga4Configured.value === false);
+
+// Overview metrics computed from API data
+const overviewMetrics = computed(() => {
+	const notConfiguredValue = needsConfiguration.value ? 'Not configured' : '-';
+	if (!overviewData.value?.metrics) {
+		return [
+			{ label: 'Total Page Views', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-eye' },
+			{ label: 'Unique Visitors', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-users' },
+			{ label: 'Avg. Session Duration', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-clock' },
+			{ label: 'Bounce Rate', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-arrow-uturn-left' },
+		];
+	}
+	return overviewData.value.metrics;
+});
+
+// Page views chart data - from API
+const pageViewsChartData = computed(() => {
+	if (!pageViewsData.value?.chart) {
+		return {
+			labels: [],
+			datasets: [{
+				label: 'Page Views',
+				data: [],
+				borderColor: themeColors.chart1Hex,
+				backgroundColor: 'rgba(0, 240, 181, 0.1)',
+				fill: true,
+				tension: 0.4,
+			}],
+		};
+	}
+	return {
+		labels: pageViewsData.value.chart.labels,
+		datasets: [{
 			label: 'Page Views',
-			data: [1850, 2100, 1920, 2340, 2180, 1650, 1807],
+			data: pageViewsData.value.chart.data,
 			borderColor: themeColors.chart1Hex,
 			backgroundColor: 'rgba(0, 240, 181, 0.1)',
 			fill: true,
 			tension: 0.4,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const pageViewsChartOptions = {
 	responsive: true,
@@ -151,25 +163,23 @@ const pageViewsChartOptions = {
 	},
 };
 
-// Top pages data
-const topPages = ref([
-	{path: '/', title: 'Home', views: 4521, avgTime: '3m 12s', bounceRate: '28%'},
-	{path: '/dashboard', title: 'Dashboard', views: 2134, avgTime: '5m 45s', bounceRate: '15%'},
-	{path: '/meetings', title: 'Meetings', views: 1876, avgTime: '4m 22s', bounceRate: '22%'},
-	{path: '/documents', title: 'Documents', views: 1432, avgTime: '6m 18s', bounceRate: '18%'},
-	{path: '/announcements', title: 'Announcements', views: 1287, avgTime: '2m 45s', bounceRate: '35%'},
-	{path: '/projects', title: 'Projects', views: 984, avgTime: '4m 56s', bounceRate: '20%'},
-	{path: '/feed', title: 'Before/After Gallery', views: 756, avgTime: '3m 33s', bounceRate: '25%'},
-	{path: '/financials', title: 'Financials', views: 643, avgTime: '7m 12s', bounceRate: '12%'},
-]);
+// Top pages data - from API
+const topPages = computed(() => {
+	if (!topPagesData.value?.length) {
+		return [];
+	}
+	return topPagesData.value;
+});
 
-// Scroll depth data
-const scrollDepthData = computed(() => ({
-	labels: ['25%', '50%', '75%', '90%', '100%'],
-	datasets: [
-		{
+// Scroll depth data - from engagement API
+const scrollDepthData = computed(() => {
+	const defaultData = [0, 0, 0, 0, 0];
+	const data = engagementData.value?.scrollDepth?.data || defaultData;
+	return {
+		labels: ['25%', '50%', '75%', '90%', '100%'],
+		datasets: [{
 			label: 'Users Reached',
-			data: [89, 72, 58, 41, 28],
+			data,
 			backgroundColor: [
 				themeColors.chart1Hex,
 				themeColors.chart2Hex,
@@ -178,9 +188,9 @@ const scrollDepthData = computed(() => ({
 				themeColors.chart3Hex,
 			],
 			borderWidth: 0,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const scrollDepthOptions = {
 	responsive: true,
@@ -202,39 +212,45 @@ const scrollDepthOptions = {
 	},
 };
 
-// User engagement metrics
-const engagementMetrics = ref([
-	{label: 'Avg. Page Depth', value: '3.2 pages', description: 'Average pages viewed per session'},
-	{label: 'Scroll Engagement', value: '67%', description: 'Users who scroll past 50%'},
-	{label: 'Click Rate', value: '4.8%', description: 'Click-through rate on CTAs'},
-	{label: 'Form Completion', value: '72%', description: 'Form start to submit rate'},
-]);
+// User engagement metrics - from API
+const engagementMetrics = computed(() => {
+	const notConfiguredValue = needsConfiguration.value ? 'Not configured' : '-';
+	if (!engagementData.value?.metrics) {
+		return [
+			{ label: 'Avg. Page Depth', value: notConfiguredValue, description: 'Average pages viewed per session' },
+			{ label: 'Scroll Engagement', value: notConfiguredValue, description: 'Users who scroll past 50%' },
+			{ label: 'Engagement Rate', value: notConfiguredValue, description: 'Sessions with engagement' },
+			{ label: 'Form Completion', value: notConfiguredValue, description: 'Form start to submit rate' },
+		];
+	}
+	return engagementData.value.metrics;
+});
 
-// Event tracking summary
-const eventsSummary = ref([
-	{event: 'user_identified', count: 1247, category: 'Users'},
-	{event: 'button_click', count: 3421, category: 'Engagement'},
-	{event: 'form_submit', count: 856, category: 'Conversion'},
-	{event: 'outbound_click', count: 432, category: 'Navigation'},
-	{event: 'file_download', count: 287, category: 'Content'},
-	{event: 'user_logout', count: 234, category: 'Users'},
-]);
+// Event tracking summary - from API
+const eventsSummary = computed(() => {
+	if (!eventsData.value?.events) {
+		return [];
+	}
+	return eventsData.value.events;
+});
 
-// Device breakdown
-const deviceData = computed(() => ({
-	labels: ['Desktop', 'Mobile', 'Tablet'],
-	datasets: [
-		{
-			data: [58, 35, 7],
+// Device breakdown - from API
+const deviceData = computed(() => {
+	const defaultData = { desktop: 0, mobile: 0, tablet: 0 };
+	const data = devicesData.value?.breakdown || defaultData;
+	return {
+		labels: ['Desktop', 'Mobile', 'Tablet'],
+		datasets: [{
+			data: [data.desktop || 0, data.mobile || 0, data.tablet || 0],
 			backgroundColor: [
 				themeColors.chart1Hex,
 				themeColors.chart2Hex,
 				themeColors.chart4Hex,
 			],
 			borderWidth: 0,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const deviceOptions = {
 	responsive: true,
@@ -246,110 +262,254 @@ const deviceOptions = {
 	},
 };
 
-// Traffic sources
-const trafficSources = ref([
-	{source: 'Direct', sessions: 1842, percentage: 42},
-	{source: 'Organic Search', sessions: 1256, percentage: 29},
-	{source: 'Referral', sessions: 654, percentage: 15},
-	{source: 'Social', sessions: 432, percentage: 10},
-	{source: 'Email', sessions: 174, percentage: 4},
-]);
+// Traffic sources - from API
+const trafficSources = computed(() => {
+	if (!trafficSourcesData.value?.length) {
+		return [];
+	}
+	return trafficSourcesData.value;
+});
 
-// User activity data
-const userActivity = ref([
-	{
-		id: '1',
-		name: 'John Smith',
-		email: 'john.smith@example.com',
-		role: 'Board Member',
-		lastActive: '2 minutes ago',
-		pageViews: 47,
-		sessionsToday: 3,
-		lastPage: '/dashboard',
-		status: 'online',
-	},
-	{
-		id: '2',
-		name: 'Sarah Johnson',
-		email: 'sarah.j@example.com',
-		role: 'Admin',
-		lastActive: '15 minutes ago',
-		pageViews: 28,
-		sessionsToday: 2,
-		lastPage: '/admin/users',
-		status: 'online',
-	},
-	{
-		id: '3',
-		name: 'Michael Chen',
-		email: 'mchen@example.com',
-		role: 'Owner',
-		lastActive: '1 hour ago',
-		pageViews: 15,
-		sessionsToday: 1,
-		lastPage: '/financials',
-		status: 'away',
-	},
-	{
-		id: '4',
-		name: 'Emily Davis',
-		email: 'emily.d@example.com',
-		role: 'Board Member',
-		lastActive: '3 hours ago',
-		pageViews: 12,
-		sessionsToday: 1,
-		lastPage: '/meetings',
-		status: 'offline',
-	},
-	{
-		id: '5',
-		name: 'Robert Wilson',
-		email: 'rwilson@example.com',
-		role: 'Owner',
-		lastActive: 'Yesterday',
-		pageViews: 34,
-		sessionsToday: 0,
-		lastPage: '/documents',
-		status: 'offline',
-	},
-]);
+// Fetch real user data
+const users = ref<any[]>([]);
+const usersLoading = ref(true);
+const ga4Metrics = ref<Record<string, any>>({});
+const ga4Error = ref<string | null>(null);
 
-// User role breakdown for chart
-const userRoleData = computed(() => ({
-	labels: ['Board Members', 'Owners', 'Admins', 'Staff'],
-	datasets: [
-		{
-			data: [8, 42, 3, 12],
-			backgroundColor: [
-				themeColors.chart1Hex,
-				themeColors.chart2Hex,
-				themeColors.chart4Hex,
-				themeColors.chart5Hex,
-			],
-			borderWidth: 0,
-		},
-	],
-}));
+async function fetchUsers() {
+	usersLoading.value = true;
+	try {
+		const response: any = await $fetch('/api/directus/users', {
+			method: 'POST',
+			body: {
+				operation: 'list',
+				query: {
+					fields: ['id', 'first_name', 'last_name', 'email', 'status', 'role.id', 'role.name', 'last_access'],
+					filter: {
+						status: { _eq: 'active' },
+					},
+					sort: ['-last_access'],
+					limit: -1,
+				},
+			},
+		});
+		users.value = response || [];
+	} catch (error) {
+		console.error('Failed to fetch users:', error);
+	} finally {
+		usersLoading.value = false;
+	}
+}
 
-// User metrics summary
-const userMetrics = ref([
-	{label: 'Total Identified Users', value: '65', icon: 'i-heroicons-users', change: '+12%'},
-	{label: 'Active Today', value: '23', icon: 'i-heroicons-user-circle', change: '+5%'},
-	{label: 'Logins Today', value: '31', icon: 'i-heroicons-arrow-right-on-rectangle', change: '+8%'},
-	{label: 'Avg. Pages/User', value: '4.2', icon: 'i-heroicons-document-duplicate', change: '+3%'},
-]);
+// Fetch GA4 user metrics
+async function fetchGA4Metrics() {
+	ga4Error.value = null;
+	try {
+		const response: any = await $fetch('/api/analytics/user-metrics', {
+			query: { dateRange: dateRange.value },
+		});
+		if (response.success && response.userMetrics) {
+			ga4Metrics.value = response.userMetrics;
+		}
+	} catch (error: any) {
+		// GA4 API not configured - silently fail and use fallback
+		console.warn('GA4 API not available:', error.message);
+		ga4Error.value = error.data?.message || 'GA4 API not configured';
+	}
+}
 
-// Real-time stats (simulated)
-const realtimeUsers = ref(12);
-const realtimePageViews = ref(47);
+// User activity data derived from real users + GA4 metrics
+const userActivity = computed(() => {
+	return users.value.slice(0, 10).map((user) => {
+		const lastAccess = user.last_access ? new Date(user.last_access) : null;
+		const now = new Date();
+		let lastActive = 'Never';
+		let status = 'offline';
 
-// Simulate real-time updates
+		if (lastAccess) {
+			const diffMinutes = Math.floor((now.getTime() - lastAccess.getTime()) / (1000 * 60));
+			if (diffMinutes < 5) {
+				lastActive = 'Just now';
+				status = 'online';
+			} else if (diffMinutes < 60) {
+				lastActive = `${diffMinutes} minutes ago`;
+				status = diffMinutes < 15 ? 'online' : 'away';
+			} else if (diffMinutes < 1440) {
+				const hours = Math.floor(diffMinutes / 60);
+				lastActive = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+				status = 'away';
+			} else if (diffMinutes < 2880) {
+				lastActive = 'Yesterday';
+			} else {
+				lastActive = lastAccess.toLocaleDateString();
+			}
+		}
+
+		const roleName = typeof user.role === 'object' ? user.role?.name : 'No Role';
+
+		// Get GA4 metrics for this user (matched by user ID)
+		const userGA4 = ga4Metrics.value[user.id] || null;
+
+		return {
+			id: user.id,
+			name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+			email: user.email,
+			role: roleName,
+			lastActive,
+			// Use GA4 data if available, otherwise show placeholder
+			pageViews: userGA4?.pageViews ?? '-',
+			sessionsToday: userGA4?.sessionsToday ?? '-',
+			lastPage: '/dashboard',
+			status,
+		};
+	});
+});
+
+// User role breakdown for chart - computed from real data
+const userRoleData = computed(() => {
+	const roleCounts: Record<string, number> = {
+		'Board Member': 0,
+		'Owner': 0,
+		'Administrator': 0,
+		'Staff': 0,
+	};
+
+	users.value.forEach((user) => {
+		const roleName = typeof user.role === 'object' ? user.role?.name : '';
+		if (roleName.includes('Board')) {
+			roleCounts['Board Member']++;
+		} else if (roleName.includes('Owner') || roleName.includes('Resident')) {
+			roleCounts['Owner']++;
+		} else if (roleName.includes('Admin')) {
+			roleCounts['Administrator']++;
+		} else if (roleName) {
+			roleCounts['Staff']++;
+		}
+	});
+
+	return {
+		labels: ['Board Members', 'Owners', 'Admins', 'Staff'],
+		datasets: [
+			{
+				data: [roleCounts['Board Member'], roleCounts['Owner'], roleCounts['Administrator'], roleCounts['Staff']],
+				backgroundColor: [
+					themeColors.chart1Hex,
+					themeColors.chart2Hex,
+					themeColors.chart4Hex,
+					themeColors.chart5Hex,
+				],
+				borderWidth: 0,
+			},
+		],
+	};
+});
+
+// User metrics summary - computed from real data
+const userMetrics = computed(() => {
+	const totalUsers = users.value.length;
+	const now = new Date();
+	const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+	const activeToday = users.value.filter((user) => {
+		if (!user.last_access) return false;
+		return new Date(user.last_access) >= todayStart;
+	}).length;
+
+	return [
+		{label: 'Total Active Users', value: String(totalUsers), icon: 'i-heroicons-users', change: ''},
+		{label: 'Active Today', value: String(activeToday), icon: 'i-heroicons-user-circle', change: ''},
+		{label: 'Board Members', value: String(userRoleData.value.datasets[0].data[0]), icon: 'i-heroicons-building-office', change: ''},
+		{label: 'Owners/Residents', value: String(userRoleData.value.datasets[0].data[1]), icon: 'i-heroicons-home', change: ''},
+	];
+});
+
+// Real-time stats - from API
+const realtimeUsers = computed(() => realtimeData.value?.activeUsers ?? 0);
+const realtimePageViews = computed(() => realtimeData.value?.recentPageViews ?? 0);
+
+// Fetch all GA4 analytics data
+async function fetchAnalyticsData() {
+	analyticsLoading.value = true;
+	const query = { dateRange: dateRange.value };
+
+	try {
+		const [overview, pageViews, pages, devices, traffic, engagement, events] = await Promise.allSettled([
+			$fetch('/api/analytics/overview', { query }),
+			$fetch('/api/analytics/pageviews-chart', { query }),
+			$fetch('/api/analytics/top-pages', { query }),
+			$fetch('/api/analytics/devices', { query }),
+			$fetch('/api/analytics/traffic-sources', { query }),
+			$fetch('/api/analytics/engagement', { query }),
+			$fetch('/api/analytics/events', { query }),
+		]);
+
+		// Check if any API call succeeded to determine if GA4 is configured
+		const anySuccess = [overview, pageViews, pages, devices, traffic, engagement, events]
+			.some(result => result.status === 'fulfilled' && (result.value as any)?.success);
+
+		// Check if all failed due to configuration issues
+		const allFailed = [overview, pageViews, pages, devices, traffic, engagement, events]
+			.every(result => result.status === 'rejected');
+
+		if (anySuccess) {
+			ga4Configured.value = true;
+		} else if (allFailed) {
+			ga4Configured.value = false;
+		}
+
+		if (overview.status === 'fulfilled') overviewData.value = overview.value;
+		if (pageViews.status === 'fulfilled') pageViewsData.value = pageViews.value;
+		if (pages.status === 'fulfilled' && (pages.value as any)?.pages) {
+			topPagesData.value = (pages.value as any).pages;
+		}
+		if (devices.status === 'fulfilled') devicesData.value = devices.value;
+		if (traffic.status === 'fulfilled' && (traffic.value as any)?.sources) {
+			trafficSourcesData.value = (traffic.value as any).sources;
+		}
+		if (engagement.status === 'fulfilled') engagementData.value = engagement.value;
+		if (events.status === 'fulfilled') eventsData.value = events.value;
+	} catch (error) {
+		console.error('Failed to fetch analytics data:', error);
+		ga4Configured.value = false;
+	} finally {
+		analyticsLoading.value = false;
+	}
+}
+
+// Fetch real-time data separately (can be called more frequently)
+async function fetchRealtimeData() {
+	try {
+		const response: any = await $fetch('/api/analytics/realtime');
+		if (response.success) {
+			realtimeData.value = response;
+		}
+	} catch (error) {
+		console.warn('Failed to fetch realtime data:', error);
+	}
+}
+
+// Refresh real-time data periodically
 let realtimeInterval: ReturnType<typeof setInterval>;
-onMounted(() => {
+
+onMounted(async () => {
+	// Fetch all data in parallel
+	await Promise.all([
+		fetchUsers(),
+		fetchGA4Metrics(),
+		fetchAnalyticsData(),
+		fetchRealtimeData(),
+	]);
+
+	// Refresh real-time data every 30 seconds
 	realtimeInterval = setInterval(() => {
-		realtimeUsers.value = Math.max(1, realtimeUsers.value + Math.floor(Math.random() * 5) - 2);
-		realtimePageViews.value += Math.floor(Math.random() * 3);
-	}, 5000);
+		fetchRealtimeData();
+	}, 30000);
+});
+
+// Refetch data when date range changes
+watch(dateRange, () => {
+	fetchGA4Metrics();
+	fetchAnalyticsData();
 });
 
 onUnmounted(() => {
@@ -386,25 +546,52 @@ onUnmounted(() => {
 			</div>
 
 			<div v-else>
+				<!-- Configuration Required Notice -->
+				<div v-if="needsConfiguration" class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-6 mb-8 border border-amber-200 dark:border-amber-700">
+					<div class="flex items-start">
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-amber-500 mr-4 flex-shrink-0 mt-0.5" />
+						<div class="flex-1">
+							<h3 class="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-2">
+								GA4 Data API Not Configured
+							</h3>
+							<p class="text-sm text-amber-800 dark:text-amber-200 mb-4">
+								The Google Analytics 4 Data API needs to be configured to display live analytics data.
+								Follow the setup guide to connect your GA4 property.
+							</p>
+							<NuxtLink
+								to="/admin/analytics/setup"
+								class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
+								<UIcon name="i-heroicons-cog-6-tooth" class="w-4 h-4 mr-2" />
+								View Setup Guide
+							</NuxtLink>
+						</div>
+					</div>
+				</div>
+
 				<!-- Real-time Stats Banner -->
 				<div class="bg-gradient-to-r from-primary to-teal-400 rounded-lg p-4 mb-8 text-white">
 					<div class="flex items-center justify-between">
 						<div class="flex items-center space-x-6">
 							<div class="flex items-center">
 								<span class="relative flex h-3 w-3 mr-2">
-									<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+									<span v-if="!needsConfiguration" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
 									<span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
 								</span>
 								<span class="font-semibold">Real-time</span>
 							</div>
-							<div>
-								<span class="text-2xl font-bold">{{ realtimeUsers }}</span>
-								<span class="text-sm ml-1 opacity-80">active users</span>
+							<div v-if="needsConfiguration" class="text-sm opacity-80">
+								Not configured
 							</div>
-							<div>
-								<span class="text-2xl font-bold">{{ realtimePageViews }}</span>
-								<span class="text-sm ml-1 opacity-80">page views today</span>
-							</div>
+							<template v-else>
+								<div>
+									<span class="text-2xl font-bold">{{ realtimeUsers }}</span>
+									<span class="text-sm ml-1 opacity-80">active users</span>
+								</div>
+								<div>
+									<span class="text-2xl font-bold">{{ realtimePageViews }}</span>
+									<span class="text-sm ml-1 opacity-80">page views today</span>
+								</div>
+							</template>
 						</div>
 						<a
 							href="https://analytics.google.com"
@@ -425,16 +612,19 @@ onUnmounted(() => {
 						<div class="flex items-center justify-between mb-4">
 							<UIcon :name="metric.icon" class="w-8 h-8 text-primary-500" />
 							<span
+								v-if="metric.change"
 								:class="[
 									'text-sm font-medium px-2 py-1 rounded',
 									metric.changeType === 'positive'
 										? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-										: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+										: metric.changeType === 'negative'
+											? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+											: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
 								]">
 								{{ metric.change }}
 							</span>
 						</div>
-						<p class="text-2xl font-bold">{{ metric.value }}</p>
+						<p class="text-2xl font-bold" :class="{ 'text-amber-600 dark:text-amber-400': metric.value === 'Not configured' }">{{ metric.value }}</p>
 						<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ metric.label }}</p>
 					</div>
 				</div>
@@ -479,7 +669,7 @@ onUnmounted(() => {
 								v-for="metric in engagementMetrics"
 								:key="metric.label"
 								class="bg-white dark:bg-gray-700 rounded-lg p-4">
-								<p class="text-xl font-bold text-primary-500">{{ metric.value }}</p>
+								<p class="text-xl font-bold" :class="metric.value === 'Not configured' ? 'text-amber-600 dark:text-amber-400' : 'text-primary-500'">{{ metric.value }}</p>
 								<p class="text-sm font-medium">{{ metric.label }}</p>
 								<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ metric.description }}</p>
 							</div>
@@ -503,6 +693,11 @@ onUnmounted(() => {
 									</tr>
 								</thead>
 								<tbody>
+									<tr v-if="topPages.length === 0">
+										<td colspan="4" class="py-6 text-center text-gray-500 dark:text-gray-400">
+											{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No page data available') }}
+										</td>
+									</tr>
 									<tr
 										v-for="page in topPages"
 										:key="page.path"
@@ -511,7 +706,7 @@ onUnmounted(() => {
 											<span class="font-medium">{{ page.title }}</span>
 											<span class="block text-xs text-gray-500">{{ page.path }}</span>
 										</td>
-										<td class="text-right py-3 font-medium">{{ page.views.toLocaleString() }}</td>
+										<td class="text-right py-3 font-medium">{{ (page.views || 0).toLocaleString() }}</td>
 										<td class="text-right py-3 hidden sm:table-cell">{{ page.avgTime }}</td>
 										<td class="text-right py-3 hidden sm:table-cell">{{ page.bounceRate }}</td>
 									</tr>
@@ -524,15 +719,18 @@ onUnmounted(() => {
 					<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 						<h3 class="text-lg font-semibold mb-4">Traffic Sources</h3>
 						<div class="space-y-4">
+							<div v-if="trafficSources.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
+								{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No traffic data available') }}
+							</div>
 							<div v-for="source in trafficSources" :key="source.source">
 								<div class="flex justify-between text-sm mb-2">
 									<span class="font-medium">{{ source.source }}</span>
 									<span class="text-gray-600 dark:text-gray-400">
-										{{ source.sessions.toLocaleString() }} ({{ source.percentage }}%)
+										{{ (source.sessions || 0).toLocaleString() }} ({{ source.percentage || 0 }}%)
 									</span>
 								</div>
 								<Progress
-									:model-value="source.percentage"
+									:model-value="source.percentage || 0"
 									color="primary"
 									class="h-2"
 								/>
@@ -547,12 +745,15 @@ onUnmounted(() => {
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 						Custom events tracked via the analytics system
 					</p>
-					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+					<div v-if="eventsSummary.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
+						{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No event data available') }}
+					</div>
+					<div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
 						<div
 							v-for="event in eventsSummary"
 							:key="event.event"
 							class="bg-white dark:bg-gray-700 rounded-lg p-4 text-center">
-							<p class="text-2xl font-bold text-primary-500">{{ event.count.toLocaleString() }}</p>
+							<p class="text-2xl font-bold text-primary-500">{{ (event.count || 0).toLocaleString() }}</p>
 							<p class="text-sm font-medium mt-1">{{ event.event.replace('_', ' ') }}</p>
 							<span class="inline-block mt-2 text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded">
 								{{ event.category }}
@@ -661,28 +862,28 @@ onUnmounted(() => {
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart1Hex}"></span>
 										<span>Board Members</span>
 									</div>
-									<span class="font-medium">8</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[0] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart2Hex}"></span>
 										<span>Owners</span>
 									</div>
-									<span class="font-medium">42</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[1] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart4Hex}"></span>
 										<span>Admins</span>
 									</div>
-									<span class="font-medium">3</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[2] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart5Hex}"></span>
 										<span>Staff</span>
 									</div>
-									<span class="font-medium">12</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[3] }}</span>
 								</div>
 							</div>
 						</div>
