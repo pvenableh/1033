@@ -552,6 +552,54 @@ export default function useAnalytics() {
 		gtag('set', {user_id: userId});
 	};
 
+	/**
+	 * Identify a user with their ID, email, and name
+	 * Automatically sets user_id and user_properties for GA4
+	 */
+	const identifyUser = (userData: {
+		id: string;
+		email?: string;
+		firstName?: string;
+		lastName?: string;
+		role?: string;
+	}) => {
+		if (import.meta.server) return;
+
+		// Set user ID for cross-device tracking
+		gtag('set', {user_id: userData.id});
+
+		// Set user properties for segmentation
+		const fullName = [userData.firstName, userData.lastName].filter(Boolean).join(' ');
+		gtag('set', 'user_properties', {
+			user_email: userData.email,
+			user_name: fullName || undefined,
+			user_first_name: userData.firstName,
+			user_role: userData.role,
+		});
+
+		// Track identification event
+		gtag('event', 'user_identified', {
+			user_id: userData.id,
+			user_email: userData.email,
+			method: 'manual',
+		});
+	};
+
+	/**
+	 * Clear user identification (call on logout)
+	 */
+	const clearUserIdentity = () => {
+		if (import.meta.server) return;
+
+		gtag('set', {user_id: undefined});
+		gtag('set', 'user_properties', {
+			user_email: undefined,
+			user_name: undefined,
+			user_first_name: undefined,
+			user_role: undefined,
+		});
+	};
+
 	// Initialize session on composable use
 	initSession();
 
@@ -604,6 +652,8 @@ export default function useAnalytics() {
 		// User
 		setUserProperties,
 		setUserId,
+		identifyUser,
+		clearUserIdentity,
 
 		// Session data (readonly)
 		sessionData: readonly(sessionData),
