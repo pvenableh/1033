@@ -83,6 +83,7 @@ const dateRangeOptions = [
 
 // Loading states
 const analyticsLoading = ref(true);
+const ga4Configured = ref<boolean | null>(null); // null = unknown, true = configured, false = not configured
 
 // GA4 data refs
 const overviewData = ref<any>(null);
@@ -94,14 +95,18 @@ const engagementData = ref<any>(null);
 const eventsData = ref<any>(null);
 const realtimeData = ref<any>(null);
 
+// Check if GA4 needs configuration
+const needsConfiguration = computed(() => ga4Configured.value === false);
+
 // Overview metrics computed from API data
 const overviewMetrics = computed(() => {
+	const notConfiguredValue = needsConfiguration.value ? 'Not configured' : '-';
 	if (!overviewData.value?.metrics) {
 		return [
-			{ label: 'Total Page Views', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-eye' },
-			{ label: 'Unique Visitors', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-users' },
-			{ label: 'Avg. Session Duration', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-clock' },
-			{ label: 'Bounce Rate', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-arrow-uturn-left' },
+			{ label: 'Total Page Views', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-eye' },
+			{ label: 'Unique Visitors', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-users' },
+			{ label: 'Avg. Session Duration', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-clock' },
+			{ label: 'Bounce Rate', value: notConfiguredValue, change: '', changeType: 'neutral', icon: 'i-heroicons-arrow-uturn-left' },
 		];
 	}
 	return overviewData.value.metrics;
@@ -209,12 +214,13 @@ const scrollDepthOptions = {
 
 // User engagement metrics - from API
 const engagementMetrics = computed(() => {
+	const notConfiguredValue = needsConfiguration.value ? 'Not configured' : '-';
 	if (!engagementData.value?.metrics) {
 		return [
-			{ label: 'Avg. Page Depth', value: '-', description: 'Average pages viewed per session' },
-			{ label: 'Scroll Engagement', value: '-', description: 'Users who scroll past 50%' },
-			{ label: 'Engagement Rate', value: '-', description: 'Sessions with engagement' },
-			{ label: 'Form Completion', value: '-', description: 'Form start to submit rate' },
+			{ label: 'Avg. Page Depth', value: notConfiguredValue, description: 'Average pages viewed per session' },
+			{ label: 'Scroll Engagement', value: notConfiguredValue, description: 'Users who scroll past 50%' },
+			{ label: 'Engagement Rate', value: notConfiguredValue, description: 'Sessions with engagement' },
+			{ label: 'Form Completion', value: notConfiguredValue, description: 'Form start to submit rate' },
 		];
 	}
 	return engagementData.value.metrics;
@@ -437,6 +443,20 @@ async function fetchAnalyticsData() {
 			$fetch('/api/analytics/events', { query }),
 		]);
 
+		// Check if any API call succeeded to determine if GA4 is configured
+		const anySuccess = [overview, pageViews, pages, devices, traffic, engagement, events]
+			.some(result => result.status === 'fulfilled' && (result.value as any)?.success);
+
+		// Check if all failed due to configuration issues
+		const allFailed = [overview, pageViews, pages, devices, traffic, engagement, events]
+			.every(result => result.status === 'rejected');
+
+		if (anySuccess) {
+			ga4Configured.value = true;
+		} else if (allFailed) {
+			ga4Configured.value = false;
+		}
+
 		if (overview.status === 'fulfilled') overviewData.value = overview.value;
 		if (pageViews.status === 'fulfilled') pageViewsData.value = pageViews.value;
 		if (pages.status === 'fulfilled' && (pages.value as any)?.pages) {
@@ -450,6 +470,7 @@ async function fetchAnalyticsData() {
 		if (events.status === 'fulfilled') eventsData.value = events.value;
 	} catch (error) {
 		console.error('Failed to fetch analytics data:', error);
+		ga4Configured.value = false;
 	} finally {
 		analyticsLoading.value = false;
 	}
@@ -525,25 +546,52 @@ onUnmounted(() => {
 			</div>
 
 			<div v-else>
+				<!-- Configuration Required Notice -->
+				<div v-if="needsConfiguration" class="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-6 mb-8 border border-amber-200 dark:border-amber-700">
+					<div class="flex items-start">
+						<UIcon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-amber-500 mr-4 flex-shrink-0 mt-0.5" />
+						<div class="flex-1">
+							<h3 class="text-lg font-semibold text-amber-900 dark:text-amber-100 mb-2">
+								GA4 Data API Not Configured
+							</h3>
+							<p class="text-sm text-amber-800 dark:text-amber-200 mb-4">
+								The Google Analytics 4 Data API needs to be configured to display live analytics data.
+								Follow the setup guide to connect your GA4 property.
+							</p>
+							<NuxtLink
+								to="/admin/analytics/setup"
+								class="inline-flex items-center px-4 py-2 bg-amber-500 text-white rounded-lg text-sm font-medium hover:bg-amber-600 transition-colors">
+								<UIcon name="i-heroicons-cog-6-tooth" class="w-4 h-4 mr-2" />
+								View Setup Guide
+							</NuxtLink>
+						</div>
+					</div>
+				</div>
+
 				<!-- Real-time Stats Banner -->
 				<div class="bg-gradient-to-r from-primary to-teal-400 rounded-lg p-4 mb-8 text-white">
 					<div class="flex items-center justify-between">
 						<div class="flex items-center space-x-6">
 							<div class="flex items-center">
 								<span class="relative flex h-3 w-3 mr-2">
-									<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+									<span v-if="!needsConfiguration" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
 									<span class="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
 								</span>
 								<span class="font-semibold">Real-time</span>
 							</div>
-							<div>
-								<span class="text-2xl font-bold">{{ realtimeUsers }}</span>
-								<span class="text-sm ml-1 opacity-80">active users</span>
+							<div v-if="needsConfiguration" class="text-sm opacity-80">
+								Not configured
 							</div>
-							<div>
-								<span class="text-2xl font-bold">{{ realtimePageViews }}</span>
-								<span class="text-sm ml-1 opacity-80">page views today</span>
-							</div>
+							<template v-else>
+								<div>
+									<span class="text-2xl font-bold">{{ realtimeUsers }}</span>
+									<span class="text-sm ml-1 opacity-80">active users</span>
+								</div>
+								<div>
+									<span class="text-2xl font-bold">{{ realtimePageViews }}</span>
+									<span class="text-sm ml-1 opacity-80">page views today</span>
+								</div>
+							</template>
 						</div>
 						<a
 							href="https://analytics.google.com"
@@ -564,16 +612,19 @@ onUnmounted(() => {
 						<div class="flex items-center justify-between mb-4">
 							<UIcon :name="metric.icon" class="w-8 h-8 text-primary-500" />
 							<span
+								v-if="metric.change"
 								:class="[
 									'text-sm font-medium px-2 py-1 rounded',
 									metric.changeType === 'positive'
 										? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-										: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+										: metric.changeType === 'negative'
+											? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+											: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
 								]">
 								{{ metric.change }}
 							</span>
 						</div>
-						<p class="text-2xl font-bold">{{ metric.value }}</p>
+						<p class="text-2xl font-bold" :class="{ 'text-amber-600 dark:text-amber-400': metric.value === 'Not configured' }">{{ metric.value }}</p>
 						<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ metric.label }}</p>
 					</div>
 				</div>
@@ -618,7 +669,7 @@ onUnmounted(() => {
 								v-for="metric in engagementMetrics"
 								:key="metric.label"
 								class="bg-white dark:bg-gray-700 rounded-lg p-4">
-								<p class="text-xl font-bold text-primary-500">{{ metric.value }}</p>
+								<p class="text-xl font-bold" :class="metric.value === 'Not configured' ? 'text-amber-600 dark:text-amber-400' : 'text-primary-500'">{{ metric.value }}</p>
 								<p class="text-sm font-medium">{{ metric.label }}</p>
 								<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ metric.description }}</p>
 							</div>
@@ -644,7 +695,7 @@ onUnmounted(() => {
 								<tbody>
 									<tr v-if="topPages.length === 0">
 										<td colspan="4" class="py-6 text-center text-gray-500 dark:text-gray-400">
-											{{ analyticsLoading ? 'Loading...' : 'No page data available' }}
+											{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No page data available') }}
 										</td>
 									</tr>
 									<tr
@@ -669,7 +720,7 @@ onUnmounted(() => {
 						<h3 class="text-lg font-semibold mb-4">Traffic Sources</h3>
 						<div class="space-y-4">
 							<div v-if="trafficSources.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
-								{{ analyticsLoading ? 'Loading...' : 'No traffic data available' }}
+								{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No traffic data available') }}
 							</div>
 							<div v-for="source in trafficSources" :key="source.source">
 								<div class="flex justify-between text-sm mb-2">
@@ -695,7 +746,7 @@ onUnmounted(() => {
 						Custom events tracked via the analytics system
 					</p>
 					<div v-if="eventsSummary.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
-						{{ analyticsLoading ? 'Loading...' : 'No event data available' }}
+						{{ analyticsLoading ? 'Loading...' : (needsConfiguration ? 'GA4 not configured' : 'No event data available') }}
 					</div>
 					<div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
 						<div
