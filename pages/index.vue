@@ -653,7 +653,7 @@
 		<!-- Investment Section -->
 
 		<!-- FAQ Section -->
-		<section ref="faqRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
+		<section ref="faqRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
 			<div class="max-w-6xl mx-auto">
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2 opacity-0">

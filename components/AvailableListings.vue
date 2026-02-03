@@ -1,5 +1,5 @@
 <template>
-	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg">
+	<section ref="listingsRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
 		<div class="max-w-6xl mx-auto">
 			<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 				<div class="content-label flex flex-col gap-2 opacity-0">
@@ -41,7 +41,8 @@
 						</a>
 					</div>
 
-					<p class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
+					<p
+						class="section-tagline t-heading text-lg italic t-text-accent-tertiary pt-8 border-t t-border-divider opacity-0">
 						Your next chapter starts here.
 					</p>
 				</div>
