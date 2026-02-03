@@ -1,5 +1,4 @@
-import { BetaAnalyticsDataClient } from '@google-analytics/data';
-import { isGA4Configured, createNotConfiguredResponse, getGA4PropertyId } from '~/server/utils/ga4-client';
+import { isGA4Configured, createNotConfiguredResponse, getGA4PropertyId, getGA4Client } from '~/server/utils/ga4-client';
 
 /**
  * Fetch per-user analytics metrics from GA4
@@ -16,28 +15,11 @@ export default defineEventHandler(async (event) => {
 		return createNotConfiguredResponse();
 	}
 
-	const config = useRuntimeConfig();
 	const propertyId = getGA4PropertyId()!;
+	const analyticsDataClient = getGA4Client();
 
-	// Initialize the client
-	let analyticsDataClient: BetaAnalyticsDataClient;
-
-	try {
-		// Try to use credentials from env var (for serverless deployments)
-		const credentialsJson = config.googleAnalyticsCredentials || process.env.GOOGLE_ANALYTICS_CREDENTIALS;
-		if (credentialsJson) {
-			const credentials = JSON.parse(credentialsJson);
-			analyticsDataClient = new BetaAnalyticsDataClient({ credentials });
-		} else {
-			// Fall back to GOOGLE_APPLICATION_CREDENTIALS file path
-			analyticsDataClient = new BetaAnalyticsDataClient();
-		}
-	} catch (error) {
-		console.error('Failed to initialize GA4 client:', error);
-		throw createError({
-			statusCode: 500,
-			message: 'Failed to initialize Google Analytics client',
-		});
+	if (!analyticsDataClient) {
+		return createNotConfiguredResponse();
 	}
 
 	const query = getQuery(event);
@@ -191,7 +173,17 @@ export default defineEventHandler(async (event) => {
 			totals,
 		};
 	} catch (error: any) {
-		console.error('GA4 API error:', error);
+		console.error('GA4 user metrics error:', error.message || error);
+
+		// Handle credential/DECODER errors gracefully
+		if (error.message?.includes('DECODER') || error.message?.includes('unsupported') || error.code === 2) {
+			return {
+				success: false,
+				configured: false,
+				message: 'GA4 credentials are invalid or misconfigured. Please check your service account credentials.',
+			};
+		}
+
 		throw createError({
 			statusCode: 500,
 			message: error.message || 'Failed to fetch analytics data',

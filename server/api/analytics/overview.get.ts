@@ -15,6 +15,11 @@ export default defineEventHandler(async (event) => {
 
 	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
+
+	if (!client) {
+		return createNotConfiguredResponse();
+	}
+
 	const { startDate, endDate } = getDateRange(dateRangePreset);
 
 	// Also get previous period for comparison
@@ -127,7 +132,31 @@ export default defineEventHandler(async (event) => {
 			},
 		};
 	} catch (error: any) {
-		console.error('GA4 overview error:', error);
+		// Detailed error logging for debugging
+		console.error('GA4 overview error details:', {
+			message: error.message,
+			code: error.code,
+			details: error.details,
+			metadata: error.metadata?.getMap?.() || error.metadata,
+			cause: error.cause?.message || error.cause,
+			stack: error.stack?.split('\n').slice(0, 8).join('\n'),
+		});
+
+		// Handle credential/DECODER errors gracefully
+		if (error.message?.includes('DECODER') || error.message?.includes('unsupported') || error.code === 2) {
+			console.error('GA4: This is likely a credential format issue. Common causes:');
+			console.error('  1. Private key has wrong format (should be PKCS#8, starting with -----BEGIN PRIVATE KEY-----)');
+			console.error('  2. Newlines in private key are escaped (\\n) but should be actual newlines');
+			console.error('  3. The JSON file was corrupted during copy/paste');
+			console.error('  4. Using a key from a different Google Cloud project');
+
+			return {
+				success: false,
+				configured: false,
+				message: 'GA4 credentials are invalid or misconfigured. Check server logs for details.',
+			};
+		}
+
 		throw createError({
 			statusCode: 500,
 			message: error.message || 'Failed to fetch overview metrics',

@@ -13,6 +13,10 @@ export default defineEventHandler(async (event) => {
 	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
 
+	if (!client) {
+		return createNotConfiguredResponse();
+	}
+
 	try {
 		// Get real-time active users
 		const [realtimeResponse] = await client.runRealtimeReport({
@@ -76,7 +80,17 @@ export default defineEventHandler(async (event) => {
 			activePages,
 		};
 	} catch (error: any) {
-		console.error('GA4 realtime error:', error);
+		console.error('GA4 realtime error:', error.message || error);
+
+		// Handle credential/DECODER errors gracefully
+		if (error.message?.includes('DECODER') || error.message?.includes('unsupported') || error.code === 2) {
+			return {
+				success: false,
+				configured: false,
+				message: 'GA4 credentials are invalid or misconfigured. Please check your service account credentials.',
+			};
+		}
+
 		throw createError({
 			statusCode: 500,
 			message: error.message || 'Failed to fetch real-time data',

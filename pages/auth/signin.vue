@@ -1,7 +1,28 @@
 <script setup lang="ts">
 const route = useRoute();
+const router = useRouter();
 const panel = ref('login');
 const errorMessage = ref<string | null>(null);
+
+// Auth state
+const { user, loggedIn } = useDirectusAuth();
+
+// Redirect if already logged in
+onMounted(() => {
+	if (loggedIn.value && user.value) {
+		// Get redirect URL from query params, default to dashboard
+		const redirectTo = (route.query.redirect as string) || '/dashboard';
+		router.replace(redirectTo);
+	}
+});
+
+// Watch for login state changes (in case they log in via another tab)
+watch(loggedIn, (isLoggedIn) => {
+	if (isLoggedIn && user.value) {
+		const redirectTo = (route.query.redirect as string) || '/dashboard';
+		router.replace(redirectTo);
+	}
+});
 
 // Analytics
 const analytics = useAnalytics();
@@ -15,22 +36,22 @@ watch(panel, (newPanel, oldPanel) => {
 	});
 });
 
-// Check for error query params
-onMounted(() => {
-	if (route.query.error === 'account_inactive') {
+// Check for error query params (only if not redirecting)
+watch(() => route.query.error, (error) => {
+	if (error === 'account_inactive') {
 		errorMessage.value = 'Your account is not active. Please contact an administrator.';
 		analytics.trackError({
 			error_type: 'auth_error',
 			error_message: 'account_inactive',
 		});
-	} else if (route.query.error === 'unauthorized') {
+	} else if (error === 'unauthorized') {
 		errorMessage.value = route.query.message as string || 'You do not have permission to access that page.';
 		analytics.trackError({
 			error_type: 'auth_error',
 			error_message: 'unauthorized',
 		});
 	}
-});
+}, { immediate: true });
 
 function movePanel(val: string) {
 	panel.value = val;

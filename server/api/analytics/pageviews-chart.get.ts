@@ -15,6 +15,11 @@ export default defineEventHandler(async (event) => {
 
 	const propertyId = getGA4PropertyId()!;
 	const client = getGA4Client();
+
+	if (!client) {
+		return createNotConfiguredResponse();
+	}
+
 	const { startDate, endDate } = getDateRange(dateRangePreset);
 
 	try {
@@ -82,7 +87,17 @@ export default defineEventHandler(async (event) => {
 			},
 		};
 	} catch (error: any) {
-		console.error('GA4 pageviews chart error:', error);
+		console.error('GA4 pageviews chart error:', error.message || error);
+
+		// Handle credential/DECODER errors gracefully
+		if (error.message?.includes('DECODER') || error.message?.includes('unsupported') || error.code === 2) {
+			return {
+				success: false,
+				configured: false,
+				message: 'GA4 credentials are invalid or misconfigured. Please check your service account credentials.',
+			};
+		}
+
 		throw createError({
 			statusCode: 500,
 			message: error.message || 'Failed to fetch page views chart data',
