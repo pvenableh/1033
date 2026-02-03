@@ -765,14 +765,14 @@ const {getImageUrl} = useDirectusFiles();
 const analytics = useAnalytics();
 
 // Track CTA clicks
-const trackCTA = (ctaName: string, location: string) => {
+const trackCTA = (ctaName, location) => {
 	analytics.trackCTAClick(ctaName, location, {
 		page_category: 'landing',
 	});
 };
 
 // Track FAQ interactions
-const trackFAQOpen = (question: string, index: number) => {
+const trackFAQOpen = (question, index) => {
 	analytics.trackEvent('faq_open', {
 		faq_question: question,
 		faq_index: index,
@@ -781,7 +781,7 @@ const trackFAQOpen = (question: string, index: number) => {
 };
 
 // Track section views (called from GSAP scroll triggers)
-const trackSectionView = (sectionName: string) => {
+const trackSectionView = (sectionName) => {
 	analytics.trackEvent('section_view', {
 		section_name: sectionName,
 		page_category: 'landing',

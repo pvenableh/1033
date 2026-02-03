@@ -14,7 +14,7 @@ definePageMeta({
 });
 
 // Track announcement click
-const trackAnnouncementClick = (item: {id?: string | number; title: string; url: string}) => {
+const trackAnnouncementClick = (item) => {
 	analytics.trackContentView({
 		content_type: 'announcement',
 		content_id: item.id ? String(item.id) : item.url,

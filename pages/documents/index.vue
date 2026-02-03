@@ -70,7 +70,7 @@ definePageMeta({
 });
 
 // Track document section navigation
-const trackSectionClick = (sectionId: string, sectionLabel: string) => {
+const trackSectionClick = (sectionId, sectionLabel) => {
 	analytics.trackEvent('document_section_click', {
 		section_id: sectionId,
 		section_label: sectionLabel,
