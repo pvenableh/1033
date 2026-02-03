@@ -258,6 +258,8 @@ const trafficSources = ref([
 // Fetch real user data
 const users = ref<any[]>([]);
 const usersLoading = ref(true);
+const ga4Metrics = ref<Record<string, any>>({});
+const ga4Error = ref<string | null>(null);
 
 async function fetchUsers() {
 	usersLoading.value = true;
@@ -284,7 +286,24 @@ async function fetchUsers() {
 	}
 }
 
-// User activity data derived from real users
+// Fetch GA4 user metrics
+async function fetchGA4Metrics() {
+	ga4Error.value = null;
+	try {
+		const response: any = await $fetch('/api/analytics/user-metrics', {
+			query: { dateRange: dateRange.value },
+		});
+		if (response.success && response.userMetrics) {
+			ga4Metrics.value = response.userMetrics;
+		}
+	} catch (error: any) {
+		// GA4 API not configured - silently fail and use fallback
+		console.warn('GA4 API not available:', error.message);
+		ga4Error.value = error.data?.message || 'GA4 API not configured';
+	}
+}
+
+// User activity data derived from real users + GA4 metrics
 const userActivity = computed(() => {
 	return users.value.slice(0, 10).map((user) => {
 		const lastAccess = user.last_access ? new Date(user.last_access) : null;
@@ -313,14 +332,18 @@ const userActivity = computed(() => {
 
 		const roleName = typeof user.role === 'object' ? user.role?.name : 'No Role';
 
+		// Get GA4 metrics for this user (matched by user ID)
+		const userGA4 = ga4Metrics.value[user.id] || null;
+
 		return {
 			id: user.id,
 			name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 			email: user.email,
 			role: roleName,
 			lastActive,
-			pageViews: Math.floor(Math.random() * 50) + 5, // Simulated until GA4 API integration
-			sessionsToday: Math.floor(Math.random() * 5),
+			// Use GA4 data if available, otherwise show placeholder
+			pageViews: userGA4?.pageViews ?? '-',
+			sessionsToday: userGA4?.sessionsToday ?? '-',
 			lastPage: '/dashboard',
 			status,
 		};
@@ -392,14 +415,22 @@ const realtimePageViews = ref(47);
 // Simulate real-time updates
 let realtimeInterval: ReturnType<typeof setInterval>;
 onMounted(async () => {
-	// Fetch real user data
-	await fetchUsers();
+	// Fetch real user data and GA4 metrics in parallel
+	await Promise.all([
+		fetchUsers(),
+		fetchGA4Metrics(),
+	]);
 
 	// Simulate real-time updates
 	realtimeInterval = setInterval(() => {
 		realtimeUsers.value = Math.max(1, realtimeUsers.value + Math.floor(Math.random() * 5) - 2);
 		realtimePageViews.value += Math.floor(Math.random() * 3);
 	}, 5000);
+});
+
+// Refetch GA4 metrics when date range changes
+watch(dateRange, () => {
+	fetchGA4Metrics();
 });
 
 onUnmounted(() => {
