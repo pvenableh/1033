@@ -788,76 +788,77 @@
 			</template>
 		</UTabs>
 
-		<!-- Transaction Notes Slideover -->
-		<USlideover v-model="showNotesPanel">
-			<div class="p-6 space-y-4">
-				<div class="flex items-center justify-between">
-					<h3 class="text-lg font-semibold dark:text-white">Transaction Notes</h3>
-					<UButton color="gray" variant="ghost" icon="i-heroicons-x-mark" @click="showNotesPanel = false" />
-				</div>
+		<!-- Transaction Notes Sheet -->
+		<Sheet :open="showNotesPanel" @update:open="showNotesPanel = $event">
+			<SheetContent side="right" class="w-full sm:max-w-md overflow-y-auto">
+				<SheetHeader>
+					<SheetTitle>Transaction Notes</SheetTitle>
+				</SheetHeader>
 
-				<div v-if="selectedTransaction" class="border-b dark:border-gray-700 pb-4">
-					<p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(selectedTransaction.transaction_date) }}</p>
-					<p class="font-medium dark:text-white">{{ selectedTransaction.description }}</p>
-					<p class="text-lg font-bold" :class="getAmountClass(selectedTransaction)">
-						{{ getAmountDisplay(selectedTransaction) }}
-					</p>
-				</div>
+				<div class="space-y-4 py-4">
+					<div v-if="selectedTransaction" class="border-b dark:border-gray-700 pb-4">
+						<p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(selectedTransaction.transaction_date) }}</p>
+						<p class="font-medium dark:text-white">{{ selectedTransaction.description }}</p>
+						<p class="text-lg font-bold" :class="getAmountClass(selectedTransaction)">
+							{{ getAmountDisplay(selectedTransaction) }}
+						</p>
+					</div>
 
-				<!-- Add Note Form -->
-				<div v-if="canCreateNotes" class="space-y-2">
-					<UFormGroup label="Add Note">
-						<UTextarea v-model="newNoteContent" placeholder="Enter your note..." rows="3" />
-					</UFormGroup>
-					<UFormGroup label="Note Type">
-						<USelectMenu v-model="newNoteType" :options="noteTypeOptions" />
-					</UFormGroup>
-					<UButton
-						color="primary"
-						:loading="savingNote"
-						:disabled="!newNoteContent.trim()"
-						@click="addNote">
-						Add Note
-					</UButton>
-				</div>
+					<!-- Add Note Form -->
+					<div v-if="canCreateNotes" class="space-y-2">
+						<UFormGroup label="Add Note">
+							<UTextarea v-model="newNoteContent" placeholder="Enter your note..." rows="3" />
+						</UFormGroup>
+						<UFormGroup label="Note Type">
+							<USelectMenu v-model="newNoteType" :options="noteTypeOptions" />
+						</UFormGroup>
+						<UButton
+							color="primary"
+							:loading="savingNote"
+							:disabled="!newNoteContent.trim()"
+							@click="addNote">
+							Add Note
+						</UButton>
+					</div>
 
-				<!-- Notes List -->
-				<div class="space-y-3 mt-4">
-					<h4 class="font-medium text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Notes History</h4>
-					<div
-						v-for="note in transactionNotes"
-						:key="note.id"
-						class="border dark:border-gray-700 rounded-lg p-3"
-						:class="{ 'opacity-50': note.is_resolved }">
-						<div class="flex items-start justify-between">
-							<div class="flex-1">
-								<p class="text-sm dark:text-white">{{ note.note }}</p>
-								<div class="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
-									<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
-										{{ note.note_type }}
-									</UBadge>
-									<span>{{ formatDate(note.date_created) }}</span>
-									<span v-if="note.user_created?.first_name">
-										by {{ note.user_created.first_name }} {{ note.user_created.last_name }}
-									</span>
+					<!-- Notes List -->
+					<div class="space-y-3 mt-4">
+						<h4 class="font-medium text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Notes History</h4>
+						<div
+							v-for="note in transactionNotes"
+							:key="note.id"
+							class="border dark:border-gray-700 rounded-lg p-3"
+							:class="{ 'opacity-50': note.is_resolved }">
+							<div class="flex items-start justify-between">
+								<div class="flex-1">
+									<p class="text-sm dark:text-white">{{ note.note }}</p>
+									<div class="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
+										<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
+											{{ note.note_type }}
+										</UBadge>
+										<span>{{ formatDate(note.date_created) }}</span>
+										<span v-if="note.user_created?.first_name">
+											by {{ note.user_created.first_name }} {{ note.user_created.last_name }}
+										</span>
+									</div>
+								</div>
+								<div v-if="canUpdateNotes && !note.is_resolved" class="flex gap-1">
+									<UButton
+										color="green"
+										variant="ghost"
+										size="xs"
+										icon="i-heroicons-check"
+										@click="resolveNoteHandler(note.id)" />
 								</div>
 							</div>
-							<div v-if="canUpdateNotes && !note.is_resolved" class="flex gap-1">
-								<UButton
-									color="green"
-									variant="ghost"
-									size="xs"
-									icon="i-heroicons-check"
-									@click="resolveNoteHandler(note.id)" />
-							</div>
 						</div>
+						<p v-if="transactionNotes.length === 0" class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
+							No notes for this transaction
+						</p>
 					</div>
-					<p v-if="transactionNotes.length === 0" class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-						No notes for this transaction
-					</p>
 				</div>
-			</div>
-		</USlideover>
+			</SheetContent>
+		</Sheet>
 
 		<!-- Generate Report Modal -->
 		<UModal v-model="showGenerateReportModal">
@@ -890,6 +891,8 @@
 </template>
 
 <script setup>
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sheet'
+
 definePageMeta({ layout: 'default' })
 
 const {

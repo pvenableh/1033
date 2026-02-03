@@ -2,6 +2,7 @@
 	<SidebarProvider>
 		<AppSidebar />
 		<SidebarInset>
+			<LayoutHeader :links="headerLinks" />
 			<div
 				class="min-h-screen w-full transition duration-300 flex items-center justify-start flex-col relative"
 				:style="{
@@ -9,7 +10,6 @@
 					color: 'var(--theme-text-primary)',
 				}">
 				<input id="nav-drawer-toggle" type="checkbox" class="hidden" />
-				<LayoutHeader :links="headerLinks" />
 				<div class="page-content">
 					<slot />
 				</div>
