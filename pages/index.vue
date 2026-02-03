@@ -1200,7 +1200,7 @@ onUnmounted(() => {
 
 // SEO
 const siteUrl = 'https://1033lenox.com';
-const ogImage = 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge';
+const ogImage = 'https://admin.1033lenox.com/assets/7fef4bc4-9aad-4801-a430-670a2af7cbde';
 const pageTitle = '1033 Lenox | Boutique Condo & Apartment Building in Miami Beach';
 const pageDescription =
 	"Boutique condo and apartment building in Miami Beach's Flamingo Park. 28-unit residence with oversized balconies, modern security, and walkable South Beach living. Fully renovated and turnkey ready.";
