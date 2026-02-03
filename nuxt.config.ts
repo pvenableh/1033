@@ -73,8 +73,18 @@ export default defineNuxtConfig({
 			'nuxt-gtag',
 			{
 				id: 'G-JTR8V7XBN1',
-				debug: true, // Set to true for debugging in the console
+				debug: process.env.NODE_ENV === 'development', // Only debug in development
 				initialConsent: true,
+				config: {
+					// Enhanced measurement settings
+					send_page_view: false, // We handle this manually in the analytics plugin
+					// Custom dimensions for better reporting
+					custom_map: {
+						dimension1: 'user_type',
+						dimension2: 'page_category',
+						dimension3: 'content_group',
+					},
+				},
 			},
 		],
 		// '@nuxtjs/plausible',
