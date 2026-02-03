@@ -81,52 +81,59 @@ const dateRangeOptions = [
 	{label: 'Year to date', value: 'ytd'},
 ];
 
-// Sample metrics data (in production, this would come from GA4 API or your backend)
-const overviewMetrics = ref([
-	{
-		label: 'Total Page Views',
-		value: '12,847',
-		change: '+12.5%',
-		changeType: 'positive',
-		icon: 'i-heroicons-eye',
-	},
-	{
-		label: 'Unique Visitors',
-		value: '3,421',
-		change: '+8.2%',
-		changeType: 'positive',
-		icon: 'i-heroicons-users',
-	},
-	{
-		label: 'Avg. Session Duration',
-		value: '4m 32s',
-		change: '+5.1%',
-		changeType: 'positive',
-		icon: 'i-heroicons-clock',
-	},
-	{
-		label: 'Bounce Rate',
-		value: '34.2%',
-		change: '-2.3%',
-		changeType: 'positive',
-		icon: 'i-heroicons-arrow-uturn-left',
-	},
-]);
+// Loading states
+const analyticsLoading = ref(true);
 
-// Page views chart data
-const pageViewsChartData = computed(() => ({
-	labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-	datasets: [
-		{
+// GA4 data refs
+const overviewData = ref<any>(null);
+const pageViewsData = ref<any>(null);
+const topPagesData = ref<any[]>([]);
+const devicesData = ref<any>(null);
+const trafficSourcesData = ref<any[]>([]);
+const engagementData = ref<any>(null);
+const eventsData = ref<any>(null);
+const realtimeData = ref<any>(null);
+
+// Overview metrics computed from API data
+const overviewMetrics = computed(() => {
+	if (!overviewData.value?.metrics) {
+		return [
+			{ label: 'Total Page Views', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-eye' },
+			{ label: 'Unique Visitors', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-users' },
+			{ label: 'Avg. Session Duration', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-clock' },
+			{ label: 'Bounce Rate', value: '-', change: '-', changeType: 'neutral', icon: 'i-heroicons-arrow-uturn-left' },
+		];
+	}
+	return overviewData.value.metrics;
+});
+
+// Page views chart data - from API
+const pageViewsChartData = computed(() => {
+	if (!pageViewsData.value?.chart) {
+		return {
+			labels: [],
+			datasets: [{
+				label: 'Page Views',
+				data: [],
+				borderColor: themeColors.chart1Hex,
+				backgroundColor: 'rgba(0, 240, 181, 0.1)',
+				fill: true,
+				tension: 0.4,
+			}],
+		};
+	}
+	return {
+		labels: pageViewsData.value.chart.labels,
+		datasets: [{
 			label: 'Page Views',
-			data: [1850, 2100, 1920, 2340, 2180, 1650, 1807],
+			data: pageViewsData.value.chart.data,
 			borderColor: themeColors.chart1Hex,
 			backgroundColor: 'rgba(0, 240, 181, 0.1)',
 			fill: true,
 			tension: 0.4,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const pageViewsChartOptions = {
 	responsive: true,
@@ -151,25 +158,23 @@ const pageViewsChartOptions = {
 	},
 };
 
-// Top pages data
-const topPages = ref([
-	{path: '/', title: 'Home', views: 4521, avgTime: '3m 12s', bounceRate: '28%'},
-	{path: '/dashboard', title: 'Dashboard', views: 2134, avgTime: '5m 45s', bounceRate: '15%'},
-	{path: '/meetings', title: 'Meetings', views: 1876, avgTime: '4m 22s', bounceRate: '22%'},
-	{path: '/documents', title: 'Documents', views: 1432, avgTime: '6m 18s', bounceRate: '18%'},
-	{path: '/announcements', title: 'Announcements', views: 1287, avgTime: '2m 45s', bounceRate: '35%'},
-	{path: '/projects', title: 'Projects', views: 984, avgTime: '4m 56s', bounceRate: '20%'},
-	{path: '/feed', title: 'Before/After Gallery', views: 756, avgTime: '3m 33s', bounceRate: '25%'},
-	{path: '/financials', title: 'Financials', views: 643, avgTime: '7m 12s', bounceRate: '12%'},
-]);
+// Top pages data - from API
+const topPages = computed(() => {
+	if (!topPagesData.value?.length) {
+		return [];
+	}
+	return topPagesData.value;
+});
 
-// Scroll depth data
-const scrollDepthData = computed(() => ({
-	labels: ['25%', '50%', '75%', '90%', '100%'],
-	datasets: [
-		{
+// Scroll depth data - from engagement API
+const scrollDepthData = computed(() => {
+	const defaultData = [0, 0, 0, 0, 0];
+	const data = engagementData.value?.scrollDepth?.data || defaultData;
+	return {
+		labels: ['25%', '50%', '75%', '90%', '100%'],
+		datasets: [{
 			label: 'Users Reached',
-			data: [89, 72, 58, 41, 28],
+			data,
 			backgroundColor: [
 				themeColors.chart1Hex,
 				themeColors.chart2Hex,
@@ -178,9 +183,9 @@ const scrollDepthData = computed(() => ({
 				themeColors.chart3Hex,
 			],
 			borderWidth: 0,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const scrollDepthOptions = {
 	responsive: true,
@@ -202,39 +207,44 @@ const scrollDepthOptions = {
 	},
 };
 
-// User engagement metrics
-const engagementMetrics = ref([
-	{label: 'Avg. Page Depth', value: '3.2 pages', description: 'Average pages viewed per session'},
-	{label: 'Scroll Engagement', value: '67%', description: 'Users who scroll past 50%'},
-	{label: 'Click Rate', value: '4.8%', description: 'Click-through rate on CTAs'},
-	{label: 'Form Completion', value: '72%', description: 'Form start to submit rate'},
-]);
+// User engagement metrics - from API
+const engagementMetrics = computed(() => {
+	if (!engagementData.value?.metrics) {
+		return [
+			{ label: 'Avg. Page Depth', value: '-', description: 'Average pages viewed per session' },
+			{ label: 'Scroll Engagement', value: '-', description: 'Users who scroll past 50%' },
+			{ label: 'Engagement Rate', value: '-', description: 'Sessions with engagement' },
+			{ label: 'Form Completion', value: '-', description: 'Form start to submit rate' },
+		];
+	}
+	return engagementData.value.metrics;
+});
 
-// Event tracking summary
-const eventsSummary = ref([
-	{event: 'user_identified', count: 1247, category: 'Users'},
-	{event: 'button_click', count: 3421, category: 'Engagement'},
-	{event: 'form_submit', count: 856, category: 'Conversion'},
-	{event: 'outbound_click', count: 432, category: 'Navigation'},
-	{event: 'file_download', count: 287, category: 'Content'},
-	{event: 'user_logout', count: 234, category: 'Users'},
-]);
+// Event tracking summary - from API
+const eventsSummary = computed(() => {
+	if (!eventsData.value?.events) {
+		return [];
+	}
+	return eventsData.value.events;
+});
 
-// Device breakdown
-const deviceData = computed(() => ({
-	labels: ['Desktop', 'Mobile', 'Tablet'],
-	datasets: [
-		{
-			data: [58, 35, 7],
+// Device breakdown - from API
+const deviceData = computed(() => {
+	const defaultData = { desktop: 0, mobile: 0, tablet: 0 };
+	const data = devicesData.value?.breakdown || defaultData;
+	return {
+		labels: ['Desktop', 'Mobile', 'Tablet'],
+		datasets: [{
+			data: [data.desktop || 0, data.mobile || 0, data.tablet || 0],
 			backgroundColor: [
 				themeColors.chart1Hex,
 				themeColors.chart2Hex,
 				themeColors.chart4Hex,
 			],
 			borderWidth: 0,
-		},
-	],
-}));
+		}],
+	};
+});
 
 const deviceOptions = {
 	responsive: true,
@@ -246,14 +256,13 @@ const deviceOptions = {
 	},
 };
 
-// Traffic sources
-const trafficSources = ref([
-	{source: 'Direct', sessions: 1842, percentage: 42},
-	{source: 'Organic Search', sessions: 1256, percentage: 29},
-	{source: 'Referral', sessions: 654, percentage: 15},
-	{source: 'Social', sessions: 432, percentage: 10},
-	{source: 'Email', sessions: 174, percentage: 4},
-]);
+// Traffic sources - from API
+const trafficSources = computed(() => {
+	if (!trafficSourcesData.value?.length) {
+		return [];
+	}
+	return trafficSourcesData.value;
+});
 
 // Fetch real user data
 const users = ref<any[]>([]);
@@ -408,29 +417,78 @@ const userMetrics = computed(() => {
 	];
 });
 
-// Real-time stats (simulated)
-const realtimeUsers = ref(12);
-const realtimePageViews = ref(47);
+// Real-time stats - from API
+const realtimeUsers = computed(() => realtimeData.value?.activeUsers ?? 0);
+const realtimePageViews = computed(() => realtimeData.value?.recentPageViews ?? 0);
 
-// Simulate real-time updates
+// Fetch all GA4 analytics data
+async function fetchAnalyticsData() {
+	analyticsLoading.value = true;
+	const query = { dateRange: dateRange.value };
+
+	try {
+		const [overview, pageViews, pages, devices, traffic, engagement, events] = await Promise.allSettled([
+			$fetch('/api/analytics/overview', { query }),
+			$fetch('/api/analytics/pageviews-chart', { query }),
+			$fetch('/api/analytics/top-pages', { query }),
+			$fetch('/api/analytics/devices', { query }),
+			$fetch('/api/analytics/traffic-sources', { query }),
+			$fetch('/api/analytics/engagement', { query }),
+			$fetch('/api/analytics/events', { query }),
+		]);
+
+		if (overview.status === 'fulfilled') overviewData.value = overview.value;
+		if (pageViews.status === 'fulfilled') pageViewsData.value = pageViews.value;
+		if (pages.status === 'fulfilled' && (pages.value as any)?.pages) {
+			topPagesData.value = (pages.value as any).pages;
+		}
+		if (devices.status === 'fulfilled') devicesData.value = devices.value;
+		if (traffic.status === 'fulfilled' && (traffic.value as any)?.sources) {
+			trafficSourcesData.value = (traffic.value as any).sources;
+		}
+		if (engagement.status === 'fulfilled') engagementData.value = engagement.value;
+		if (events.status === 'fulfilled') eventsData.value = events.value;
+	} catch (error) {
+		console.error('Failed to fetch analytics data:', error);
+	} finally {
+		analyticsLoading.value = false;
+	}
+}
+
+// Fetch real-time data separately (can be called more frequently)
+async function fetchRealtimeData() {
+	try {
+		const response: any = await $fetch('/api/analytics/realtime');
+		if (response.success) {
+			realtimeData.value = response;
+		}
+	} catch (error) {
+		console.warn('Failed to fetch realtime data:', error);
+	}
+}
+
+// Refresh real-time data periodically
 let realtimeInterval: ReturnType<typeof setInterval>;
+
 onMounted(async () => {
-	// Fetch real user data and GA4 metrics in parallel
+	// Fetch all data in parallel
 	await Promise.all([
 		fetchUsers(),
 		fetchGA4Metrics(),
+		fetchAnalyticsData(),
+		fetchRealtimeData(),
 	]);
 
-	// Simulate real-time updates
+	// Refresh real-time data every 30 seconds
 	realtimeInterval = setInterval(() => {
-		realtimeUsers.value = Math.max(1, realtimeUsers.value + Math.floor(Math.random() * 5) - 2);
-		realtimePageViews.value += Math.floor(Math.random() * 3);
-	}, 5000);
+		fetchRealtimeData();
+	}, 30000);
 });
 
-// Refetch GA4 metrics when date range changes
+// Refetch data when date range changes
 watch(dateRange, () => {
 	fetchGA4Metrics();
+	fetchAnalyticsData();
 });
 
 onUnmounted(() => {
@@ -584,6 +642,11 @@ onUnmounted(() => {
 									</tr>
 								</thead>
 								<tbody>
+									<tr v-if="topPages.length === 0">
+										<td colspan="4" class="py-6 text-center text-gray-500 dark:text-gray-400">
+											{{ analyticsLoading ? 'Loading...' : 'No page data available' }}
+										</td>
+									</tr>
 									<tr
 										v-for="page in topPages"
 										:key="page.path"
@@ -592,7 +655,7 @@ onUnmounted(() => {
 											<span class="font-medium">{{ page.title }}</span>
 											<span class="block text-xs text-gray-500">{{ page.path }}</span>
 										</td>
-										<td class="text-right py-3 font-medium">{{ page.views.toLocaleString() }}</td>
+										<td class="text-right py-3 font-medium">{{ (page.views || 0).toLocaleString() }}</td>
 										<td class="text-right py-3 hidden sm:table-cell">{{ page.avgTime }}</td>
 										<td class="text-right py-3 hidden sm:table-cell">{{ page.bounceRate }}</td>
 									</tr>
@@ -605,15 +668,18 @@ onUnmounted(() => {
 					<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 						<h3 class="text-lg font-semibold mb-4">Traffic Sources</h3>
 						<div class="space-y-4">
+							<div v-if="trafficSources.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
+								{{ analyticsLoading ? 'Loading...' : 'No traffic data available' }}
+							</div>
 							<div v-for="source in trafficSources" :key="source.source">
 								<div class="flex justify-between text-sm mb-2">
 									<span class="font-medium">{{ source.source }}</span>
 									<span class="text-gray-600 dark:text-gray-400">
-										{{ source.sessions.toLocaleString() }} ({{ source.percentage }}%)
+										{{ (source.sessions || 0).toLocaleString() }} ({{ source.percentage || 0 }}%)
 									</span>
 								</div>
 								<Progress
-									:model-value="source.percentage"
+									:model-value="source.percentage || 0"
 									color="primary"
 									class="h-2"
 								/>
@@ -628,12 +694,15 @@ onUnmounted(() => {
 					<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 						Custom events tracked via the analytics system
 					</p>
-					<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+					<div v-if="eventsSummary.length === 0" class="py-6 text-center text-gray-500 dark:text-gray-400">
+						{{ analyticsLoading ? 'Loading...' : 'No event data available' }}
+					</div>
+					<div v-else class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
 						<div
 							v-for="event in eventsSummary"
 							:key="event.event"
 							class="bg-white dark:bg-gray-700 rounded-lg p-4 text-center">
-							<p class="text-2xl font-bold text-primary-500">{{ event.count.toLocaleString() }}</p>
+							<p class="text-2xl font-bold text-primary-500">{{ (event.count || 0).toLocaleString() }}</p>
 							<p class="text-sm font-medium mt-1">{{ event.event.replace('_', ' ') }}</p>
 							<span class="inline-block mt-2 text-xs bg-gray-100 dark:bg-gray-600 px-2 py-1 rounded">
 								{{ event.category }}
