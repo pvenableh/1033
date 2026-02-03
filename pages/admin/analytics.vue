@@ -13,9 +13,50 @@ import {
 	Legend,
 	Filler,
 } from 'chart.js';
+import {Progress} from '~/components/ui/progress';
+import {ChartContainer, type ChartConfig} from '~/components/ui/chart';
 
 // Register Chart.js components
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend, Filler);
+
+// Theme colors (matching CSS variables)
+const themeColors = {
+	primary: 'hsl(166, 100%, 47%)',
+	primaryHex: '#00F0B5',
+	chart1: 'hsl(166, 100%, 47%)',
+	chart2: 'hsl(173, 58%, 39%)',
+	chart3: 'hsl(197, 37%, 24%)',
+	chart4: 'hsl(43, 74%, 66%)',
+	chart5: 'hsl(27, 87%, 67%)',
+	// Hex equivalents for Chart.js
+	chart1Hex: '#00F0B5',
+	chart2Hex: '#2A9D8F',
+	chart3Hex: '#264653',
+	chart4Hex: '#E9C46A',
+	chart5Hex: '#F4A261',
+	turquoise: '#00efd1',
+	gold: '#C9A96E',
+};
+
+// Chart configuration for ChartContainer
+const chartConfig: ChartConfig = {
+	pageViews: {
+		label: 'Page Views',
+		color: themeColors.chart1Hex,
+	},
+	desktop: {
+		label: 'Desktop',
+		color: themeColors.chart1Hex,
+	},
+	mobile: {
+		label: 'Mobile',
+		color: themeColors.chart2Hex,
+	},
+	tablet: {
+		label: 'Tablet',
+		color: themeColors.chart4Hex,
+	},
+};
 
 definePageMeta({
 	layout: 'default',
@@ -77,8 +118,8 @@ const pageViewsChartData = computed(() => ({
 		{
 			label: 'Page Views',
 			data: [1850, 2100, 1920, 2340, 2180, 1650, 1807],
-			borderColor: '#00bfff',
-			backgroundColor: 'rgba(0, 191, 255, 0.1)',
+			borderColor: themeColors.chart1Hex,
+			backgroundColor: 'rgba(0, 240, 181, 0.1)',
 			fill: true,
 			tension: 0.4,
 		},
@@ -127,7 +168,13 @@ const scrollDepthData = computed(() => ({
 		{
 			label: 'Users Reached',
 			data: [89, 72, 58, 41, 28],
-			backgroundColor: ['#00bfff', '#00d4aa', '#ffd700', '#ff8c00', '#ff4757'],
+			backgroundColor: [
+				themeColors.chart1Hex,
+				themeColors.chart2Hex,
+				themeColors.chart4Hex,
+				themeColors.chart5Hex,
+				themeColors.chart3Hex,
+			],
 			borderWidth: 0,
 		},
 	],
@@ -177,7 +224,11 @@ const deviceData = computed(() => ({
 	datasets: [
 		{
 			data: [58, 35, 7],
-			backgroundColor: ['#00bfff', '#00d4aa', '#ffd700'],
+			backgroundColor: [
+				themeColors.chart1Hex,
+				themeColors.chart2Hex,
+				themeColors.chart4Hex,
+			],
 			borderWidth: 0,
 		},
 	],
@@ -250,7 +301,7 @@ onUnmounted(() => {
 
 			<div v-else>
 				<!-- Real-time Stats Banner -->
-				<div class="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg p-4 mb-8 text-white">
+				<div class="bg-gradient-to-r from-primary to-teal-400 rounded-lg p-4 mb-8 text-white">
 					<div class="flex items-center justify-between">
 						<div class="flex items-center space-x-6">
 							<div class="flex items-center">
@@ -307,17 +358,17 @@ onUnmounted(() => {
 					<!-- Page Views Chart -->
 					<div class="lg:col-span-2 bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 						<h3 class="text-lg font-semibold mb-4">Page Views Over Time</h3>
-						<div class="h-64">
+						<ChartContainer :config="chartConfig" class="h-64">
 							<Line :data="pageViewsChartData" :options="pageViewsChartOptions" />
-						</div>
+						</ChartContainer>
 					</div>
 
 					<!-- Device Breakdown -->
 					<div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 border border-gray-200 dark:border-gray-700">
 						<h3 class="text-lg font-semibold mb-4">Device Breakdown</h3>
-						<div class="h-64">
+						<ChartContainer :config="chartConfig" class="h-64">
 							<Doughnut :data="deviceData" :options="deviceOptions" />
-						</div>
+						</ChartContainer>
 					</div>
 				</div>
 
@@ -329,9 +380,9 @@ onUnmounted(() => {
 						<p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
 							Percentage of users reaching each scroll threshold
 						</p>
-						<div class="h-48">
+						<ChartContainer :config="chartConfig" class="h-48">
 							<Bar :data="scrollDepthData" :options="scrollDepthOptions" />
-						</div>
+						</ChartContainer>
 					</div>
 
 					<!-- User Engagement -->
@@ -388,17 +439,17 @@ onUnmounted(() => {
 						<h3 class="text-lg font-semibold mb-4">Traffic Sources</h3>
 						<div class="space-y-4">
 							<div v-for="source in trafficSources" :key="source.source">
-								<div class="flex justify-between text-sm mb-1">
+								<div class="flex justify-between text-sm mb-2">
 									<span class="font-medium">{{ source.source }}</span>
 									<span class="text-gray-600 dark:text-gray-400">
 										{{ source.sessions.toLocaleString() }} ({{ source.percentage }}%)
 									</span>
 								</div>
-								<div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
-									<div
-										class="bg-primary-500 h-2 rounded-full transition-all duration-500"
-										:style="{width: `${source.percentage}%`}"></div>
-								</div>
+								<Progress
+									:model-value="source.percentage"
+									color="primary"
+									class="h-2"
+								/>
 							</div>
 						</div>
 					</div>
