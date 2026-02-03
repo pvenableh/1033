@@ -36,24 +36,47 @@ export default defineEventHandler(async (event) => {
 			],
 		});
 
-		// Get scroll events for scroll depth analysis
-		const [scrollResponse] = await client.runReport({
-			property: propertyId,
-			dateRanges: [{ startDate, endDate }],
-			dimensions: [{ name: 'customEvent:percent_scrolled' }],
-			metrics: [{ name: 'eventCount' }],
-			dimensionFilter: {
-				filter: {
-					fieldName: 'eventName',
-					stringFilter: {
-						matchType: 'EXACT',
-						value: 'scroll',
+		// Get scroll events count (without custom dimension - just total scroll events)
+		// Note: Detailed scroll depth analysis requires a custom event parameter to be registered
+		let scrollResponse: any = { rows: [] };
+		let scrollEventsTotal = 0;
+		try {
+			const [scrollCountResponse] = await client.runReport({
+				property: propertyId,
+				dateRanges: [{ startDate, endDate }],
+				dimensions: [{ name: 'eventName' }],
+				metrics: [{ name: 'eventCount' }],
+				dimensionFilter: {
+					filter: {
+						fieldName: 'eventName',
+						stringFilter: {
+							matchType: 'EXACT',
+							value: 'scroll',
+						},
 					},
 				},
-			},
-			orderBys: [
-				{ dimension: { dimensionName: 'customEvent:percent_scrolled' }, desc: false },
+			});
+			if (scrollCountResponse.rows?.[0]) {
+				scrollEventsTotal = parseInt(scrollCountResponse.rows[0].metricValues?.[0]?.value || '0', 10);
+			}
+			scrollResponse = scrollCountResponse;
+		} catch (scrollError: any) {
+			console.warn('Scroll events query failed (this is expected if scroll tracking is not configured):', scrollError.message);
+		}
+
+		// Get page depth data by page path
+		const [pageDepthResponse] = await client.runReport({
+			property: propertyId,
+			dateRanges: [{ startDate, endDate }],
+			dimensions: [{ name: 'pagePath' }],
+			metrics: [
+				{ name: 'screenPageViews' },
+				{ name: 'averageSessionDuration' },
 			],
+			orderBys: [
+				{ metric: { metricName: 'screenPageViews' }, desc: true },
+			],
+			limit: 10,
 		});
 
 		// Get form conversion metrics
@@ -82,40 +105,36 @@ export default defineEventHandler(async (event) => {
 		const avgSessionDuration = parseFloat(engagementRow[4]?.value || '0');
 
 		// Process scroll depth data
+		// Note: Without a custom dimension for percent_scrolled, we can only show total scroll events
+		// The GA4 enhanced measurement scroll event fires at 90% scroll depth by default
 		const scrollDepth: Record<string, number> = {
 			'25': 0,
 			'50': 0,
 			'75': 0,
-			'90': 0,
+			'90': scrollEventsTotal, // GA4 default scroll threshold is 90%
 			'100': 0,
 		};
 
-		let maxScrollUsers = 0;
-		if (scrollResponse.rows) {
-			for (const row of scrollResponse.rows) {
-				const percent = row.dimensionValues?.[0]?.value || '0';
-				const count = parseInt(row.metricValues?.[0]?.value || '0', 10);
-
-				// Map to our buckets
-				const percentNum = parseInt(percent, 10);
-				if (percentNum >= 25 && percentNum < 50) scrollDepth['25'] += count;
-				else if (percentNum >= 50 && percentNum < 75) scrollDepth['50'] += count;
-				else if (percentNum >= 75 && percentNum < 90) scrollDepth['75'] += count;
-				else if (percentNum >= 90 && percentNum < 100) scrollDepth['90'] += count;
-				else if (percentNum >= 100) scrollDepth['100'] += count;
-
-				if (count > maxScrollUsers) maxScrollUsers = count;
+		// Process page depth data for top pages
+		const topPages: Array<{ path: string; views: number; avgDuration: number }> = [];
+		if (pageDepthResponse.rows) {
+			for (const row of pageDepthResponse.rows) {
+				topPages.push({
+					path: row.dimensionValues?.[0]?.value || '',
+					views: parseInt(row.metricValues?.[0]?.value || '0', 10),
+					avgDuration: parseFloat(row.metricValues?.[1]?.value || '0'),
+				});
 			}
 		}
 
-		// Calculate scroll percentages (relative to max)
-		const scrollPercentages = maxScrollUsers > 0
+		// Calculate scroll percentages based on total sessions (gives a meaningful percentage)
+		const scrollPercentages = totalSessions > 0
 			? {
-				'25': Math.round((scrollDepth['25'] / maxScrollUsers) * 100),
-				'50': Math.round((scrollDepth['50'] / maxScrollUsers) * 100),
-				'75': Math.round((scrollDepth['75'] / maxScrollUsers) * 100),
-				'90': Math.round((scrollDepth['90'] / maxScrollUsers) * 100),
-				'100': Math.round((scrollDepth['100'] / maxScrollUsers) * 100),
+				'25': 0, // Not available without custom dimension
+				'50': 0, // Not available without custom dimension
+				'75': 0, // Not available without custom dimension
+				'90': Math.min(100, Math.round((scrollEventsTotal / totalSessions) * 100)),
+				'100': 0, // Not available without custom dimension
 			}
 			: { '25': 0, '50': 0, '75': 0, '90': 0, '100': 0 };
 
@@ -145,8 +164,8 @@ export default defineEventHandler(async (event) => {
 				},
 				{
 					label: 'Scroll Engagement',
-					value: `${scrollPercentages['50']}%`,
-					description: 'Users who scroll past 50%',
+					value: `${scrollPercentages['90']}%`,
+					description: 'Sessions with 90% scroll depth',
 				},
 				{
 					label: 'Engagement Rate',
@@ -169,7 +188,9 @@ export default defineEventHandler(async (event) => {
 					scrollPercentages['100'],
 				],
 				rawCounts: scrollDepth,
+				note: 'GA4 enhanced measurement tracks scroll at 90% depth. Full scroll depth breakdown requires custom event parameters.',
 			},
+			topPages,
 			totals: {
 				engagementRate,
 				engagedSessions,
@@ -179,6 +200,7 @@ export default defineEventHandler(async (event) => {
 				formStarts,
 				formSubmits,
 				formCompletionRate,
+				scrollEvents: scrollEventsTotal,
 			},
 		};
 	} catch (error: any) {

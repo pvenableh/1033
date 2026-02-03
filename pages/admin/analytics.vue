@@ -127,11 +127,13 @@ const pageViewsChartData = computed(() => {
 			}],
 		};
 	}
+	// API returns chart.datasets.pageViews array
+	const chartData = pageViewsData.value.chart.datasets?.pageViews || pageViewsData.value.chart.data || [];
 	return {
 		labels: pageViewsData.value.chart.labels,
 		datasets: [{
 			label: 'Page Views',
-			data: pageViewsData.value.chart.data,
+			data: chartData,
 			borderColor: themeColors.chart1Hex,
 			backgroundColor: 'rgba(0, 240, 181, 0.1)',
 			fill: true,
@@ -236,12 +238,26 @@ const eventsSummary = computed(() => {
 
 // Device breakdown - from API
 const deviceData = computed(() => {
-	const defaultData = { desktop: 0, mobile: 0, tablet: 0 };
-	const data = devicesData.value?.breakdown || defaultData;
+	// API returns devices.{desktop,mobile,tablet}.percentage or chart.data array
+	const devices = devicesData.value?.devices;
+	const chartData = devicesData.value?.chart?.data;
+
+	let desktopPct = 0, mobilePct = 0, tabletPct = 0;
+
+	if (chartData && Array.isArray(chartData)) {
+		// Use chart data if available
+		[desktopPct, mobilePct, tabletPct] = chartData;
+	} else if (devices) {
+		// Use devices object
+		desktopPct = devices.desktop?.percentage || 0;
+		mobilePct = devices.mobile?.percentage || 0;
+		tabletPct = devices.tablet?.percentage || 0;
+	}
+
 	return {
 		labels: ['Desktop', 'Mobile', 'Tablet'],
 		datasets: [{
-			data: [data.desktop || 0, data.mobile || 0, data.tablet || 0],
+			data: [desktopPct, mobilePct, tabletPct],
 			backgroundColor: [
 				themeColors.chart1Hex,
 				themeColors.chart2Hex,
@@ -308,8 +324,14 @@ async function fetchGA4Metrics() {
 		const response: any = await $fetch('/api/analytics/user-metrics', {
 			query: { dateRange: dateRange.value },
 		});
-		if (response.success && response.userMetrics) {
-			ga4Metrics.value = response.userMetrics;
+		if (response.success) {
+			// Store the totals and daily data for display
+			// Note: Per-user metrics require custom dimension setup in GA4
+			ga4Metrics.value = {
+				totals: response.totals,
+				dailyData: response.dailyData,
+				today: response.today,
+			};
 		}
 	} catch (error: any) {
 		// GA4 API not configured - silently fail and use fallback
@@ -347,18 +369,16 @@ const userActivity = computed(() => {
 
 		const roleName = typeof user.role === 'object' ? user.role?.name : 'No Role';
 
-		// Get GA4 metrics for this user (matched by user ID)
-		const userGA4 = ga4Metrics.value[user.id] || null;
-
+		// Per-user GA4 metrics require custom dimension setup
+		// Show dash placeholder as individual tracking isn't available
 		return {
 			id: user.id,
 			name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
 			email: user.email,
 			role: roleName,
 			lastActive,
-			// Use GA4 data if available, otherwise show placeholder
-			pageViews: userGA4?.pageViews ?? '-',
-			sessionsToday: userGA4?.sessionsToday ?? '-',
+			pageViews: '-',
+			sessionsToday: '-',
 			lastPage: '/dashboard',
 			status,
 		};

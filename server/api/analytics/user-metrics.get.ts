@@ -46,8 +46,8 @@ export default defineEventHandler(async (event) => {
 	const formatDate = (date: Date) => date.toISOString().split('T')[0];
 
 	try {
-		// Query 1: Get per-user metrics (pageviews, sessions)
-		const [userMetricsResponse] = await analyticsDataClient.runReport({
+		// Query 1: Get daily user metrics (using standard date dimension instead of custom user_id)
+		const [dailyMetricsResponse] = await analyticsDataClient.runReport({
 			property: propertyId,
 			dateRanges: [
 				{
@@ -56,33 +56,25 @@ export default defineEventHandler(async (event) => {
 				},
 			],
 			dimensions: [
-				{ name: 'customUser:user_id' }, // Custom user ID dimension
+				{ name: 'date' },
 			],
 			metrics: [
 				{ name: 'screenPageViews' },
 				{ name: 'sessions' },
+				{ name: 'totalUsers' },
+				{ name: 'newUsers' },
 				{ name: 'engagementRate' },
 				{ name: 'averageSessionDuration' },
 			],
-			dimensionFilter: {
-				filter: {
-					fieldName: 'customUser:user_id',
-					stringFilter: {
-						matchType: 'FULL_REGEXP',
-						value: '.+', // Only users with a user_id set
-					},
-				},
-			},
 			orderBys: [
 				{
-					metric: { metricName: 'screenPageViews' },
-					desc: true,
+					dimension: { dimensionName: 'date' },
+					desc: false,
 				},
 			],
-			limit: 100,
 		});
 
-		// Query 2: Get today's active users
+		// Query 2: Get today's metrics
 		const [todayResponse] = await analyticsDataClient.runReport({
 			property: propertyId,
 			dateRanges: [
@@ -91,77 +83,87 @@ export default defineEventHandler(async (event) => {
 					endDate: 'today',
 				},
 			],
-			dimensions: [
-				{ name: 'customUser:user_id' },
+			metrics: [
+				{ name: 'screenPageViews' },
+				{ name: 'sessions' },
+				{ name: 'totalUsers' },
+				{ name: 'activeUsers' },
+			],
+		});
+
+		// Query 3: Get aggregate metrics for the period
+		const [aggregateResponse] = await analyticsDataClient.runReport({
+			property: propertyId,
+			dateRanges: [
+				{
+					startDate: formatDate(startDate),
+					endDate: formatDate(endDate),
+				},
 			],
 			metrics: [
 				{ name: 'screenPageViews' },
 				{ name: 'sessions' },
+				{ name: 'totalUsers' },
+				{ name: 'newUsers' },
+				{ name: 'engagementRate' },
+				{ name: 'averageSessionDuration' },
 			],
-			dimensionFilter: {
-				filter: {
-					fieldName: 'customUser:user_id',
-					stringFilter: {
-						matchType: 'FULL_REGEXP',
-						value: '.+',
-					},
-				},
-			},
 		});
 
-		// Process the results into a map by user_id
-		const userMetrics: Record<string, {
+		// Process daily metrics for time series data
+		const dailyData: Array<{
+			date: string;
 			pageViews: number;
 			sessions: number;
+			users: number;
+			newUsers: number;
 			engagementRate: number;
 			avgSessionDuration: number;
-			pageViewsToday: number;
-			sessionsToday: number;
-		}> = {};
+		}> = [];
 
-		// Process period metrics
-		if (userMetricsResponse.rows) {
-			for (const row of userMetricsResponse.rows) {
-				const userId = row.dimensionValues?.[0]?.value;
-				if (userId) {
-					userMetrics[userId] = {
-						pageViews: parseInt(row.metricValues?.[0]?.value || '0', 10),
-						sessions: parseInt(row.metricValues?.[1]?.value || '0', 10),
-						engagementRate: parseFloat(row.metricValues?.[2]?.value || '0'),
-						avgSessionDuration: parseFloat(row.metricValues?.[3]?.value || '0'),
-						pageViewsToday: 0,
-						sessionsToday: 0,
-					};
+		if (dailyMetricsResponse.rows) {
+			for (const row of dailyMetricsResponse.rows) {
+				const dateStr = row.dimensionValues?.[0]?.value || '';
+				// Format date from YYYYMMDD to readable format
+				let formattedDate = dateStr;
+				if (dateStr.length === 8) {
+					const year = dateStr.substring(0, 4);
+					const month = dateStr.substring(4, 6);
+					const day = dateStr.substring(6, 8);
+					formattedDate = `${year}-${month}-${day}`;
 				}
+
+				dailyData.push({
+					date: formattedDate,
+					pageViews: parseInt(row.metricValues?.[0]?.value || '0', 10),
+					sessions: parseInt(row.metricValues?.[1]?.value || '0', 10),
+					users: parseInt(row.metricValues?.[2]?.value || '0', 10),
+					newUsers: parseInt(row.metricValues?.[3]?.value || '0', 10),
+					engagementRate: parseFloat(row.metricValues?.[4]?.value || '0'),
+					avgSessionDuration: parseFloat(row.metricValues?.[5]?.value || '0'),
+				});
 			}
 		}
 
-		// Add today's metrics
-		if (todayResponse.rows) {
-			for (const row of todayResponse.rows) {
-				const userId = row.dimensionValues?.[0]?.value;
-				if (userId && userMetrics[userId]) {
-					userMetrics[userId].pageViewsToday = parseInt(row.metricValues?.[0]?.value || '0', 10);
-					userMetrics[userId].sessionsToday = parseInt(row.metricValues?.[1]?.value || '0', 10);
-				} else if (userId) {
-					userMetrics[userId] = {
-						pageViews: parseInt(row.metricValues?.[0]?.value || '0', 10),
-						sessions: parseInt(row.metricValues?.[1]?.value || '0', 10),
-						engagementRate: 0,
-						avgSessionDuration: 0,
-						pageViewsToday: parseInt(row.metricValues?.[0]?.value || '0', 10),
-						sessionsToday: parseInt(row.metricValues?.[1]?.value || '0', 10),
-					};
-				}
-			}
-		}
+		// Process today's metrics
+		const todayMetrics = todayResponse.rows?.[0]?.metricValues || [];
+		const today = {
+			pageViews: parseInt(todayMetrics[0]?.value || '0', 10),
+			sessions: parseInt(todayMetrics[1]?.value || '0', 10),
+			users: parseInt(todayMetrics[2]?.value || '0', 10),
+			activeUsers: parseInt(todayMetrics[3]?.value || '0', 10),
+		};
 
-		// Calculate totals
+		// Process aggregate metrics
+		const aggregateMetrics = aggregateResponse.rows?.[0]?.metricValues || [];
 		const totals = {
-			totalUsers: Object.keys(userMetrics).length,
-			totalPageViews: Object.values(userMetrics).reduce((sum, u) => sum + u.pageViews, 0),
-			totalSessions: Object.values(userMetrics).reduce((sum, u) => sum + u.sessions, 0),
-			activeToday: Object.values(userMetrics).filter(u => u.sessionsToday > 0).length,
+			totalUsers: parseInt(aggregateMetrics[2]?.value || '0', 10),
+			totalPageViews: parseInt(aggregateMetrics[0]?.value || '0', 10),
+			totalSessions: parseInt(aggregateMetrics[1]?.value || '0', 10),
+			newUsers: parseInt(aggregateMetrics[3]?.value || '0', 10),
+			engagementRate: parseFloat(aggregateMetrics[4]?.value || '0'),
+			avgSessionDuration: parseFloat(aggregateMetrics[5]?.value || '0'),
+			activeToday: today.activeUsers,
 		};
 
 		return {
@@ -169,7 +171,8 @@ export default defineEventHandler(async (event) => {
 			dateRange,
 			startDate: formatDate(startDate),
 			endDate: formatDate(endDate),
-			userMetrics,
+			dailyData,
+			today,
 			totals,
 		};
 	} catch (error: any) {
