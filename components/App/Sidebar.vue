@@ -5,7 +5,6 @@ import {
   SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
@@ -39,7 +38,8 @@ const isCommunicationsActive = computed(() => {
   return route.path.startsWith('/admin/announcements') ||
     route.path.startsWith('/admin/notices') ||
     route.path.startsWith('/admin/email') ||
-    route.path.startsWith('/channels')
+    route.path.startsWith('/channels') ||
+    route.path.startsWith('/admin/analytics')
 })
 const isManagementActive = computed(() => {
   return route.path.startsWith('/admin/users') ||
@@ -72,6 +72,7 @@ const communicationsLinks = [
   { title: 'Email Compose', icon: 'i-heroicons-envelope', to: '/admin/email/compose' },
   { title: 'Email Activity', icon: 'i-heroicons-chart-bar', to: '/admin/email-activity' },
   { title: 'Channels', icon: 'i-lucide-messages-square', to: '/channels' },
+  { title: 'Analytics', icon: 'i-heroicons-chart-bar-square', to: '/admin/analytics' },
 ]
 
 const managementLinks = [
@@ -94,7 +95,8 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 </script>
 
 <template>
-  <Sidebar v-if="hasAdminAccess" collapsible="icon">
+  <ClientOnly>
+    <Sidebar v-if="hasAdminAccess" collapsible="icon">
     <SidebarHeader>
       <SidebarMenu>
         <SidebarMenuItem>
@@ -117,10 +119,6 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
     <SidebarContent>
       <!-- Financial - Collapsible group -->
       <SidebarGroup v-if="canAccessFinancials">
-        <SidebarGroupLabel>
-          <Icon name="i-heroicons-banknotes" class="size-4 shrink-0 mr-1" />
-          Financial
-        </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
@@ -163,10 +161,6 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 
       <!-- Communications - Collapsible group -->
       <SidebarGroup v-if="isBoardMember">
-        <SidebarGroupLabel>
-          <Icon name="i-heroicons-chat-bubble-left-right" class="size-4 shrink-0 mr-1" />
-          Communications
-        </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
@@ -207,10 +201,6 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 
       <!-- Management - Collapsible group -->
       <SidebarGroup v-if="isBoardMember">
-        <SidebarGroupLabel>
-          <Icon name="i-heroicons-cog-6-tooth" class="size-4 shrink-0 mr-1" />
-          Management
-        </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
@@ -251,10 +241,6 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 
       <!-- Operations - Collapsible group -->
       <SidebarGroup v-if="isBoardMember">
-        <SidebarGroupLabel>
-          <Icon name="i-heroicons-wrench-screwdriver" class="size-4 shrink-0 mr-1" />
-          Operations
-        </SidebarGroupLabel>
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
@@ -309,4 +295,5 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 
     <SidebarRail />
   </Sidebar>
+  </ClientOnly>
 </template>
