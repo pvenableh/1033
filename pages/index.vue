@@ -56,14 +56,12 @@
 					class="-mt-44 lg:mt-0 hero-address text-xs tracking-[0.3em] lg:tracking-[0.6em] uppercase mb-6 lg:mb-12 opacity-0 text-cream-alt">
 					Miami Beach · Flamingo Park
 				</p>
+				<h1 class="sr-only">1033 Lenox — Boutique Condo and Apartment Building in Miami Beach</h1>
 				<NewLogo
 					class="hero-title mx-auto mb-6 backdrop:lg:mb-8 opacity-0 w-52 sm:w-72 md:w-[375px] lg:w-[425px] xl:w-[525px]"
 					fill="#ffffff"
-					stroke="#ffffff" />
-				<!-- <h1
-					class="hero-title t-heading text-[clamp(3.5rem,12vw,8rem)] font-light tracking-tight leading-[0.9] mb-8 opacity-0 text-cream">
-					1033 Lenox
-				</h1> -->
+					stroke="#ffffff"
+					aria-hidden="true" />
 				<div class="hero-divider w-16 h-px t-bg-accent mx-auto mb-4 lg:mb-8 opacity-0 scale-x-0"></div>
 				<p class="hero-tagline t-heading text-[clamp(1.125rem,2.5vw,2rem)] italic font-light text-cream-alt opacity-0">
 					The Smart Life in South Beach
@@ -654,6 +652,41 @@
 
 		<!-- Investment Section -->
 
+		<!-- FAQ Section -->
+		<section ref="faqRef" class="section py-24 lg:py-32 px-6 lg:px-16 t-bg-alt">
+			<div class="max-w-6xl mx-auto">
+				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
+					<div class="content-label flex flex-col gap-2 opacity-0">
+						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">09</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">FAQ</span>
+					</div>
+					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+						<h2
+							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
+							Common Questions
+						</h2>
+						<div class="faq-list flex flex-col gap-0">
+							<details
+								v-for="(faq, index) in faqs"
+								:key="index"
+								class="faq-item border-b t-border-divider opacity-0 group">
+								<summary
+									class="flex items-center justify-between gap-4 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+									<span class="text-[0.9375rem] font-medium t-text">{{ faq.question }}</span>
+									<UIcon
+										name="i-heroicons-chevron-down"
+										class="w-5 h-5 t-text-tertiary flex-shrink-0 transition-transform duration-200 group-open:rotate-180" />
+								</summary>
+								<p class="text-[0.9375rem] leading-relaxed t-text-secondary pb-5 pl-0">
+									{{ faq.answer }}
+								</p>
+							</details>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+
 		<AvailableListings />
 		<Marquee
 			v-if="marqueeImages.length"
@@ -766,6 +799,7 @@ const amenitiesRef = ref(null);
 const investmentRef = ref(null);
 const communityRef = ref(null);
 const petsRef = ref(null);
+const faqRef = ref(null);
 const galleryRef = ref(null);
 const ctaRef = ref(null);
 
@@ -879,6 +913,41 @@ const lifestyleImages = [
 		title: 'OCEAN DRIVE',
 		desc: 'Restaurants & nightlife',
 		image: 'https://admin.1033lenox.com/assets/4278842d-e6ac-4ab2-b5fa-d4706632c0bc?key=large',
+	},
+];
+
+const faqs = [
+	{
+		question: 'How many units are in the building?',
+		answer: '1033 Lenox is a boutique 28-unit condominium. All residences are one-bedroom apartments with oversized balconies.',
+	},
+	{
+		question: 'Is parking included?',
+		answer: 'Yes. Every residence comes with one deeded garage parking space in the secured parking garage.',
+	},
+	{
+		question: 'Are pets allowed at 1033 Lenox?',
+		answer: 'Yes, 1033 Lenox is pet-friendly. One approved pet is allowed per residence.',
+	},
+	{
+		question: 'Has the building passed its 40-year recertification?',
+		answer: 'Yes. The 40-year recertification is fully complete with no pending assessments or deferred maintenance. The building is turnkey ready.',
+	},
+	{
+		question: 'What security features does the building have?',
+		answer: 'The building features facial recognition entry via Swiftlane, building-wide camera coverage including the elevator, secured and well-lit walkways, and doorbell cameras installed on 98% of residences.',
+	},
+	{
+		question: 'How far is 1033 Lenox from the beach?',
+		answer: "It's a 6-minute walk to the ocean and a 2-minute walk to the bay. Whole Foods is one block away, and Flamingo Park is one block in the other direction.",
+	},
+	{
+		question: 'Is the building hurricane certified?',
+		answer: 'Yes. 1033 Lenox is fully hurricane-certified with impact windows and doors throughout every unit and in all common areas.',
+	},
+	{
+		question: 'What renovations have been completed?',
+		answer: 'Recent capital improvements include complete concrete restoration, full electrical infrastructure upgrade, hurricane-impact windows and doors, new roof, new elevator cab, modern railings, new garage and asphalt, new security systems, new access control, and new laundry facilities.',
 	},
 ];
 
@@ -1078,6 +1147,9 @@ onMounted(() => {
 		// Investment section
 		animateSection(investmentRef, ['.content-label', '.section-title', '.investment-point', '.section-tagline']);
 
+		// FAQ section
+		animateSection(faqRef, ['.content-label', '.section-title', '.faq-item']);
+
 		// Pets section
 		animateSection(petsRef, ['.pet-title', '.pet-policy', '.pet-tagline', '.section-image']);
 
@@ -1201,13 +1273,120 @@ onUnmounted(() => {
 });
 
 // SEO
+const siteUrl = 'https://1033lenox.com';
+const ogImage = 'https://admin.1033lenox.com/assets/7fef4bc4-9aad-4801-a430-670a2af7cbde';
+const pageTitle = '1033 Lenox | Boutique Condo & Apartment Building in Miami Beach';
+const pageDescription =
+	"Boutique condo and apartment building in Miami Beach's Flamingo Park. 28-unit residence with oversized balconies, modern security, and walkable South Beach living. Fully renovated and turnkey ready.";
+
 useHead({
-	title: '1033 Lenox | Boutique Residence in Miami Beach',
+	title: pageTitle,
 	meta: [
+		{name: 'description', content: pageDescription},
+		{name: 'keywords', content: 'boutique condo Miami Beach, apartment building Miami Beach, Miami Beach condos for sale, Flamingo Park condos, South Beach apartments, 1033 Lenox, boutique residence Miami Beach, one bedroom condo Miami Beach'},
+	],
+	link: [
+		{rel: 'canonical', href: siteUrl},
+		{rel: 'preload', as: 'image', href: 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge'},
+	],
+});
+
+useSeoMeta({
+	ogType: 'website',
+	ogTitle: pageTitle,
+	ogDescription: pageDescription,
+	ogImage: ogImage,
+	ogImageAlt: '1033 Lenox - Boutique condo building in Miami Beach',
+	ogUrl: siteUrl,
+	ogSiteName: '1033 Lenox',
+	ogLocale: 'en_US',
+	twitterCard: 'summary_large_image',
+	twitterTitle: pageTitle,
+	twitterDescription: pageDescription,
+	twitterImage: ogImage,
+});
+
+// JSON-LD Structured Data
+useHead({
+	script: [
 		{
-			name: 'description',
-			content:
-				"28-unit boutique residence in Miami Beach's Flamingo Park neighborhood. One-bedrooms only. Oversized balconies. The smarter side of South Beach.",
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'ApartmentComplex',
+				name: '1033 Lenox',
+				description: pageDescription,
+				url: siteUrl,
+				image: ogImage,
+				address: {
+					'@type': 'PostalAddress',
+					streetAddress: '1033 Lenox Avenue',
+					addressLocality: 'Miami Beach',
+					addressRegion: 'FL',
+					postalCode: '33139',
+					addressCountry: 'US',
+				},
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 25.7743,
+					longitude: -80.1408,
+				},
+				numberOfAccommodationUnits: 28,
+				petsAllowed: true,
+				amenityFeature: [
+					{'@type': 'LocationFeatureSpecification', name: 'Central Courtyard', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Deeded Garage Parking', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'On-Site Laundry', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Clubhouse', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Bike Storage', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Facial Recognition Security', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Impact Windows', value: true},
+					{'@type': 'LocationFeatureSpecification', name: 'Oversized Balconies', value: true},
+				],
+			}),
+		},
+		{
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'LocalBusiness',
+				'@id': `${siteUrl}/#organization`,
+				name: '1033 Lenox Condominium Association',
+				url: siteUrl,
+				image: ogImage,
+				address: {
+					'@type': 'PostalAddress',
+					streetAddress: '1033 Lenox Avenue',
+					addressLocality: 'Miami Beach',
+					addressRegion: 'FL',
+					postalCode: '33139',
+					addressCountry: 'US',
+				},
+				geo: {
+					'@type': 'GeoCoordinates',
+					latitude: 25.7743,
+					longitude: -80.1408,
+				},
+				areaServed: {
+					'@type': 'City',
+					name: 'Miami Beach',
+				},
+			}),
+		},
+		{
+			type: 'application/ld+json',
+			innerHTML: JSON.stringify({
+				'@context': 'https://schema.org',
+				'@type': 'FAQPage',
+				mainEntity: faqs.map((faq) => ({
+					'@type': 'Question',
+					name: faq.question,
+					acceptedAnswer: {
+						'@type': 'Answer',
+						text: faq.answer,
+					},
+				})),
+			}),
 		},
 	],
 });

@@ -137,13 +137,28 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'https://1033lenox.com',
 		name: '1033 Lenox',
-		description: 'Luxury living in the heart of Miami Beach - 1033 Lenox Ave Miami Beach, FL',
+		description: 'Boutique condo and apartment building in Miami Beach. 28-unit residence in Flamingo Park with oversized balconies and walkable South Beach living.',
 		defaultLocale: 'en',
 	},
 
 	// SEO module configuration
 	seo: {
 		fallbackTitle: false,
+	},
+
+	// Sitemap configuration - https://nuxtseo.com/sitemap
+	sitemap: {
+		exclude: [
+			'/admin/**',
+			'/account/**',
+			'/auth/**',
+			'/channels/**',
+			'/tasks/**',
+			'/meetings/**',
+			'/documents/**',
+			'/units/**',
+			'/announcements/**',
+		],
 	},
 
 	// PWA configuration - https://vite-pwa-org.netlify.app/frameworks/nuxt
