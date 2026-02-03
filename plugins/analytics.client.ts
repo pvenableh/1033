@@ -1,11 +1,84 @@
 /**
  * Analytics Plugin - Client-side only
  * Handles automatic tracking for page views, scroll depth, time on page,
- * click events, and user engagement
+ * click events, user engagement, and authenticated user identification
  */
 
 export default defineNuxtPlugin((nuxtApp) => {
 	const router = useRouter();
+	const {user, loggedIn} = useDirectusAuth();
+	const {gtag} = useGtag();
+
+	// Track if we've already identified this user in this session
+	let identifiedUserId: string | null = null;
+
+	/**
+	 * Set user identification for analytics
+	 * Called when user logs in or on app mount if already logged in
+	 */
+	const identifyUser = () => {
+		if (!loggedIn.value || !user.value) {
+			// Clear user ID if logged out
+			if (identifiedUserId) {
+				gtag('set', {user_id: undefined});
+				gtag('set', 'user_properties', {
+					user_email: undefined,
+					user_name: undefined,
+					user_first_name: undefined,
+					user_role: undefined,
+				});
+				identifiedUserId = null;
+			}
+			return;
+		}
+
+		const userId = user.value.id;
+
+		// Only identify if this is a new user or different user
+		if (identifiedUserId === userId) return;
+
+		identifiedUserId = userId;
+
+		// Set the GA4 user_id (used for cross-device tracking)
+		gtag('set', {user_id: userId});
+
+		// Set user properties for segmentation and analysis
+		const userProperties: Record<string, string | undefined> = {
+			user_email: user.value.email,
+			user_name: `${user.value.first_name || ''} ${user.value.last_name || ''}`.trim() || undefined,
+			user_first_name: user.value.first_name || undefined,
+			user_role: user.value.role || undefined,
+		};
+
+		gtag('set', 'user_properties', userProperties);
+
+		// Track login event with user info
+		gtag('event', 'user_identified', {
+			user_id: userId,
+			user_email: user.value.email,
+			method: 'session',
+		});
+	};
+
+	// Watch for authentication changes
+	watch(
+		loggedIn,
+		(isLoggedIn) => {
+			if (isLoggedIn) {
+				identifyUser();
+			} else {
+				// User logged out - clear identification
+				if (identifiedUserId) {
+					gtag('event', 'user_logout', {
+						user_id: identifiedUserId,
+					});
+					identifiedUserId = null;
+					gtag('set', {user_id: undefined});
+				}
+			}
+		},
+		{immediate: false}
+	);
 
 	// Store for tracking data
 	const trackingState = {
@@ -271,6 +344,9 @@ export default defineNuxtPlugin((nuxtApp) => {
 		clickCleanup = setupClickTracking();
 		formCleanup = setupFormTracking();
 		initializeTracking();
+
+		// Identify user if already logged in
+		identifyUser();
 	});
 
 	// Track page views and reinitialize tracking on route change
@@ -278,21 +354,29 @@ export default defineNuxtPlugin((nuxtApp) => {
 		// Don't track on initial load (handled by app:mounted)
 		if (!from.name) return;
 
-		const {gtag} = useGtag();
-
-		// Track page view
-		gtag('event', 'page_view', {
+		// Build page view params with optional user info
+		const pageViewParams: Record<string, string | undefined> = {
 			page_title: document.title,
 			page_location: window.location.href,
 			page_path: to.path,
 			page_referrer: from.fullPath,
-		});
+		};
+
+		// Add user info if logged in
+		if (loggedIn.value && user.value) {
+			pageViewParams.user_id = user.value.id;
+			pageViewParams.user_email = user.value.email;
+		}
+
+		// Track page view
+		gtag('event', 'page_view', pageViewParams);
 
 		// Track navigation flow
 		gtag('event', 'navigation', {
 			from_page: from.path,
 			to_page: to.path,
 			navigation_method: 'route_change',
+			user_id: loggedIn.value && user.value ? user.value.id : undefined,
 		});
 
 		// Reinitialize scroll and time tracking for new page

@@ -9,7 +9,9 @@ useSeoMeta({
 	description: 'Learn how to set up and configure Google Analytics 4 dashboards for comprehensive tracking',
 });
 
-const {isAdmin} = useRoles();
+const {isAdmin, isBoardMember} = useRoles();
+
+const canAccessAnalytics = computed(() => isAdmin.value || isBoardMember.value);
 
 const sections = [
 	{
@@ -132,6 +134,18 @@ const trackedEvents = [
 		parameters: ['conversion_name', 'value'],
 		automatic: false,
 	},
+	{
+		event: 'user_identified',
+		description: 'Tracks when a user is identified (login/session restore)',
+		parameters: ['user_id', 'user_email', 'method'],
+		automatic: true,
+	},
+	{
+		event: 'user_logout',
+		description: 'Tracks when a user logs out',
+		parameters: ['user_id'],
+		automatic: true,
+	},
 ];
 
 const codeExamples = [
@@ -241,22 +255,41 @@ function handleDownload(fileName: string, fileType: string) {
 <\/script>`,
 	},
 	{
-		title: 'User Properties',
-		description: 'Set user properties for segmentation',
+		title: 'User Identification (Automatic)',
+		description: 'Users are automatically identified when logged in. The analytics plugin tracks user_id, email, name, and role.',
+		code: `// AUTOMATIC: No code needed!
+// The analytics plugin automatically identifies users when:
+// 1. User logs in (watches auth state)
+// 2. App loads with existing session
+
+// User properties tracked automatically:
+// - user_id: Directus user ID
+// - user_email: User's email address
+// - user_name: Full name (first + last)
+// - user_first_name: First name only
+// - user_role: User's role in the system
+
+// Events tracked:
+// - user_identified: When user is identified
+// - user_logout: When user logs out`,
+	},
+	{
+		title: 'Manual User Identification',
+		description: 'For custom user identification scenarios',
 		code: `<script setup>
 const analytics = useAnalytics();
-const { user } = useDirectusAuth();
 
-// Set user properties when authenticated
-watch(user, (newUser) => {
-  if (newUser) {
-    analytics.setUserId(newUser.id);
-    analytics.setUserProperties({
-      user_type: newUser.role || 'visitor',
-      account_status: newUser.status || 'active'
-    });
-  }
+// Identify user manually
+analytics.identifyUser({
+  id: 'user-123',
+  email: 'user@example.com',
+  firstName: 'John',
+  lastName: 'Doe',
+  role: 'admin'
 });
+
+// Clear identity on logout
+analytics.clearUserIdentity();
 <\/script>`,
 	},
 ];
@@ -279,10 +312,10 @@ watch(user, (newUser) => {
 				</p>
 			</div>
 
-			<div v-if="!isAdmin" class="text-center py-12">
+			<div v-if="!canAccessAnalytics" class="text-center py-12">
 				<UIcon name="i-heroicons-shield-exclamation" class="w-16 h-16 text-red-500 mx-auto mb-4" />
 				<h2 class="text-xl font-semibold mb-2">Access Denied</h2>
-				<p class="text-gray-600 dark:text-gray-400">You do not have administrator privileges.</p>
+				<p class="text-gray-600 dark:text-gray-400">You do not have permission to view analytics.</p>
 			</div>
 
 			<div v-else class="flex flex-col lg:flex-row gap-8">
