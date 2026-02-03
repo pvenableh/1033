@@ -919,7 +919,8 @@ const lifestyleImages = [
 const faqs = [
 	{
 		question: 'How many units are in the building?',
-		answer: '1033 Lenox is a boutique 28-unit condominium. All residences are one-bedroom apartments with oversized balconies.',
+		answer:
+			'1033 Lenox is a boutique 28-unit condominium. All residences are one-bedroom apartments with oversized balconies.',
 	},
 	{
 		question: 'Is parking included?',
@@ -931,23 +932,28 @@ const faqs = [
 	},
 	{
 		question: 'Has the building passed its 40-year recertification?',
-		answer: 'Yes. The 40-year recertification is fully complete with no pending assessments or deferred maintenance. The building is turnkey ready.',
+		answer:
+			'Almost yes. The 40-year recertification is just about fully complete with no pending assessments or deferred maintenance. The building is turnkey ready.',
 	},
 	{
 		question: 'What security features does the building have?',
-		answer: 'The building features facial recognition entry via Swiftlane, building-wide camera coverage including the elevator, secured and well-lit walkways, and doorbell cameras installed on 98% of residences.',
+		answer:
+			'The building features facial recognition entry via Swiftlane, building-wide camera coverage including the elevator, secured and well-lit walkways, and doorbell cameras installed on 98% of residences.',
 	},
 	{
 		question: 'How far is 1033 Lenox from the beach?',
-		answer: "It's a 6-minute walk to the ocean and a 2-minute walk to the bay. Whole Foods is one block away, and Flamingo Park is one block in the other direction.",
+		answer:
+			"It's a 6-minute walk to the ocean and a 2-minute walk to the bay. Whole Foods is one block away, and Flamingo Park is one block in the other direction.",
 	},
 	{
 		question: 'Is the building hurricane certified?',
-		answer: 'Yes. 1033 Lenox is fully hurricane-certified with impact windows and doors throughout every unit and in all common areas.',
+		answer:
+			'Yes. 1033 Lenox is fully hurricane-certified with impact windows and doors throughout every unit and in all common areas.',
 	},
 	{
 		question: 'What renovations have been completed?',
-		answer: 'Recent capital improvements include complete concrete restoration, full electrical infrastructure upgrade, hurricane-impact windows and doors, new roof, new elevator cab, modern railings, new garage and asphalt, new security systems, new access control, and new laundry facilities.',
+		answer:
+			'Recent capital improvements include complete concrete restoration, full electrical infrastructure upgrade, hurricane-impact windows and doors, new roof, new elevator cab, modern railings, new garage and asphalt, new security systems, new access control, and new laundry facilities.',
 	},
 ];
 
@@ -1283,11 +1289,19 @@ useHead({
 	title: pageTitle,
 	meta: [
 		{name: 'description', content: pageDescription},
-		{name: 'keywords', content: 'boutique condo Miami Beach, apartment building Miami Beach, Miami Beach condos for sale, Flamingo Park condos, South Beach apartments, 1033 Lenox, boutique residence Miami Beach, one bedroom condo Miami Beach'},
+		{
+			name: 'keywords',
+			content:
+				'boutique condo Miami Beach, apartment building Miami Beach, Miami Beach condos for sale, Flamingo Park condos, South Beach apartments, 1033 Lenox, boutique residence Miami Beach, one bedroom condo Miami Beach',
+		},
 	],
 	link: [
 		{rel: 'canonical', href: siteUrl},
-		{rel: 'preload', as: 'image', href: 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge'},
+		{
+			rel: 'preload',
+			as: 'image',
+			href: 'https://admin.1033lenox.com/assets/42b3290e-063e-4412-bf1c-a083498d1887?key=xlarge',
+		},
 	],
 });
 
