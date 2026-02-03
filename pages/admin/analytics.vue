@@ -255,89 +255,135 @@ const trafficSources = ref([
 	{source: 'Email', sessions: 174, percentage: 4},
 ]);
 
-// User activity data
-const userActivity = ref([
-	{
-		id: '1',
-		name: 'John Smith',
-		email: 'john.smith@example.com',
-		role: 'Board Member',
-		lastActive: '2 minutes ago',
-		pageViews: 47,
-		sessionsToday: 3,
-		lastPage: '/dashboard',
-		status: 'online',
-	},
-	{
-		id: '2',
-		name: 'Sarah Johnson',
-		email: 'sarah.j@example.com',
-		role: 'Admin',
-		lastActive: '15 minutes ago',
-		pageViews: 28,
-		sessionsToday: 2,
-		lastPage: '/admin/users',
-		status: 'online',
-	},
-	{
-		id: '3',
-		name: 'Michael Chen',
-		email: 'mchen@example.com',
-		role: 'Owner',
-		lastActive: '1 hour ago',
-		pageViews: 15,
-		sessionsToday: 1,
-		lastPage: '/financials',
-		status: 'away',
-	},
-	{
-		id: '4',
-		name: 'Emily Davis',
-		email: 'emily.d@example.com',
-		role: 'Board Member',
-		lastActive: '3 hours ago',
-		pageViews: 12,
-		sessionsToday: 1,
-		lastPage: '/meetings',
-		status: 'offline',
-	},
-	{
-		id: '5',
-		name: 'Robert Wilson',
-		email: 'rwilson@example.com',
-		role: 'Owner',
-		lastActive: 'Yesterday',
-		pageViews: 34,
-		sessionsToday: 0,
-		lastPage: '/documents',
-		status: 'offline',
-	},
-]);
+// Fetch real user data
+const users = ref<any[]>([]);
+const usersLoading = ref(true);
 
-// User role breakdown for chart
-const userRoleData = computed(() => ({
-	labels: ['Board Members', 'Owners', 'Admins', 'Staff'],
-	datasets: [
-		{
-			data: [8, 42, 3, 12],
-			backgroundColor: [
-				themeColors.chart1Hex,
-				themeColors.chart2Hex,
-				themeColors.chart4Hex,
-				themeColors.chart5Hex,
-			],
-			borderWidth: 0,
-		},
-	],
-}));
+async function fetchUsers() {
+	usersLoading.value = true;
+	try {
+		const response: any = await $fetch('/api/directus/users', {
+			method: 'POST',
+			body: {
+				operation: 'list',
+				query: {
+					fields: ['id', 'first_name', 'last_name', 'email', 'status', 'role.id', 'role.name', 'last_access'],
+					filter: {
+						status: { _eq: 'active' },
+					},
+					sort: ['-last_access'],
+					limit: -1,
+				},
+			},
+		});
+		users.value = response || [];
+	} catch (error) {
+		console.error('Failed to fetch users:', error);
+	} finally {
+		usersLoading.value = false;
+	}
+}
 
-// User metrics summary
-const userMetrics = ref([
-	{label: 'Total Identified Users', value: '65', icon: 'i-heroicons-users', change: '+12%'},
-	{label: 'Active Today', value: '23', icon: 'i-heroicons-user-circle', change: '+5%'},
-	{label: 'Logins Today', value: '31', icon: 'i-heroicons-arrow-right-on-rectangle', change: '+8%'},
-	{label: 'Avg. Pages/User', value: '4.2', icon: 'i-heroicons-document-duplicate', change: '+3%'},
-]);
+// User activity data derived from real users
+const userActivity = computed(() => {
+	return users.value.slice(0, 10).map((user) => {
+		const lastAccess = user.last_access ? new Date(user.last_access) : null;
+		const now = new Date();
+		let lastActive = 'Never';
+		let status = 'offline';
+
+		if (lastAccess) {
+			const diffMinutes = Math.floor((now.getTime() - lastAccess.getTime()) / (1000 * 60));
+			if (diffMinutes < 5) {
+				lastActive = 'Just now';
+				status = 'online';
+			} else if (diffMinutes < 60) {
+				lastActive = `${diffMinutes} minutes ago`;
+				status = diffMinutes < 15 ? 'online' : 'away';
+			} else if (diffMinutes < 1440) {
+				const hours = Math.floor(diffMinutes / 60);
+				lastActive = `${hours} hour${hours > 1 ? 's' : ''} ago`;
+				status = 'away';
+			} else if (diffMinutes < 2880) {
+				lastActive = 'Yesterday';
+			} else {
+				lastActive = lastAccess.toLocaleDateString();
+			}
+		}
+
+		const roleName = typeof user.role === 'object' ? user.role?.name : 'No Role';
+
+		return {
+			id: user.id,
+			name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'Unknown',
+			email: user.email,
+			role: roleName,
+			lastActive,
+			pageViews: Math.floor(Math.random() * 50) + 5, // Simulated until GA4 API integration
+			sessionsToday: Math.floor(Math.random() * 5),
+			lastPage: '/dashboard',
+			status,
+		};
+	});
+});
+
+// User role breakdown for chart - computed from real data
+const userRoleData = computed(() => {
+	const roleCounts: Record<string, number> = {
+		'Board Member': 0,
+		'Owner': 0,
+		'Administrator': 0,
+		'Staff': 0,
+	};
+
+	users.value.forEach((user) => {
+		const roleName = typeof user.role === 'object' ? user.role?.name : '';
+		if (roleName.includes('Board')) {
+			roleCounts['Board Member']++;
+		} else if (roleName.includes('Owner') || roleName.includes('Resident')) {
+			roleCounts['Owner']++;
+		} else if (roleName.includes('Admin')) {
+			roleCounts['Administrator']++;
+		} else if (roleName) {
+			roleCounts['Staff']++;
+		}
+	});
+
+	return {
+		labels: ['Board Members', 'Owners', 'Admins', 'Staff'],
+		datasets: [
+			{
+				data: [roleCounts['Board Member'], roleCounts['Owner'], roleCounts['Administrator'], roleCounts['Staff']],
+				backgroundColor: [
+					themeColors.chart1Hex,
+					themeColors.chart2Hex,
+					themeColors.chart4Hex,
+					themeColors.chart5Hex,
+				],
+				borderWidth: 0,
+			},
+		],
+	};
+});
+
+// User metrics summary - computed from real data
+const userMetrics = computed(() => {
+	const totalUsers = users.value.length;
+	const now = new Date();
+	const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+	const activeToday = users.value.filter((user) => {
+		if (!user.last_access) return false;
+		return new Date(user.last_access) >= todayStart;
+	}).length;
+
+	return [
+		{label: 'Total Active Users', value: String(totalUsers), icon: 'i-heroicons-users', change: ''},
+		{label: 'Active Today', value: String(activeToday), icon: 'i-heroicons-user-circle', change: ''},
+		{label: 'Board Members', value: String(userRoleData.value.datasets[0].data[0]), icon: 'i-heroicons-building-office', change: ''},
+		{label: 'Owners/Residents', value: String(userRoleData.value.datasets[0].data[1]), icon: 'i-heroicons-home', change: ''},
+	];
+});
 
 // Real-time stats (simulated)
 const realtimeUsers = ref(12);
@@ -345,7 +391,11 @@ const realtimePageViews = ref(47);
 
 // Simulate real-time updates
 let realtimeInterval: ReturnType<typeof setInterval>;
-onMounted(() => {
+onMounted(async () => {
+	// Fetch real user data
+	await fetchUsers();
+
+	// Simulate real-time updates
 	realtimeInterval = setInterval(() => {
 		realtimeUsers.value = Math.max(1, realtimeUsers.value + Math.floor(Math.random() * 5) - 2);
 		realtimePageViews.value += Math.floor(Math.random() * 3);
@@ -661,28 +711,28 @@ onUnmounted(() => {
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart1Hex}"></span>
 										<span>Board Members</span>
 									</div>
-									<span class="font-medium">8</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[0] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart2Hex}"></span>
 										<span>Owners</span>
 									</div>
-									<span class="font-medium">42</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[1] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart4Hex}"></span>
 										<span>Admins</span>
 									</div>
-									<span class="font-medium">3</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[2] }}</span>
 								</div>
 								<div class="flex items-center justify-between text-sm">
 									<div class="flex items-center">
 										<span class="w-3 h-3 rounded-full mr-2" :style="{backgroundColor: themeColors.chart5Hex}"></span>
 										<span>Staff</span>
 									</div>
-									<span class="font-medium">12</span>
+									<span class="font-medium">{{ userRoleData.datasets[0].data[3] }}</span>
 								</div>
 							</div>
 						</div>
