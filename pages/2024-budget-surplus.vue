@@ -1,5 +1,5 @@
 <script setup>
-const {gtag} = useGtag();
+const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
@@ -50,9 +50,10 @@ function toggleVote(item) {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
 
-		gtag('event', 'click', {
-			event_category: 'Vote Button',
-			event_label: item.title,
+		analytics.trackEvent('vote_button_click', {
+			item_id: item.id,
+			item_title: item.title,
+			vote_category: 'budget_surplus_2024',
 		});
 	}
 }
@@ -135,9 +136,17 @@ const mailtoLink = computed(() => {
 
 		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the use of the 2024 budget surplus. Please let me know if you need any additional information.`;
 
-		gtag('event', 'click', {
-			event_category: 'Mailto Vote Button',
-			event_label: selectedItem.value.title,
+		analytics.trackEvent('vote_email_created', {
+			item_id: selectedItem.value.id,
+			item_title: selectedItem.value.title,
+			submission_method: 'email',
+			vote_category: 'budget_surplus_2024',
+		});
+
+		// Track as conversion
+		analytics.trackConversion('vote_submitted', 1, {
+			vote_category: 'budget_surplus_2024',
+			item_title: selectedItem.value.title,
 		});
 
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;

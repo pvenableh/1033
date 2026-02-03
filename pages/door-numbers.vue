@@ -1,5 +1,5 @@
 <script setup>
-const {gtag} = useGtag();
+const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
@@ -42,10 +42,11 @@ function toggleVote(item) {
 		selectedItem.value = item;
 
 		// GA4 format for custom events
-		gtag('event', 'vote_button_click', {
+		analytics.trackEvent('vote_button_click', {
 			item_id: item.id,
 			item_title: item.title,
 			screen_name: 'door_voting',
+			vote_category: 'door_numbers',
 		});
 	}
 }
@@ -128,13 +129,6 @@ const mailtoLink = computed(() => {
 
 		const encodedBody = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.title)} for the design of the door numbers. Please let me know if you need any additional information.`;
 
-		// GA4 format for email link events
-		gtag('event', 'vote_email_click', {
-			item_id: selectedItem.value.id,
-			item_title: selectedItem.value.title,
-			screen_name: 'door_voting',
-		});
-
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${encodedBody}`;
 	} else {
 		return '';
@@ -146,10 +140,17 @@ function openExternalLink() {
 	window.open(mailtoLink.value, '_blank'); // Opens the link in a new tab
 
 	// GA4 format for vote submission events
-	gtag('event', 'vote_email_created', {
+	analytics.trackEvent('vote_email_created', {
 		item_id: selectedItem.value.id,
 		item_title: selectedItem.value.title,
 		submission_method: 'email',
+		vote_category: 'door_numbers',
+	});
+
+	// Track as conversion
+	analytics.trackConversion('vote_submitted', 1, {
+		vote_category: 'door_numbers',
+		item_title: selectedItem.value.title,
 	});
 
 	toast.add({

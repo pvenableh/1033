@@ -3,12 +3,32 @@ const route = useRoute();
 const panel = ref('login');
 const errorMessage = ref<string | null>(null);
 
+// Analytics
+const analytics = useAnalytics();
+
+// Track panel changes (login flow)
+watch(panel, (newPanel, oldPanel) => {
+	analytics.trackEvent('auth_panel_change', {
+		from_panel: oldPanel,
+		to_panel: newPanel,
+		auth_flow: 'signin',
+	});
+});
+
 // Check for error query params
 onMounted(() => {
 	if (route.query.error === 'account_inactive') {
 		errorMessage.value = 'Your account is not active. Please contact an administrator.';
+		analytics.trackError({
+			error_type: 'auth_error',
+			error_message: 'account_inactive',
+		});
 	} else if (route.query.error === 'unauthorized') {
 		errorMessage.value = route.query.message as string || 'You do not have permission to access that page.';
+		analytics.trackError({
+			error_type: 'auth_error',
+			error_message: 'unauthorized',
+		});
 	}
 });
 

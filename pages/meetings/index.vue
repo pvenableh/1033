@@ -62,9 +62,22 @@ import {ScrollTrigger} from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Analytics
+const analytics = useAnalytics();
+
 definePageMeta({
 	layout: 'default',
 	middleware: ['auth'],
+});
+
+// Track meetings page view with content count
+onMounted(() => {
+	if (pastMeetings.value?.length) {
+		analytics.trackEvent('content_list_view', {
+			content_type: 'meetings',
+			item_count: pastMeetings.value.length,
+		});
+	}
 });
 
 const meetingsCollection = useDirectusItems('meetings');

@@ -8,6 +8,12 @@ const { isAdmin } = useRoles();
 
 const adminLinks = [
   {
+    title: 'Site Analytics',
+    description: 'View page views, user engagement, scroll depth, and event tracking',
+    icon: 'i-heroicons-chart-bar-square',
+    to: '/admin/analytics',
+  },
+  {
     title: 'User Management',
     description: 'Approve access requests and manage user roles',
     icon: 'i-heroicons-users',

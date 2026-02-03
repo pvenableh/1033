@@ -1,5 +1,5 @@
 <script setup>
-const {gtag} = useGtag();
+const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';
 const toast = useToast();
@@ -69,10 +69,11 @@ function toggleVote(item) {
 		selectedItem.value = item;
 
 		// GA4 format for custom events
-		gtag('event', 'vote_button_click', {
+		analytics.trackEvent('vote_button_click', {
 			item_id: item.id,
 			item_title: item.title,
-			screen_name: 'door_voting',
+			screen_name: 'doorbell_voting',
+			vote_category: 'doorbell_cameras',
 		});
 	}
 }
@@ -159,13 +160,6 @@ const mailtoLink = computed(() => {
 			bodyDetails = `I submit my vote of OPTION ${selectedItem.value.id}: ${makeUppercase(selectedItem.value.label)}. I would like the Board to credit my HOA account at the cost of $37.50. I will purchase an approved doorbell camera, similar to the ${selectedItem.value.title} for my unit. Please let me know if you need any additional information.`;
 		}
 
-		// GA4 format for email link events
-		gtag('event', 'vote_email_click', {
-			item_id: selectedItem.value.id,
-			item_title: selectedItem.value.label,
-			screen_name: 'doorbell_voting',
-		});
-
 		return `mailto:lenoxplazaboard@gmail.com?subject=${encodedSubject}&body=${bodyDetails}`;
 	} else {
 		return '';
@@ -177,10 +171,17 @@ function openExternalLink() {
 	window.open(mailtoLink.value, '_blank'); // Opens the link in a new tab
 
 	// GA4 format for vote submission events
-	gtag('event', 'vote_email_created', {
+	analytics.trackEvent('vote_email_created', {
 		item_id: selectedItem.value.id,
 		item_title: selectedItem.value.title,
 		submission_method: 'email',
+		vote_category: 'doorbell_cameras',
+	});
+
+	// Track as conversion
+	analytics.trackConversion('vote_submitted', 1, {
+		vote_category: 'doorbell_cameras',
+		item_title: selectedItem.value.title,
 	});
 
 	toast.add({

@@ -2,7 +2,7 @@
 // definePageMeta({
 // 	layout: 'email',
 // });
-const {gtag} = useGtag();
+const analytics = useAnalytics();
 
 const renderingsCollection = useDirectusItems('renderings', {requireAuth: false});
 
@@ -24,9 +24,9 @@ function toggleModal(image) {
 		isOpen.value = true;
 		selectedImage.value = image;
 
-		gtag('event', 'click', {
-			event_category: 'Image',
-			event_label: image.title,
+		analytics.trackEvent('image_view', {
+			image_title: image.title,
+			vote_category: 'paint_railings',
 		});
 	}
 }
@@ -39,20 +39,15 @@ function toggleVote(item) {
 		isVoteOpen.value = true;
 		selectedItem.value = item;
 
-		gtag('event', 'click', {
-			event_category: 'Vote Button',
-			event_label: item.title,
+		analytics.trackEvent('vote_button_click', {
+			item_title: item.title,
+			vote_category: 'paint_railings',
 		});
 	}
 }
 
 const mailtoLink = computed(() => {
 	if (selectedItem?.value) {
-		gtag('event', 'click', {
-			event_category: 'Mailto Vote Button',
-			event_label: selectedItem.value.title,
-		});
-
 		const encodedSubject = `1033 Lenox Design Vote: ${selectedItem.value.title}`;
 
 		const encodedBody = `I submit my vote of ${selectedItem.value.title} for the design of the building. Please let me know if you need any additional information.`;
@@ -62,6 +57,22 @@ const mailtoLink = computed(() => {
 		return '';
 	}
 });
+
+// Track mailto link clicks separately (not in computed)
+function trackVoteSubmission() {
+	if (selectedItem.value) {
+		analytics.trackEvent('vote_email_created', {
+			item_title: selectedItem.value.title,
+			submission_method: 'email',
+			vote_category: 'paint_railings',
+		});
+
+		analytics.trackConversion('vote_submitted', 1, {
+			vote_category: 'paint_railings',
+			item_title: selectedItem.value.title,
+		});
+	}
+}
 </script>
 <template>
 	<div class="flex items-center justify-center flex-col w-full renderings">

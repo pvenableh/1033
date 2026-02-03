@@ -6,6 +6,15 @@ const requestsCollection = useDirectusItems('requests', {requireAuth: false});
 const isSubmitting = ref(false);
 import confetti from 'canvas-confetti';
 
+// Form analytics
+const formAnalytics = useFormAnalytics({
+	formId: 'inquiry-form',
+	formName: 'Inquiry Form',
+	trackFieldInteractions: true,
+	trackValidationErrors: true,
+	trackAbandonmentOnUnload: true,
+});
+
 function randomInRange(min, max) {
 	return Math.random() * (max - min) + min;
 }
@@ -103,11 +112,18 @@ const handleReset = () => {
 	direction.value = 'backward';
 	panel.value = '1';
 	resetForm();
+	formAnalytics.resetFormAnalytics();
 };
 
 const onSubmit = handleSubmit(async (values) => {
 	try {
 		isSubmitting.value = true;
+
+		// Track form submission
+		formAnalytics.trackFormSubmit({
+			subject: values.subject,
+			has_unit: !!values.unit,
+		});
 
 		// Submit to Directus
 		const request = await requestsCollection.create({
@@ -170,6 +186,12 @@ const onSubmit = handleSubmit(async (values) => {
 		});
 	} catch (error) {
 		console.error('Error submitting request:', error);
+
+		// Track form error
+		formAnalytics.trackFormError({
+			error_message: error instanceof Error ? error.message : 'Unknown error',
+		});
+
 		useToast().add({
 			title: 'Error',
 			description: `There was an error submitting your ${category}. Please try again.`,
