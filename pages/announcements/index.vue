@@ -5,10 +5,25 @@ import {ScrollTrigger} from 'gsap/ScrollTrigger';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// Analytics
+const analytics = useAnalytics();
+
 definePageMeta({
 	layout: 'default',
 	middleware: ['auth'],
 });
+
+// Track announcement click
+const trackAnnouncementClick = (item: {id?: string | number; title: string; url: string}) => {
+	analytics.trackContentView({
+		content_type: 'announcement',
+		content_id: item.id ? String(item.id) : item.url,
+		content_name: item.title,
+	});
+	analytics.trackOutboundLink(`https://1033lenox.com/announcements/email/${item.url}`, {
+		content_type: 'announcement',
+	});
+};
 
 const announcementsCollection = useDirectusItems('announcements');
 
@@ -119,7 +134,8 @@ onUnmounted(() => {
 						:key="index"
 						class="announcement-card group block t-bg-elevated p-6 lg:p-8 border t-border-divider hover:border-gold transition-all duration-300 opacity-0"
 						:href="'https://1033lenox.com/announcements/email/' + item.url"
-						target="_blank">
+						target="_blank"
+						@click="trackAnnouncementClick(item)">
 						<div class="flex items-start justify-between gap-4">
 							<div class="flex-1">
 								<div class="flex items-center gap-3 mb-3">

@@ -669,7 +669,8 @@
 							<details
 								v-for="(faq, index) in faqs"
 								:key="index"
-								class="faq-item border-b t-border-divider opacity-0 group">
+								class="faq-item border-b t-border-divider opacity-0 group"
+								@toggle="(e) => e.target.open && trackFAQOpen(faq.question, index)">
 								<summary
 									class="flex items-center justify-between gap-4 py-5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
 									<span class="text-[0.9375rem] font-medium t-text">{{ faq.question }}</span>
@@ -737,7 +738,7 @@
 					:swipe-threshold="30">
 					<!-- Custom trigger button -->
 					<template #trigger="{toggle}">
-						<FormVButton type="submit" variant="outline" @click="toggle">Submit Inquiry</FormVButton>
+						<FormVButton type="submit" variant="outline" @click="() => { trackCTA('submit_inquiry', 'cta_section'); toggle(); }">Submit Inquiry</FormVButton>
 					</template>
 
 					<!-- Main content -->
@@ -759,6 +760,33 @@ import {readSingleton} from '~/composables/useDirectusItems';
 
 const {user} = useDirectusAuth();
 const {getImageUrl} = useDirectusFiles();
+
+// Analytics tracking
+const analytics = useAnalytics();
+
+// Track CTA clicks
+const trackCTA = (ctaName: string, location: string) => {
+	analytics.trackCTAClick(ctaName, location, {
+		page_category: 'landing',
+	});
+};
+
+// Track FAQ interactions
+const trackFAQOpen = (question: string, index: number) => {
+	analytics.trackEvent('faq_open', {
+		faq_question: question,
+		faq_index: index,
+		page_category: 'landing',
+	});
+};
+
+// Track section views (called from GSAP scroll triggers)
+const trackSectionView = (sectionName: string) => {
+	analytics.trackEvent('section_view', {
+		section_name: sectionName,
+		page_category: 'landing',
+	});
+};
 
 // Fetch the features singleton with the featured_images relation
 const {data: features} = await useAsyncData('features', () =>
@@ -1155,6 +1183,32 @@ onMounted(() => {
 
 		// FAQ section
 		animateSection(faqRef, ['.content-label', '.section-title', '.faq-item']);
+
+		// Section view tracking - track when each section comes into view
+		const sectionTracking = [
+			{ref: introRef, name: 'intro'},
+			{ref: antiHighriseRef, name: 'anti_highrise'},
+			{ref: locationRef, name: 'location'},
+			{ref: designRef, name: 'design'},
+			{ref: turnkeyRef, name: 'turnkey'},
+			{ref: securityRef, name: 'security'},
+			{ref: amenitiesRef, name: 'amenities'},
+			{ref: communityRef, name: 'community'},
+			{ref: investmentRef, name: 'investment'},
+			{ref: faqRef, name: 'faq'},
+			{ref: ctaRef, name: 'cta'},
+		];
+
+		sectionTracking.forEach(({ref, name}) => {
+			if (ref.value) {
+				ScrollTrigger.create({
+					trigger: ref.value,
+					start: 'top 60%',
+					onEnter: () => trackSectionView(name),
+					once: true,
+				});
+			}
+		});
 
 		// Pets section
 		animateSection(petsRef, ['.pet-title', '.pet-policy', '.pet-tagline', '.section-image']);

@@ -33,7 +33,8 @@
 									v-for="(section, index) in sections"
 									:key="index"
 									:href="'#' + section.id"
-									class="nav-link flex items-center gap-2 py-2 text-gray-500 hover:text-gold-dark transition-colors duration-300">
+									class="nav-link flex items-center gap-2 py-2 text-gray-500 hover:text-gold-dark transition-colors duration-300"
+									@click="trackSectionClick(section.id, section.label)">
 									<span class="w-1.5 h-1.5 bg-gold rounded-full flex-shrink-0 opacity-50"></span>
 									<span class="text-xs tracking-[0.1em] uppercase">{{ section.label }}</span>
 								</a>
@@ -60,10 +61,22 @@
 import {onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
 
+// Analytics
+const analytics = useAnalytics();
+
 definePageMeta({
 	layout: 'default',
 	middleware: ['auth'],
 });
+
+// Track document section navigation
+const trackSectionClick = (sectionId: string, sectionLabel: string) => {
+	analytics.trackEvent('document_section_click', {
+		section_id: sectionId,
+		section_label: sectionLabel,
+		document_type: 'by_laws',
+	});
+};
 
 const sections = [
 	{id: 'one', label: 'Identity'},
