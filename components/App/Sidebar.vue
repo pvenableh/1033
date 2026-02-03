@@ -14,6 +14,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from '~/components/ui/sidebar'
 import { ChevronRight } from 'lucide-vue-next'
 import {
@@ -92,6 +93,14 @@ const operationsLinks = [
 
 const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
 const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || isAdmin.value)
+const { state: sidebarState } = useSidebar()
+const isCollapsed = computed(() => sidebarState.value === 'collapsed')
+
+// Get the first link for each group (for collapsed click navigation)
+const financialsFirstLink = computed(() => financialSubLinks[0]?.to || '/financials')
+const communicationsFirstLink = computed(() => communicationsLinks[0]?.to || '/admin/announcements')
+const managementFirstLink = computed(() => managementLinks[0]?.to || '/admin/users')
+const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/projects')
 </script>
 
 <template>
@@ -107,7 +116,7 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
           >
             <nuxt-link to="/dashboard">
               <Icon name="i-lucide-layout-dashboard" class="size-4 shrink-0" />
-              <span>Dashboard</span>
+              <span>DASHBOARD</span>
             </nuxt-link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -127,7 +136,20 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
               class="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger as-child>
+                <!-- When collapsed, show a link instead of trigger -->
+                <SidebarMenuButton
+                  v-if="isCollapsed"
+                  as-child
+                  :is-active="isFinancialsActive"
+                  tooltip="Financials"
+                >
+                  <nuxt-link :to="financialsFirstLink">
+                    <Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
+                    <span>Financials</span>
+                  </nuxt-link>
+                </SidebarMenuButton>
+                <!-- When expanded, show collapsible trigger -->
+                <CollapsibleTrigger v-else as-child>
                   <SidebarMenuButton
                     :is-active="isFinancialsActive"
                     tooltip="Financials"
@@ -137,7 +159,7 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
                     <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
-                <CollapsibleContent>
+                <CollapsibleContent class="collapsible-content">
                   <SidebarMenuSub>
                     <template v-for="sub in financialSubLinks" :key="sub.to">
                       <SidebarMenuSubItem v-if="!sub.boardOnly || isBoardMember">
@@ -169,7 +191,20 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
               class="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger as-child>
+                <!-- When collapsed, show a link instead of trigger -->
+                <SidebarMenuButton
+                  v-if="isCollapsed"
+                  as-child
+                  :is-active="isCommunicationsActive"
+                  tooltip="Communications"
+                >
+                  <nuxt-link :to="communicationsFirstLink">
+                    <Icon name="i-heroicons-chat-bubble-left-right" class="size-4 shrink-0" />
+                    <span>Communications</span>
+                  </nuxt-link>
+                </SidebarMenuButton>
+                <!-- When expanded, show collapsible trigger -->
+                <CollapsibleTrigger v-else as-child>
                   <SidebarMenuButton
                     :is-active="isCommunicationsActive"
                     tooltip="Communications"
@@ -179,7 +214,7 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
                     <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
-                <CollapsibleContent>
+                <CollapsibleContent class="collapsible-content">
                   <SidebarMenuSub>
                     <SidebarMenuSubItem v-for="item in communicationsLinks" :key="item.to">
                       <SidebarMenuSubButton
@@ -209,7 +244,20 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
               class="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger as-child>
+                <!-- When collapsed, show a link instead of trigger -->
+                <SidebarMenuButton
+                  v-if="isCollapsed"
+                  as-child
+                  :is-active="isManagementActive"
+                  tooltip="Management"
+                >
+                  <nuxt-link :to="managementFirstLink">
+                    <Icon name="i-heroicons-cog-6-tooth" class="size-4 shrink-0" />
+                    <span>Management</span>
+                  </nuxt-link>
+                </SidebarMenuButton>
+                <!-- When expanded, show collapsible trigger -->
+                <CollapsibleTrigger v-else as-child>
                   <SidebarMenuButton
                     :is-active="isManagementActive"
                     tooltip="Management"
@@ -219,7 +267,7 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
                     <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
-                <CollapsibleContent>
+                <CollapsibleContent class="collapsible-content">
                   <SidebarMenuSub>
                     <SidebarMenuSubItem v-for="item in managementLinks" :key="item.to">
                       <SidebarMenuSubButton
@@ -249,7 +297,20 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
               class="group/collapsible"
             >
               <SidebarMenuItem>
-                <CollapsibleTrigger as-child>
+                <!-- When collapsed, show a link instead of trigger -->
+                <SidebarMenuButton
+                  v-if="isCollapsed"
+                  as-child
+                  :is-active="isOperationsActive"
+                  tooltip="Operations"
+                >
+                  <nuxt-link :to="operationsFirstLink">
+                    <Icon name="i-heroicons-wrench-screwdriver" class="size-4 shrink-0" />
+                    <span>Operations</span>
+                  </nuxt-link>
+                </SidebarMenuButton>
+                <!-- When expanded, show collapsible trigger -->
+                <CollapsibleTrigger v-else as-child>
                   <SidebarMenuButton
                     :is-active="isOperationsActive"
                     tooltip="Operations"
@@ -259,7 +320,7 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
                     <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
-                <CollapsibleContent>
+                <CollapsibleContent class="collapsible-content">
                   <SidebarMenuSub>
                     <SidebarMenuSubItem v-for="item in operationsLinks" :key="item.to">
                       <SidebarMenuSubButton
@@ -297,3 +358,40 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
   </Sidebar>
   </ClientOnly>
 </template>
+
+<style scoped>
+/* Collapsible content transitions */
+.collapsible-content {
+  overflow: hidden;
+}
+
+.collapsible-content[data-state='open'] {
+  animation: slideDown 200ms ease-out;
+}
+
+.collapsible-content[data-state='closed'] {
+  animation: slideUp 200ms ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    height: 0;
+    opacity: 0;
+  }
+  to {
+    height: var(--reka-collapsible-content-height);
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    height: var(--reka-collapsible-content-height);
+    opacity: 1;
+  }
+  to {
+    height: 0;
+    opacity: 0;
+  }
+}
+</style>
