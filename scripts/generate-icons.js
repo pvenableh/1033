@@ -90,8 +90,8 @@ async function generateAllIcons() {
 			.toFile(path.join(OUTPUT_DIR, 'maskable-icon-512x512.png'));
 		console.log('   ✅ maskable-icon-512x512.png (512x512 - minimal safe zone)');
 
-		// Generate Favicon (32x32) - NO PADDING
-		console.log('\n🌐 Generating Favicon...');
+		// Generate Favicons - NO PADDING
+		console.log('\n🌐 Generating Favicons...');
 		await sharp(SOURCE_LOGO)
 			.resize(32, 32, {
 				fit: 'cover',
@@ -101,6 +101,16 @@ async function generateAllIcons() {
 			.png()
 			.toFile(path.join(OUTPUT_DIR, 'favicon-32x32.png'));
 		console.log('   ✅ favicon-32x32.png');
+
+		await sharp(SOURCE_LOGO)
+			.resize(16, 16, {
+				fit: 'cover',
+				position: 'center',
+				background: WHITE_BG,
+			})
+			.png()
+			.toFile(path.join(OUTPUT_DIR, 'favicon-16x16.png'));
+		console.log('   ✅ favicon-16x16.png');
 
 		// Generate favicon.ico - NO PADDING
 		console.log('\n🔖 Generating favicon.ico...');
@@ -120,11 +130,11 @@ async function generateAllIcons() {
 		console.log('   • 8 standard icons (72-512) - FULL BLEED');
 		console.log('   • 1 Apple touch icon (180) - FULL BLEED');
 		console.log('   • 1 Maskable icon (512) - MINIMAL 10% safe zone');
-		console.log('   • 1 Favicon PNG (32)');
+		console.log('   • 2 Favicon PNGs (16, 32)');
 		console.log('   • 1 Favicon ICO');
 		console.log('   • All with white (#ffffff) backgrounds ✅');
 		console.log('   • No unnecessary padding ✅');
-		console.log('\n📋 Total: 11 icon files');
+		console.log('\n📋 Total: 13 icon files');
 
 		// List all generated files with sizes
 		console.log('\n📂 Generated files:');
@@ -133,6 +143,7 @@ async function generateAllIcons() {
 			'apple-touch-icon.png',
 			'maskable-icon-512x512.png',
 			'favicon-32x32.png',
+			'favicon-16x16.png',
 		];
 
 		files.forEach((file) => {

@@ -50,7 +50,7 @@ export default defineNuxtConfig({
 				{
 					rel: 'apple-touch-icon',
 					sizes: '180x180',
-					href: '/apple-icon-180x180.png',
+					href: '/apple-touch-icon.png',
 				},
 			],
 		},
@@ -174,38 +174,48 @@ export default defineNuxtConfig({
 			orientation: 'portrait',
 			icons: [
 				{
-					src: '/android-icon-36x36.png',
-					sizes: '36x36',
-					type: 'image/png',
-				},
-				{
-					src: '/android-icon-48x48.png',
-					sizes: '48x48',
-					type: 'image/png',
-				},
-				{
-					src: '/android-icon-72x72.png',
+					src: '/icon-72x72.png',
 					sizes: '72x72',
 					type: 'image/png',
 				},
 				{
-					src: '/android-icon-96x96.png',
+					src: '/icon-96x96.png',
 					sizes: '96x96',
 					type: 'image/png',
 				},
 				{
-					src: '/android-icon-144x144.png',
+					src: '/icon-128x128.png',
+					sizes: '128x128',
+					type: 'image/png',
+				},
+				{
+					src: '/icon-144x144.png',
 					sizes: '144x144',
 					type: 'image/png',
 				},
 				{
-					src: '/android-icon-192x192.png',
+					src: '/icon-152x152.png',
+					sizes: '152x152',
+					type: 'image/png',
+				},
+				{
+					src: '/icon-192x192.png',
 					sizes: '192x192',
 					type: 'image/png',
 				},
 				{
-					src: '/android-icon-192x192.png',
-					sizes: '192x192',
+					src: '/icon-384x384.png',
+					sizes: '384x384',
+					type: 'image/png',
+				},
+				{
+					src: '/icon-512x512.png',
+					sizes: '512x512',
+					type: 'image/png',
+				},
+				{
+					src: '/maskable-icon-512x512.png',
+					sizes: '512x512',
 					type: 'image/png',
 					purpose: 'maskable',
 				},
