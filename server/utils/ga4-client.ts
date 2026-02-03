@@ -27,19 +27,31 @@ export function getGA4Client(): BetaAnalyticsDataClient {
 
 /**
  * Get GA4 Property ID from config
+ * Returns null if not configured (for graceful handling)
  */
-export function getGA4PropertyId(): string {
+export function getGA4PropertyId(): string | null {
 	const config = useRuntimeConfig();
 	const propertyId = config.ga4PropertyId || process.env.GA4_PROPERTY_ID;
 
-	if (!propertyId) {
-		throw createError({
-			statusCode: 500,
-			message: 'GA4_PROPERTY_ID not configured. Set GA4_PROPERTY_ID environment variable (e.g., "properties/123456789")',
-		});
-	}
+	return propertyId || null;
+}
 
-	return propertyId;
+/**
+ * Check if GA4 is configured
+ */
+export function isGA4Configured(): boolean {
+	return getGA4PropertyId() !== null;
+}
+
+/**
+ * Create a "not configured" response for analytics endpoints
+ */
+export function createNotConfiguredResponse() {
+	return {
+		success: false,
+		configured: false,
+		message: 'GA4 Data API not configured. See /admin/analytics/setup for instructions.',
+	};
 }
 
 /**

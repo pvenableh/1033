@@ -1,4 +1,5 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
+import { isGA4Configured, createNotConfiguredResponse, getGA4PropertyId } from '~/server/utils/ga4-client';
 
 /**
  * Fetch per-user analytics metrics from GA4
@@ -10,16 +11,13 @@ import { BetaAnalyticsDataClient } from '@google-analytics/data';
  * 3. Service account must have Viewer access to the GA4 property
  */
 export default defineEventHandler(async (event) => {
-	const config = useRuntimeConfig();
-
-	// Check for required config
-	const propertyId = config.ga4PropertyId || process.env.GA4_PROPERTY_ID;
-	if (!propertyId) {
-		throw createError({
-			statusCode: 500,
-			message: 'GA4_PROPERTY_ID not configured',
-		});
+	// Check if GA4 is configured
+	if (!isGA4Configured()) {
+		return createNotConfiguredResponse();
 	}
+
+	const config = useRuntimeConfig();
+	const propertyId = getGA4PropertyId()!;
 
 	// Initialize the client
 	let analyticsDataClient: BetaAnalyticsDataClient;
