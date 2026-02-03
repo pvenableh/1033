@@ -206,7 +206,7 @@ const onSubmit = handleSubmit(async (values) => {
 
 <template>
 	<div class="w-full max-w-[650px] py-10 px-6 mx-auto relative flex items-center justify-center flex-col bg-background">
-		<TransitionGroup
+		<Transition
 			:enter-active-class="'transition duration-300 ease-out'"
 			:enter-from-class="direction === 'forward' ? 'translate-x-full opacity-0' : '-translate-x-full opacity-0'"
 			:enter-to-class="'translate-x-0 opacity-100'"
@@ -214,7 +214,7 @@ const onSubmit = handleSubmit(async (values) => {
 			:leave-from-class="'translate-x-0 opacity-100'"
 			:leave-to-class="direction === 'forward' ? '-translate-x-full opacity-0' : 'translate-x-full opacity-0'"
 			mode="out-in">
-			<div v-if="panel === '1'" class="w-full min-h-[500px] flex items-center justify-center flex-col">
+			<div v-if="panel === '1'" key="form-panel" class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider font-bold w-full text-center t-text">Submit your Inquiry</h5>
 				<p class="leading-3 text-[12px] mb-6 mt-1 w-full text-justify max-w-[350px] mx-auto t-text-secondary">
 					Complete the form below to submit an inquiry to 1033 Lenox.
@@ -273,7 +273,7 @@ const onSubmit = handleSubmit(async (values) => {
 				</form>
 				<!-- <Button @click="handleNext" color="primary">Next</Button> -->
 			</div>
-			<div v-else class="w-full min-h-[500px] flex items-center justify-center flex-col">
+			<div v-else key="success-panel" class="w-full min-h-[500px] flex items-center justify-center flex-col">
 				<h5 class="uppercase tracking-wider t-text">
 					Thank you
 					<span v-if="name" class="font-bold text-[var(--theme-accent-active)]">{{ name.split(' ')[0] }}</span>
@@ -286,7 +286,7 @@ const onSubmit = handleSubmit(async (values) => {
 				</p>
 				<Button @click="handleReset" color="primary">Reset Form</Button>
 			</div>
-		</TransitionGroup>
+		</Transition>
 	</div>
 </template>
 
