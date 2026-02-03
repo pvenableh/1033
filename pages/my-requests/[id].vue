@@ -158,6 +158,12 @@ const getCommentAuthor = (comment: Comment) => {
   return `${comment.user_created?.first_name || ''} ${comment.user_created?.last_name || ''}`.trim() || 'Unknown';
 };
 
+// Get comment owner ID for reactions
+const getCommentOwnerId = (comment: Comment): string | undefined => {
+  if (typeof comment.user_created === 'string') return comment.user_created;
+  return comment.user_created?.id;
+};
+
 // SEO
 useSeoMeta({
   title: computed(() => request.value?.subject ? `${request.value.subject} - My Requests` : 'Request Details'),
@@ -279,11 +285,11 @@ useSeoMeta({
             <div
               v-for="comment in comments"
               :key="comment.id"
-              class="flex"
-              :class="isOwnMessage(comment) ? 'justify-end' : 'justify-start'"
+              class="flex flex-col"
+              :class="isOwnMessage(comment) ? 'items-end' : 'items-start'"
             >
               <div
-                class="max-w-[80%] rounded-lg px-4 py-2"
+                class="max-w-[80%] rounded-lg px-4 py-2 group"
                 :class="isOwnMessage(comment)
                   ? 'bg-primary text-primary-foreground'
                   : 'bg-muted'"
@@ -306,6 +312,17 @@ useSeoMeta({
                 >
                   {{ formatMessageTime(comment.date_created) }}
                 </p>
+              </div>
+
+              <!-- Reactions below message bubble -->
+              <div class="px-2" :class="isOwnMessage(comment) ? 'text-right' : 'text-left'">
+                <ReactionDisplay
+                  collection="comments"
+                  :item-id="comment.id"
+                  :owner-user-id="getCommentOwnerId(comment)"
+                  :show-picker="true"
+                  :compact="true"
+                />
               </div>
             </div>
           </template>
