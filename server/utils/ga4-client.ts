@@ -1,28 +1,50 @@
 import { BetaAnalyticsDataClient } from '@google-analytics/data';
 
 let analyticsClient: BetaAnalyticsDataClient | null = null;
+let clientCreationError: Error | null = null;
 
 /**
  * Get or create the GA4 Analytics Data client
  * Caches the client instance for reuse
+ * Returns null if credentials are invalid or missing
  */
-export function getGA4Client(): BetaAnalyticsDataClient {
+export function getGA4Client(): BetaAnalyticsDataClient | null {
+	// If we already have a client, return it
 	if (analyticsClient) {
 		return analyticsClient;
+	}
+
+	// If we already tried and failed, don't retry
+	if (clientCreationError) {
+		return null;
 	}
 
 	const config = useRuntimeConfig();
 	const credentialsJson = config.googleAnalyticsCredentials || process.env.GOOGLE_ANALYTICS_CREDENTIALS;
 
-	if (credentialsJson) {
-		const credentials = JSON.parse(credentialsJson);
-		analyticsClient = new BetaAnalyticsDataClient({ credentials });
-	} else {
-		// Fall back to GOOGLE_APPLICATION_CREDENTIALS file path
-		analyticsClient = new BetaAnalyticsDataClient();
-	}
+	try {
+		if (credentialsJson) {
+			const credentials = JSON.parse(credentialsJson);
 
-	return analyticsClient;
+			// Validate that required fields exist
+			if (!credentials.private_key || !credentials.client_email) {
+				console.warn('GA4 credentials missing required fields (private_key or client_email)');
+				clientCreationError = new Error('Invalid credentials format');
+				return null;
+			}
+
+			analyticsClient = new BetaAnalyticsDataClient({ credentials });
+		} else {
+			// Fall back to GOOGLE_APPLICATION_CREDENTIALS file path
+			analyticsClient = new BetaAnalyticsDataClient();
+		}
+
+		return analyticsClient;
+	} catch (error: any) {
+		console.warn('GA4 client creation failed:', error.message);
+		clientCreationError = error;
+		return null;
+	}
 }
 
 /**
@@ -37,10 +59,17 @@ export function getGA4PropertyId(): string | null {
 }
 
 /**
- * Check if GA4 is configured
+ * Check if GA4 is fully configured (property ID + valid client)
  */
 export function isGA4Configured(): boolean {
-	return getGA4PropertyId() !== null;
+	return getGA4PropertyId() !== null && getGA4Client() !== null;
+}
+
+/**
+ * Get the GA4 client creation error (if any)
+ */
+export function getGA4ClientError(): Error | null {
+	return clientCreationError;
 }
 
 /**
