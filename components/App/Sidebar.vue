@@ -126,7 +126,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 
 <template>
 	<ClientOnly>
-		<Sidebar v-if="hasAdminAccess" collapsible="icon" class="sidebar-themed">
+		<Sidebar v-if="hasAdminAccess" collapsible="icon" class="sidebar-themed t-bg">
 			<!-- Sidebar Trigger at top matching header height -->
 			<div class="sidebar-trigger-container">
 				<SidebarTrigger class="sidebar-trigger-btn" />
@@ -309,7 +309,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 				</SidebarGroup>
 			</SidebarContent>
 
-			<SidebarFooter class="t-bg">
+			<SidebarFooter class="t-bg-alt border-t t-border-divider shadow-sm">
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton as-child tooltip="Account">
@@ -333,9 +333,9 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 
 <style scoped>
 /* Sidebar themed background matching header */
-:deep(.sidebar-themed [data-sidebar='sidebar']) {
-	background: var(--theme-header-bg, #eeeeee);
-}
+/* :deep(.sidebar-themed [data-sidebar='sidebar']) {
+	background: var(--theme-bg, #eeeeee);
+} */
 
 /* Sidebar trigger container at top matching header height */
 .sidebar-trigger-container {
