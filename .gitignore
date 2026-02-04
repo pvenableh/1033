@@ -17,3 +17,4 @@ dist
 .directus/uploads
 
 node-compile-cache/
+ga4-credentials.json
