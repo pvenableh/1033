@@ -75,7 +75,7 @@ const adminLinks = [
 </script>
 
 <template>
-  <div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+  <div class="admin-page t-bg min-h-full">
   <div class="container mx-auto px-6 py-8">
     <div class="mb-8">
       <h1 class="text-2xl font-bold">Admin Dashboard</h1>
@@ -97,7 +97,7 @@ const adminLinks = [
         v-for="link in adminLinks"
         :key="link.to"
         :to="link.to"
-        class="block p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 hover:border-primary-500 dark:hover:border-primary-500 transition-colors">
+        class="block p-6 t-bg-subtle rounded-lg border t-border hover:border-primary-500 dark:hover:border-primary-500 transition-colors">
         <UIcon :name="link.icon" class="w-8 h-8 text-primary-500 mb-4" />
         <h3 class="font-semibold text-lg mb-2">{{ link.title }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ link.description }}</p>

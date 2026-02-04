@@ -378,7 +378,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+  <div class="admin-page t-bg min-h-full">
     <div class="container mx-auto px-6 py-8">
       <!-- Back button and header -->
       <div class="mb-6">

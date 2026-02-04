@@ -377,7 +377,7 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+	<div class="admin-page t-bg min-h-full">
 		<div class="container mx-auto px-6 py-8">
 			<!-- Header -->
 			<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
@@ -637,7 +637,7 @@ onMounted(async () => {
 						</div>
 
 						<!-- Member Visibility -->
-						<div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+						<div class="flex items-center justify-between p-4 t-bg-subtle rounded-lg">
 							<div>
 								<p class="font-medium">Visible to Members</p>
 								<p class="text-sm text-gray-500 dark:text-gray-400">
