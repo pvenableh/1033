@@ -33,9 +33,6 @@ const isActive = (path: string) => {
   return route.path === path || route.path.startsWith(path + '/')
 }
 
-// Check if any financial route is active (for active state highlighting)
-const isFinancialsActive = computed(() => route.path.startsWith('/financials'))
-
 // Track manually expanded submenu state - only user interaction changes this
 const financialsExpanded = ref(false)
 
@@ -119,7 +116,6 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
               <SidebarMenuItem>
                 <CollapsibleTrigger as-child>
                   <SidebarMenuButton
-                    :is-active="isFinancialsActive"
                     tooltip="Financials"
                   >
                     <Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
