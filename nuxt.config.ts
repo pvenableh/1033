@@ -103,7 +103,17 @@ export default defineNuxtConfig({
 		clientBundle: {
 			scan: true,
 		},
-		collections: ['heroicons-outline', 'heroicons-solid', 'lucide', 'fluent-emoji-flat'],
+		collections: [
+			'heroicons-outline',
+			'heroicons-solid',
+			'lucide',
+			'fluent-emoji-flat',
+			'mdi',
+			'material-symbols',
+			'wi',
+			'meteocons',
+			'logos',
+		],
 	},
 
 	// experimental: {
@@ -151,7 +161,8 @@ export default defineNuxtConfig({
 	site: {
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'https://1033lenox.com',
 		name: '1033 Lenox',
-		description: 'Boutique condo and apartment building in Miami Beach. 28-unit residence in Flamingo Park with oversized balconies and walkable South Beach living.',
+		description:
+			'Boutique condo and apartment building in Miami Beach. 28-unit residence in Flamingo Park with oversized balconies and walkable South Beach living.',
 		defaultLocale: 'en',
 	},
 

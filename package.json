@@ -32,6 +32,7 @@
 		}
 	},
 	"devDependencies": {
+		"@iconify-json/fluent-emoji-flat": "^1.2.5",
 		"@iconify-icons/wi": "^1.2.3",
 		"@iconify-json/heroicons-outline": "^1.2.1",
 		"@iconify-json/heroicons-solid": "^1.2.1",
@@ -90,7 +91,6 @@
 		"@directus/sdk": "^20.3.0",
 		"@ffmpeg-installer/ffmpeg": "^1.1.0",
 		"@google-analytics/data": "^5.2.1",
-		"@iconify-json/fluent-emoji-flat": "^1.2.5",
 		"@nuxt/image": "^1.9.0",
 		"@sendgrid/mail": "^8.1.4",
 		"@tiptap/extension-placeholder": "^2.27.1",
