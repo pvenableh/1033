@@ -15,6 +15,10 @@ definePageMeta({
 	middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+	title: 'User Permissions - Admin',
+});
+
 const toast = useToast();
 const {isAdmin} = useRoles();
 
@@ -326,7 +330,7 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+	<div class="admin-page t-bg min-h-full">
 		<div class="container mx-auto px-6 py-8">
 			<!-- Header -->
 			<div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">

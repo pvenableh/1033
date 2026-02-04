@@ -341,6 +341,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Monthly Financial Report',
+});
+
 import {ref, computed} from 'vue';
 
 // Import composables

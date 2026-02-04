@@ -1,4 +1,8 @@
 <script setup>
+useSeoMeta({
+	title: '2024 Budget Surplus Vote - 1033 Lenox',
+});
+
 const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';

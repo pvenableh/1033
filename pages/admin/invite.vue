@@ -15,6 +15,10 @@ definePageMeta({
   middleware: ["auth", "role"],
 });
 
+useSeoMeta({
+  title: 'Invite User - Admin',
+});
+
 const config = useRuntimeConfig();
 const toast = useToast();
 const { isAdmin } = useRoles();
@@ -211,7 +215,7 @@ function resetInviteForm() {
 </script>
 
 <template>
-  <div class="admin-page bg-white dark:bg-gray-900 min-h-full">
+  <div class="admin-page t-bg min-h-full">
     <div class="container mx-auto px-6 py-8">
       <div class="max-w-lg mx-auto">
         <!-- Header -->

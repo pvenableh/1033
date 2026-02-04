@@ -456,6 +456,10 @@ definePageMeta({
 	layout: 'default',
 });
 
+useSeoMeta({
+	title: 'Import Transactions',
+});
+
 // Use the Directus integration from your existing project
 const config = useRuntimeConfig();
 const directusUrl = ref(config.public.directusUrl || 'https://admin.1033lenox.com');

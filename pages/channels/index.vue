@@ -77,6 +77,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Channels - 1033 Lenox',
+});
+
 const route = useRoute();
 const router = useRouter();
 

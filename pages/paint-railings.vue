@@ -2,6 +2,10 @@
 // definePageMeta({
 // 	layout: 'email',
 // });
+useSeoMeta({
+	title: 'Paint Railings Vote - 1033 Lenox',
+});
+
 const analytics = useAnalytics();
 
 const renderingsCollection = useDirectusItems('renderings', {requireAuth: false});

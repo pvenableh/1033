@@ -1,6 +1,10 @@
 <script setup>
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+	title: 'Financial Dashboard',
+});
+
 const { isAdmin, isBoardMember } = useRoles()
 const { user } = useDirectusAuth()
 

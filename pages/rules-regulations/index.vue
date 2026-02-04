@@ -75,6 +75,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Rules & Regulations - 1033 Lenox',
+});
+
 const rulesCollection = useDirectusItems('rules');
 
 const page = await rulesCollection.list({

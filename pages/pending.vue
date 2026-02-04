@@ -4,6 +4,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Access Pending - 1033 Lenox',
+});
+
 const {user} = useDirectusAuth();
 const {logout} = useDirectusAuth();
 

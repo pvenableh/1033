@@ -86,6 +86,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'My Account - 1033 Lenox',
+});
+
 // Fetch fresh user data from API (session may not always have name fields)
 const { data: meData } = useLazyFetch<any>('/api/directus/users/me', {
 	server: false,

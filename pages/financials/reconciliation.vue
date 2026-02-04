@@ -895,6 +895,10 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sh
 
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+	title: 'Account Reconciliation',
+});
+
 const {
 	selectedYear,
 	selectedAccount,

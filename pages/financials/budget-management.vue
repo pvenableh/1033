@@ -683,6 +683,10 @@
 <script setup>
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+	title: 'Budget Management',
+});
+
 const {
 	selectedYear,
 	loading,

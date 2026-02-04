@@ -61,6 +61,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Corporate Documents - 1033 Lenox',
+});
+
 import {onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';

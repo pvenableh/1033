@@ -47,7 +47,7 @@ const { data: requests, pending, error, refresh } = await useAsyncData(
           { email: { _eq: userEmail } },
         ],
       },
-      fields: ['id', 'subject', 'description', 'status', 'category', 'priority', 'date_created', 'date_updated'],
+      fields: ['id', 'subject', 'description', 'status', 'category', 'priority', 'date_created', 'date_updated', 'name', 'email', 'user_created.first_name', 'user_created.last_name'],
       sort: ['-date_created'],
     });
 
@@ -117,6 +117,22 @@ const formatDate = (dateStr: string | undefined) => {
     day: 'numeric',
     year: 'numeric',
   });
+};
+
+// Format submitter name - show name field, or user name, or email
+const formatSubmitter = (request: Request & { name?: string; email?: string; user_created?: { first_name?: string; last_name?: string } }) => {
+  // First try the name field (for anonymous submissions)
+  if (request.name) return request.name;
+
+  // Then try the user_created relation
+  if (request.user_created?.first_name || request.user_created?.last_name) {
+    return `${request.user_created.first_name || ''} ${request.user_created.last_name || ''}`.trim();
+  }
+
+  // Fall back to email
+  if (request.email) return request.email;
+
+  return 'Anonymous';
 };
 
 // Navigate to request detail
@@ -227,6 +243,10 @@ const viewRequest = (id: string) => {
                     <p class="text-sm t-text-secondary mt-1 line-clamp-2">{{ request.description }}</p>
                     <div class="flex items-center gap-4 mt-3 text-xs t-text-muted">
                       <span class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-user" class="w-4 h-4" />
+                        {{ formatSubmitter(request) }}
+                      </span>
+                      <span class="flex items-center gap-1">
                         <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
                         {{ formatDate(request.date_created) }}
                       </span>
@@ -272,6 +292,10 @@ const viewRequest = (id: string) => {
                     <p class="text-sm t-text-secondary mt-1 line-clamp-2">{{ request.description }}</p>
                     <div class="flex items-center gap-4 mt-3 text-xs t-text-muted">
                       <span class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-user" class="w-4 h-4" />
+                        {{ formatSubmitter(request) }}
+                      </span>
+                      <span class="flex items-center gap-1">
                         <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
                         {{ formatDate(request.date_created) }}
                       </span>
@@ -316,6 +340,10 @@ const viewRequest = (id: string) => {
                     <h3 class="font-semibold t-text truncate">{{ request.subject || 'Untitled Request' }}</h3>
                     <p class="text-sm t-text-secondary mt-1 line-clamp-2">{{ request.description }}</p>
                     <div class="flex items-center gap-4 mt-3 text-xs t-text-muted">
+                      <span class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-user" class="w-4 h-4" />
+                        {{ formatSubmitter(request) }}
+                      </span>
                       <span class="flex items-center gap-1">
                         <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
                         {{ formatDate(request.date_created) }}

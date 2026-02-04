@@ -5,6 +5,10 @@ definePageMeta({
   layout: 'default',
   middleware: ['auth', 'role'],
 })
+
+useSeoMeta({
+  title: 'Dashboard - 1033 Lenox',
+})
 </script>
 
 <template>

@@ -62,17 +62,27 @@ const taskForm = ref({
 
 async function loadRequest() {
   loading.value = true
+  console.log('[requests/[id]] Loading request with ID:', params.id)
   try {
-    request.value = await requestsCollection.get(params.id, {
+    const result = await requestsCollection.get(params.id, {
       fields: ['*'],
     })
+    console.log('[requests/[id]] Request loaded:', result)
+    request.value = result
 
     if (request.value) {
       useHead({ title: request.value.subject || 'Request Details' })
       await loadRelatedTasks()
+    } else {
+      console.warn('[requests/[id]] Request not found or returned null')
     }
-  } catch (e) {
-    console.error('Failed to load request:', e)
+  } catch (e: any) {
+    console.error('[requests/[id]] Failed to load request:', e)
+    console.error('[requests/[id]] Error details:', {
+      message: e?.message,
+      statusCode: e?.statusCode,
+      data: e?.data,
+    })
   } finally {
     loading.value = false
   }

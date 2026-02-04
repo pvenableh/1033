@@ -1,4 +1,8 @@
 <script setup>
+useSeoMeta({
+	title: 'Elevator Interiors Vote - 1033 Lenox',
+});
+
 const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';

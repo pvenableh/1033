@@ -1144,6 +1144,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Import Center',
+});
+
 // ======================
 // COMPOSABLES & STATE
 // ======================

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+useSeoMeta({
+	title: 'Sign In - 1033 Lenox',
+});
+
 const route = useRoute();
 const router = useRouter();
 const panel = ref('login');

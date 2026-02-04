@@ -436,6 +436,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Financial Overview',
+});
+
 import {ref, computed} from 'vue';
 import {Line, Bar} from 'vue-chartjs';
 import {

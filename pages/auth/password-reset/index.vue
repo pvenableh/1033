@@ -1,4 +1,8 @@
 <script setup lang="ts">
+useSeoMeta({
+  title: 'Reset Password - 1033 Lenox',
+});
+
 import { ref, onMounted, watch } from "vue";
 import { jwtDecode } from "jwt-decode";
 import { useForm, Field as VeeField } from "vee-validate";
