@@ -51,12 +51,48 @@ const isOwner = computed(() => {
 });
 
 // Comments/Messages
-const { getComments, createComment } = useComments();
+const { getComments, createComment, useCommentsSubscription } = useComments();
 const { sanitizeSync, initSanitizer } = useSanitize();
 const comments = ref<Comment[]>([]);
 const loadingComments = ref(true);
 const sendingMessage = ref(false);
 const editorRef = ref<any>(null);
+
+// Real-time comments subscription
+const { data: realtimeComments } = useCommentsSubscription('requests', requestId);
+
+// Watch for real-time comment updates
+watch(realtimeComments, (newComments) => {
+  if (newComments && newComments.length > 0) {
+    // Merge real-time comments with existing ones, preserving user data
+    const existingCommentsMap = new Map(
+      comments.value.map(c => [c.id, c])
+    );
+
+    const mergedComments = newComments.map((newComment: any) => {
+      const existing = existingCommentsMap.get(newComment.id);
+      // If existing comment has user data and new one doesn't, preserve existing user data
+      if (existing && existing.user_created && typeof existing.user_created === 'object') {
+        if (!newComment.user_created || typeof newComment.user_created === 'string') {
+          return { ...newComment, user_created: existing.user_created };
+        }
+      }
+      return newComment;
+    });
+
+    comments.value = mergedComments as Comment[];
+
+    // Scroll to bottom if new comments added
+    if (mergedComments.length > existingCommentsMap.size) {
+      nextTick(() => {
+        const container = document.getElementById('messages-container');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+  }
+});
 
 // Load comments
 const loadComments = async () => {
@@ -79,15 +115,29 @@ const handleSendMessage = async (payload: { content: string; mentionedUserIds: s
 
   sendingMessage.value = true;
   try {
-    await createComment({
+    const newComment = await createComment({
       content: payload.content,
       target_collection: 'requests',
       target_id: requestId.value,
       mentioned_user_ids: payload.mentionedUserIds,
     });
+
+    // Optimistically add the comment with current user data
+    // Real-time subscription will update with complete data
+    const optimisticComment = {
+      ...newComment,
+      user_created: user.value,
+    };
+
+    // Check if comment already exists (from real-time subscription race)
+    const existingIndex = comments.value.findIndex(c => c.id === newComment.id);
+    if (existingIndex === -1) {
+      comments.value.push(optimisticComment as any);
+    }
+
     // Clear editor
     editorRef.value?.clearEditor();
-    await loadComments();
+
     // Scroll to bottom
     nextTick(() => {
       const container = document.getElementById('messages-container');

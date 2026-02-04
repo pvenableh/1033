@@ -19,12 +19,16 @@ const {
   getReactionSummary,
   getReactionTypes,
   toggleReaction,
+  subscribeToReactions,
 } = useReactions();
 
 const summary = ref<ReactionSummary | null>(null);
 const reactionTypes = ref<ReactionTypeRecord[]>([]);
 const loading = ref(true);
 const showPickerMenu = ref(false);
+
+// Store subscription cleanup function
+let unsubscribe: (() => void) | null = null;
 
 // Fetch reactions and types
 const fetchData = async () => {
@@ -43,6 +47,27 @@ const fetchData = async () => {
   }
 };
 
+// Setup real-time subscription
+const setupSubscription = () => {
+  // Cleanup previous subscription
+  if (unsubscribe) {
+    unsubscribe();
+  }
+
+  // Subscribe to reaction changes for this item
+  const subscription = subscribeToReactions(
+    props.collection as any,
+    [String(props.itemId)],
+    async (event) => {
+      // Refresh the summary when reactions change
+      const reactionSummary = await getReactionSummary(props.collection as any, String(props.itemId));
+      summary.value = reactionSummary;
+    }
+  );
+
+  unsubscribe = subscription.unsubscribe;
+};
+
 // Handle reaction toggle
 const handleReaction = async (reactionTypeId: number) => {
   if (!user.value) return;
@@ -59,8 +84,9 @@ const handleReaction = async (reactionTypeId: number) => {
         ownerUserId: props.ownerUserId,
       }
     );
-    // Refresh summary after reaction
-    await fetchData();
+    // Real-time subscription will handle the update, but also do optimistic update
+    const reactionSummary = await getReactionSummary(props.collection as any, String(props.itemId));
+    summary.value = reactionSummary;
     showPickerMenu.value = false;
   } catch (error) {
     console.error('Failed to toggle reaction:', error);
@@ -77,11 +103,20 @@ const getUsersTooltip = (users: any[]): string => {
 
 onMounted(() => {
   fetchData();
+  setupSubscription();
+});
+
+// Cleanup subscription on unmount
+onUnmounted(() => {
+  if (unsubscribe) {
+    unsubscribe();
+  }
 });
 
 // Watch for prop changes
 watch([() => props.collection, () => props.itemId], () => {
   fetchData();
+  setupSubscription();
 });
 </script>
 
