@@ -1,10 +1,10 @@
 <template>
   <SidebarProvider>
     <AdminSidebar />
-    <SidebarInset>
+    <SidebarInset class="overflow-x-hidden">
       <LayoutHeader :links="[]" />
       <!-- Page content -->
-      <div class="flex-1 overflow-auto">
+      <div class="flex-1 overflow-x-hidden overflow-y-auto max-w-full">
         <slot />
       </div>
     </SidebarInset>

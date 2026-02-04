@@ -9,7 +9,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const { user } = useDirectusAuth();
-const { readItem, readItems } = useDirectusItems();
+const { get: getRequest } = useDirectusItems<Request>('requests');
 const toast = useToast();
 
 const requestId = computed(() => route.params.id as string);
@@ -18,7 +18,7 @@ const requestId = computed(() => route.params.id as string);
 const { data: request, pending: requestPending, error: requestError, refresh: refreshRequest } = await useAsyncData(
   `my-request-${requestId.value}`,
   async () => {
-    const result = await readItem<Request>('requests', requestId.value, {
+    const result = await getRequest(requestId.value, {
       fields: [
         'id',
         'subject',

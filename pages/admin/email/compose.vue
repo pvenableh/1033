@@ -632,7 +632,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+  <div class="min-h-screen t-bg">
     <div class="container mx-auto px-4 py-6 max-w-6xl">
       <!-- Header -->
       <div class="mb-6">
