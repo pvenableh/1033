@@ -259,6 +259,20 @@ const getCommentOwnerId = (comment: Comment): string | undefined => {
   return comment.user_created?.id;
 };
 
+// Get avatar URL for comment author
+const config = useRuntimeConfig();
+const getCommentAvatarUrl = (comment: Comment): string => {
+  if (typeof comment.user_created === 'string') {
+    return `https://ui-avatars.com/api/?name=U&background=eeeeee&color=00bfff`;
+  }
+  const userCreated = comment.user_created;
+  if (userCreated?.avatar) {
+    return `${config.public.assetsUrl}${userCreated.avatar}?key=medium`;
+  }
+  const name = `${userCreated?.first_name || ''} ${userCreated?.last_name || ''}`.trim() || 'Unknown';
+  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=eeeeee&color=00bfff`;
+};
+
 // SEO
 useSeoMeta({
   title: computed(() => request.value?.subject ? `${request.value.subject} - My Requests` : 'Request Details'),
@@ -380,47 +394,59 @@ useSeoMeta({
             <div
               v-for="comment in comments"
               :key="comment.id"
-              class="flex flex-col"
-              :class="isOwnMessage(comment) ? 'items-end' : 'items-start'"
+              class="flex gap-3"
+              :class="isOwnMessage(comment) ? 'flex-row-reverse' : 'flex-row'"
             >
-              <div
-                class="max-w-[80%] rounded-lg px-4 py-2 group"
-                :class="isOwnMessage(comment)
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-muted'"
-              >
-                <!-- Author name for other users -->
-                <p
-                  v-if="!isOwnMessage(comment)"
-                  class="text-xs font-medium mb-1 opacity-70"
-                >
-                  {{ getCommentAuthor(comment) }}
-                </p>
-
-                <!-- Message content (rendered as HTML) -->
-                <div
-                  class="text-sm prose prose-sm dark:prose-invert max-w-none comment-content"
-                  v-html="getSanitizedContent(comment.content)"
+              <!-- Avatar -->
+              <div class="shrink-0">
+                <UiAvatar
+                  :src="getCommentAvatarUrl(comment)"
+                  :alt="getCommentAuthor(comment)"
+                  size="sm"
                 />
-
-                <!-- Timestamp -->
-                <p
-                  class="text-xs mt-1"
-                  :class="isOwnMessage(comment) ? 'text-primary-foreground/70' : 't-text-muted'"
-                >
-                  {{ formatMessageTime(comment.date_created) }}
-                </p>
               </div>
 
-              <!-- Reactions below message bubble -->
-              <div class="px-2" :class="isOwnMessage(comment) ? 'text-right' : 'text-left'">
-                <ReactionDisplay
-                  collection="comments"
-                  :item-id="comment.id"
-                  :owner-user-id="getCommentOwnerId(comment)"
-                  :show-picker="true"
-                  :compact="true"
-                />
+              <!-- Message bubble and reactions -->
+              <div class="flex flex-col" :class="isOwnMessage(comment) ? 'items-end' : 'items-start'">
+                <div
+                  class="max-w-[85%] rounded-lg px-4 py-2 group"
+                  :class="isOwnMessage(comment)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted'"
+                >
+                  <!-- Author name for other users -->
+                  <p
+                    v-if="!isOwnMessage(comment)"
+                    class="text-xs font-medium mb-1 opacity-70"
+                  >
+                    {{ getCommentAuthor(comment) }}
+                  </p>
+
+                  <!-- Message content (rendered as HTML) -->
+                  <div
+                    class="text-sm prose prose-sm dark:prose-invert max-w-none comment-content"
+                    v-html="getSanitizedContent(comment.content)"
+                  />
+
+                  <!-- Timestamp -->
+                  <p
+                    class="text-xs mt-1"
+                    :class="isOwnMessage(comment) ? 'text-primary-foreground/70' : 't-text-muted'"
+                  >
+                    {{ formatMessageTime(comment.date_created) }}
+                  </p>
+                </div>
+
+                <!-- Reactions below message bubble -->
+                <div class="px-2" :class="isOwnMessage(comment) ? 'text-right' : 'text-left'">
+                  <ReactionDisplay
+                    collection="comments"
+                    :item-id="comment.id"
+                    :owner-user-id="getCommentOwnerId(comment)"
+                    :show-picker="true"
+                    :compact="true"
+                  />
+                </div>
               </div>
             </div>
           </template>

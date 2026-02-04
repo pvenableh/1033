@@ -12,10 +12,12 @@ useSeoMeta({
 
 const { user } = useDirectusAuth()
 const { isAdmin, isBoardMember } = useRoles()
+const { getCommentCount } = useComments()
 
 const requestsCollection = useDirectusItems('requests')
 const requests = ref<any[]>([])
 const loading = ref(true)
+const commentCounts = ref<Record<string, number>>({})
 
 // Filters
 const filterStatus = ref<string>('')
@@ -71,6 +73,18 @@ async function loadRequests() {
     }
 
     requests.value = await requestsCollection.list(query)
+
+    // Fetch comment counts for all requests
+    if (requests.value.length > 0) {
+      const counts: Record<string, number> = {}
+      await Promise.all(
+        requests.value.map(async (request: any) => {
+          const countInfo = await getCommentCount('requests', request.id)
+          counts[request.id] = countInfo.total_count
+        })
+      )
+      commentCounts.value = counts
+    }
 
     // Compute status counts from all requests
     const allRequests = await requestsCollection.list({
@@ -308,6 +322,10 @@ watch([filterStatus, filterPriority], loadRequests)
                   <span class="flex items-center gap-1">
                     <Icon name="heroicons:calendar" class="h-3 w-3" />
                     {{ formatDate(request.date_created) }}
+                  </span>
+                  <span v-if="commentCounts[request.id]" class="flex items-center gap-1">
+                    <Icon name="heroicons:chat-bubble-left" class="h-3 w-3" />
+                    {{ commentCounts[request.id] }}
                   </span>
                 </div>
               </div>
