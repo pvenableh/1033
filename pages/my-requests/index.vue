@@ -21,9 +21,7 @@ const activeTab = ref(0);
 
 // Tab configuration
 const tabItems = [
-  { label: 'All', slot: 'all' },
-  { label: 'New', slot: 'new' },
-  { label: 'In Progress', slot: 'in-progress' },
+  { label: 'Active', slot: 'active' },
   { label: 'Completed', slot: 'completed' },
   { label: 'Cancelled', slot: 'cancelled' },
 ];
@@ -71,8 +69,11 @@ const searchFilteredRequests = computed(() => {
 });
 
 // Get filtered requests for a specific status
-const getFilteredRequestsByStatus = (status: string | null) => {
+const getFilteredRequestsByStatus = (status: string | string[] | null) => {
   if (status === null) return searchFilteredRequests.value;
+  if (Array.isArray(status)) {
+    return searchFilteredRequests.value.filter((request) => status.includes(request.status || ''));
+  }
   return searchFilteredRequests.value.filter((request) => request.status === status);
 };
 
@@ -188,100 +189,18 @@ const viewRequest = (id: string) => {
     <!-- Tabs and Requests List -->
     <div v-else>
       <Tabs v-model="activeTab" :items="tabItems" class="w-full">
-        <!-- All Requests Tab -->
-        <template #all>
+        <!-- Active Requests Tab (New + In Progress) -->
+        <template #active>
           <div class="mt-4">
-            <div v-if="!getFilteredRequestsByStatus(null).length" class="bg-card rounded-lg p-8 text-center border border-border">
+            <div v-if="!getFilteredRequestsByStatus(['new', 'in progress']).length" class="bg-card rounded-lg p-8 text-center border border-border">
               <UIcon name="i-heroicons-inbox" class="w-12 h-12 mx-auto mb-3 t-text-muted" />
               <p class="t-text-secondary">
-                {{ searchQuery ? 'No requests match your search' : 'No requests found' }}
+                {{ searchQuery ? 'No requests match your search' : 'No active requests' }}
               </p>
             </div>
             <div v-else class="space-y-4">
               <div
-                v-for="request in getFilteredRequestsByStatus(null)"
-                :key="request.id"
-                @click="viewRequest(request.id)"
-                class="bg-card rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow border border-border"
-              >
-                <div class="flex items-start justify-between gap-4">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold t-text truncate">{{ request.subject || 'Untitled Request' }}</h3>
-                    <p class="text-sm t-text-secondary mt-1 line-clamp-2">{{ request.description }}</p>
-                    <div class="flex items-center gap-4 mt-3 text-xs t-text-muted">
-                      <span class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-                        {{ formatDate(request.date_created) }}
-                      </span>
-                      <span v-if="request.category" class="capitalize">{{ request.category }}</span>
-                    </div>
-                  </div>
-                  <div class="flex flex-col items-end gap-2">
-                    <span v-if="request.status" :class="statusColors[request.status] || statusColors.new" class="px-2 py-1 rounded-full text-xs font-medium capitalize">{{ request.status }}</span>
-                    <span v-if="request.priority" :class="priorityColors[request.priority] || priorityColors.medium" class="px-2 py-1 rounded-full text-xs font-medium capitalize">{{ request.priority }}</span>
-                  </div>
-                </div>
-                <div class="flex justify-end mt-2">
-                  <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 t-text-muted" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- New Requests Tab -->
-        <template #new>
-          <div class="mt-4">
-            <div v-if="!getFilteredRequestsByStatus('new').length" class="bg-card rounded-lg p-8 text-center border border-border">
-              <UIcon name="i-heroicons-inbox" class="w-12 h-12 mx-auto mb-3 t-text-muted" />
-              <p class="t-text-secondary">
-                {{ searchQuery ? 'No requests match your search' : 'No new requests' }}
-              </p>
-            </div>
-            <div v-else class="space-y-4">
-              <div
-                v-for="request in getFilteredRequestsByStatus('new')"
-                :key="request.id"
-                @click="viewRequest(request.id)"
-                class="bg-card rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow border border-border"
-              >
-                <div class="flex items-start justify-between gap-4">
-                  <div class="flex-1 min-w-0">
-                    <h3 class="font-semibold t-text truncate">{{ request.subject || 'Untitled Request' }}</h3>
-                    <p class="text-sm t-text-secondary mt-1 line-clamp-2">{{ request.description }}</p>
-                    <div class="flex items-center gap-4 mt-3 text-xs t-text-muted">
-                      <span class="flex items-center gap-1">
-                        <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
-                        {{ formatDate(request.date_created) }}
-                      </span>
-                      <span v-if="request.category" class="capitalize">{{ request.category }}</span>
-                    </div>
-                  </div>
-                  <div class="flex flex-col items-end gap-2">
-                    <span v-if="request.status" :class="statusColors[request.status] || statusColors.new" class="px-2 py-1 rounded-full text-xs font-medium capitalize">{{ request.status }}</span>
-                    <span v-if="request.priority" :class="priorityColors[request.priority] || priorityColors.medium" class="px-2 py-1 rounded-full text-xs font-medium capitalize">{{ request.priority }}</span>
-                  </div>
-                </div>
-                <div class="flex justify-end mt-2">
-                  <UIcon name="i-heroicons-chevron-right" class="w-5 h-5 t-text-muted" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </template>
-
-        <!-- In Progress Tab -->
-        <template #in-progress>
-          <div class="mt-4">
-            <div v-if="!getFilteredRequestsByStatus('in progress').length" class="bg-card rounded-lg p-8 text-center border border-border">
-              <UIcon name="i-heroicons-inbox" class="w-12 h-12 mx-auto mb-3 t-text-muted" />
-              <p class="t-text-secondary">
-                {{ searchQuery ? 'No requests match your search' : 'No requests in progress' }}
-              </p>
-            </div>
-            <div v-else class="space-y-4">
-              <div
-                v-for="request in getFilteredRequestsByStatus('in progress')"
+                v-for="request in getFilteredRequestsByStatus(['new', 'in progress'])"
                 :key="request.id"
                 @click="viewRequest(request.id)"
                 class="bg-card rounded-lg p-6 cursor-pointer hover:shadow-md transition-shadow border border-border"
