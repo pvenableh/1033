@@ -38,7 +38,7 @@ const loading = ref(true)
 const showTaskDialog = ref(false)
 
 // Comments/Messages
-const { getComments, createComment, useCommentsSubscription } = useComments()
+const { getComments, createComment, updateComment, deleteComment, useCommentsSubscription } = useComments()
 const { sanitizeSync, initSanitizer } = useSanitize()
 const comments = ref<Comment[]>([])
 const loadingComments = ref(true)
@@ -198,53 +198,61 @@ const getSanitizedContent = (content: string) => {
   return sanitizeSync(content)
 }
 
-const isOwnMessage = (comment: Comment) => {
-  if (!user.value) return false
-  const creatorId = typeof comment.user_created === 'string'
-    ? comment.user_created
-    : comment.user_created?.id
-  return creatorId === user.value.id
-}
+const toast = useToast()
 
-const getCommentAuthor = (comment: Comment) => {
-  if (typeof comment.user_created === 'string') return 'Unknown'
-  return `${comment.user_created?.first_name || ''} ${comment.user_created?.last_name || ''}`.trim() || 'Unknown'
-}
-
-// Get comment owner ID for reactions
-const getCommentOwnerId = (comment: Comment): string | undefined => {
-  if (typeof comment.user_created === 'string') return comment.user_created
-  return comment.user_created?.id
-}
-
-// Get avatar URL for comment author
-const runtimeConfig = useRuntimeConfig()
-const getCommentAvatarUrl = (comment: Comment): string => {
-  if (typeof comment.user_created === 'string') {
-    return `https://ui-avatars.com/api/?name=U&background=eeeeee&color=00bfff`
+// Handle reply to a comment
+const handleReply = (comment: Comment) => {
+  const container = document.getElementById('admin-messages-container')
+  if (container) {
+    container.scrollTop = container.scrollHeight
   }
-  const userCreated = comment.user_created
-  if (userCreated?.avatar) {
-    return `${runtimeConfig.public.assetsUrl}${userCreated.avatar}?key=medium`
-  }
-  const name = `${userCreated?.first_name || ''} ${userCreated?.last_name || ''}`.trim() || 'Unknown'
-  return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=eeeeee&color=00bfff`
+  editorRef.value?.editor?.commands.focus()
 }
 
-const formatMessageTime = (dateStr: string) => {
-  const date = new Date(dateStr)
-  const now = new Date()
-  const diff = now.getTime() - date.getTime()
-  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+// Handle edit comment
+const handleEditComment = async (comment: Comment, newContent: string) => {
+  try {
+    await updateComment(comment.id, { content: newContent })
+    const index = comments.value.findIndex(c => c.id === comment.id)
+    if (index !== -1) {
+      comments.value[index] = {
+        ...comments.value[index],
+        content: newContent,
+        is_edited: true,
+      }
+    }
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: 'Message updated',
+      color: 'green',
+    })
+  } catch (error: any) {
+    toast.add({
+      icon: 'i-heroicons-exclamation-triangle',
+      title: 'Failed to update message',
+      description: error.message || 'Please try again',
+      color: 'red',
+    })
+  }
+}
 
-  if (days === 0) {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-  } else if (days === 1) {
-    return 'Yesterday'
-  } else if (days < 7) {
-    return date.toLocaleDateString('en-US', { weekday: 'short' })
-  } else {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+// Handle delete comment
+const handleDeleteComment = async (comment: Comment) => {
+  try {
+    await deleteComment(comment.id)
+    comments.value = comments.value.filter(c => c.id !== comment.id)
+    toast.add({
+      icon: 'i-heroicons-check-circle',
+      title: 'Message deleted',
+      color: 'green',
+    })
+  } catch (error: any) {
+    toast.add({
+      icon: 'i-heroicons-exclamation-triangle',
+      title: 'Failed to delete message',
+      description: error.message || 'Please try again',
+      color: 'red',
+    })
   }
 }
 
@@ -506,7 +514,7 @@ onMounted(async () => {
           <!-- Messages Container -->
           <div
             id="admin-messages-container"
-            class="p-4 space-y-4 max-h-[400px] overflow-y-auto border-b"
+            class="p-4 space-y-2 max-h-[500px] overflow-y-auto border-b"
             :class="{ 'min-h-[150px]': !comments.length }"
           >
             <!-- Loading messages -->
@@ -521,77 +529,32 @@ onMounted(async () => {
               <p class="text-xs text-muted-foreground mt-1">Send a message to communicate with the resident</p>
             </div>
 
-            <!-- Messages list -->
+            <!-- Messages list using UnifiedMessage component -->
             <template v-else>
-              <div
+              <UnifiedMessage
                 v-for="comment in comments"
                 :key="comment.id"
-                class="flex gap-3"
-                :class="isOwnMessage(comment) ? 'flex-row-reverse' : 'flex-row'"
-              >
-                <!-- Avatar -->
-                <div class="shrink-0">
-                  <UiAvatar
-                    :src="getCommentAvatarUrl(comment)"
-                    :alt="getCommentAuthor(comment)"
-                    size="sm"
-                  />
-                </div>
-
-                <!-- Message bubble and reactions -->
-                <div class="flex flex-col" :class="isOwnMessage(comment) ? 'items-end' : 'items-start'">
-                  <div
-                    class="max-w-[85%] rounded-lg px-4 py-2"
-                    :class="isOwnMessage(comment)
-                      ? 'bg-primary text-primary-foreground'
-                      : 'bg-muted'"
-                  >
-                    <!-- Author name for other users -->
-                    <p
-                      v-if="!isOwnMessage(comment)"
-                      class="text-xs font-medium mb-1 opacity-70"
-                    >
-                      {{ getCommentAuthor(comment) }}
-                    </p>
-
-                    <!-- Message content -->
-                    <div
-                      class="text-sm prose prose-sm dark:prose-invert max-w-none admin-comment-content"
-                      v-html="getSanitizedContent(comment.content)"
-                    />
-
-                    <!-- Timestamp -->
-                    <p
-                      class="text-xs mt-1"
-                      :class="isOwnMessage(comment) ? 'text-primary-foreground/70' : 'text-muted-foreground'"
-                    >
-                      {{ formatMessageTime(comment.date_created) }}
-                    </p>
-                  </div>
-
-                  <!-- Reactions below message bubble -->
-                  <div class="px-2" :class="isOwnMessage(comment) ? 'text-right' : 'text-left'">
-                    <ReactionDisplay
-                      collection="comments"
-                      :item-id="comment.id"
-                      :owner-user-id="getCommentOwnerId(comment)"
-                      :show-picker="true"
-                      :compact="true"
-                    />
-                  </div>
-                </div>
-              </div>
+                :message="comment"
+                reaction-collection="comments"
+                :show-actions="true"
+                @reply="handleReply"
+                @edit="handleEditComment"
+                @delete="handleDeleteComment"
+              />
             </template>
           </div>
 
-          <!-- Message Input -->
+          <!-- Message Input with UnifiedMessageEditor -->
           <div class="p-4 bg-muted/30">
-            <CommentEditor
+            <UnifiedMessageEditor
               ref="editorRef"
               placeholder="Type a message... Use @ to mention someone"
               submit-label="Send"
               :show-avatar="false"
+              :show-enter-to-send="true"
               :submitting="sendingMessage"
+              mention-context="general"
+              height="min-h-[60px] max-h-[150px]"
               @submit="handleSendMessage"
             />
           </div>
@@ -788,33 +751,5 @@ onMounted(async () => {
 <style>
 .prose img {
   max-width: 100%;
-}
-
-.admin-comment-content :deep(.mention) {
-  color: #0ea5e9;
-  font-weight: 500;
-  background: rgba(14, 165, 233, 0.1);
-  padding: 0.1em 0.3em;
-  border-radius: 0.25em;
-}
-
-.admin-comment-content :deep(img) {
-  max-width: 200px;
-  max-height: 150px;
-  border-radius: 0.375rem;
-  margin: 0.25rem 0;
-}
-
-.admin-comment-content :deep(a) {
-  color: #0ea5e9;
-  text-decoration: underline;
-}
-
-.admin-comment-content :deep(p) {
-  margin: 0;
-}
-
-.admin-comment-content :deep(p + p) {
-  margin-top: 0.5rem;
 }
 </style>

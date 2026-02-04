@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import type { ReactionSummary, ReactionTypeRecord } from '~/types/reactions';
+import { getReactionIcon } from '~/types/reactions';
 
 interface Props {
   collection: string;
   itemId: string | number;
   ownerUserId?: string;
+  itemContext?: Record<string, any>;
   showPicker?: boolean;
   compact?: boolean;
 }
@@ -21,6 +23,16 @@ const {
   toggleReaction,
   subscribeToReactions,
 } = useReactions();
+
+// Helper to get icon name for a reaction type
+const getIconName = (reactionType: ReactionTypeRecord): string => {
+  return getReactionIcon(reactionType);
+};
+
+// Check if reaction type uses icon instead of emoji
+const usesIcon = (reactionType: ReactionTypeRecord): boolean => {
+  return !!reactionType.icon && !!reactionType.icon_family;
+};
 
 const summary = ref<ReactionSummary | null>(null);
 const reactionTypes = ref<ReactionTypeRecord[]>([]);
@@ -141,7 +153,12 @@ watch([() => props.collection, () => props.itemId], () => {
             : 'bg-muted hover:bg-muted/80 t-text-secondary',
         ]"
       >
-        <span>{{ reactionCount.reaction_type.emoji || reactionCount.reaction_type.name }}</span>
+        <Icon
+          v-if="usesIcon(reactionCount.reaction_type)"
+          :name="getIconName(reactionCount.reaction_type)"
+          class="w-4 h-4"
+        />
+        <span v-else>{{ reactionCount.reaction_type.emoji || reactionCount.reaction_type.name }}</span>
         <span class="font-medium">{{ reactionCount.count }}</span>
       </button>
 
@@ -152,7 +169,7 @@ watch([() => props.collection, () => props.itemId], () => {
           class="inline-flex items-center justify-center w-6 h-6 rounded-full hover:bg-muted transition-colors t-text-muted hover:t-text"
           :class="{ 'w-5 h-5': compact }"
         >
-          <UIcon name="i-heroicons-face-smile" class="w-4 h-4" :class="{ 'w-3 h-3': compact }" />
+          <Icon name="i-heroicons-face-smile" class="w-4 h-4" :class="{ 'w-3 h-3': compact }" />
         </button>
 
         <!-- Reaction picker dropdown -->
@@ -167,7 +184,12 @@ watch([() => props.collection, () => props.itemId], () => {
             :title="type.name"
             class="w-7 h-7 flex items-center justify-center rounded hover:bg-muted transition-colors text-base"
           >
-            {{ type.emoji || type.name.charAt(0) }}
+            <Icon
+              v-if="usesIcon(type)"
+              :name="getIconName(type)"
+              class="w-5 h-5"
+            />
+            <span v-else>{{ type.emoji || type.name.charAt(0) }}</span>
           </button>
         </div>
 
