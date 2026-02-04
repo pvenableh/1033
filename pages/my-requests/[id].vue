@@ -9,7 +9,7 @@ definePageMeta({
 const route = useRoute();
 const router = useRouter();
 const { user } = useDirectusAuth();
-const { readItem, readItems } = useDirectusItems();
+const { get: getRequest } = useDirectusItems<Request>('requests');
 const toast = useToast();
 
 const requestId = computed(() => route.params.id as string);
@@ -18,7 +18,7 @@ const requestId = computed(() => route.params.id as string);
 const { data: request, pending: requestPending, error: requestError, refresh: refreshRequest } = await useAsyncData(
   `my-request-${requestId.value}`,
   async () => {
-    const result = await readItem<Request>('requests', requestId.value, {
+    const result = await getRequest(requestId.value, {
       fields: [
         'id',
         'subject',
@@ -51,17 +51,56 @@ const isOwner = computed(() => {
 });
 
 // Comments/Messages
-const { getComments, createComment } = useComments();
+const { getComments, createComment, useCommentsSubscription } = useComments();
+const { sanitizeSync, initSanitizer } = useSanitize();
 const comments = ref<Comment[]>([]);
 const loadingComments = ref(true);
-const newMessage = ref('');
 const sendingMessage = ref(false);
+const editorRef = ref<any>(null);
+
+// Real-time comments subscription
+const { data: realtimeComments } = useCommentsSubscription('requests', requestId);
+
+// Watch for real-time comment updates
+watch(realtimeComments, (newComments) => {
+  if (newComments && newComments.length > 0) {
+    // Merge real-time comments with existing ones, preserving user data
+    const existingCommentsMap = new Map(
+      comments.value.map(c => [c.id, c])
+    );
+
+    const mergedComments = newComments.map((newComment: any) => {
+      const existing = existingCommentsMap.get(newComment.id);
+      // If existing comment has user data and new one doesn't, preserve existing user data
+      if (existing && existing.user_created && typeof existing.user_created === 'object') {
+        if (!newComment.user_created || typeof newComment.user_created === 'string') {
+          return { ...newComment, user_created: existing.user_created };
+        }
+      }
+      return newComment;
+    });
+
+    comments.value = mergedComments as Comment[];
+
+    // Scroll to bottom if new comments added
+    if (mergedComments.length > existingCommentsMap.size) {
+      nextTick(() => {
+        const container = document.getElementById('messages-container');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
+    }
+  }
+});
 
 // Load comments
 const loadComments = async () => {
   loadingComments.value = true;
   try {
-    const result = await getComments('requests', requestId.value);
+    const result = await getComments('requests', requestId.value, {
+      includeReplies: false,
+    });
     comments.value = result || [];
   } catch (error) {
     console.error('Failed to load comments:', error);
@@ -70,19 +109,35 @@ const loadComments = async () => {
   }
 };
 
-// Send a new message
-const sendMessage = async () => {
-  if (!newMessage.value.trim() || sendingMessage.value) return;
+// Send a new message using CommentEditor
+const handleSendMessage = async (payload: { content: string; mentionedUserIds: string[] }) => {
+  if (sendingMessage.value) return;
 
   sendingMessage.value = true;
   try {
-    await createComment({
-      content: newMessage.value.trim(),
+    const newComment = await createComment({
+      content: payload.content,
       target_collection: 'requests',
       target_id: requestId.value,
+      mentioned_user_ids: payload.mentionedUserIds,
     });
-    newMessage.value = '';
-    await loadComments();
+
+    // Optimistically add the comment with current user data
+    // Real-time subscription will update with complete data
+    const optimisticComment = {
+      ...newComment,
+      user_created: user.value,
+    };
+
+    // Check if comment already exists (from real-time subscription race)
+    const existingIndex = comments.value.findIndex(c => c.id === newComment.id);
+    if (existingIndex === -1) {
+      comments.value.push(optimisticComment as any);
+    }
+
+    // Clear editor
+    editorRef.value?.clearEditor();
+
     // Scroll to bottom
     nextTick(() => {
       const container = document.getElementById('messages-container');
@@ -102,8 +157,14 @@ const sendMessage = async () => {
   }
 };
 
+// Sanitize HTML content for display
+const getSanitizedContent = (content: string) => {
+  return sanitizeSync(content);
+};
+
 // Load comments on mount
 onMounted(() => {
+  initSanitizer();
   loadComments();
 });
 
@@ -302,8 +363,11 @@ useSeoMeta({
                   {{ getCommentAuthor(comment) }}
                 </p>
 
-                <!-- Message content -->
-                <p class="text-sm whitespace-pre-wrap">{{ comment.content }}</p>
+                <!-- Message content (rendered as HTML) -->
+                <div
+                  class="text-sm prose prose-sm dark:prose-invert max-w-none comment-content"
+                  v-html="getSanitizedContent(comment.content)"
+                />
 
                 <!-- Timestamp -->
                 <p
@@ -328,28 +392,16 @@ useSeoMeta({
           </template>
         </div>
 
-        <!-- Message Input -->
+        <!-- Message Input with Rich Text Editor -->
         <div class="p-4 border-t border-border bg-muted/30">
-          <form @submit.prevent="sendMessage" class="flex gap-3">
-            <input
-              v-model="newMessage"
-              type="text"
-              placeholder="Type your message..."
-              class="flex-1 px-4 py-2 rounded-lg border border-border bg-background t-text focus:outline-none focus:ring-2 focus:ring-primary"
-              :disabled="sendingMessage"
-            />
-            <button
-              type="submit"
-              :disabled="!newMessage.trim() || sendingMessage"
-              class="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              <UIcon
-                :name="sendingMessage ? 'i-heroicons-arrow-path' : 'i-heroicons-paper-airplane'"
-                class="w-5 h-5"
-                :class="{ 'animate-spin': sendingMessage }"
-              />
-            </button>
-          </form>
+          <CommentEditor
+            ref="editorRef"
+            placeholder="Type a message... Use @ to mention someone"
+            submit-label="Send"
+            :show-avatar="false"
+            :submitting="sendingMessage"
+            @submit="handleSendMessage"
+          />
         </div>
       </div>
 
@@ -398,3 +450,39 @@ useSeoMeta({
     </div>
   </div>
 </template>
+
+<style scoped>
+.comment-content :deep(.mention) {
+  color: #0ea5e9;
+  font-weight: 500;
+  background: rgba(14, 165, 233, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+
+.comment-content :deep(img) {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 0.375rem;
+  margin: 0.25rem 0;
+}
+
+.comment-content :deep(a) {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.comment-content :deep(ul),
+.comment-content :deep(ol) {
+  padding-left: 1rem;
+  margin: 0.25rem 0;
+}
+
+.comment-content :deep(p) {
+  margin: 0;
+}
+
+.comment-content :deep(p + p) {
+  margin-top: 0.5rem;
+}
+</style>

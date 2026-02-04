@@ -53,9 +53,11 @@ async function fetchPeople() {
 				collection: 'people',
 				operation: 'list',
 				query: {
-					fields: ['id', 'first_name', 'last_name', 'email', 'category', 'is_owner', 'is_resident', 'permissions.*'],
+					fields: ['id', 'first_name', 'last_name', 'email', 'category', 'is_owner', 'is_resident', 'directus_users', 'permissions.*'],
 					filter: {
 						status: {_eq: 'published'},
+						// Only show people who have an associated directus_users account
+						directus_users: {_nnull: true},
 					},
 					sort: ['last_name', 'first_name'],
 					limit: -1,
@@ -353,6 +355,7 @@ onMounted(() => {
 						<div>
 							<h3 class="font-medium text-gray-900 dark:text-white">How Permissions Work</h3>
 							<p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+								Only people with linked user accounts are shown here.
 								<strong>Administrators</strong>
 								always have full access to everything.
 								<strong>Board Members</strong>

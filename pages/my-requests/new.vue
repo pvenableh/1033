@@ -13,7 +13,8 @@ useSeoMeta({
 });
 
 const { user } = useDirectusAuth();
-const { createItem } = useDirectusItems();
+const { create: createRequest } = useDirectusItems('requests');
+const { list: listPersons } = useDirectusItems('persons');
 const toast = useToast();
 const router = useRouter();
 
@@ -21,8 +22,7 @@ const router = useRouter();
 const { data: userUnits } = await useAsyncData('user-units', async () => {
   if (!user.value?.id) return [];
   try {
-    const { readItems } = useDirectusItems();
-    const persons = await readItems('persons', {
+    const persons = await listPersons({
       filter: { user: { _eq: user.value.id } },
       fields: ['id', 'unit.id', 'unit.unit_number'],
     });
@@ -88,7 +88,7 @@ const onSubmit = handleSubmit(async (values) => {
   try {
     const unitId = userUnits.value?.[0]?.id;
 
-    const result = await createItem('requests', {
+    const result = await createRequest({
       ...values,
       name: `${user.value?.first_name || ''} ${user.value?.last_name || ''}`.trim(),
       email: user.value?.email,

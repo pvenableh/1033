@@ -1,10 +1,10 @@
 <template>
 	<SidebarProvider>
 		<AppSidebar />
-		<SidebarInset>
+		<SidebarInset class="overflow-x-hidden">
 			<LayoutHeader :links="headerLinks" />
 			<div
-				class="min-h-screen w-full transition duration-300 flex items-center justify-start flex-col relative"
+				class="min-h-screen w-full max-w-full transition duration-300 flex items-center justify-start flex-col relative overflow-x-hidden"
 				:style="{
 					backgroundColor: 'var(--theme-bg-primary)',
 					color: 'var(--theme-text-primary)',
