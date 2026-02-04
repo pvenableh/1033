@@ -13,11 +13,15 @@ useSeoMeta({
 
 const { user } = useDirectusAuth();
 const requestsItems = useDirectusItems<Request>('requests');
+const { getCommentCount } = useComments();
 const router = useRouter();
 
 // Search and filter state
 const searchQuery = ref('');
 const activeTab = ref(0);
+
+// Comment counts map
+const commentCounts = ref<Record<string, number>>({});
 
 // Tab configuration
 const tabItems = [
@@ -46,6 +50,18 @@ const { data: requests, pending, error, refresh } = await useAsyncData(
       fields: ['id', 'subject', 'description', 'status', 'category', 'priority', 'date_created', 'date_updated'],
       sort: ['-date_created'],
     });
+
+    // Fetch comment counts for all requests
+    if (result && result.length > 0) {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        result.map(async (request) => {
+          const countInfo = await getCommentCount('requests', request.id);
+          counts[request.id] = countInfo.total_count;
+        })
+      );
+      commentCounts.value = counts;
+    }
 
     return result || [];
   },
@@ -215,6 +231,10 @@ const viewRequest = (id: string) => {
                         {{ formatDate(request.date_created) }}
                       </span>
                       <span v-if="request.category" class="capitalize">{{ request.category }}</span>
+                      <span v-if="commentCounts[request.id]" class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+                        {{ commentCounts[request.id] }}
+                      </span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
@@ -256,6 +276,10 @@ const viewRequest = (id: string) => {
                         {{ formatDate(request.date_created) }}
                       </span>
                       <span v-if="request.category" class="capitalize">{{ request.category }}</span>
+                      <span v-if="commentCounts[request.id]" class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+                        {{ commentCounts[request.id] }}
+                      </span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
@@ -297,6 +321,10 @@ const viewRequest = (id: string) => {
                         {{ formatDate(request.date_created) }}
                       </span>
                       <span v-if="request.category" class="capitalize">{{ request.category }}</span>
+                      <span v-if="commentCounts[request.id]" class="flex items-center gap-1">
+                        <UIcon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
+                        {{ commentCounts[request.id] }}
+                      </span>
                     </div>
                   </div>
                   <div class="flex flex-col items-end gap-2">
