@@ -1,8 +1,5 @@
 <template>
 	<div class="container mx-auto p-6 space-y-6">
-		<!-- Financial Sub-Navigation -->
-		<FinancialsSubNav />
-
 		<!-- Header -->
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
 			<div class="flex items-center justify-between">
@@ -32,15 +29,15 @@
 			<div class="flex flex-wrap gap-4 items-center">
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">Account:</label>
-					<USelectMenu v-model="selectedAccount" :options="accountOptions" size="sm" class="w-64" />
+					<USelectMenu v-model="selectedAccount" :options="accountOptions" value-attribute="value" option-attribute="label" size="sm" class="w-64" />
 				</div>
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">Month:</label>
-					<USelectMenu v-model="selectedMonth" :options="monthOptions" size="sm" class="w-32" />
+					<USelectMenu v-model="selectedMonth" :options="monthOptions" value-attribute="value" option-attribute="label" size="sm" class="w-32" />
 				</div>
 				<div class="flex items-center gap-2">
 					<label class="text-sm font-medium text-gray-700 dark:text-gray-300 uppercase">Year:</label>
-					<USelectMenu v-model="selectedYear" :options="yearOptions" size="sm" class="w-24" />
+					<USelectMenu v-model="selectedYear" :options="yearOptions" value-attribute="value" option-attribute="label" size="sm" class="w-24" />
 				</div>
 				<div class="ml-auto flex gap-2">
 					<UButton

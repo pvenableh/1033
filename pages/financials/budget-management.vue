@@ -1,8 +1,5 @@
 <template>
 	<div class="container mx-auto p-6 space-y-6">
-		<!-- Financial Sub-Navigation -->
-		<FinancialsSubNav />
-
 		<!-- Header -->
 		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
 			<div class="flex items-center justify-between">
@@ -18,6 +15,8 @@
 					<USelectMenu
 						v-model="selectedYear"
 						:options="yearOptions"
+						value-attribute="value"
+						option-attribute="label"
 						size="lg"
 						class="w-32"
 						placeholder="Select Year" />

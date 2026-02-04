@@ -1,10 +1,19 @@
 <template>
-	<div class="container mx-auto min-h-svh p-6">
+	<div class="container mx-auto min-h-svh p-6 space-y-6">
 		<!-- Header -->
-		<div class="mb-8">
-			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 text-center">HOA FINANCIAL DASHBOARD</h1>
-			<div class="w-full text-center uppercase tracking-wider text-sm text-gray-600">
-				<span>{{ getRangeDescription() }} {{ selectedYear }}</span>
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 dark:text-white">
+						DASHBOARD
+					</h1>
+					<p class="text-gray-600 dark:text-gray-400">
+						Account transactions, budget analysis, and compliance monitoring
+					</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<span class="text-sm uppercase tracking-wider text-gray-500">{{ getRangeDescription() }} {{ selectedYear }}</span>
+				</div>
 			</div>
 		</div>
 
@@ -1077,7 +1086,7 @@
 definePageMeta({ layout: 'default' })
 
 useSeoMeta({
-	title: 'Financial Dashboard',
+	title: 'Dashboard',
 });
 
 import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';

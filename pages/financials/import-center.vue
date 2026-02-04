@@ -1,8 +1,5 @@
 <template>
 	<div class="max-w-7xl mx-auto p-6 space-y-6">
-		<!-- Financial Sub-Navigation -->
-		<FinancialsSubNav />
-
 		<!-- Permission Denied -->
 		<div v-if="!canReadFinancials" class="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
 			<Icon name="i-heroicons-lock-closed" class="w-12 h-12 text-red-400 mx-auto mb-4" />

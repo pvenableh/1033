@@ -6,10 +6,10 @@
 				<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
 					<div>
 						<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-							Financial Dashboard
+							Financial Analysis
 						</h1>
 						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-							Comprehensive financial overview and analytics
+							Comprehensive financial analytics and projections
 						</p>
 					</div>
 					<div class="flex items-center gap-4">
@@ -571,8 +571,8 @@
 				<NuxtLink to="/financials">
 					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
 						<div class="text-center">
-							<UIcon name="i-heroicons-currency-dollar" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
-							<div class="font-medium text-gray-900 dark:text-white">Transactions</div>
+							<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
+							<div class="font-medium text-gray-900 dark:text-white">Dashboard</div>
 						</div>
 					</UCard>
 				</NuxtLink>
@@ -588,7 +588,7 @@ definePageMeta({
 });
 
 useSeoMeta({
-	title: 'Financial Dashboard',
+	title: 'Financial Analysis',
 });
 
 const currentYear = new Date().getFullYear();
