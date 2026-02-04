@@ -68,9 +68,9 @@ useSeoMeta({
 	description: 'View site analytics, user engagement, and tracking metrics',
 });
 
-const {isAdmin, isBoardMember} = useRoles();
+const {isAdmin} = useRoles();
 
-const canAccessAnalytics = computed(() => isAdmin.value || isBoardMember.value);
+const canAccessAnalytics = computed(() => isAdmin.value);
 
 // Date range filter
 const dateRange = ref('7d');
