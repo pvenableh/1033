@@ -1,14 +1,6 @@
 <script setup>
-import { SidebarTrigger } from '~/components/ui/sidebar'
-
 const {isScrollingDown} = useScrollDirection();
 const {user} = useDirectusAuth();
-const {isBoardMember, isOwner, isAdmin} = useRoles();
-
-// Show sidebar trigger only for users with admin access
-const showSidebarTrigger = computed(() => {
-	return !!user.value && (isBoardMember.value || isOwner.value || isAdmin.value);
-});
 
 const avatar = computed(() => {
 	if (user.value?.avatar) {
@@ -30,7 +22,6 @@ const avatar = computed(() => {
 		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
 		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row gap-1">
-			<SidebarTrigger v-if="showSidebarTrigger" class="sidebar-trigger" />
 			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />
@@ -72,22 +63,6 @@ header.retracted {
 	@media (min-width: theme('screens.lg')) {
 		transform: translateY(0px);
 	}
-}
-
-.sidebar-trigger {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 28px;
-	height: 28px;
-	border-radius: 6px;
-	transition: background-color 0.2s ease;
-	cursor: pointer;
-	color: var(--theme-text-secondary, #666);
-}
-
-.sidebar-trigger:hover {
-	background-color: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
 }
 
 .new-logo {

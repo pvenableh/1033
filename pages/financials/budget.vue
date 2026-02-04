@@ -1,9 +1,27 @@
 <template>
-	<div class="container mx-auto p-6">
+	<div class="container mx-auto p-6 space-y-6">
 		<!-- Header -->
-		<div class="mb-8">
-			<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 text-center">2025 OPERATING BUDGET</h1>
-			<p class="text-gray-600 text-center">LENOX PLAZA ASSOCIATION, INC. - MIAMI BEACH, FLORIDA</p>
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 dark:text-white">
+						OPERATING BUDGET
+					</h1>
+					<p class="text-gray-600 dark:text-gray-400">
+						Lenox Plaza Association, Inc. - Miami Beach, Florida
+					</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<USelectMenu
+						v-model="selectedYear"
+						:options="yearOptions"
+						value-attribute="value"
+						option-attribute="label"
+						size="lg"
+						class="w-32"
+						placeholder="Select Year" />
+				</div>
+			</div>
 		</div>
 
 		<!-- Budget Overview Cards -->
@@ -349,7 +367,7 @@
 
 		<!-- Footer Notes -->
 		<div class="mt-8 text-center text-sm text-gray-500">
-			<p class="mb-2">2025 Operating Budget | Lenox Plaza Association, Inc.</p>
+			<p class="mb-2">{{ selectedYear }} Operating Budget | Lenox Plaza Association, Inc.</p>
 			<p>Miami Beach, Florida | 28 Units</p>
 		</div>
 	</div>
@@ -358,11 +376,22 @@
 <script setup lang="ts">
 definePageMeta({ layout: 'default' })
 
-useSeoMeta({
-	title: '2025 Operating Budget',
+import {useBudgetData} from '~/composables/useBudgetData';
+
+const currentYear = new Date().getFullYear();
+const selectedYear = ref(currentYear);
+
+const yearOptions = computed(() => {
+	const years = [];
+	for (let y = currentYear - 2; y <= currentYear + 1; y++) {
+		years.push({ label: `FY ${y}`, value: y });
+	}
+	return years;
 });
 
-import {useBudgetData} from '~/composables/useBudgetData';
+useSeoMeta({
+	title: computed(() => `${selectedYear.value} Operating Budget`),
+});
 
 const {budget2025: budget} = useBudgetData();
 const activeTab = ref(0);

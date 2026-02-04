@@ -13,7 +13,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-  SidebarSeparator,
+  SidebarTrigger,
   useSidebar,
 } from '~/components/ui/sidebar'
 import { ChevronRight } from 'lucide-vue-next'
@@ -56,15 +56,16 @@ const isOperationsActive = computed(() => {
     route.path.startsWith('/meetings')
 })
 
-// Financial sub-links for the collapsible group
+// Financial sub-links for the collapsible group (updated to match SubNav)
 const financialSubLinks = [
-  { title: 'Transactions', icon: 'i-heroicons-currency-dollar', to: '/financials' },
-  { title: 'Dashboard', icon: 'i-heroicons-chart-bar', to: '/financials/dashboard' },
-  { title: 'Reconciliation', icon: 'i-heroicons-document-check', to: '/financials/reconciliation' },
-  { title: 'Budget Management', icon: 'i-heroicons-calculator', to: '/financials/budget-management' },
+  { title: 'Dashboard', icon: 'i-heroicons-chart-bar', to: '/financials' },
+  { title: 'Reports', icon: 'i-heroicons-document-text', to: '/financials/reports' },
+  { title: 'Financial Analysis', icon: 'i-heroicons-presentation-chart-line', to: '/financials/financial-analysis' },
   { title: 'Budget Overview', icon: 'i-heroicons-chart-pie', to: '/financials/budget' },
   { title: 'Year-End', icon: 'i-heroicons-calendar-days', to: '/financials/yearly-reconciliation' },
-  { title: 'Import Center', icon: 'i-heroicons-arrow-up-tray', to: '/financials/import-center', boardOnly: true },
+  { title: 'Reconciliation', icon: 'i-heroicons-document-check', to: '/financials/reconciliation', boardOnly: true },
+  { title: 'Budget Mgmt', icon: 'i-heroicons-calculator', to: '/financials/budget-management', boardOnly: true },
+  { title: 'Import', icon: 'i-heroicons-arrow-up-tray', to: '/financials/import-center', boardOnly: true },
 ]
 
 const communicationsLinks = [
@@ -96,6 +97,23 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 const { state: sidebarState } = useSidebar()
 const isCollapsed = computed(() => sidebarState.value === 'collapsed')
 
+// Controlled open state for collapsibles - expand all when sidebar expands
+const financialsOpen = ref(isFinancialsActive.value)
+const communicationsOpen = ref(isCommunicationsActive.value)
+const managementOpen = ref(isManagementActive.value)
+const operationsOpen = ref(isOperationsActive.value)
+
+// Watch sidebar state to expand all menus when sidebar expands
+watch(isCollapsed, (collapsed) => {
+  if (!collapsed) {
+    // Sidebar expanded - open all menus
+    financialsOpen.value = true
+    communicationsOpen.value = true
+    managementOpen.value = true
+    operationsOpen.value = true
+  }
+})
+
 // Get the first link for each group (for collapsed click navigation)
 const financialsFirstLink = computed(() => financialSubLinks[0]?.to || '/financials')
 const communicationsFirstLink = computed(() => communicationsLinks[0]?.to || '/admin/announcements')
@@ -105,8 +123,13 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 
 <template>
   <ClientOnly>
-    <Sidebar v-if="hasAdminAccess" collapsible="icon">
-    <SidebarHeader>
+    <Sidebar v-if="hasAdminAccess" collapsible="icon" class="sidebar-themed">
+    <!-- Sidebar Trigger at top matching header height -->
+    <div class="sidebar-trigger-container">
+      <SidebarTrigger class="sidebar-trigger-btn" />
+    </div>
+
+    <SidebarHeader class="pt-2">
       <SidebarMenu>
         <SidebarMenuItem>
           <SidebarMenuButton
@@ -123,16 +146,14 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
       </SidebarMenu>
     </SidebarHeader>
 
-    <SidebarSeparator />
-
     <SidebarContent>
       <!-- Financial - Collapsible group -->
       <SidebarGroup v-if="canAccessFinancials">
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
+              v-model:open="financialsOpen"
               as="li"
-              :default-open="isFinancialsActive"
               class="group/collapsible"
             >
               <SidebarMenuItem>
@@ -186,8 +207,8 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
+              v-model:open="communicationsOpen"
               as="li"
-              :default-open="isCommunicationsActive"
               class="group/collapsible"
             >
               <SidebarMenuItem>
@@ -239,8 +260,8 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
+              v-model:open="managementOpen"
               as="li"
-              :default-open="isManagementActive"
               class="group/collapsible"
             >
               <SidebarMenuItem>
@@ -292,8 +313,8 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
+              v-model:open="operationsOpen"
               as="li"
-              :default-open="isOperationsActive"
               class="group/collapsible"
             >
               <SidebarMenuItem>
@@ -360,6 +381,39 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 </template>
 
 <style scoped>
+/* Sidebar themed background matching header */
+:deep(.sidebar-themed [data-sidebar="sidebar"]) {
+  background: var(--theme-header-bg, #eeeeee);
+}
+
+/* Sidebar trigger container at top matching header height */
+.sidebar-trigger-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52px; /* Match header height */
+  padding: 0 0.5rem;
+  flex-shrink: 0;
+}
+
+/* When sidebar is collapsed, center the trigger */
+:deep([data-state="collapsed"]) .sidebar-trigger-container {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar-trigger-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  color: var(--theme-text-secondary, #666);
+}
+
+.sidebar-trigger-btn:hover {
+  background-color: var(--theme-bg-hover, rgba(0, 0, 0, 0.05));
+}
+
 /* Collapsible content transitions */
 .collapsible-content {
   overflow: hidden;

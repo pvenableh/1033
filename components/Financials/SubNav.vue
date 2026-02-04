@@ -25,8 +25,9 @@ const { isBoardMember, isOwner } = useRoles();
 const canAdmin = computed(() => isBoardMember.value || isOwner.value);
 
 const navLinks = [
-	{ to: '/financials', label: 'Transactions', icon: 'i-heroicons-currency-dollar' },
-	{ to: '/financials/dashboard', label: 'Dashboard', icon: 'i-heroicons-chart-bar' },
+	{ to: '/financials', label: 'Dashboard', icon: 'i-heroicons-chart-bar' },
+	{ to: '/financials/reports', label: 'Reports', icon: 'i-heroicons-document-text' },
+	{ to: '/financials/financial-analysis', label: 'Financial Analysis', icon: 'i-heroicons-presentation-chart-line' },
 	{ to: '/financials/budget', label: 'Budget Overview', icon: 'i-heroicons-chart-pie' },
 	{ to: '/financials/yearly-reconciliation', label: 'Year-End', icon: 'i-heroicons-calendar-days' },
 	{ to: '/financials/reconciliation', label: 'Reconciliation', icon: 'i-heroicons-document-check', adminOnly: true },
