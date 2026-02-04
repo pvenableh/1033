@@ -15,6 +15,7 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
   SidebarSeparator,
+  useSidebar,
 } from '~/components/ui/sidebar'
 import { ChevronRight } from 'lucide-vue-next'
 import {
@@ -25,6 +26,7 @@ import {
 
 const route = useRoute()
 const { isBoardMember, isOwner, isAdmin } = useRoles()
+const { state: sidebarState } = useSidebar()
 
 const isActive = (path: string) => {
   if (path === '/financials') {
@@ -35,6 +37,25 @@ const isActive = (path: string) => {
 
 // Track manually expanded submenu state - only user interaction changes this
 const financialsExpanded = ref(false)
+
+// Keep track of user-intended state
+const userIntendedExpanded = ref(false)
+
+// When user clicks to expand/collapse, track their intent
+const handleFinancialsToggle = (open: boolean) => {
+  userIntendedExpanded.value = open
+  financialsExpanded.value = open
+}
+
+// When sidebar collapses, close submenus. When it expands, restore user's intent
+watch(sidebarState, (newState) => {
+  if (newState === 'collapsed') {
+    financialsExpanded.value = false
+  } else if (newState === 'expanded') {
+    // Only restore if user had intended it to be open
+    financialsExpanded.value = userIntendedExpanded.value
+  }
+})
 
 // Financial sub-links for the collapsible group
 const financialSubLinks = [
@@ -109,7 +130,8 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
         <SidebarGroupContent>
           <SidebarMenu>
             <CollapsibleRoot
-              v-model:open="financialsExpanded"
+              :open="financialsExpanded"
+              @update:open="handleFinancialsToggle"
               as="li"
               class="group/collapsible"
             >

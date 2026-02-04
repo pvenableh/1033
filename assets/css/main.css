@@ -109,15 +109,15 @@ a {
 
 .glass-container {
 	/* Base styles for large screens (1024px+) */
-	background: rgba(255, 255, 255, 0.1);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 	border-radius: 3px;
 	padding: 1rem 2rem;
-	border: 1px solid rgba(255, 255, 255, 0.2);
+	border: 1px solid rgba(255, 255, 255, 0.1);
 	box-shadow:
-		0 8px 32px rgba(0, 0, 0, 0.1),
-		inset 0 1px 0 rgba(255, 255, 255, 0.3);
+		0 2px 8px rgba(0, 0, 0, 0.04),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
 	@media (max-width: theme('screens.xl')) {
 	}
@@ -127,11 +127,11 @@ a {
 }
 
 .glass-card {
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
+	backdrop-filter: blur(4px);
+	-webkit-backdrop-filter: blur(4px);
 	box-shadow:
-		0 8px 32px rgba(0, 0, 0, 0.08),
-		inset 0 1px 0 rgba(255, 255, 255, 0.2);
+		0 2px 8px rgba(0, 0, 0, 0.03),
+		inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 /* Hide scrollbar while maintaining scroll functionality */
