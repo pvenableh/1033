@@ -12,6 +12,12 @@ const { isAdmin } = useRoles();
 
 const adminLinks = [
   {
+    title: 'Manage Requests',
+    description: 'View and respond to community requests, issues, and inquiries',
+    icon: 'i-heroicons-chat-bubble-left-right',
+    to: '/admin/requests',
+  },
+  {
     title: 'Site Analytics',
     description: 'View page views, user engagement, scroll depth, and event tracking',
     icon: 'i-heroicons-chart-bar-square',

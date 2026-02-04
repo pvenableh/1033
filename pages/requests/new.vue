@@ -123,7 +123,7 @@ const onSubmit = handleSubmit(async (values) => {
     });
 
     // Navigate to the new request
-    router.push(`/my-requests/${result.id}`);
+    router.push(`/requests/${result.id}`);
   } catch (error: any) {
     toast.add({
       icon: 'i-heroicons-exclamation-triangle',
@@ -139,7 +139,7 @@ const onSubmit = handleSubmit(async (values) => {
   <div class="container mx-auto px-4 py-8 max-w-2xl">
     <!-- Back button -->
     <NuxtLink
-      to="/my-requests"
+      to="/requests"
       class="inline-flex items-center gap-2 text-sm t-text-secondary hover:t-text mb-6"
     >
       <UIcon name="i-heroicons-arrow-left" class="w-4 h-4" />
@@ -265,7 +265,7 @@ const onSubmit = handleSubmit(async (values) => {
       <!-- Submit Button -->
       <div class="flex gap-4 pt-4">
         <NuxtLink
-          to="/my-requests"
+          to="/requests"
           class="px-6 py-3 border border-border rounded-lg t-text hover:bg-muted transition-colors"
         >
           Cancel

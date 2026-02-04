@@ -1,544 +1,488 @@
 <script setup lang="ts">
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
-import type { Task } from '~/types/directus'
+import type { Request, Comment } from '~/types/directus';
 
 definePageMeta({
   layout: 'default',
   middleware: ['auth'],
-})
+});
 
-const { params } = useRoute()
-const { user } = useDirectusAuth()
-const { isAdmin, isBoardMember } = useRoles()
+const route = useRoute();
+const router = useRouter();
+const { user } = useDirectusAuth();
+const { get: getRequest } = useDirectusItems<Request>('requests');
+const toast = useToast();
 
-const requestsCollection = useDirectusItems('requests')
-const usersCollection = useDirectusItems('directus_users')
+const requestId = computed(() => route.params.id as string);
 
-const {
-  createTask,
-  fetchRelatedTasks,
-  updateTask: updateTaskFn,
-  priorityLabel,
-  priorityColor,
-  statusLabel,
-  statusColor,
-  categoryLabel,
-  formatAssignee,
-  isOverdue,
-} = useTasks()
+// Fetch request details
+const { data: request, pending: requestPending, error: requestError, refresh: refreshRequest } = await useAsyncData(
+  `request-${requestId.value}`,
+  async () => {
+    const result = await getRequest(requestId.value, {
+      fields: [
+        'id',
+        'subject',
+        'description',
+        'status',
+        'category',
+        'priority',
+        'contact_preference',
+        'name',
+        'email',
+        'phone',
+        'unit',
+        'date_created',
+        'date_updated',
+        'user_created.id',
+        'user_created.email',
+      ],
+    });
+    return result;
+  }
+);
 
-const request = ref<any>(null)
-const relatedTasks = ref<Task[]>([])
-const users = ref<any[]>([])
-const loading = ref(true)
-const showTaskDialog = ref(false)
+// Verify ownership
+const isOwner = computed(() => {
+  if (!request.value || !user.value) return false;
+  const creatorId = typeof request.value.user_created === 'string'
+    ? request.value.user_created
+    : request.value.user_created?.id;
+  return creatorId === user.value.id || request.value.email === user.value.email;
+});
 
-// Request status management
-const requestStatusOptions = ['new', 'in progress', 'resolved', 'closed']
+// Comments/Messages
+const { getComments, createComment, useCommentsSubscription } = useComments();
+const { sanitizeSync, initSanitizer } = useSanitize();
+const comments = ref<Comment[]>([]);
+const loadingComments = ref(true);
+const sendingMessage = ref(false);
+const editorRef = ref<any>(null);
 
-const statusBadge: Record<string, string> = {
-  'new': 'bg-blue-50 text-blue-700 dark:bg-blue-950 dark:text-blue-300',
-  'in progress': 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
-  'resolved': 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300',
-  'closed': 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
-}
+// Real-time comments subscription
+const { data: realtimeComments } = useCommentsSubscription('requests', requestId);
 
-const priorityBadge: Record<string, string> = {
-  'low': 'bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-300',
-  'medium': 'bg-yellow-50 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300',
-  'high': 'bg-orange-50 text-orange-700 dark:bg-orange-950 dark:text-orange-300',
-  'urgent': 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-300',
-}
+// Watch for real-time comment updates
+watch(realtimeComments, (newComments) => {
+  if (newComments && newComments.length > 0) {
+    // Merge real-time comments with existing ones, preserving user data
+    const existingCommentsMap = new Map(
+      comments.value.map(c => [c.id, c])
+    );
 
-// Task creation form
-const taskForm = ref({
-  title: '',
-  description: '',
-  priority: 'medium',
-  category: 'follow_up',
-  due_date: '',
-  assigned_to: '',
-})
+    const mergedComments = newComments.map((newComment: any) => {
+      const existing = existingCommentsMap.get(newComment.id);
+      // If existing comment has user data and new one doesn't, preserve existing user data
+      if (existing && existing.user_created && typeof existing.user_created === 'object') {
+        if (!newComment.user_created || typeof newComment.user_created === 'string') {
+          return { ...newComment, user_created: existing.user_created };
+        }
+      }
+      return newComment;
+    });
 
-async function loadRequest() {
-  loading.value = true
-  console.log('[requests/[id]] Loading request with ID:', params.id)
-  try {
-    const result = await requestsCollection.get(params.id, {
-      fields: ['*'],
-    })
-    console.log('[requests/[id]] Request loaded:', result)
-    request.value = result
+    comments.value = mergedComments as Comment[];
 
-    if (request.value) {
-      useHead({ title: request.value.subject || 'Request Details' })
-      await loadRelatedTasks()
-    } else {
-      console.warn('[requests/[id]] Request not found or returned null')
+    // Scroll to bottom if new comments added
+    if (mergedComments.length > existingCommentsMap.size) {
+      nextTick(() => {
+        const container = document.getElementById('messages-container');
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      });
     }
-  } catch (e: any) {
-    console.error('[requests/[id]] Failed to load request:', e)
-    console.error('[requests/[id]] Error details:', {
-      message: e?.message,
-      statusCode: e?.statusCode,
-      data: e?.data,
-    })
+  }
+});
+
+// Load comments
+const loadComments = async () => {
+  loadingComments.value = true;
+  try {
+    const result = await getComments('requests', requestId.value, {
+      includeReplies: false,
+    });
+    comments.value = result || [];
+  } catch (error) {
+    console.error('Failed to load comments:', error);
   } finally {
-    loading.value = false
+    loadingComments.value = false;
   }
-}
+};
 
-async function loadRelatedTasks() {
-  if (!request.value) return
-  relatedTasks.value = await fetchRelatedTasks('requests', String(request.value.id))
-}
+// Send a new message using CommentEditor
+const handleSendMessage = async (payload: { content: string; mentionedUserIds: string[] }) => {
+  if (sendingMessage.value) return;
 
-async function loadUsers() {
+  sendingMessage.value = true;
   try {
-    users.value = await usersCollection.list({
-      fields: ['id', 'first_name', 'last_name', 'email'],
-      filter: { status: { _eq: 'active' } },
-      sort: ['first_name'],
-      limit: -1,
-    })
-  } catch {
-    users.value = []
-  }
-}
+    const newComment = await createComment({
+      content: payload.content,
+      target_collection: 'requests',
+      target_id: requestId.value,
+      mentioned_user_ids: payload.mentionedUserIds,
+    });
 
-// Update request status
-async function updateRequestStatus(newStatus: string) {
-  if (!request.value) return
-  try {
-    await requestsCollection.update(request.value.id, { status: newStatus })
-    request.value.status = newStatus
-  } catch (e) {
-    console.error('Failed to update status:', e)
-  }
-}
+    // Optimistically add the comment with current user data
+    // Real-time subscription will update with complete data
+    const optimisticComment = {
+      ...newComment,
+      user_created: user.value,
+    };
 
-// Update request priority
-async function updateRequestPriority(newPriority: string) {
-  if (!request.value) return
-  try {
-    await requestsCollection.update(request.value.id, { priority: newPriority })
-    request.value.priority = newPriority
-  } catch (e) {
-    console.error('Failed to update priority:', e)
-  }
-}
-
-// Create task from request
-function openCreateTask() {
-  taskForm.value = {
-    title: `Follow up: ${request.value?.subject || 'Request'}`,
-    description: request.value?.description ? `Request from ${request.value.name || 'Unknown'}:\n${request.value.description.replace(/<[^>]*>/g, '').substring(0, 300)}` : '',
-    priority: request.value?.priority || 'medium',
-    category: 'follow_up',
-    due_date: '',
-    assigned_to: '',
-  }
-  showTaskDialog.value = true
-}
-
-async function handleCreateTask() {
-  if (!taskForm.value.title.trim() || !request.value) return
-
-  await createTask({
-    title: taskForm.value.title,
-    description: taskForm.value.description || null,
-    priority: taskForm.value.priority as any,
-    category: taskForm.value.category as any,
-    due_date: taskForm.value.due_date || null,
-    assigned_to: taskForm.value.assigned_to || user.value?.id,
-    related_collection: 'requests',
-    related_id: String(request.value.id),
-  })
-
-  showTaskDialog.value = false
-
-  // Auto-update request to "in progress" if it's new
-  if (request.value.status === 'new') {
-    await updateRequestStatus('in progress')
-  }
-
-  await loadRelatedTasks()
-}
-
-// Update linked task status
-async function handleTaskStatusChange(task: Task, newStatus: string) {
-  await updateTaskFn(task.id, { task_status: newStatus as any })
-  await loadRelatedTasks()
-
-  // If all tasks are completed, suggest resolving the request
-  const allCompleted = relatedTasks.value.every((t: any) => t.task_status === 'completed' || t.task_status === 'cancelled')
-  if (allCompleted && relatedTasks.value.length > 0 && request.value?.status !== 'resolved') {
-    if (confirm('All tasks are completed. Mark this request as resolved?')) {
-      await updateRequestStatus('resolved')
+    // Check if comment already exists (from real-time subscription race)
+    const existingIndex = comments.value.findIndex(c => c.id === newComment.id);
+    if (existingIndex === -1) {
+      comments.value.push(optimisticComment as any);
     }
+
+    // Clear editor
+    editorRef.value?.clearEditor();
+
+    // Scroll to bottom
+    nextTick(() => {
+      const container = document.getElementById('messages-container');
+      if (container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    });
+  } catch (error: any) {
+    toast.add({
+      icon: 'i-heroicons-exclamation-triangle',
+      title: 'Failed to send message',
+      description: error.message || 'Please try again',
+      color: 'red',
+    });
+  } finally {
+    sendingMessage.value = false;
   }
-}
+};
 
-function formatDate(date: string | null | undefined): string {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('en-US', {
+// Sanitize HTML content for display
+const getSanitizedContent = (content: string) => {
+  return sanitizeSync(content);
+};
+
+// Load comments on mount
+onMounted(() => {
+  initSanitizer();
+  loadComments();
+});
+
+// Status badge colors
+const statusColors: Record<string, string> = {
+  new: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
+  'in progress': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
+  completed: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
+  cancelled: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400',
+};
+
+// Format date
+const formatDate = (dateStr: string | undefined) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-US', {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  })
-}
+  });
+};
 
-function formatDateTime(date: string | null | undefined): string {
-  if (!date) return '-'
-  return new Date(date).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-  })
-}
+// Format time for chat
+const formatMessageTime = (dateStr: string) => {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
-onMounted(async () => {
-  await Promise.all([loadRequest(), loadUsers()])
-})
+  if (days === 0) {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  } else if (days === 1) {
+    return 'Yesterday';
+  } else if (days < 7) {
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+};
+
+// Check if message is from current user
+const isOwnMessage = (comment: Comment) => {
+  if (!user.value) return false;
+  const creatorId = typeof comment.user_created === 'string'
+    ? comment.user_created
+    : comment.user_created?.id;
+  return creatorId === user.value.id;
+};
+
+// Get user display name for comment
+const getCommentAuthor = (comment: Comment) => {
+  if (typeof comment.user_created === 'string') return 'Unknown';
+  return `${comment.user_created?.first_name || ''} ${comment.user_created?.last_name || ''}`.trim() || 'Unknown';
+};
+
+// Get comment owner ID for reactions
+const getCommentOwnerId = (comment: Comment): string | undefined => {
+  if (typeof comment.user_created === 'string') return comment.user_created;
+  return comment.user_created?.id;
+};
+
+// SEO
+useSeoMeta({
+  title: computed(() => request.value?.subject ? `${request.value.subject} - My Requests` : 'Request Details'),
+});
 </script>
 
 <template>
-  <div class="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-    <!-- Back -->
-    <NuxtLink to="/requests" class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
-      <Icon name="heroicons:arrow-left" class="h-4 w-4" />
-      Back to Requests
+  <div class="container mx-auto px-4 py-8 max-w-4xl">
+    <!-- Back button -->
+    <NuxtLink
+      to="/requests"
+      class="inline-flex items-center gap-2 text-sm t-text-secondary hover:t-text mb-6"
+    >
+      <UIcon name="i-heroicons-arrow-left" class="w-4 h-4" />
+      Back to My Requests
     </NuxtLink>
 
-    <!-- Loading -->
-    <div v-if="loading" class="flex items-center justify-center py-16">
-      <Icon name="heroicons:arrow-path" class="h-6 w-6 animate-spin text-muted-foreground" />
+    <!-- Loading State -->
+    <div v-if="requestPending" class="bg-card rounded-lg p-8 animate-pulse">
+      <div class="h-6 bg-muted rounded w-1/2 mb-4"></div>
+      <div class="h-4 bg-muted rounded w-full mb-2"></div>
+      <div class="h-4 bg-muted rounded w-3/4"></div>
     </div>
 
-    <!-- Not Found -->
-    <div v-else-if="!request" class="text-center py-16">
-      <Icon name="heroicons:exclamation-circle" class="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-      <p class="text-muted-foreground">Request not found</p>
-    </div>
-
-    <template v-else>
-      <!-- Header -->
-      <div class="flex flex-col sm:flex-row items-start justify-between gap-4">
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center gap-2 flex-wrap mb-2">
-            <span
-              v-if="request.status"
-              class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium capitalize"
-              :class="statusBadge[request.status] || 'bg-gray-100'"
-            >
-              {{ request.status }}
-            </span>
-            <span
-              v-if="request.priority"
-              class="inline-flex items-center px-2.5 py-1 rounded text-xs font-medium capitalize"
-              :class="priorityBadge[request.priority] || 'bg-gray-100'"
-            >
-              {{ request.priority }}
-            </span>
-            <span v-if="request.category" class="text-xs text-muted-foreground">
-              {{ request.category }}
-            </span>
-          </div>
-          <h1 class="text-xl font-bold">{{ request.subject || 'Untitled Request' }}</h1>
-        </div>
-
-        <!-- Admin Actions -->
-        <div v-if="isBoardMember || isAdmin" class="flex items-center gap-2 shrink-0">
-          <button
-            class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-            @click="openCreateTask"
-          >
-            <Icon name="heroicons:plus" class="h-4 w-4" />
-            Create Task
-          </button>
-        </div>
-      </div>
-
-      <!-- Admin Workflow Bar -->
-      <Card v-if="isBoardMember || isAdmin">
-        <CardContent class="p-4">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-            <!-- Status Change -->
-            <div class="flex items-center gap-2">
-              <span class="text-sm text-muted-foreground">Status:</span>
-              <div class="flex items-center gap-1">
-                <button
-                  v-for="s in requestStatusOptions"
-                  :key="s"
-                  class="px-3 py-1 text-xs font-medium rounded-full border transition-colors capitalize"
-                  :class="request.status === s ? (statusBadge[s] || '') + ' border-current' : 'hover:bg-muted'"
-                  @click="updateRequestStatus(s)"
-                >
-                  {{ s }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Priority Change -->
-            <div class="flex items-center gap-2">
-              <span class="text-sm text-muted-foreground">Priority:</span>
-              <select
-                :value="request.priority || ''"
-                class="text-xs border rounded-lg px-2 py-1 bg-background"
-                @change="updateRequestPriority(($event.target as HTMLSelectElement).value)"
-              >
-                <option value="">None</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="urgent">Urgent</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <!-- Request Details -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Main Content -->
-        <Card class="md:col-span-2">
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">Request Details</CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-4">
-            <div v-if="request.description" class="prose prose-sm max-w-none dark:prose-invert" v-html="request.description" />
-            <p v-else class="text-sm text-muted-foreground italic">No description provided</p>
-          </CardContent>
-        </Card>
-
-        <!-- Sidebar Info -->
-        <Card>
-          <CardHeader class="pb-3">
-            <CardTitle class="text-base">Information</CardTitle>
-          </CardHeader>
-          <CardContent class="space-y-3">
-            <div v-if="request.name">
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Submitted By</p>
-              <p class="text-sm font-medium">{{ request.name }}</p>
-            </div>
-            <div v-if="request.email">
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Email</p>
-              <a :href="`mailto:${request.email}`" class="text-sm text-primary hover:underline flex items-center gap-1">
-                <Icon name="heroicons:envelope" class="h-3.5 w-3.5" />
-                {{ request.email }}
-              </a>
-            </div>
-            <div v-if="request.unit">
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Unit</p>
-              <p class="text-sm">{{ request.unit }}</p>
-            </div>
-            <div v-if="request.category">
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Category</p>
-              <p class="text-sm">{{ request.category }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Submitted</p>
-              <p class="text-sm">{{ formatDateTime(request.date_created) }}</p>
-            </div>
-            <div v-if="request.date_updated">
-              <p class="text-xs text-muted-foreground uppercase tracking-wider mb-1">Updated</p>
-              <p class="text-sm">{{ formatDateTime(request.date_updated) }}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <!-- Linked Tasks Section -->
-      <Card>
-        <CardHeader class="pb-3">
-          <div class="flex items-center justify-between">
-            <div>
-              <CardTitle class="text-base">Tasks</CardTitle>
-              <CardDescription>Tasks created to follow up on this request</CardDescription>
-            </div>
-            <button
-              v-if="isBoardMember || isAdmin"
-              class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
-              @click="openCreateTask"
-            >
-              <Icon name="heroicons:plus" class="h-3.5 w-3.5" />
-              Add Task
-            </button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div v-if="relatedTasks.length === 0" class="text-center py-6 text-sm text-muted-foreground">
-            <Icon name="heroicons:clipboard-document-list" class="h-8 w-8 mx-auto mb-2 opacity-50" />
-            <p>No tasks created yet</p>
-            <p v-if="isBoardMember || isAdmin" class="mt-1">Click "Add Task" to create a follow-up task</p>
-          </div>
-
-          <div v-else class="space-y-2">
-            <div
-              v-for="task in relatedTasks"
-              :key="task.id"
-              class="flex items-start gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <!-- Status toggle -->
-              <button
-                class="mt-0.5 shrink-0"
-                @click="handleTaskStatusChange(task, task.task_status === 'completed' ? 'open' : 'completed')"
-              >
-                <Icon
-                  :name="task.task_status === 'completed' ? 'heroicons:check-circle-solid' : 'heroicons:circle'"
-                  class="h-5 w-5"
-                  :class="task.task_status === 'completed' ? 'text-green-500' : 'text-muted-foreground hover:text-primary'"
-                />
-              </button>
-
-              <!-- Task content -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <NuxtLink
-                    :to="`/tasks/${task.id}`"
-                    class="font-medium text-sm hover:text-primary transition-colors"
-                    :class="{ 'line-through text-muted-foreground': task.task_status === 'completed' }"
-                  >
-                    {{ task.title }}
-                  </NuxtLink>
-                  <span
-                    v-if="task.priority"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                    :class="priorityColor[task.priority]"
-                  >
-                    {{ priorityLabel[task.priority] }}
-                  </span>
-                  <span
-                    v-if="task.task_status && task.task_status !== 'open' && task.task_status !== 'completed'"
-                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
-                    :class="statusColor[task.task_status]"
-                  >
-                    {{ statusLabel[task.task_status] }}
-                  </span>
-                  <span v-if="isOverdue(task)" class="text-xs text-red-600 font-medium">Overdue</span>
-                </div>
-
-                <div class="flex items-center gap-3 mt-1 text-xs text-muted-foreground flex-wrap">
-                  <span class="flex items-center gap-1">
-                    <Icon name="heroicons:user" class="h-3 w-3" />
-                    {{ formatAssignee(task.assigned_to) }}
-                  </span>
-                  <span v-if="task.due_date" class="flex items-center gap-1" :class="{ 'text-red-600': isOverdue(task) }">
-                    <Icon name="heroicons:calendar" class="h-3 w-3" />
-                    {{ formatDate(task.due_date) }}
-                  </span>
-                </div>
-              </div>
-
-              <!-- Task status dropdown -->
-              <select
-                v-if="isBoardMember || isAdmin"
-                :value="task.task_status"
-                class="text-xs border rounded px-1.5 py-1 bg-background shrink-0"
-                @change="handleTaskStatusChange(task, ($event.target as HTMLSelectElement).value)"
-              >
-                <option value="open">Open</option>
-                <option value="in_progress">In Progress</option>
-                <option value="on_hold">On Hold</option>
-                <option value="completed">Completed</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </template>
-
-    <!-- Create Task Dialog -->
-    <Teleport to="body">
-      <div
-        v-if="showTaskDialog"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <!-- Error State -->
+    <div v-else-if="requestError" class="bg-destructive/10 text-destructive rounded-lg p-6 text-center">
+      <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto mb-3" />
+      <p class="font-medium">Failed to load request</p>
+      <button
+        @click="refreshRequest()"
+        class="mt-4 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg"
       >
-        <div class="absolute inset-0 bg-black/50" @click="showTaskDialog = false" />
+        Try Again
+      </button>
+    </div>
 
-        <Card class="relative w-full max-w-lg max-h-[90vh] overflow-y-auto z-10">
-          <CardHeader>
-            <CardTitle>Create Task from Request</CardTitle>
-            <CardDescription>Create a follow-up task linked to this request</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form class="space-y-4" @submit.prevent="handleCreateTask">
-              <div>
-                <label class="text-sm font-medium">Title *</label>
-                <input
-                  v-model="taskForm.title"
-                  type="text"
-                  required
-                  class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background"
-                />
-              </div>
-              <div>
-                <label class="text-sm font-medium">Description</label>
-                <textarea
-                  v-model="taskForm.description"
-                  rows="3"
-                  class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background resize-none"
-                />
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-sm font-medium">Priority</label>
-                  <select v-model="taskForm.priority" class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background">
-                    <option value="low">Low</option>
-                    <option value="medium">Medium</option>
-                    <option value="high">High</option>
-                    <option value="urgent">Urgent</option>
-                  </select>
-                </div>
-                <div>
-                  <label class="text-sm font-medium">Category</label>
-                  <select v-model="taskForm.category" class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background">
-                    <option value="maintenance">Maintenance</option>
-                    <option value="follow_up">Follow Up</option>
-                    <option value="inspection">Inspection</option>
-                    <option value="communication">Communication</option>
-                    <option value="financial">Financial</option>
-                    <option value="administrative">Administrative</option>
-                    <option value="other">Other</option>
-                  </select>
-                </div>
-              </div>
-              <div class="grid grid-cols-2 gap-3">
-                <div>
-                  <label class="text-sm font-medium">Due Date</label>
-                  <input v-model="taskForm.due_date" type="date" class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background" />
-                </div>
-                <div>
-                  <label class="text-sm font-medium">Assign To</label>
-                  <select v-model="taskForm.assigned_to" class="w-full mt-1 px-3 py-2 text-sm border rounded-lg bg-background">
-                    <option value="">Myself</option>
-                    <option v-for="u in users" :key="u.id" :value="u.id">
-                      {{ u.first_name }} {{ u.last_name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-              <div class="flex items-center justify-end gap-2 pt-2">
-                <button type="button" class="px-4 py-2 text-sm rounded-lg border hover:bg-muted" @click="showTaskDialog = false">
-                  Cancel
-                </button>
-                <button type="submit" class="px-4 py-2 text-sm rounded-lg bg-primary text-primary-foreground hover:opacity-90">
-                  Create Task
-                </button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
+    <!-- Access Denied -->
+    <div v-else-if="request && !isOwner" class="bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-200 rounded-lg p-6 text-center">
+      <UIcon name="i-heroicons-shield-exclamation" class="w-12 h-12 mx-auto mb-3" />
+      <p class="font-medium">Access Denied</p>
+      <p class="text-sm mt-1">You can only view requests you submitted.</p>
+      <NuxtLink
+        to="/requests"
+        class="mt-4 inline-block px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700"
+      >
+        Back to My Requests
+      </NuxtLink>
+    </div>
+
+    <!-- Request Details -->
+    <div v-else-if="request" class="space-y-6">
+      <!-- Header Card -->
+      <div class="bg-card rounded-lg p-6 border border-border">
+        <div class="flex items-start justify-between gap-4 mb-4">
+          <h1 class="text-xl font-bold t-text">{{ request.subject || 'Untitled Request' }}</h1>
+          <span
+            v-if="request.status"
+            :class="statusColors[request.status] || statusColors.new"
+            class="px-3 py-1 rounded-full text-sm font-medium capitalize whitespace-nowrap"
+          >
+            {{ request.status }}
+          </span>
+        </div>
+
+        <!-- Original request description -->
+        <div class="bg-muted/50 rounded-lg p-4 mb-4">
+          <p class="text-sm t-text-secondary whitespace-pre-wrap">{{ request.description }}</p>
+        </div>
+
+        <!-- Meta info -->
+        <div class="flex flex-wrap items-center gap-4 text-sm t-text-muted">
+          <span class="flex items-center gap-1">
+            <UIcon name="i-heroicons-calendar" class="w-4 h-4" />
+            Submitted {{ formatDate(request.date_created) }}
+          </span>
+          <span v-if="request.category" class="flex items-center gap-1">
+            <UIcon name="i-heroicons-tag" class="w-4 h-4" />
+            {{ request.category }}
+          </span>
+          <span v-if="request.unit" class="flex items-center gap-1">
+            <UIcon name="i-heroicons-home" class="w-4 h-4" />
+            Unit {{ request.unit }}
+          </span>
+        </div>
       </div>
-    </Teleport>
+
+      <!-- Chat/Messages Section -->
+      <div class="bg-card rounded-lg border border-border overflow-hidden">
+        <div class="px-6 py-4 border-b border-border">
+          <h2 class="font-semibold t-text flex items-center gap-2">
+            <UIcon name="i-heroicons-chat-bubble-left-right" class="w-5 h-5" />
+            Messages
+          </h2>
+          <p class="text-sm t-text-muted mt-1">
+            Communicate with the board about your request
+          </p>
+        </div>
+
+        <!-- Messages Container -->
+        <div
+          id="messages-container"
+          class="p-4 space-y-4 max-h-[400px] overflow-y-auto"
+          :class="{ 'min-h-[200px]': !comments.length }"
+        >
+          <!-- Loading messages -->
+          <div v-if="loadingComments" class="flex items-center justify-center py-8">
+            <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin t-text-muted" />
+          </div>
+
+          <!-- No messages yet -->
+          <div v-else-if="!comments.length" class="text-center py-8">
+            <UIcon name="i-heroicons-chat-bubble-left-ellipsis" class="w-12 h-12 mx-auto mb-3 t-text-muted" />
+            <p class="t-text-secondary">No messages yet</p>
+            <p class="text-sm t-text-muted">Send a message to communicate with the board</p>
+          </div>
+
+          <!-- Messages list -->
+          <template v-else>
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              class="flex flex-col"
+              :class="isOwnMessage(comment) ? 'items-end' : 'items-start'"
+            >
+              <div
+                class="max-w-[80%] rounded-lg px-4 py-2 group"
+                :class="isOwnMessage(comment)
+                  ? 'bg-primary text-primary-foreground'
+                  : 'bg-muted'"
+              >
+                <!-- Author name for other users -->
+                <p
+                  v-if="!isOwnMessage(comment)"
+                  class="text-xs font-medium mb-1 opacity-70"
+                >
+                  {{ getCommentAuthor(comment) }}
+                </p>
+
+                <!-- Message content (rendered as HTML) -->
+                <div
+                  class="text-sm prose prose-sm dark:prose-invert max-w-none comment-content"
+                  v-html="getSanitizedContent(comment.content)"
+                />
+
+                <!-- Timestamp -->
+                <p
+                  class="text-xs mt-1"
+                  :class="isOwnMessage(comment) ? 'text-primary-foreground/70' : 't-text-muted'"
+                >
+                  {{ formatMessageTime(comment.date_created) }}
+                </p>
+              </div>
+
+              <!-- Reactions below message bubble -->
+              <div class="px-2" :class="isOwnMessage(comment) ? 'text-right' : 'text-left'">
+                <ReactionDisplay
+                  collection="comments"
+                  :item-id="comment.id"
+                  :owner-user-id="getCommentOwnerId(comment)"
+                  :show-picker="true"
+                  :compact="true"
+                />
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <!-- Message Input with Rich Text Editor -->
+        <div class="p-4 border-t border-border bg-muted/30">
+          <CommentEditor
+            ref="editorRef"
+            placeholder="Type a message... Use @ to mention someone"
+            submit-label="Send"
+            :show-avatar="false"
+            :submitting="sendingMessage"
+            @submit="handleSendMessage"
+          />
+        </div>
+      </div>
+
+      <!-- Request Status Timeline -->
+      <div class="bg-card rounded-lg p-6 border border-border">
+        <h2 class="font-semibold t-text mb-4 flex items-center gap-2">
+          <UIcon name="i-heroicons-clock" class="w-5 h-5" />
+          Timeline
+        </h2>
+
+        <div class="space-y-4">
+          <!-- Created -->
+          <div class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center flex-shrink-0">
+              <UIcon name="i-heroicons-plus" class="w-4 h-4 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <p class="text-sm font-medium t-text">Request Submitted</p>
+              <p class="text-xs t-text-muted">{{ formatDate(request.date_created) }}</p>
+            </div>
+          </div>
+
+          <!-- Updated (if different from created) -->
+          <div v-if="request.date_updated && request.date_updated !== request.date_created" class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
+              <UIcon name="i-heroicons-pencil" class="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+            </div>
+            <div>
+              <p class="text-sm font-medium t-text">Last Updated</p>
+              <p class="text-xs t-text-muted">{{ formatDate(request.date_updated) }}</p>
+            </div>
+          </div>
+
+          <!-- Status indicator -->
+          <div v-if="request.status === 'completed'" class="flex items-start gap-3">
+            <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+              <UIcon name="i-heroicons-check" class="w-4 h-4 text-green-600 dark:text-green-400" />
+            </div>
+            <div>
+              <p class="text-sm font-medium t-text">Request Completed</p>
+              <p class="text-xs t-text-muted">Your request has been resolved</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
-<style>
-.prose img {
-  max-width: 100%;
+<style scoped>
+.comment-content :deep(.mention) {
+  color: #0ea5e9;
+  font-weight: 500;
+  background: rgba(14, 165, 233, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+
+.comment-content :deep(img) {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 0.375rem;
+  margin: 0.25rem 0;
+}
+
+.comment-content :deep(a) {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.comment-content :deep(ul),
+.comment-content :deep(ol) {
+  padding-left: 1rem;
+  margin: 0.25rem 0;
+}
+
+.comment-content :deep(p) {
+  margin: 0;
+}
+
+.comment-content :deep(p + p) {
+  margin-top: 0.5rem;
 }
 </style>
