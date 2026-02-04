@@ -36,15 +36,18 @@ export default defineEventHandler(async (event) => {
 			],
 		});
 
-		// Get scroll events count (without custom dimension - just total scroll events)
-		// Note: Detailed scroll depth analysis requires a custom event parameter to be registered
-		let scrollResponse: any = { rows: [] };
+		// Get scroll depth data - try custom dimension first, fall back to total count
+		// Custom dimension provides granular breakdown (25%, 50%, 75%, 90%, 100%)
+		let scrollDepthData: Record<string, number> = { '25': 0, '50': 0, '75': 0, '90': 0, '100': 0 };
 		let scrollEventsTotal = 0;
+		let hasCustomDimension = false;
+
+		// First, try to get detailed scroll depth using custom dimension
 		try {
-			const [scrollCountResponse] = await client.runReport({
+			const [scrollDepthResponse] = await client.runReport({
 				property: propertyId,
 				dateRanges: [{ startDate, endDate }],
-				dimensions: [{ name: 'eventName' }],
+				dimensions: [{ name: 'customEvent:percent_scrolled' }],
 				metrics: [{ name: 'eventCount' }],
 				dimensionFilter: {
 					filter: {
@@ -55,13 +58,63 @@ export default defineEventHandler(async (event) => {
 						},
 					},
 				},
+				orderBys: [
+					{ dimension: { dimensionName: 'customEvent:percent_scrolled' }, desc: false },
+				],
 			});
-			if (scrollCountResponse.rows?.[0]) {
-				scrollEventsTotal = parseInt(scrollCountResponse.rows[0].metricValues?.[0]?.value || '0', 10);
+
+			// Process detailed scroll depth data
+			if (scrollDepthResponse.rows && scrollDepthResponse.rows.length > 0) {
+				hasCustomDimension = true;
+				for (const row of scrollDepthResponse.rows) {
+					const percent = row.dimensionValues?.[0]?.value || '0';
+					const count = parseInt(row.metricValues?.[0]?.value || '0', 10);
+					scrollEventsTotal += count;
+
+					// Map to buckets
+					const percentNum = parseInt(percent, 10);
+					if (percentNum >= 25 && percentNum < 50) scrollDepthData['25'] += count;
+					else if (percentNum >= 50 && percentNum < 75) scrollDepthData['50'] += count;
+					else if (percentNum >= 75 && percentNum < 90) scrollDepthData['75'] += count;
+					else if (percentNum >= 90 && percentNum < 100) scrollDepthData['90'] += count;
+					else if (percentNum >= 100) scrollDepthData['100'] += count;
+				}
 			}
-			scrollResponse = scrollCountResponse;
 		} catch (scrollError: any) {
-			console.warn('Scroll events query failed (this is expected if scroll tracking is not configured):', scrollError.message);
+			// Custom dimension not available - fall back to total scroll events
+			if (scrollError.code === 3) { // INVALID_ARGUMENT
+				console.log('Custom scroll dimension not available, falling back to total scroll events');
+			} else {
+				console.warn('Scroll depth query failed:', scrollError.message);
+			}
+		}
+
+		// If custom dimension didn't work, get total scroll events as fallback
+		if (!hasCustomDimension) {
+			try {
+				const [scrollCountResponse] = await client.runReport({
+					property: propertyId,
+					dateRanges: [{ startDate, endDate }],
+					dimensions: [{ name: 'eventName' }],
+					metrics: [{ name: 'eventCount' }],
+					dimensionFilter: {
+						filter: {
+							fieldName: 'eventName',
+							stringFilter: {
+								matchType: 'EXACT',
+								value: 'scroll',
+							},
+						},
+					},
+				});
+				if (scrollCountResponse.rows?.[0]) {
+					scrollEventsTotal = parseInt(scrollCountResponse.rows[0].metricValues?.[0]?.value || '0', 10);
+					// Put all in 90% bucket (GA4 enhanced measurement default threshold)
+					scrollDepthData['90'] = scrollEventsTotal;
+				}
+			} catch (fallbackError: any) {
+				console.warn('Fallback scroll query failed:', fallbackError.message);
+			}
 		}
 
 		// Get page depth data by page path
@@ -104,17 +157,6 @@ export default defineEventHandler(async (event) => {
 		const pagesPerSession = parseFloat(engagementRow[3]?.value || '0');
 		const avgSessionDuration = parseFloat(engagementRow[4]?.value || '0');
 
-		// Process scroll depth data
-		// Note: Without a custom dimension for percent_scrolled, we can only show total scroll events
-		// The GA4 enhanced measurement scroll event fires at 90% scroll depth by default
-		const scrollDepth: Record<string, number> = {
-			'25': 0,
-			'50': 0,
-			'75': 0,
-			'90': scrollEventsTotal, // GA4 default scroll threshold is 90%
-			'100': 0,
-		};
-
 		// Process page depth data for top pages
 		const topPages: Array<{ path: string; views: number; avgDuration: number }> = [];
 		if (pageDepthResponse.rows) {
@@ -127,16 +169,30 @@ export default defineEventHandler(async (event) => {
 			}
 		}
 
-		// Calculate scroll percentages based on total sessions (gives a meaningful percentage)
-		const scrollPercentages = totalSessions > 0
-			? {
-				'25': 0, // Not available without custom dimension
-				'50': 0, // Not available without custom dimension
-				'75': 0, // Not available without custom dimension
+		// Calculate scroll percentages
+		let scrollPercentages: Record<string, number>;
+		if (hasCustomDimension && scrollEventsTotal > 0) {
+			// Use actual percentages from custom dimension data
+			const maxScrollUsers = Math.max(...Object.values(scrollDepthData), 1);
+			scrollPercentages = {
+				'25': Math.round((scrollDepthData['25'] / maxScrollUsers) * 100),
+				'50': Math.round((scrollDepthData['50'] / maxScrollUsers) * 100),
+				'75': Math.round((scrollDepthData['75'] / maxScrollUsers) * 100),
+				'90': Math.round((scrollDepthData['90'] / maxScrollUsers) * 100),
+				'100': Math.round((scrollDepthData['100'] / maxScrollUsers) * 100),
+			};
+		} else if (totalSessions > 0) {
+			// Fallback: only 90% data available from basic scroll events
+			scrollPercentages = {
+				'25': 0,
+				'50': 0,
+				'75': 0,
 				'90': Math.min(100, Math.round((scrollEventsTotal / totalSessions) * 100)),
-				'100': 0, // Not available without custom dimension
-			}
-			: { '25': 0, '50': 0, '75': 0, '90': 0, '100': 0 };
+				'100': 0,
+			};
+		} else {
+			scrollPercentages = { '25': 0, '50': 0, '75': 0, '90': 0, '100': 0 };
+		}
 
 		// Process form conversion rate
 		let formStarts = 0;
@@ -151,6 +207,10 @@ export default defineEventHandler(async (event) => {
 		}
 		const formCompletionRate = formStarts > 0 ? Math.round((formSubmits / formStarts) * 100) : 0;
 
+		// Determine scroll engagement metric - use 50% if custom dimension available, else 90%
+		const scrollEngagementPercent = hasCustomDimension ? scrollPercentages['50'] : scrollPercentages['90'];
+		const scrollEngagementDesc = hasCustomDimension ? 'Users who scroll past 50%' : 'Sessions with 90% scroll depth';
+
 		return {
 			success: true,
 			dateRange: dateRangePreset,
@@ -164,8 +224,8 @@ export default defineEventHandler(async (event) => {
 				},
 				{
 					label: 'Scroll Engagement',
-					value: `${scrollPercentages['90']}%`,
-					description: 'Sessions with 90% scroll depth',
+					value: `${scrollEngagementPercent}%`,
+					description: scrollEngagementDesc,
 				},
 				{
 					label: 'Engagement Rate',
@@ -187,8 +247,11 @@ export default defineEventHandler(async (event) => {
 					scrollPercentages['90'],
 					scrollPercentages['100'],
 				],
-				rawCounts: scrollDepth,
-				note: 'GA4 enhanced measurement tracks scroll at 90% depth. Full scroll depth breakdown requires custom event parameters.',
+				rawCounts: scrollDepthData,
+				hasDetailedData: hasCustomDimension,
+				note: hasCustomDimension
+					? 'Full scroll depth breakdown from custom event parameter.'
+					: 'Only 90% threshold available. Full breakdown requires custom event parameter setup.',
 			},
 			topPages,
 			totals: {
