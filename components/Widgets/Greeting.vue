@@ -103,10 +103,10 @@ const greeting = computed(() => {
 	}
 
 	const greetings: Record<string, string> = {
-		morning: 'Good morning',
-		afternoon: 'Good afternoon',
-		evening: 'Good evening',
-		night: 'Good evening',
+		morning: 'Good morning ☀️',
+		afternoon: 'Good afternoon 🌴',
+		evening: 'Good evening 🌙',
+		night: 'Good night ✨',
 	};
 	return greetings[timeOfDay.value];
 });

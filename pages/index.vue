@@ -6,12 +6,12 @@
 			<div class="hero-widget-wrapper absolute z-20 opacity-0 hero-widgets bottom-32 left-0 right-0 lg:bottom-20 mb-4">
 				<!-- Mobile: Text-only greeting -->
 				<div class="lg:hidden mb-2 pl-4">
-					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" :textOnly="true" />
+					<WidgetsGreeting :name="user?.first_name" :showDate="false" :textOnly="true" />
 				</div>
 
 				<!-- Desktop only: Glass greeting above widgets -->
 				<div class="hidden lg:block pl-6 mb-1">
-					<WidgetsGreeting :name="user?.first_name" guestGreeting="Welcome" :showDate="false" />
+					<WidgetsGreeting :name="user?.first_name" :showDate="false" />
 				</div>
 
 				<!-- Scrollable widget container -->
@@ -738,7 +738,17 @@
 					:swipe-threshold="30">
 					<!-- Custom trigger button -->
 					<template #trigger="{toggle}">
-						<FormVButton type="submit" variant="outline" @click="() => { trackCTA('submit_inquiry', 'cta_section'); toggle(); }">Submit Inquiry</FormVButton>
+						<FormVButton
+							type="submit"
+							variant="outline"
+							@click="
+								() => {
+									trackCTA('submit_inquiry', 'cta_section');
+									toggle();
+								}
+							">
+							Submit Inquiry
+						</FormVButton>
 					</template>
 
 					<!-- Main content -->
