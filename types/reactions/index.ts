@@ -13,7 +13,7 @@ type User = DirectusUser;
 /**
  * Icon families supported for reaction types
  */
-export type IconFamily = 'heroicons' | 'lucide' | 'fluent-emoji-flat' | 'emoji';
+export type IconFamily = 'heroicons' | 'lucide' | 'fluent-emoji-flat' | 'emojione' | 'emoji';
 
 /**
  * Reaction Type record from Directus
@@ -101,6 +101,8 @@ export function getReactionIcon(reactionType: ReactionTypeRecord): string {
       return `i-lucide-${reactionType.icon}`;
     case 'fluent-emoji-flat':
       return `i-fluent-emoji-flat-${reactionType.icon}`;
+    case 'emojione':
+      return `i-emojione-${reactionType.icon}`;
     default:
       return '';
   }
@@ -124,6 +126,9 @@ export function getReactionIconFilled(reactionType: ReactionTypeRecord): string 
     case 'fluent-emoji-flat':
       // Fluent emoji are already flat/filled
       return `i-fluent-emoji-flat-${reactionType.icon}`;
+    case 'emojione':
+      // Emojione icons are already filled/colored
+      return `i-emojione-${reactionType.icon}`;
     default:
       return '';
   }

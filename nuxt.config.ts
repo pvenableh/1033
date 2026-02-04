@@ -103,7 +103,7 @@ export default defineNuxtConfig({
 		clientBundle: {
 			scan: true,
 		},
-		collections: ['heroicons-outline', 'heroicons-solid', 'lucide'],
+		collections: ['heroicons-outline', 'heroicons-solid', 'lucide', 'emojione'],
 	},
 
 	// experimental: {
