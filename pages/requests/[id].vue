@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Request, Comment } from '~/types/directus';
+import type { Request, Comment, Task } from '~/types/directus';
 
 definePageMeta({
   layout: 'default',
@@ -11,6 +11,17 @@ const router = useRouter();
 const { user } = useDirectusAuth();
 const { get: getRequest } = useDirectusItems<Request>('requests');
 const toast = useToast();
+
+// Tasks
+const {
+  fetchRelatedTasks,
+  priorityLabel,
+  priorityColor,
+  statusLabel,
+  statusColor,
+} = useTasks();
+const relatedTasks = ref<Task[]>([]);
+const loadingTasks = ref(true);
 
 const requestId = computed(() => route.params.id as string);
 
@@ -162,10 +173,33 @@ const getSanitizedContent = (content: string) => {
   return sanitizeSync(content);
 };
 
-// Load comments on mount
+// Load tasks related to this request
+async function loadRelatedTasks() {
+  loadingTasks.value = true;
+  try {
+    relatedTasks.value = await fetchRelatedTasks('requests', requestId.value);
+  } catch (error) {
+    console.error('Failed to load tasks:', error);
+  } finally {
+    loadingTasks.value = false;
+  }
+}
+
+// Format task date
+const formatTaskDate = (dateStr: string | null | undefined) => {
+  if (!dateStr) return '-';
+  return new Date(dateStr).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+};
+
+// Load comments and tasks on mount
 onMounted(() => {
   initSanitizer();
   loadComments();
+  loadRelatedTasks();
 });
 
 // Status badge colors
@@ -402,6 +436,81 @@ useSeoMeta({
             :submitting="sendingMessage"
             @submit="handleSendMessage"
           />
+        </div>
+      </div>
+
+      <!-- Tasks Section -->
+      <div class="bg-card rounded-lg border border-border overflow-hidden">
+        <div class="px-6 py-4 border-b border-border">
+          <h2 class="font-semibold t-text flex items-center gap-2">
+            <UIcon name="i-heroicons-clipboard-document-list" class="w-5 h-5" />
+            Tasks
+          </h2>
+          <p class="text-sm t-text-muted mt-1">
+            Tasks being worked on for your request
+          </p>
+        </div>
+
+        <div class="p-4">
+          <!-- Loading tasks -->
+          <div v-if="loadingTasks" class="flex items-center justify-center py-6">
+            <UIcon name="i-heroicons-arrow-path" class="w-6 h-6 animate-spin t-text-muted" />
+          </div>
+
+          <!-- No tasks yet -->
+          <div v-else-if="!relatedTasks.length" class="text-center py-6">
+            <UIcon name="i-heroicons-clipboard-document-list" class="w-10 h-10 mx-auto mb-2 t-text-muted opacity-50" />
+            <p class="t-text-secondary text-sm">No tasks yet</p>
+            <p class="text-xs t-text-muted">Tasks will appear here once the board starts working on your request</p>
+          </div>
+
+          <!-- Tasks list -->
+          <div v-else class="space-y-3">
+            <div
+              v-for="task in relatedTasks"
+              :key="task.id"
+              class="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+            >
+              <!-- Status indicator -->
+              <div class="mt-0.5 shrink-0">
+                <UIcon
+                  :name="task.task_status === 'completed' ? 'i-heroicons-check-circle-solid' : 'i-heroicons-clock'"
+                  class="w-5 h-5"
+                  :class="task.task_status === 'completed' ? 'text-green-500' : 't-text-muted'"
+                />
+              </div>
+
+              <!-- Task content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span
+                    class="font-medium text-sm"
+                    :class="{ 'line-through t-text-muted': task.task_status === 'completed' }"
+                  >
+                    {{ task.title }}
+                  </span>
+                  <span
+                    v-if="task.task_status"
+                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                    :class="statusColor[task.task_status] || 'bg-gray-100 text-gray-600'"
+                  >
+                    {{ statusLabel[task.task_status] || task.task_status }}
+                  </span>
+                </div>
+
+                <div class="flex items-center gap-3 mt-1.5 text-xs t-text-muted flex-wrap">
+                  <span class="flex items-center gap-1">
+                    <UIcon name="i-heroicons-calendar" class="w-3.5 h-3.5" />
+                    Created {{ formatTaskDate(task.date_created) }}
+                  </span>
+                  <span v-if="task.due_date" class="flex items-center gap-1">
+                    <UIcon name="i-heroicons-clock" class="w-3.5 h-3.5" />
+                    Due {{ formatTaskDate(task.due_date) }}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

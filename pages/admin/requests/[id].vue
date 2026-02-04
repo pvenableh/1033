@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '~/components/ui/card'
-import type { Task } from '~/types/directus'
+import type { Task, Comment } from '~/types/directus'
 
 definePageMeta({
   layout: 'default',
@@ -36,6 +36,14 @@ const relatedTasks = ref<Task[]>([])
 const users = ref<any[]>([])
 const loading = ref(true)
 const showTaskDialog = ref(false)
+
+// Comments/Messages
+const { getComments, createComment, useCommentsSubscription } = useComments()
+const { sanitizeSync, initSanitizer } = useSanitize()
+const comments = ref<Comment[]>([])
+const loadingComments = ref(true)
+const sendingMessage = ref(false)
+const editorRef = ref<any>(null)
 
 // Request status management
 const requestStatusOptions = ['new', 'in progress', 'resolved', 'closed']
@@ -96,6 +104,127 @@ async function loadUsers() {
     })
   } catch {
     users.value = []
+  }
+}
+
+// Comments/Messages functions
+const requestId = computed(() => String(params.id))
+
+// Real-time comments subscription
+const { data: realtimeComments } = useCommentsSubscription('requests', requestId)
+
+// Watch for real-time comment updates
+watch(realtimeComments, (newComments) => {
+  if (newComments && newComments.length > 0) {
+    const existingCommentsMap = new Map(
+      comments.value.map(c => [c.id, c])
+    )
+
+    const mergedComments = newComments.map((newComment: any) => {
+      const existing = existingCommentsMap.get(newComment.id)
+      if (existing && existing.user_created && typeof existing.user_created === 'object') {
+        if (!newComment.user_created || typeof newComment.user_created === 'string') {
+          return { ...newComment, user_created: existing.user_created }
+        }
+      }
+      return newComment
+    })
+
+    comments.value = mergedComments as Comment[]
+
+    if (mergedComments.length > existingCommentsMap.size) {
+      nextTick(() => {
+        const container = document.getElementById('admin-messages-container')
+        if (container) {
+          container.scrollTop = container.scrollHeight
+        }
+      })
+    }
+  }
+})
+
+async function loadComments() {
+  loadingComments.value = true
+  try {
+    const result = await getComments('requests', requestId.value, {
+      includeReplies: false,
+    })
+    comments.value = result || []
+  } catch (error) {
+    console.error('Failed to load comments:', error)
+  } finally {
+    loadingComments.value = false
+  }
+}
+
+async function handleSendMessage(payload: { content: string; mentionedUserIds: string[] }) {
+  if (sendingMessage.value) return
+
+  sendingMessage.value = true
+  try {
+    const newComment = await createComment({
+      content: payload.content,
+      target_collection: 'requests',
+      target_id: requestId.value,
+      mentioned_user_ids: payload.mentionedUserIds,
+    })
+
+    const optimisticComment = {
+      ...newComment,
+      user_created: user.value,
+    }
+
+    const existingIndex = comments.value.findIndex(c => c.id === newComment.id)
+    if (existingIndex === -1) {
+      comments.value.push(optimisticComment as any)
+    }
+
+    editorRef.value?.clearEditor()
+
+    nextTick(() => {
+      const container = document.getElementById('admin-messages-container')
+      if (container) {
+        container.scrollTop = container.scrollHeight
+      }
+    })
+  } catch (error: any) {
+    console.error('Failed to send message:', error)
+  } finally {
+    sendingMessage.value = false
+  }
+}
+
+const getSanitizedContent = (content: string) => {
+  return sanitizeSync(content)
+}
+
+const isOwnMessage = (comment: Comment) => {
+  if (!user.value) return false
+  const creatorId = typeof comment.user_created === 'string'
+    ? comment.user_created
+    : comment.user_created?.id
+  return creatorId === user.value.id
+}
+
+const getCommentAuthor = (comment: Comment) => {
+  if (typeof comment.user_created === 'string') return 'Unknown'
+  return `${comment.user_created?.first_name || ''} ${comment.user_created?.last_name || ''}`.trim() || 'Unknown'
+}
+
+const formatMessageTime = (dateStr: string) => {
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diff = now.getTime() - date.getTime()
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+  if (days === 0) {
+    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+  } else if (days === 1) {
+    return 'Yesterday'
+  } else if (days < 7) {
+    return date.toLocaleDateString('en-US', { weekday: 'short' })
+  } else {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
   }
 }
 
@@ -193,7 +322,8 @@ function formatDateTime(date: string | null | undefined): string {
 }
 
 onMounted(async () => {
-  await Promise.all([loadRequest(), loadUsers()])
+  initSanitizer()
+  await Promise.all([loadRequest(), loadUsers(), loadComments()])
 })
 </script>
 
@@ -342,6 +472,88 @@ onMounted(async () => {
           </CardContent>
         </Card>
       </div>
+
+      <!-- Messages Section -->
+      <Card>
+        <CardHeader class="pb-3">
+          <CardTitle class="text-base flex items-center gap-2">
+            <Icon name="heroicons:chat-bubble-left-right" class="h-5 w-5" />
+            Messages
+          </CardTitle>
+          <CardDescription>Communicate with the resident about their request</CardDescription>
+        </CardHeader>
+        <CardContent class="p-0">
+          <!-- Messages Container -->
+          <div
+            id="admin-messages-container"
+            class="p-4 space-y-4 max-h-[400px] overflow-y-auto border-b"
+            :class="{ 'min-h-[150px]': !comments.length }"
+          >
+            <!-- Loading messages -->
+            <div v-if="loadingComments" class="flex items-center justify-center py-8">
+              <Icon name="heroicons:arrow-path" class="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+
+            <!-- No messages yet -->
+            <div v-else-if="!comments.length" class="text-center py-8">
+              <Icon name="heroicons:chat-bubble-left-ellipsis" class="h-8 w-8 mx-auto mb-2 text-muted-foreground opacity-50" />
+              <p class="text-sm text-muted-foreground">No messages yet</p>
+              <p class="text-xs text-muted-foreground mt-1">Send a message to communicate with the resident</p>
+            </div>
+
+            <!-- Messages list -->
+            <template v-else>
+              <div
+                v-for="comment in comments"
+                :key="comment.id"
+                class="flex flex-col"
+                :class="isOwnMessage(comment) ? 'items-end' : 'items-start'"
+              >
+                <div
+                  class="max-w-[80%] rounded-lg px-4 py-2"
+                  :class="isOwnMessage(comment)
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-muted'"
+                >
+                  <!-- Author name for other users -->
+                  <p
+                    v-if="!isOwnMessage(comment)"
+                    class="text-xs font-medium mb-1 opacity-70"
+                  >
+                    {{ getCommentAuthor(comment) }}
+                  </p>
+
+                  <!-- Message content -->
+                  <div
+                    class="text-sm prose prose-sm dark:prose-invert max-w-none admin-comment-content"
+                    v-html="getSanitizedContent(comment.content)"
+                  />
+
+                  <!-- Timestamp -->
+                  <p
+                    class="text-xs mt-1"
+                    :class="isOwnMessage(comment) ? 'text-primary-foreground/70' : 'text-muted-foreground'"
+                  >
+                    {{ formatMessageTime(comment.date_created) }}
+                  </p>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <!-- Message Input -->
+          <div class="p-4 bg-muted/30">
+            <CommentEditor
+              ref="editorRef"
+              placeholder="Type a message... Use @ to mention someone"
+              submit-label="Send"
+              :show-avatar="false"
+              :submitting="sendingMessage"
+              @submit="handleSendMessage"
+            />
+          </div>
+        </CardContent>
+      </Card>
 
       <!-- Linked Tasks Section -->
       <Card>
@@ -533,5 +745,33 @@ onMounted(async () => {
 <style>
 .prose img {
   max-width: 100%;
+}
+
+.admin-comment-content :deep(.mention) {
+  color: #0ea5e9;
+  font-weight: 500;
+  background: rgba(14, 165, 233, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 0.25em;
+}
+
+.admin-comment-content :deep(img) {
+  max-width: 200px;
+  max-height: 150px;
+  border-radius: 0.375rem;
+  margin: 0.25rem 0;
+}
+
+.admin-comment-content :deep(a) {
+  color: #0ea5e9;
+  text-decoration: underline;
+}
+
+.admin-comment-content :deep(p) {
+  margin: 0;
+}
+
+.admin-comment-content :deep(p + p) {
+  margin-top: 0.5rem;
 }
 </style>
