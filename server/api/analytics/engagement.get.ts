@@ -83,8 +83,8 @@ export default defineEventHandler(async (event) => {
 		} catch (scrollError: any) {
 			// Custom dimension not available - fall back to total scroll events
 			if (scrollError.code === 3) { // INVALID_ARGUMENT
-				console.log('Custom scroll dimension not available, falling back to total scroll events');
-			} else {
+				// Silent fallback - custom dimension not configured
+			} else if (process.dev) {
 				console.warn('Scroll depth query failed:', scrollError.message);
 			}
 		}
@@ -113,7 +113,9 @@ export default defineEventHandler(async (event) => {
 					scrollDepthData['90'] = scrollEventsTotal;
 				}
 			} catch (fallbackError: any) {
-				console.warn('Fallback scroll query failed:', fallbackError.message);
+				if (process.dev) {
+					console.warn('Fallback scroll query failed:', fallbackError.message);
+				}
 			}
 		}
 
