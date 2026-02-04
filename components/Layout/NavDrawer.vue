@@ -115,15 +115,15 @@
 					</a>
 				</li>
 
-				<!-- My Requests - for approved users to submit and track requests -->
+				<!-- Requests - for approved users to submit and track requests -->
 				<li>
 					<a
-						href="/my-requests"
+						href="/requests"
 						class="flex items-center gap-2"
 						:class="{'restricted-link': !canAccessApproved}"
-						@click="(e) => handleNavClick(e, '/my-requests', canAccessApproved, 'My Requests')">
+						@click="(e) => handleNavClick(e, '/requests', canAccessApproved, 'Requests')">
 						<UIcon name="i-heroicons-chat-bubble-left-right" class="w-4 h-4" />
-						My Requests
+						Requests
 						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
