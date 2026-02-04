@@ -4,6 +4,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Notices Management - Admin',
+});
+
 interface Notice {
 	id: number;
 	status: 'draft' | 'published' | 'archived';

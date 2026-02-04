@@ -70,6 +70,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Board Meetings - 1033 Lenox',
+});
+
 // Track meetings page view with content count
 onMounted(() => {
 	if (pastMeetings.value?.length) {

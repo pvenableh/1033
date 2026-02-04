@@ -587,6 +587,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Financial Dashboard',
+});
+
 const currentYear = new Date().getFullYear();
 const selectedFiscalYear = ref(currentYear);
 

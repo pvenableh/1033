@@ -15,6 +15,10 @@ definePageMeta({
 	middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+	title: 'User Permissions - Admin',
+});
+
 const toast = useToast();
 const {isAdmin} = useRoles();
 

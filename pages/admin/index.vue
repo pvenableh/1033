@@ -4,6 +4,10 @@ definePageMeta({
   middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+  title: 'Admin Dashboard',
+});
+
 const { isAdmin } = useRoles();
 
 const adminLinks = [

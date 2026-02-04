@@ -444,6 +444,10 @@ definePageMeta({
 	layout: 'default',
 });
 
+useSeoMeta({
+	title: 'Import Transactions',
+});
+
 // Directus configuration
 const config = useRuntimeConfig();
 const directusUrl = ref(config.public.directusUrl || 'https://admin.1033lenox.com');

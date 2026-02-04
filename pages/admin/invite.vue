@@ -15,6 +15,10 @@ definePageMeta({
   middleware: ["auth", "role"],
 });
 
+useSeoMeta({
+  title: 'Invite User - Admin',
+});
+
 const config = useRuntimeConfig();
 const toast = useToast();
 const { isAdmin } = useRoles();

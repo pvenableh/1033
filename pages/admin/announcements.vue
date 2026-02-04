@@ -6,6 +6,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Email Announcements - Admin',
+});
+
 const toast = useToast();
 const {isAdmin, isBoardMember} = useRoles();
 const {canManage} = useUserPermissions();

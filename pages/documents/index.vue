@@ -69,6 +69,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'By-Laws - 1033 Lenox',
+});
+
 // Track document section navigation
 const trackSectionClick = (sectionId, sectionLabel) => {
 	analytics.trackEvent('document_section_click', {

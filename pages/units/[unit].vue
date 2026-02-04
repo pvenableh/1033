@@ -108,6 +108,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Unit Details - 1033 Lenox',
+});
+
 const {
 	data: page,
 	pending,

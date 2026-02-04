@@ -14,6 +14,10 @@ definePageMeta({
   layout: "auth",
 });
 
+useSeoMeta({
+  title: 'Complete Registration - 1033 Lenox',
+});
+
 const route = useRoute();
 
 // State

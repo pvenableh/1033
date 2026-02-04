@@ -1,4 +1,8 @@
-<script setup></script>
+<script setup>
+useSeoMeta({
+	title: 'Submit Inquiry - 1033 Lenox',
+});
+</script>
 
 <template>
 	<div

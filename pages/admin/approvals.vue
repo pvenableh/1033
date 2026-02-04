@@ -4,6 +4,10 @@ definePageMeta({
 	middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+	title: 'Pending Approvals - Admin',
+});
+
 const toast = useToast();
 const {canApprove, APPROVAL_CATEGORIES, APPROVAL_CATEGORY_META} = useUserPermissions();
 

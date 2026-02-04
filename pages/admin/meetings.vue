@@ -23,6 +23,10 @@ definePageMeta({
   middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+  title: 'Meetings - Admin',
+});
+
 const toast = useToast();
 const { isAdmin, isBoardMember } = useRoles();
 

@@ -4,6 +4,10 @@ definePageMeta({
   middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+  title: 'Unit Management - Admin',
+});
+
 const toast = useToast();
 const { isAdmin } = useRoles();
 

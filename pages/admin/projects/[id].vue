@@ -7,6 +7,10 @@ definePageMeta({
   middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+  title: 'Project Details - Admin',
+});
+
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();

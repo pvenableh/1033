@@ -580,6 +580,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Access Control - 1033 Lenox',
+});
+
 import {gsap} from 'gsap';
 
 // Fetch tenants data

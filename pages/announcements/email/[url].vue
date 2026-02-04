@@ -116,6 +116,10 @@ definePageMeta({
 	layout: 'email',
 });
 
+useSeoMeta({
+	title: 'Announcement - 1033 Lenox',
+});
+
 const {data: email} = await useAsyncData(`announcement-${params.url}`, async () => {
 	const results = await $fetch('/api/directus/items', {
 		method: 'POST',

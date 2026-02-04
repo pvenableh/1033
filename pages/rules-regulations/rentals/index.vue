@@ -11,6 +11,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Rental Rules and Procedures - 1033 Lenox',
+});
+
 const rulesCollection = useDirectusItems('rules', {requireAuth: false});
 
 const page = await rulesCollection.list({

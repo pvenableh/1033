@@ -711,6 +711,10 @@
 </template>
 
 <script setup>
+useSeoMeta({
+	title: 'Financial Dashboard',
+});
+
 import {Line, Bar} from 'vue-chartjs';
 import {
 	Chart as ChartJS,

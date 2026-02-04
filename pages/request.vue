@@ -1,4 +1,8 @@
 <script setup>
+useSeoMeta({
+	title: 'Submit Request - 1033 Lenox',
+});
+
 import {useField, useForm} from 'vee-validate';
 import * as yup from 'yup';
 const unitsCollection = useDirectusItems('units');

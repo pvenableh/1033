@@ -1,4 +1,8 @@
 <script setup>
+useSeoMeta({
+	title: '1033 Lenox - Miami Beach Condo',
+});
+
 const {user} = useDirectusAuth();
 
 const {x, y} = useMouse({touch: false});

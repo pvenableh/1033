@@ -1,4 +1,8 @@
 <script setup>
+useSeoMeta({
+	title: 'Door Numbers Vote - 1033 Lenox',
+});
+
 const analytics = useAnalytics();
 
 import confetti from 'canvas-confetti';

@@ -316,6 +316,10 @@
 <script setup>
 definePageMeta({ layout: 'default' })
 
+useSeoMeta({
+	title: 'Yearly Reconciliation',
+});
+
 const {
 	selectedYear,
 	selectedAccount,

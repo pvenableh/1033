@@ -13,6 +13,10 @@ definePageMeta({
 	middleware: ['auth'],
 });
 
+useSeoMeta({
+	title: 'Announcements - 1033 Lenox',
+});
+
 // Track announcement click
 const trackAnnouncementClick = (item) => {
 	analytics.trackContentView({

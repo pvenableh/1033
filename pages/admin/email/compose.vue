@@ -6,6 +6,10 @@ definePageMeta({
   middleware: ['auth'],
 });
 
+useSeoMeta({
+  title: 'Compose Email - Admin',
+});
+
 const route = useRoute();
 const router = useRouter();
 const toast = useToast();

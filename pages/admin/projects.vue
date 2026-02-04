@@ -7,6 +7,10 @@ definePageMeta({
 	middleware: ['auth', 'role'],
 });
 
+useSeoMeta({
+	title: 'Project Management - Admin',
+});
+
 const toast = useToast();
 const {isAdmin} = useRoles();
 const {canCreate, canUpdate, canDelete} = useUserPermissions();
