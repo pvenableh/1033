@@ -73,7 +73,8 @@ export default defineNuxtConfig({
 			'nuxt-gtag',
 			{
 				id: 'G-JTR8V7XBN1',
-				debug: process.env.NODE_ENV === 'development', // Only debug in development
+				enabled: process.env.NUXT_PUBLIC_DISABLE_ANALYTICS !== 'true',
+				debug: process.env.NODE_ENV === 'development' && process.env.NUXT_PUBLIC_ANALYTICS_DEBUG === 'true',
 				initialConsent: true,
 				config: {
 					// Enhanced measurement settings
