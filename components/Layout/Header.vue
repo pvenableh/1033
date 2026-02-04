@@ -1,27 +1,16 @@
 <script setup>
 const {isScrollingDown} = useScrollDirection();
 const {user} = useDirectusAuth();
-
-const avatar = computed(() => {
-	if (user.value?.avatar) {
-		return 'https://admin.1033lenox.com/assets/' + user.value.avatar + '?key=medium';
-	} else {
-		return (
-			'https://ui-avatars.com/api/?name=' +
-			user.value?.first_name +
-			' ' +
-			user.value?.last_name +
-			'&background=eeeeee&color=00bfff'
-		);
-	}
-});
+const {isBoardMember, isOwner, isAdmin} = useRoles();
 </script>
 <template>
 	<header
 		class="w-full flex items-center justify-center sticky top-0 z-20 transition-all header pt-safe"
 		:class="{retracted: isScrollingDown}"
 		:style="{backgroundColor: 'var(--theme-header-bg)'}">
-		<div class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row gap-1">
+		<div
+			v-if="!isAdmin || !isBoardMember"
+			class="absolute left-[10px] sm:pl-1 md:px-6 flex items-center justify-center flex-row gap-1">
 			<nuxt-link to="/dashboard" class="hidden lg:inline-flex">
 				<AccountAvatar v-if="user" text="12" class="mr-2" />
 				<UAvatar v-else icon="i-heroicons-user" size="sm" class="mr-1 sm:mr-2" />

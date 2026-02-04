@@ -50,8 +50,8 @@ import {Toaster} from '@/components/ui/sonner';
 		<NuxtPage />
 	</NuxtLayout>
 	<NuxtLoadingIndicator
-		color="repeating-linear-gradient(to right,#FF99DD
-    0%,#94a3b8 100%)" />
+		color="repeating-linear-gradient(to right,#b89a5f
+    0%,#00efd1 100%)" />
 	<!-- <UNotifications /> -->
 	<Toaster />
 </template>

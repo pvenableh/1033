@@ -5,7 +5,7 @@
 		class="flex items-center justify-center flex-col nav-drawer"
 		:style="{
 			backgroundColor: 'var(--theme-drawer-bg)',
-			color: 'var(--theme-text-primary)'
+			color: 'var(--theme-text-primary)',
 		}"
 		@click="closeNavDrawer">
 		<div class="nav-drawer__menu-box p-4 overflow-y-auto relative">
@@ -176,7 +176,6 @@ const canAccessOwner = computed(() => {
 	return user.value && (isBoardMember.value || isOwner.value);
 });
 
-
 // Handle navigation click with access check
 function handleNavClick(e: Event, path: string, hasAccess: boolean, featureName: string, requiredAccess?: string) {
 	e.preventDefault();
@@ -239,7 +238,7 @@ onClickOutside(navDrawerRef, () => {
 	/* background: var(--white);
 	background: rgba(208, 208, 208, 0.5);
 	background: rgba(255, 255, 255, 0.75); */
-	transform: translateX(100%);
+	transform: translateX(110%);
 	transition: 0.35s var(--curve);
 	width: 100%;
 	max-width: 500px;

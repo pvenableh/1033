@@ -9,7 +9,7 @@ const panel = ref('login');
 const errorMessage = ref<string | null>(null);
 
 // Auth state
-const { user, loggedIn } = useDirectusAuth();
+const {user, loggedIn} = useDirectusAuth();
 
 // Redirect if already logged in
 onMounted(() => {
@@ -41,21 +41,25 @@ watch(panel, (newPanel, oldPanel) => {
 });
 
 // Check for error query params (only if not redirecting)
-watch(() => route.query.error, (error) => {
-	if (error === 'account_inactive') {
-		errorMessage.value = 'Your account is not active. Please contact an administrator.';
-		analytics.trackError({
-			error_type: 'auth_error',
-			error_message: 'account_inactive',
-		});
-	} else if (error === 'unauthorized') {
-		errorMessage.value = route.query.message as string || 'You do not have permission to access that page.';
-		analytics.trackError({
-			error_type: 'auth_error',
-			error_message: 'unauthorized',
-		});
-	}
-}, { immediate: true });
+watch(
+	() => route.query.error,
+	(error) => {
+		if (error === 'account_inactive') {
+			errorMessage.value = 'Your account is not active. Please contact an administrator.';
+			analytics.trackError({
+				error_type: 'auth_error',
+				error_message: 'account_inactive',
+			});
+		} else if (error === 'unauthorized') {
+			errorMessage.value = (route.query.message as string) || 'You do not have permission to access that page.';
+			analytics.trackError({
+				error_type: 'auth_error',
+				error_message: 'unauthorized',
+			});
+		}
+	},
+	{immediate: true}
+);
 
 function movePanel(val: string) {
 	panel.value = val;
@@ -69,24 +73,30 @@ function movePanel(val: string) {
 			v-if="errorMessage"
 			class="mb-6 max-w-md"
 			color="amber"
-			variant="subtle"
+			variant="warning"
 			icon="i-heroicons-exclamation-triangle"
 			:description="errorMessage"
-			:close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link' }"
+			:close-button="{icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link'}"
 			@close="errorMessage = null" />
 
 		<transition-group name="list" tag="div" class="login-panels">
-			<div v-if="panel === 'register'" key="1" class="flex items-center justify-center flex-col login-panel login-panel--wide">
+			<div
+				v-if="panel === 'register'"
+				key="1"
+				class="flex items-center justify-center flex-col login-panel login-panel--wide">
 				<h2
 					v-motion="{
-						initial: { y: -100, opacity: 0 },
-						enter: { y: 0, opacity: 1 },
+						initial: {y: -100, opacity: 0},
+						enter: {y: 0, opacity: 1},
 					}"
 					class="text-lg font-bold uppercase tracking-wide mb-4">
 					Request Access
 				</h2>
 				<AccountAccessRequestForm />
-				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('login')">Already have an account? <span class="text-primary-500">Sign In</span></a>
+				<a class="cursor-pointer login-panel__nav-button mt-4" @click.prevent="movePanel('login')">
+					Already have an account?
+					<span class="text-primary-500">Sign In</span>
+				</a>
 			</div>
 			<div v-if="panel === 'login'" key="2" class="flex items-center justify-center flex-col login-panel">
 				<p
@@ -100,13 +110,16 @@ function movePanel(val: string) {
 							opacity: 1,
 						},
 					}"
-					class="text-xs uppercase tracking-wide mb-4">
-					Welcome to the 1033 Lenox resident portal.
+					class="text-xs uppercase tracking-wide mb-12">
+					Welcome to the 1033 Lenox resident portal. 🌴☀️
 				</p>
 
 				<AccountLoginForm />
 
-				<a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button mt-4">New resident? <span class="text-primary-500">Request Access</span></a>
+				<a @click.prevent="movePanel('register')" class="cursor-pointer login-panel__nav-button mt-4">
+					New resident?
+					<span class="text-primary-500">Request Access</span>
+				</a>
 				<a class="cursor-pointer login-panel__nav-button mt-2" @click.prevent="movePanel('request')">Reset Password</a>
 			</div>
 			<div v-if="panel === 'request'" key="3" class="flex items-center justify-center flex-col login-panel">
@@ -121,18 +134,26 @@ function movePanel(val: string) {
 @reference "~/assets/css/tailwind.css";
 
 .login {
-	/* height: 90vh; */
+	height: 90vh;
 }
 
 .login-panel {
 	width: 325px;
 	min-height: 450px;
+	@media (min-width: theme('screens.sm')) {
+		width: 400px;
+	}
+	@media (min-width: theme('screens.md')) {
+		width: 600px;
+	}
+	@media (min-width: theme('screens.lg')) {
+	}
 }
 
 .login-panel--wide {
-	width: 400px;
 	min-height: auto;
 	padding: 1rem 0;
+	max-width: 600px;
 }
 
 .login-panel__nav-button {
