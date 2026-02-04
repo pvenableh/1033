@@ -43,11 +43,16 @@ export default defineNuxtPlugin((nuxtApp) => {
 		gtag('set', {user_id: userId});
 
 		// Set user properties for segmentation and analysis
+		// Extract role name from role object if needed
+		const roleName = typeof user.value.role === 'object'
+			? (user.value.role as any)?.name
+			: user.value.role;
+
 		const userProperties: Record<string, string | undefined> = {
 			user_email: user.value.email,
 			user_name: `${user.value.first_name || ''} ${user.value.last_name || ''}`.trim() || undefined,
 			user_first_name: user.value.first_name || undefined,
-			user_role: user.value.role || undefined,
+			user_role: roleName || undefined,
 		};
 
 		gtag('set', 'user_properties', userProperties);
