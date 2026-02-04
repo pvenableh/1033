@@ -104,6 +104,19 @@
 					</a>
 				</li>
 
+				<!-- My Finances -->
+				<li>
+					<a
+						href="/my-finances"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/my-finances', canAccessApproved, 'My Finances')">
+						<UIcon name="i-heroicons-banknotes" class="w-4 h-4" />
+						My Finances
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- Security -->
 				<li v-if="canAccessOwner">
 					<a

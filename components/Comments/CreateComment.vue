@@ -14,47 +14,36 @@ const props = defineProps({
 	},
 });
 
-const {user} = useDirectusAuth();
+const emit = defineEmits(['comment-created']);
+
+const { user } = useDirectusAuth();
+const { createComment } = useComments();
 const comment = ref(null);
 const max = ref(255);
-
-const junctionTable = props.collection + '_comments';
-
-const junctionId = props.collection + '_id';
+const isSubmitting = ref(false);
 
 async function postComment() {
-	if (!comment.value) {
+	if (!comment.value || !comment.value.trim() || isSubmitting.value) {
 		return;
-	} else {
-		const result = await useDirectus(
-			createItem('comments', {
-				comment: comment.value,
-				user: user.value.id,
-				item: props.item,
-				collection: props.collection,
-			})
-		);
+	}
 
-		connectComment(result.id);
+	isSubmitting.value = true;
+
+	try {
+		const newComment = await createComment({
+			content: comment.value.trim(),
+			target_collection: props.collection,
+			target_id: props.item,
+			parent_id: props.parent || null,
+		});
 
 		comment.value = null;
+		emit('comment-created', newComment);
+	} catch (error) {
+		console.error('Error posting comment:', error);
+	} finally {
+		isSubmitting.value = false;
 	}
-}
-
-async function connectComment(commentId) {
-	if (commentId) {
-		const result = await useDirectus(
-			createItem(junctionTable, {
-				[junctionId]: props.item,
-				comments_id: commentId,
-			})
-		);
-		updateParent();
-	}
-}
-
-async function updateParent() {
-	const result = await useDirectus(updateItem('tasks', props.item, {updated_on: new Date()}));
 }
 </script>
 <template>
