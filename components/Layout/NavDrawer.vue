@@ -104,6 +104,19 @@
 					</a>
 				</li>
 
+				<!-- My Tasks -->
+				<li>
+					<a
+						href="/tasks"
+						class="flex items-center gap-2"
+						:class="{'restricted-link': !canAccessApproved}"
+						@click="(e) => handleNavClick(e, '/tasks', canAccessApproved, 'My Tasks')">
+						<UIcon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
+						My Tasks
+						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
+					</a>
+				</li>
+
 				<!-- My Finances -->
 				<li>
 					<a
@@ -388,6 +401,9 @@ onClickOutside(navDrawerRef, () => {
 	}
 	li:nth-of-type(15) {
 		transition-delay: 0.255s;
+	}
+	li:nth-of-type(16) {
+		transition-delay: 0.27s;
 	}
 }
 
