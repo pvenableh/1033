@@ -57,7 +57,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   '/admin/permissions': { requireAdmin: true },
 
   // Board members and above
-  '/tasks': { requireBoardMember: true },
+  '/admin/tasks': { requireBoardMember: true },
   '/financials': { requireBoardMember: true },
   '/financials/dashboard': { requireBoardMember: true },
   '/financials/budget': { requireBoardMember: true },
@@ -74,6 +74,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   '/account': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
   '/announcements': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
   '/requests': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
+  '/tasks': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
   '/security': { requireResident: true },
   '/units': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
   '/projects': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
