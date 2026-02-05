@@ -54,8 +54,8 @@ const isOperationsActive = computed(() => {
 	return (
 		route.path.startsWith('/admin/projects') ||
 		route.path.startsWith('/tasks') ||
-		route.path.startsWith('/requests') ||
-		route.path.startsWith('/meetings')
+		route.path.startsWith('/admin/requests') ||
+		route.path.startsWith('/admin/meetings')
 	);
 });
 
@@ -91,8 +91,8 @@ const managementLinks = [
 const operationsLinks = [
 	{title: 'Projects', icon: 'i-heroicons-folder', to: '/admin/projects'},
 	{title: 'Tasks', icon: 'i-heroicons-clipboard-document-check', to: '/tasks'},
-	{title: 'Requests', icon: 'i-heroicons-inbox-arrow-down', to: '/requests'},
-	{title: 'Meetings', icon: 'i-heroicons-calendar', to: '/meetings'},
+	{title: 'Requests', icon: 'i-heroicons-inbox-arrow-down', to: '/admin/requests'},
+	{title: 'Meetings', icon: 'i-heroicons-calendar', to: '/admin/meetings'},
 ];
 
 const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value);

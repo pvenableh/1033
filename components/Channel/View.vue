@@ -117,6 +117,7 @@
 								:key="message.id"
 								:message="message"
 								:parent-message="getParentMessage(message)"
+								:reply-count="getReplyCount(message)"
 								:is-highlighted="messageSearchQuery && isMessageMatching(message)"
 								@reply="handleReply"
 								@edit="handleEditMessage"
@@ -363,6 +364,15 @@ const getParentMessage = (message: ChannelMessageWithRelations) => {
 	return messages.value.find(m => m.id === parentId) || null;
 };
 
+const getReplyCount = (message: ChannelMessageWithRelations) => {
+	return messages.value.filter(m => {
+		const parentId = typeof m.parent_id === 'string'
+			? m.parent_id
+			: (m.parent_id as any)?.id;
+		return parentId === message.id;
+	}).length;
+};
+
 const canManageChannel = computed(() => {
 	return isBoardMember.value || isAdmin.value;
 });
@@ -412,7 +422,7 @@ const loadChannel = async () => {
 const loadMessages = async () => {
 	loadingMessages.value = true;
 	try {
-		messages.value = await getMessages(props.channelId, {parentId: null});
+		messages.value = await getMessages(props.channelId);
 		scrollToBottom();
 		await markChannelAsRead(props.channelId);
 	} catch (e: any) {
