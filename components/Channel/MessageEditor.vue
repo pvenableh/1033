@@ -13,7 +13,7 @@
 					</span>
 					<span class="text-sm text-primary dark:text-primary truncate">{{ replyToPreview }}</span>
 				</div>
-				<Button
+				<UButton
 					size="xs"
 					color="primary"
 					variant="ghost"
@@ -36,7 +36,7 @@
 			class="flex items-center justify-between px-2 py-1 bg-gray-50 dark:bg-gray-800 rounded-b-lg border-x border-b border-gray-300 dark:border-gray-600">
 			<div class="flex items-center gap-1">
 				<!-- Formatting buttons -->
-				<Button
+				<UButton
 					v-for="(button, index) in toolbarButtons"
 					:key="index"
 					size="xs"
@@ -47,10 +47,10 @@
 					@click="button.action" />
 
 				<!-- Mention button -->
-				<Button size="xs" variant="ghost" color="gray" icon="i-heroicons-at-symbol" @click="insertMentionTrigger" />
+				<UButton size="xs" variant="ghost" color="gray" icon="i-heroicons-at-symbol" @click="insertMentionTrigger" />
 
 				<!-- File upload button -->
-				<Button
+				<UButton
 					v-if="allowUploads"
 					size="xs"
 					variant="ghost"
@@ -63,9 +63,9 @@
 				<!-- Enter-to-send toggle -->
 				<Tooltip
 					:text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
-					<Button
+					<UButton
 						size="xs"
-						:variant="enterToSend ? 'solid' : 'ghost'"
+						:variant="enterToSend ? 'default' : 'ghost'"
 						:color="enterToSend ? 'primary' : 'gray'"
 						class="text-xs font-mono px-1.5"
 						@click="toggleEnterToSend">
@@ -73,7 +73,7 @@
 							<Icon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
 							<span class="hidden sm:inline text-[10px]">Enter</span>
 						</span>
-					</Button>
+					</UButton>
 				</Tooltip>
 
 				<!-- Character count -->
@@ -88,9 +88,9 @@
 				</span>
 
 				<!-- Send button -->
-				<Button size="xs" color="primary" :icon="'i-heroicons-paper-airplane'" :disabled="!canSend" @click="handleSend">
+				<UButton size="xs" color="primary" icon="i-heroicons-paper-airplane" :disabled="!canSend" @click="handleSend">
 					Send
-				</Button>
+				</UButton>
 			</div>
 		</div>
 

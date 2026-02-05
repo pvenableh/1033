@@ -1,75 +1,73 @@
 <template>
-	<UPopover
-		v-model:open="isOpen"
-		:popper="{ placement: 'top' }"
-		@update:open="onPopoverOpen">
-		<slot name="trigger">
-			<UButton
-				size="xs"
-				color="gray"
-				variant="ghost"
-				icon="i-heroicons-face-smile"
-				:class="buttonClass"
-				aria-label="Add reaction" />
-		</slot>
+	<Popover v-model:open="isOpen" @update:open="onPopoverOpen">
+		<PopoverTrigger as-child>
+			<slot name="trigger">
+				<UButton
+					size="xs"
+					color="gray"
+					variant="ghost"
+					icon="i-heroicons-face-smile"
+					:class="buttonClass"
+					aria-label="Add reaction" />
+			</slot>
+		</PopoverTrigger>
 
-		<template #panel>
-			<div class="reaction-picker-panel p-3 min-w-[240px]">
-				<!-- Loading state with fun skeleton -->
-				<div v-if="loading" class="flex items-center justify-center py-6">
-					<div class="loading-emojis">
-						<span class="loading-emoji">😊</span>
-						<span class="loading-emoji">❤️</span>
-						<span class="loading-emoji">🎉</span>
-					</div>
-				</div>
-
-				<!-- Reaction grid with staggered animation -->
-				<div v-else-if="types.length > 0" class="reaction-grid">
-					<TransitionGroup name="emoji-pop">
-						<button
-							v-for="(reactionType, index) in types"
-							:key="reactionType.id"
-							class="reaction-item"
-							:class="getButtonClass(reactionType)"
-							:style="{ '--delay': `${index * 30}ms` }"
-							:title="reactionType.name"
-							@click="handleSelect(reactionType)">
-							<!-- Emoji display -->
-							<span v-if="reactionType.emoji" class="reaction-emoji">
-								{{ reactionType.emoji }}
-							</span>
-							<!-- Icon display with filled variant when selected -->
-							<UIcon
-								v-else-if="reactionType.icon"
-								:name="getIconName(reactionType)"
-								class="w-5 h-5 transition-all duration-200"
-								:class="getIconClass(reactionType)" />
-
-							<!-- Selected indicator with bounce -->
-							<span
-								v-if="isSelected(reactionType)"
-								class="selected-indicator" />
-
-							<!-- Hover ripple effect -->
-							<span class="ripple-bg" />
-						</button>
-					</TransitionGroup>
-				</div>
-
-				<!-- Empty state -->
-				<div v-else class="text-center py-4 text-gray-500 text-sm">
-					<span class="text-2xl mb-2 block">😕</span>
-					No reactions available
+		<PopoverContent side="top" :side-offset="4" class="reaction-picker-panel p-3 min-w-[240px] w-auto">
+			<!-- Loading state with fun skeleton -->
+			<div v-if="loading" class="flex items-center justify-center py-6">
+				<div class="loading-emojis">
+					<span class="loading-emoji">😊</span>
+					<span class="loading-emoji">❤️</span>
+					<span class="loading-emoji">🎉</span>
 				</div>
 			</div>
-		</template>
-	</UPopover>
+
+			<!-- Reaction grid with staggered animation -->
+			<div v-else-if="types.length > 0" class="reaction-grid">
+				<TransitionGroup name="emoji-pop">
+					<button
+						v-for="(reactionType, index) in types"
+						:key="reactionType.id"
+						class="reaction-item"
+						:class="getButtonClass(reactionType)"
+						:style="{ '--delay': `${index * 30}ms` }"
+						:title="reactionType.name"
+						@click="handleSelect(reactionType)">
+						<!-- Emoji display -->
+						<span v-if="reactionType.emoji" class="reaction-emoji">
+							{{ reactionType.emoji }}
+						</span>
+						<!-- Icon display with filled variant when selected -->
+						<UIcon
+							v-else-if="reactionType.icon"
+							:name="getIconName(reactionType)"
+							class="w-5 h-5 transition-all duration-200"
+							:class="getIconClass(reactionType)" />
+
+						<!-- Selected indicator with bounce -->
+						<span
+							v-if="isSelected(reactionType)"
+							class="selected-indicator" />
+
+						<!-- Hover ripple effect -->
+						<span class="ripple-bg" />
+					</button>
+				</TransitionGroup>
+			</div>
+
+			<!-- Empty state -->
+			<div v-else class="text-center py-4 text-gray-500 text-sm">
+				<span class="text-2xl mb-2 block">😕</span>
+				No reactions available
+			</div>
+		</PopoverContent>
+	</Popover>
 </template>
 
 <script setup lang="ts">
 import type { ReactionTypeRecord } from '~/types/reactions';
 import { getReactionIcon, getReactionIconFilled } from '~/types/reactions';
+import { Popover, PopoverContent, PopoverTrigger } from '~/components/ui/popover';
 
 const props = defineProps<{
 	selectedTypeIds?: number[];

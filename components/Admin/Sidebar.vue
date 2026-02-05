@@ -142,7 +142,7 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                   >
                     <Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
                     <span>Financials</span>
-                    <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    <ChevronRight class="ml-auto h-4 w-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>

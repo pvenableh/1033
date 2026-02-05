@@ -13,7 +13,7 @@
 					</span>
 					<span class="text-sm text-primary dark:text-primary truncate">{{ replyToPreview }}</span>
 				</div>
-				<Button
+				<UButton
 					size="xs"
 					color="primary"
 					variant="ghost"
@@ -48,7 +48,7 @@
 					class="flex items-center justify-between px-2 py-1.5 bg-gray-50 dark:bg-gray-800 rounded-b-lg border-x border-b border-gray-300 dark:border-gray-600 mt-[-1px]">
 					<div class="flex items-center gap-1">
 						<!-- Formatting buttons -->
-						<Button
+						<UButton
 							v-for="(button, index) in toolbarButtons"
 							:key="index"
 							size="xs"
@@ -60,7 +60,7 @@
 							@click="button.action" />
 
 						<!-- Mention button -->
-						<Button
+						<UButton
 							size="xs"
 							variant="ghost"
 							color="gray"
@@ -69,7 +69,7 @@
 							@click="insertMentionTrigger" />
 
 						<!-- File upload button -->
-						<Button
+						<UButton
 							v-if="allowUploads"
 							size="xs"
 							variant="ghost"
@@ -81,7 +81,7 @@
 						<!-- Link button -->
 						<Popover>
 							<PopoverTrigger asChild>
-								<Button
+								<UButton
 									size="xs"
 									variant="ghost"
 									color="gray"
@@ -97,12 +97,12 @@
 										class="text-sm"
 										@keyup.enter="setLink" />
 									<div class="flex justify-end gap-1">
-										<Button v-if="editor.isActive('link')" size="xs" color="destructive" variant="outline" @click="removeLink">
+										<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink">
 											Remove
-										</Button>
-										<Button size="xs" color="primary" @click="setLink">
+										</UButton>
+										<UButton size="xs" color="primary" @click="setLink">
 											{{ editor.isActive('link') ? 'Update' : 'Add' }}
-										</Button>
+										</UButton>
 									</div>
 								</div>
 							</PopoverContent>
@@ -114,7 +114,7 @@
 						<Tooltip
 							v-if="showEnterToSend"
 							:text="enterToSend ? 'Enter sends message (Shift+Enter for new line)' : 'Click to enable Enter to send'">
-							<Button
+							<UButton
 								size="xs"
 								:variant="enterToSend ? 'default' : 'ghost'"
 								:color="enterToSend ? 'primary' : 'gray'"
@@ -124,7 +124,7 @@
 									<Icon name="i-heroicons-arrow-turn-down-left" class="w-3 h-3" />
 									<span class="hidden sm:inline text-[10px]">Enter</span>
 								</span>
-							</Button>
+							</UButton>
 						</Tooltip>
 
 						<!-- Character count -->
@@ -139,25 +139,25 @@
 						</span>
 
 						<!-- Cancel button (optional) -->
-						<Button
+						<UButton
 							v-if="showCancel"
 							size="xs"
 							color="gray"
 							variant="ghost"
 							@click="$emit('cancel')">
 							Cancel
-						</Button>
+						</UButton>
 
 						<!-- Send/Submit button -->
-						<Button
+						<UButton
 							size="xs"
 							color="primary"
-							:icon="'i-heroicons-paper-airplane'"
+							icon="i-heroicons-paper-airplane"
 							:disabled="!canSend"
 							:loading="submitting"
 							@click="handleSend">
 							{{ submitLabel }}
-						</Button>
+						</UButton>
 					</div>
 				</div>
 			</div>
