@@ -108,6 +108,7 @@ const props = defineProps<{
 	message: ChannelMessageWithRelations;
 	isHighlighted?: boolean;
 	parentMessage?: ChannelMessageWithRelations | null;
+	replyCount?: number;
 }>();
 
 const emit = defineEmits(['reply', 'edit', 'delete']);
@@ -178,8 +179,7 @@ const files = computed(() => {
 });
 
 const replyCount = computed(() => {
-	// TODO: Add reply count from API
-	return 0;
+	return props.replyCount ?? 0;
 });
 
 const messageOwnerUserId = computed(() => {
@@ -420,27 +420,14 @@ const scrollToParent = () => {
 	min-width: 0;
 	padding: 0.5rem 0.75rem;
 	background: rgb(var(--color-gray-50));
-	border: 1px solid rgb(var(--color-gray-100));
+	border: 1px solid rgb(var(--color-gray-200));
 	border-radius: 1rem;
 	border-top-left-radius: 0.25rem;
-	transition: box-shadow 0.15s ease;
-}
-
-.message-bubble-wrapper:hover .message-bubble {
-	box-shadow:
-		0 2px 8px -2px rgba(0, 0, 0, 0.1),
-		0 1px 3px -1px rgba(0, 0, 0, 0.06);
 }
 
 :root.dark .message-bubble {
 	background: rgb(var(--color-gray-800));
-	border-color: rgb(var(--color-gray-700));
-}
-
-:root.dark .message-bubble-wrapper:hover .message-bubble {
-	box-shadow:
-		0 2px 8px -2px rgba(0, 0, 0, 0.4),
-		0 1px 3px -1px rgba(0, 0, 0, 0.2);
+	border-color: rgb(var(--color-gray-600));
 }
 
 .message-bubble.is-own {
