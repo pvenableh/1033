@@ -100,20 +100,52 @@ const hasAdminAccess = computed(() => isBoardMember.value || isOwner.value || is
 const {state: sidebarState} = useSidebar();
 const isCollapsed = computed(() => sidebarState.value === 'collapsed');
 
-// Controlled open state for collapsibles - expand all when sidebar expands
+// Controlled open state for collapsibles - default to open only if route is active
 const financialsOpen = ref(isFinancialsActive.value);
 const communicationsOpen = ref(isCommunicationsActive.value);
 const managementOpen = ref(isManagementActive.value);
 const operationsOpen = ref(isOperationsActive.value);
 
-// Watch sidebar state to expand all menus when sidebar expands
+// Track user-intended expand state (preserves user's choice across sidebar toggles)
+const userIntendedFinancials = ref(isFinancialsActive.value);
+const userIntendedCommunications = ref(isCommunicationsActive.value);
+const userIntendedManagement = ref(isManagementActive.value);
+const userIntendedOperations = ref(isOperationsActive.value);
+
+// When user manually toggles a sub-menu, track their intent
+const handleToggle = (group: 'financials' | 'communications' | 'management' | 'operations', open: boolean) => {
+	switch (group) {
+		case 'financials':
+			financialsOpen.value = open;
+			userIntendedFinancials.value = open;
+			break;
+		case 'communications':
+			communicationsOpen.value = open;
+			userIntendedCommunications.value = open;
+			break;
+		case 'management':
+			managementOpen.value = open;
+			userIntendedManagement.value = open;
+			break;
+		case 'operations':
+			operationsOpen.value = open;
+			userIntendedOperations.value = open;
+			break;
+	}
+};
+
+// When sidebar collapses, close all sub-menus. When it expands, restore user's intent.
 watch(isCollapsed, (collapsed) => {
-	if (!collapsed) {
-		// Sidebar expanded - open all menus
-		financialsOpen.value = true;
-		communicationsOpen.value = true;
-		managementOpen.value = true;
-		operationsOpen.value = true;
+	if (collapsed) {
+		financialsOpen.value = false;
+		communicationsOpen.value = false;
+		managementOpen.value = false;
+		operationsOpen.value = false;
+	} else {
+		financialsOpen.value = userIntendedFinancials.value;
+		communicationsOpen.value = userIntendedCommunications.value;
+		managementOpen.value = userIntendedManagement.value;
+		operationsOpen.value = userIntendedOperations.value;
 	}
 });
 
@@ -150,7 +182,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 				<SidebarGroup v-if="canAccessFinancials">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							<CollapsibleRoot v-model:open="financialsOpen" as="li" class="group/collapsible">
+							<CollapsibleRoot :open="financialsOpen" @update:open="(v: boolean) => handleToggle('financials', v)" as="li" class="group/collapsible">
 								<SidebarMenuItem>
 									<!-- When collapsed, show a link instead of trigger -->
 									<SidebarMenuButton v-if="isCollapsed" as-child :is-active="isFinancialsActive" tooltip="Financials">
@@ -165,7 +197,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 											<Icon name="i-heroicons-banknotes" class="size-4 shrink-0" />
 											<span>Financials</span>
 											<ChevronRight
-												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-data-[state=open]/collapsible:rotate-90" />
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent class="collapsible-content">
@@ -191,7 +223,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 				<SidebarGroup v-if="isBoardMember">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							<CollapsibleRoot v-model:open="communicationsOpen" as="li" class="group/collapsible">
+							<CollapsibleRoot :open="communicationsOpen" @update:open="(v: boolean) => handleToggle('communications', v)" as="li" class="group/collapsible">
 								<SidebarMenuItem>
 									<!-- When collapsed, show a link instead of trigger -->
 									<SidebarMenuButton
@@ -210,7 +242,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 											<Icon name="i-heroicons-chat-bubble-left-right" class="size-4 shrink-0" />
 											<span>Communications</span>
 											<ChevronRight
-												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-data-[state=open]/collapsible:rotate-90" />
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent class="collapsible-content">
@@ -234,7 +266,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 				<SidebarGroup v-if="isBoardMember">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							<CollapsibleRoot v-model:open="managementOpen" as="li" class="group/collapsible">
+							<CollapsibleRoot :open="managementOpen" @update:open="(v: boolean) => handleToggle('management', v)" as="li" class="group/collapsible">
 								<SidebarMenuItem>
 									<!-- When collapsed, show a link instead of trigger -->
 									<SidebarMenuButton v-if="isCollapsed" as-child :is-active="isManagementActive" tooltip="Management">
@@ -249,7 +281,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 											<Icon name="i-heroicons-cog-6-tooth" class="size-4 shrink-0" />
 											<span>Management</span>
 											<ChevronRight
-												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-data-[state=open]/collapsible:rotate-90" />
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent class="collapsible-content">
@@ -273,7 +305,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 				<SidebarGroup v-if="isBoardMember">
 					<SidebarGroupContent>
 						<SidebarMenu>
-							<CollapsibleRoot v-model:open="operationsOpen" as="li" class="group/collapsible">
+							<CollapsibleRoot :open="operationsOpen" @update:open="(v: boolean) => handleToggle('operations', v)" as="li" class="group/collapsible">
 								<SidebarMenuItem>
 									<!-- When collapsed, show a link instead of trigger -->
 									<SidebarMenuButton v-if="isCollapsed" as-child :is-active="isOperationsActive" tooltip="Operations">
@@ -288,7 +320,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 											<Icon name="i-heroicons-wrench-screwdriver" class="size-4 shrink-0" />
 											<span>Operations</span>
 											<ChevronRight
-												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+												class="ml-auto h-4 w-4 shrink-0 transition-transform duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] group-data-[state=open]/collapsible:rotate-90" />
 										</SidebarMenuButton>
 									</CollapsibleTrigger>
 									<CollapsibleContent class="collapsible-content">
@@ -332,11 +364,6 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 </template>
 
 <style scoped>
-/* Sidebar themed background matching header */
-/* :deep(.sidebar-themed [data-sidebar='sidebar']) {
-	background: var(--theme-bg, #eeeeee);
-} */
-
 /* Sidebar trigger container at top matching header height */
 .sidebar-trigger-container {
 	display: flex;
@@ -357,7 +384,7 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 	width: 32px;
 	height: 32px;
 	border-radius: 6px;
-	transition: background-color 0.2s ease;
+	transition: background-color 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 	color: var(--theme-text-secondary, #666);
 }
 
@@ -371,21 +398,23 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 }
 
 .collapsible-content[data-state='open'] {
-	animation: slideDown 200ms ease-out;
+	animation: slideDown 250ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .collapsible-content[data-state='closed'] {
-	animation: slideUp 200ms ease-out;
+	animation: slideUp 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes slideDown {
 	from {
 		height: 0;
 		opacity: 0;
+		transform: translateY(-4px);
 	}
 	to {
 		height: var(--reka-collapsible-content-height);
 		opacity: 1;
+		transform: translateY(0);
 	}
 }
 
@@ -393,10 +422,12 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 	from {
 		height: var(--reka-collapsible-content-height);
 		opacity: 1;
+		transform: translateY(0);
 	}
 	to {
 		height: 0;
 		opacity: 0;
+		transform: translateY(-4px);
 	}
 }
 </style>
