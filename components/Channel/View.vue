@@ -24,13 +24,13 @@
 
 				<div class="flex items-center gap-2">
 					<!-- Search toggle button -->
-					<Button
+					<UButton
 						size="sm"
 						color="gray"
 						:variant="showMessageSearch ? 'soft' : 'ghost'"
 						icon="i-heroicons-magnifying-glass"
 						@click="toggleMessageSearch" />
-					<Button
+					<UButton
 						size="sm"
 						color="gray"
 						variant="ghost"
@@ -38,9 +38,9 @@
 						@click="showMembersPanel = !showMembersPanel">
 						<span class="hidden sm:inline">{{ memberCount }}</span>
 						<span class="sm:hidden">{{ memberCount }}</span>
-					</Button>
+					</UButton>
 					<Dropdown :items="channelActions" :popper="{placement: 'bottom-end'}">
-						<Button
+						<UButton
 							size="sm"
 							color="gray"
 							variant="ghost"
@@ -65,7 +65,7 @@
 									<span v-if="messageSearchQuery && filteredMessages.length > 0" class="text-xs text-gray-500">
 										{{ filteredMessages.length }} result{{ filteredMessages.length !== 1 ? 's' : '' }}
 									</span>
-									<Button
+									<UButton
 										v-if="messageSearchQuery"
 										color="gray"
 										variant="link"
@@ -170,7 +170,7 @@
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h3 class="text-lg font-semibold">Invite to #{{ channel?.name }}</h3>
-						<Button
+						<UButton
 							color="gray"
 							variant="ghost"
 							icon="i-heroicons-x-mark"
@@ -218,16 +218,16 @@
 
 				<template #footer>
 					<div class="flex justify-end gap-2">
-						<Button color="gray" variant="ghost" @click="showInviteModal = false">
+						<UButton color="gray" variant="ghost" @click="showInviteModal = false">
 							Cancel
-						</Button>
-						<Button
+						</UButton>
+						<UButton
 							color="primary"
 							:disabled="!selectedUserToInvite"
 							:loading="inviting"
 							@click="confirmInvite">
 							Invite
-						</Button>
+						</UButton>
 					</div>
 				</template>
 			</Card>

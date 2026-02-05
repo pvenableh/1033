@@ -45,31 +45,33 @@
 							@click="$refs.fileInput.click()" />
 
 						<!-- Link button -->
-						<UPopover :popper="{placement: 'top'}" mode="click">
-							<UButton
-								size="xs"
-								variant="ghost"
-								color="gray"
-								icon="i-heroicons-link"
-								:class="{'bg-gray-200 dark:bg-gray-700': editor.isActive('link')}" />
-							<template #panel="{close}">
-								<div class="p-2 w-64 space-y-2">
+						<Popover v-model:open="isLinkOpen">
+							<PopoverTrigger as-child>
+								<UButton
+									size="xs"
+									variant="ghost"
+									color="gray"
+									icon="i-heroicons-link"
+									:class="{'bg-gray-200 dark:bg-gray-700': editor.isActive('link')}" />
+							</PopoverTrigger>
+							<PopoverContent side="top" class="w-64 p-2">
+								<div class="space-y-2">
 									<UInput
 										v-model="linkUrl"
 										placeholder="https://example.com"
 										size="sm"
-										@keyup.enter="setLink(close)" />
+										@keyup.enter="setLink" />
 									<div class="flex justify-end gap-1">
-										<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
+										<UButton v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink">
 											Remove
 										</UButton>
-										<UButton size="xs" color="primary" @click="setLink(close)">
+										<UButton size="xs" color="primary" @click="setLink">
 											{{ editor.isActive('link') ? 'Update' : 'Add' }}
 										</UButton>
 									</div>
 								</div>
-							</template>
-						</UPopover>
+							</PopoverContent>
+						</Popover>
 					</div>
 
 					<div class="flex items-center gap-2">
@@ -112,6 +114,7 @@ import Image from '@tiptap/extension-image';
 import Mention from '@tiptap/extension-mention';
 import type {MentionData} from '~/types/comments';
 import {Progress} from '~/components/ui/progress';
+import {Popover, PopoverContent, PopoverTrigger} from '~/components/ui/popover';
 
 const {processUpload, validateFiles} = useFileUpload();
 
@@ -169,6 +172,7 @@ const uploadProgress = ref(0);
 const mentionsPortal = ref<HTMLElement | null>(null);
 const mentionedUsers = ref<MentionData[]>([]);
 const linkUrl = ref('');
+const isLinkOpen = ref(false);
 
 const {uploadFiles, updateFile} = useDirectusFiles();
 const {getMentionableUsers} = useComments();
@@ -198,18 +202,18 @@ const canSubmit = computed(() => {
 	return hasContent && !isUploading.value && !props.submitting;
 });
 
-const setLink = (close: () => void) => {
+const setLink = () => {
 	if (linkUrl.value) {
 		editor.value?.chain().focus().setLink({href: linkUrl.value, target: '_blank'}).run();
 	}
 	linkUrl.value = '';
-	close();
+	isLinkOpen.value = false;
 };
 
-const removeLink = (close: () => void) => {
+const removeLink = () => {
 	editor.value?.chain().focus().unsetLink().run();
 	linkUrl.value = '';
-	close();
+	isLinkOpen.value = false;
 };
 
 const insertMentionTrigger = () => {

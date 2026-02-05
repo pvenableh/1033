@@ -49,8 +49,8 @@
 						@keydown.esc="cancelEdit"
 						@keydown.enter.ctrl="saveEdit" />
 					<div class="flex gap-2">
-						<Button size="xs" color="primary" @click="saveEdit">Save</Button>
-						<Button size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</Button>
+						<UButton size="xs" color="primary" @click="saveEdit">Save</UButton>
+						<UButton size="xs" color="gray" variant="ghost" @click="cancelEdit">Cancel</UButton>
 					</div>
 				</div>
 
@@ -94,7 +94,7 @@
 			<!-- Actions -->
 			<div class="message-actions">
 				<Dropdown :items="messageActions" :popper="{placement: 'bottom-end'}">
-					<Button size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
+					<UButton size="xs" color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal" />
 				</Dropdown>
 			</div>
 		</div>
