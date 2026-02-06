@@ -79,12 +79,12 @@
 					:compact="true" />
 
 				<!-- Thread indicator -->
-				<div v-if="replyCount > 0" class="mt-2">
+				<div v-if="replyCountValue > 0" class="mt-2">
 					<button
 						class="text-xs text-primary dark:text-primary hover:underline flex items-center gap-1"
 						@click="$emit('reply', message)">
 						<Icon name="i-heroicons-chat-bubble-left" class="w-4 h-4" />
-						{{ replyCount }} {{ replyCount === 1 ? 'reply' : 'replies' }}
+						{{ replyCountValue }} {{ replyCountValue === 1 ? 'reply' : 'replies' }}
 					</button>
 				</div>
 			</div>
@@ -110,6 +110,8 @@ const props = defineProps<{
 	message: MessageType;
 	isHighlighted?: boolean;
 	parentMessage?: MessageType | null;
+	// Reply count override (when computed externally)
+	replyCount?: number;
 	// Collection type for reactions ('channel_messages' or 'comments')
 	reactionCollection?: 'channel_messages' | 'comments' | 'project_events';
 	// Context for reactions (e.g., channel name)
@@ -201,7 +203,10 @@ const files = computed(() => {
 	return props.message.files || [];
 });
 
-const replyCount = computed(() => {
+const replyCountValue = computed(() => {
+	if (props.replyCount !== undefined) {
+		return props.replyCount;
+	}
 	if ('replies' in props.message && Array.isArray(props.message.replies)) {
 		return props.message.replies.length;
 	}
@@ -448,27 +453,14 @@ const scrollToParent = () => {
 	min-width: 0;
 	padding: 0.5rem 0.75rem;
 	background: rgb(var(--color-gray-50));
-	border: 1px solid rgb(var(--color-gray-100));
+	border: 1px solid rgb(var(--color-gray-200));
 	border-radius: 1rem;
 	border-top-left-radius: 0.25rem;
-	transition: box-shadow 0.15s ease;
-}
-
-.message-bubble-wrapper:hover .message-bubble {
-	box-shadow:
-		0 2px 8px -2px rgba(0, 0, 0, 0.1),
-		0 1px 3px -1px rgba(0, 0, 0, 0.06);
 }
 
 :root.dark .message-bubble {
 	background: rgb(var(--color-gray-800));
-	border-color: rgb(var(--color-gray-700));
-}
-
-:root.dark .message-bubble-wrapper:hover .message-bubble {
-	box-shadow:
-		0 2px 8px -2px rgba(0, 0, 0, 0.4),
-		0 1px 3px -1px rgba(0, 0, 0, 0.2);
+	border-color: rgb(var(--color-gray-600));
 }
 
 .message-bubble.is-own {

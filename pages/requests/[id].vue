@@ -68,6 +68,7 @@ const comments = ref<Comment[]>([]);
 const loadingComments = ref(true);
 const sendingMessage = ref(false);
 const editorRef = ref<any>(null);
+const replyToComment = ref<Comment | null>(null);
 
 // Real-time comments subscription
 const { data: realtimeComments } = useCommentsSubscription('requests', requestId);
@@ -109,9 +110,7 @@ watch(realtimeComments, (newComments) => {
 const loadComments = async () => {
   loadingComments.value = true;
   try {
-    const result = await getComments('requests', requestId.value, {
-      includeReplies: false,
-    });
+    const result = await getComments('requests', requestId.value);
     comments.value = result || [];
   } catch (error) {
     console.error('Failed to load comments:', error);
@@ -121,7 +120,7 @@ const loadComments = async () => {
 };
 
 // Send a new message using CommentEditor
-const handleSendMessage = async (payload: { content: string; mentionedUserIds: string[] }) => {
+const handleSendMessage = async (payload: { content: string; mentionedUserIds: string[]; parentId?: string | null }) => {
   if (sendingMessage.value) return;
 
   sendingMessage.value = true;
@@ -131,6 +130,7 @@ const handleSendMessage = async (payload: { content: string; mentionedUserIds: s
       target_collection: 'requests',
       target_id: requestId.value,
       mentioned_user_ids: payload.mentionedUserIds,
+      parent_id: payload.parentId || undefined,
     });
 
     // Optimistically add the comment with current user data
@@ -138,6 +138,7 @@ const handleSendMessage = async (payload: { content: string; mentionedUserIds: s
     const optimisticComment = {
       ...newComment,
       user_created: user.value,
+      parent_id: payload.parentId || null,
     };
 
     // Check if comment already exists (from real-time subscription race)
@@ -146,8 +147,9 @@ const handleSendMessage = async (payload: { content: string; mentionedUserIds: s
       comments.value.push(optimisticComment as any);
     }
 
-    // Clear editor
+    // Clear editor and reply state
     editorRef.value?.clearEditor();
+    replyToComment.value = null;
 
     // Scroll to bottom (check both desktop and mobile containers)
     nextTick(() => {
@@ -175,14 +177,35 @@ const getSanitizedContent = (content: string) => {
 
 // Handle reply to a comment
 const handleReply = (comment: Comment) => {
-  // For now, scroll to the editor and focus it
-  // TODO: Add reply threading support
-  const container = document.getElementById('messages-container');
-  if (container) {
-    container.scrollTop = container.scrollHeight;
-  }
-  // Focus the editor
-  editorRef.value?.editor?.commands.focus();
+  replyToComment.value = comment;
+  // Scroll to editor and focus it
+  nextTick(() => {
+    const container = document.getElementById('messages-container') || document.getElementById('messages-container-mobile');
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
+    editorRef.value?.editor?.commands.focus();
+  });
+};
+
+// Get parent message for reply threading display
+const getParentMessage = (comment: Comment) => {
+  if (!comment.parent_id) return null;
+  const parentId = typeof comment.parent_id === 'string'
+    ? comment.parent_id
+    : (comment.parent_id as any)?.id;
+  if (!parentId) return null;
+  return comments.value.find(c => c.id === parentId) || null;
+};
+
+// Get reply count for a comment
+const getCommentReplyCount = (comment: Comment) => {
+  return comments.value.filter(c => {
+    const parentId = typeof c.parent_id === 'string'
+      ? c.parent_id
+      : (c.parent_id as any)?.id;
+    return parentId === comment.id;
+  }).length;
 };
 
 // Handle edit comment
@@ -538,6 +561,8 @@ useSeoMeta({
                     v-for="comment in comments"
                     :key="comment.id"
                     :message="comment"
+                    :parent-message="getParentMessage(comment)"
+                    :reply-count="getCommentReplyCount(comment)"
                     reaction-collection="comments"
                     :show-actions="true"
                     @reply="handleReply"
@@ -554,9 +579,11 @@ useSeoMeta({
                   :show-avatar="false"
                   :show-enter-to-send="true"
                   :submitting="sendingMessage"
+                  :reply-to="replyToComment"
                   mention-context="general"
                   height="min-h-[60px] max-h-[150px]"
                   @submit="handleSendMessage"
+                  @cancel-reply="replyToComment = null"
                 />
               </div>
             </div>
@@ -651,6 +678,8 @@ useSeoMeta({
                 v-for="comment in comments"
                 :key="comment.id"
                 :message="comment"
+                :parent-message="getParentMessage(comment)"
+                :reply-count="getCommentReplyCount(comment)"
                 reaction-collection="comments"
                 :show-actions="true"
                 @reply="handleReply"
@@ -668,9 +697,11 @@ useSeoMeta({
               :show-avatar="false"
               :show-enter-to-send="true"
               :submitting="sendingMessage"
+              :reply-to="replyToComment"
               mention-context="general"
               height="min-h-[60px] max-h-[150px]"
               @submit="handleSendMessage"
+              @cancel-reply="replyToComment = null"
             />
           </div>
         </div>
