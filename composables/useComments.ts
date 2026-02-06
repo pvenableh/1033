@@ -350,7 +350,6 @@ export function useComments() {
         filter: {
           target_collection: { _eq: targetCollection },
           target_id: { _eq: id },
-          parent_id: { _null: true }, // Only root comments
         },
         sort: 'date_created',
       },
