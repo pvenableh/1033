@@ -1,22 +1,5 @@
 <script setup lang="ts">
-interface Meeting {
-  id: string | number;
-  title: string;
-  description?: string;
-  meeting_type: 'board' | 'annual' | 'special' | 'committee' | 'other';
-  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-  start_datetime: string;
-  end_datetime?: string;
-  location?: string;
-  virtual_link?: string;
-  is_virtual: boolean;
-  agenda?: string;
-  minutes?: string;
-  attendees_count?: number;
-  date_created?: string;
-  date_updated?: string;
-  user_created?: { id: string; first_name: string; last_name: string };
-}
+import type { Meeting } from '~/types/directus';
 
 definePageMeta({
   layout: 'default',
@@ -41,46 +24,38 @@ const isEditing = ref(false);
 
 // Filters
 const statusFilter = ref('all');
-const typeFilter = ref('all');
+const categoryFilter = ref('all');
 const searchQuery = ref('');
 
 const statusOptions = [
   { label: 'All Statuses', value: 'all' },
-  { label: 'Scheduled', value: 'scheduled' },
-  { label: 'In Progress', value: 'in_progress' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Cancelled', value: 'cancelled' },
+  { label: 'Published', value: 'published' },
+  { label: 'Draft', value: 'draft' },
+  { label: 'Archived', value: 'archived' },
 ];
 
-const typeOptions = [
-  { label: 'All Types', value: 'all' },
-  { label: 'Board Meeting', value: 'board' },
-  { label: 'Annual Meeting', value: 'annual' },
-  { label: 'Special Meeting', value: 'special' },
-  { label: 'Committee', value: 'committee' },
-  { label: 'Other', value: 'other' },
+const categoryOptions = [
+  { label: 'All Categories', value: 'all' },
+  { label: 'Board Meeting', value: 'Board Meeting' },
 ];
 
-const meetingTypeLabels: Record<string, string> = {
-  board: 'Board Meeting',
-  annual: 'Annual Meeting',
-  special: 'Special Meeting',
-  committee: 'Committee',
-  other: 'Other',
-};
+const locationOptions = [
+  { label: 'Community Room', value: 'Community Room' },
+  { label: 'Zoom', value: 'Zoom' },
+];
 
 // Meeting form state
 const meetingForm = ref<Partial<Meeting>>({
   title: '',
   description: '',
-  meeting_type: 'board',
-  status: 'scheduled',
-  start_datetime: '',
-  end_datetime: '',
-  location: '',
-  virtual_link: '',
-  is_virtual: false,
+  category: 'Board Meeting',
+  status: 'draft',
+  date: '',
+  time: '',
+  location: 'Community Room',
+  video_link: '',
   agenda: '',
+  url: '',
 });
 
 // Permission checks
@@ -90,17 +65,14 @@ const hasAccess = computed(() => isAdmin.value || isBoardMember.value);
 const filteredMeetings = computed(() => {
   let result = meetings.value;
 
-  // Filter by status
   if (statusFilter.value !== 'all') {
     result = result.filter((m) => m.status === statusFilter.value);
   }
 
-  // Filter by type
-  if (typeFilter.value !== 'all') {
-    result = result.filter((m) => m.meeting_type === typeFilter.value);
+  if (categoryFilter.value !== 'all') {
+    result = result.filter((m) => m.category === categoryFilter.value);
   }
 
-  // Filter by search query
   if (searchQuery.value) {
     const query = searchQuery.value.toLowerCase();
     result = result.filter(
@@ -117,9 +89,9 @@ const filteredMeetings = computed(() => {
 // Stats
 const meetingStats = computed(() => ({
   total: meetings.value.length,
-  scheduled: meetings.value.filter((m) => m.status === 'scheduled').length,
-  completed: meetings.value.filter((m) => m.status === 'completed').length,
-  cancelled: meetings.value.filter((m) => m.status === 'cancelled').length,
+  published: meetings.value.filter((m) => m.status === 'published').length,
+  draft: meetings.value.filter((m) => m.status === 'draft').length,
+  archived: meetings.value.filter((m) => m.status === 'archived').length,
 }));
 
 // Methods
@@ -136,23 +108,26 @@ async function fetchMeetings() {
             'id',
             'title',
             'description',
-            'meeting_type',
+            'category',
             'status',
-            'start_datetime',
-            'end_datetime',
+            'date',
+            'time',
             'location',
-            'virtual_link',
-            'is_virtual',
+            'video_link',
+            'url',
             'agenda',
             'minutes',
-            'attendees_count',
+            'sort',
             'date_created',
             'date_updated',
             'user_created.id',
             'user_created.first_name',
             'user_created.last_name',
+            'files.directus_files_id.id',
+            'files.directus_files_id.title',
+            'files.directus_files_id.tags',
           ],
-          sort: ['-start_datetime'],
+          sort: ['-date'],
           limit: -1,
         },
       },
@@ -170,27 +145,27 @@ async function fetchMeetings() {
   }
 }
 
+function getDefaultDate() {
+  const now = new Date();
+  now.setDate(now.getDate() + 7);
+  return now.toISOString().slice(0, 10);
+}
+
 function openCreateModal() {
   isEditing.value = false;
   selectedMeeting.value = null;
-  // Set default start datetime to next hour
-  const now = new Date();
-  now.setHours(now.getHours() + 1, 0, 0, 0);
-  const defaultStart = now.toISOString().slice(0, 16);
-  now.setHours(now.getHours() + 1);
-  const defaultEnd = now.toISOString().slice(0, 16);
 
   meetingForm.value = {
     title: '',
     description: '',
-    meeting_type: 'board',
-    status: 'scheduled',
-    start_datetime: defaultStart,
-    end_datetime: defaultEnd,
-    location: '',
-    virtual_link: '',
-    is_virtual: false,
+    category: 'Board Meeting',
+    status: 'draft',
+    date: getDefaultDate(),
+    time: '19:00',
+    location: 'Community Room',
+    video_link: '',
     agenda: '',
+    url: '',
   };
   showMeetingModal.value = true;
 }
@@ -199,16 +174,16 @@ function openEditModal(meeting: Meeting) {
   isEditing.value = true;
   selectedMeeting.value = meeting;
   meetingForm.value = {
-    title: meeting.title,
+    title: meeting.title || '',
     description: meeting.description || '',
-    meeting_type: meeting.meeting_type,
-    status: meeting.status,
-    start_datetime: meeting.start_datetime ? meeting.start_datetime.slice(0, 16) : '',
-    end_datetime: meeting.end_datetime ? meeting.end_datetime.slice(0, 16) : '',
-    location: meeting.location || '',
-    virtual_link: meeting.virtual_link || '',
-    is_virtual: meeting.is_virtual || false,
+    category: meeting.category || 'Board Meeting',
+    status: meeting.status || 'draft',
+    date: meeting.date || '',
+    time: meeting.time || '',
+    location: meeting.location || 'Community Room',
+    video_link: meeting.video_link || '',
     agenda: meeting.agenda || '',
+    url: meeting.url || '',
   };
   showMeetingModal.value = true;
 }
@@ -228,15 +203,31 @@ async function saveMeeting() {
     return;
   }
 
+  if (!meetingForm.value.date) {
+    toast.add({
+      title: 'Error',
+      description: 'Meeting date is required',
+      color: 'red',
+    });
+    return;
+  }
+
   saving.value = true;
   try {
     const data = {
-      ...meetingForm.value,
-      status: meetingForm.value.status || 'scheduled',
+      title: meetingForm.value.title,
+      description: meetingForm.value.description || null,
+      category: meetingForm.value.category || 'Board Meeting',
+      status: meetingForm.value.status || 'draft',
+      date: meetingForm.value.date,
+      time: meetingForm.value.time || null,
+      location: meetingForm.value.location || null,
+      video_link: meetingForm.value.video_link || null,
+      agenda: meetingForm.value.agenda || null,
+      url: meetingForm.value.url || null,
     };
 
     if (isEditing.value && selectedMeeting.value) {
-      // Update existing meeting
       await $fetch('/api/directus/items', {
         method: 'POST',
         body: {
@@ -252,7 +243,6 @@ async function saveMeeting() {
         color: 'green',
       });
     } else {
-      // Create new meeting
       await $fetch('/api/directus/items', {
         method: 'POST',
         body: {
@@ -318,44 +308,34 @@ async function deleteMeeting() {
 
 function getStatusColor(status: string) {
   const colors: Record<string, string> = {
-    scheduled: 'blue',
-    in_progress: 'amber',
-    completed: 'green',
-    cancelled: 'gray',
+    published: 'green',
+    draft: 'amber',
+    archived: 'gray',
   };
   return colors[status] || 'gray';
 }
 
-function getTypeColor(type: string) {
-  const colors: Record<string, string> = {
-    board: 'primary',
-    annual: 'purple',
-    special: 'amber',
-    committee: 'cyan',
-    other: 'gray',
-  };
-  return colors[type] || 'gray';
-}
-
-function formatDateTime(dateStr: string | undefined) {
+function formatDate(dateStr: string | undefined | null) {
   if (!dateStr) return 'N/A';
-  return new Date(dateStr).toLocaleString('en-US', {
+  const [year, month, day] = dateStr.split('-');
+  return new Date(Number(year), Number(month) - 1, Number(day)).toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
   });
 }
 
-function formatDate(dateStr: string | undefined) {
-  if (!dateStr) return 'N/A';
-  return new Date(dateStr).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+function formatTime(timeStr: string | undefined | null) {
+  if (!timeStr) return '';
+  const [hour, minute] = timeStr.split(':');
+  const d = new Date();
+  d.setHours(Number(hour), Number(minute));
+  return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function isPastMeeting(dateStr: string) {
+  return new Date(dateStr) < new Date();
 }
 
 // Initialize
@@ -372,7 +352,7 @@ onMounted(() => {
         <div>
           <h1 class="text-2xl font-bold">Meetings</h1>
           <p class="text-gray-600 dark:text-gray-400 mt-1">
-            Schedule and manage board meetings, annual meetings, and more
+            Schedule and manage board meetings
           </p>
         </div>
         <div class="mt-4 md:mt-0 flex items-center gap-3">
@@ -408,20 +388,20 @@ onMounted(() => {
           </Card>
           <Card>
             <div class="text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ meetingStats.scheduled }}</div>
-              <div class="text-sm text-gray-500">Scheduled</div>
+              <div class="text-2xl font-bold text-green-600">{{ meetingStats.published }}</div>
+              <div class="text-sm text-gray-500">Published</div>
             </div>
           </Card>
           <Card>
             <div class="text-center">
-              <div class="text-2xl font-bold text-green-600">{{ meetingStats.completed }}</div>
-              <div class="text-sm text-gray-500">Completed</div>
+              <div class="text-2xl font-bold text-amber-600">{{ meetingStats.draft }}</div>
+              <div class="text-sm text-gray-500">Drafts</div>
             </div>
           </Card>
           <Card>
             <div class="text-center">
-              <div class="text-2xl font-bold text-gray-500">{{ meetingStats.cancelled }}</div>
-              <div class="text-sm text-gray-500">Cancelled</div>
+              <div class="text-2xl font-bold text-gray-500">{{ meetingStats.archived }}</div>
+              <div class="text-sm text-gray-500">Archived</div>
             </div>
           </Card>
         </div>
@@ -442,8 +422,8 @@ onMounted(() => {
             class="md:w-48"
           />
           <SelectMenu
-            v-model="typeFilter"
-            :options="typeOptions"
+            v-model="categoryFilter"
+            :options="categoryOptions"
             value-attribute="value"
             option-attribute="label"
             class="md:w-48"
@@ -456,8 +436,7 @@ onMounted(() => {
             :rows="filteredMeetings"
             :columns="[
               { key: 'title', label: 'Meeting' },
-              { key: 'type', label: 'Type' },
-              { key: 'datetime', label: 'Date & Time' },
+              { key: 'date', label: 'Date & Time' },
               { key: 'location', label: 'Location' },
               { key: 'status', label: 'Status' },
               { key: 'actions', label: 'Actions' },
@@ -468,23 +447,17 @@ onMounted(() => {
             <template #title-data="{ row }">
               <div>
                 <p class="font-medium">{{ row.title }}</p>
-                <p v-if="row.description" class="text-xs text-gray-500 truncate max-w-xs">
-                  {{ row.description }}
+                <p v-if="row.category" class="text-xs text-gray-500">
+                  {{ row.category }}
                 </p>
               </div>
             </template>
 
-            <template #type-data="{ row }">
-              <Badge :color="getTypeColor(row.meeting_type)" variant="soft" size="sm">
-                {{ meetingTypeLabels[row.meeting_type] || row.meeting_type }}
-              </Badge>
-            </template>
-
-            <template #datetime-data="{ row }">
+            <template #date-data="{ row }">
               <div class="text-sm">
-                <p>{{ formatDate(row.start_datetime) }}</p>
-                <p class="text-xs text-gray-500">
-                  {{ new Date(row.start_datetime).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) }}
+                <p :class="{ 'text-gray-400': isPastMeeting(row.date) }">{{ formatDate(row.date) }}</p>
+                <p v-if="row.time" class="text-xs text-gray-500">
+                  {{ formatTime(row.time) }}
                 </p>
               </div>
             </template>
@@ -492,18 +465,18 @@ onMounted(() => {
             <template #location-data="{ row }">
               <div class="flex items-center gap-2">
                 <Icon
-                  :name="row.is_virtual ? 'i-heroicons-video-camera' : 'i-heroicons-map-pin'"
+                  :name="row.location === 'Zoom' ? 'i-heroicons-video-camera' : 'i-heroicons-map-pin'"
                   class="w-4 h-4 text-gray-500"
                 />
                 <span class="text-sm">
-                  {{ row.is_virtual ? 'Virtual' : (row.location || 'TBD') }}
+                  {{ row.location || 'TBD' }}
                 </span>
               </div>
             </template>
 
             <template #status-data="{ row }">
               <Badge :color="getStatusColor(row.status)" variant="soft" size="sm">
-                {{ row.status.replace('_', ' ') }}
+                {{ row.status }}
               </Badge>
             </template>
 
@@ -554,12 +527,12 @@ onMounted(() => {
               <Input v-model="meetingForm.title" placeholder="Meeting title" />
             </FormGroup>
 
-            <!-- Type and Status -->
+            <!-- Category and Status -->
             <div class="grid grid-cols-2 gap-4">
-              <FormGroup label="Meeting Type">
+              <FormGroup label="Category">
                 <SelectMenu
-                  v-model="meetingForm.meeting_type"
-                  :options="typeOptions.slice(1)"
+                  v-model="meetingForm.category"
+                  :options="categoryOptions.slice(1)"
                   value-attribute="value"
                   option-attribute="label"
                 />
@@ -576,25 +549,32 @@ onMounted(() => {
 
             <!-- Date/Time -->
             <div class="grid grid-cols-2 gap-4">
-              <FormGroup label="Start Date & Time" required>
-                <Input v-model="meetingForm.start_datetime" type="datetime-local" />
+              <FormGroup label="Date" required>
+                <Input v-model="meetingForm.date" type="date" />
               </FormGroup>
-              <FormGroup label="End Date & Time">
-                <Input v-model="meetingForm.end_datetime" type="datetime-local" />
+              <FormGroup label="Time">
+                <Input v-model="meetingForm.time" type="time" />
               </FormGroup>
             </div>
 
-            <!-- Virtual toggle -->
-            <div class="flex items-center gap-3">
-              <Checkbox v-model="meetingForm.is_virtual" label="This is a virtual meeting" />
-            </div>
-
-            <!-- Location / Virtual Link -->
-            <FormGroup v-if="!meetingForm.is_virtual" label="Location">
-              <Input v-model="meetingForm.location" placeholder="Meeting location" />
+            <!-- Location -->
+            <FormGroup label="Location">
+              <SelectMenu
+                v-model="meetingForm.location"
+                :options="locationOptions"
+                value-attribute="value"
+                option-attribute="label"
+              />
             </FormGroup>
-            <FormGroup v-else label="Virtual Meeting Link">
-              <Input v-model="meetingForm.virtual_link" placeholder="https://zoom.us/..." />
+
+            <!-- Video Link -->
+            <FormGroup v-if="meetingForm.location === 'Zoom'" label="Video Link">
+              <Input v-model="meetingForm.video_link" placeholder="https://zoom.us/..." />
+            </FormGroup>
+
+            <!-- URL -->
+            <FormGroup label="URL">
+              <Input v-model="meetingForm.url" placeholder="Meeting URL" />
             </FormGroup>
 
             <!-- Description -->
