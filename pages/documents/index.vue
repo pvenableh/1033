@@ -4,54 +4,187 @@
 		<section class="py-16 lg:py-24 px-6 lg:px-16 bg-cream-alt">
 			<div class="max-w-5xl mx-auto">
 				<div class="page-header text-center opacity-0">
-					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Governing Documents</p>
+					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resource Center</p>
 					<h1
 						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
-						By-Laws
+						Documents
 					</h1>
 					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
 					<p class="font-serif text-lg italic text-gray-500 max-w-xl mx-auto">
-						The official governing rules of the Lenox Plaza Association
+						Meeting minutes, financial reports, and important association documents
 					</p>
 				</div>
 			</div>
 		</section>
 
-		<!-- Content Section -->
+		<!-- Category Navigation -->
+		<section class="py-8 px-6 lg:px-16 border-b border-divider">
+			<div class="max-w-5xl mx-auto">
+				<nav class="flex flex-wrap gap-4 justify-center">
+					<button
+						v-for="cat in categories"
+						:key="cat.id"
+						@click="activeCategory = cat.id"
+						class="category-btn px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-300 border"
+						:class="activeCategory === cat.id
+							? 'border-gold bg-gold text-white'
+							: 'border-divider text-gray-500 hover:border-gold-dark hover:text-gold-dark'">
+						{{ cat.label }}
+						<span v-if="cat.count > 0" class="ml-1 opacity-70">({{ cat.count }})</span>
+					</button>
+				</nav>
+			</div>
+		</section>
+
+		<!-- Documents Content -->
 		<section class="py-16 lg:py-24 px-6 lg:px-16">
-			<div class="max-w-6xl mx-auto">
-				<div class="flex flex-col lg:flex-row gap-8 lg:gap-16">
-					<!-- Navigation Sidebar -->
-					<div class="docs-nav lg:w-48 flex-shrink-0 opacity-0">
-						<div class="lg:sticky lg:top-8">
-							<div class="flex flex-col gap-2 mb-4">
-								<span class="font-serif text-sm text-gold">Contents</span>
-								<span class="text-xs tracking-wider uppercase text-gray-500">Sections</span>
+			<div class="max-w-5xl mx-auto">
+
+				<!-- General Documents Section -->
+				<div v-if="activeCategory === 'all' || activeCategory === 'general'" class="document-section mb-16">
+					<div class="section-header mb-8 opacity-0">
+						<div class="flex items-center gap-3 mb-2">
+							<UIcon name="i-heroicons-document-text" class="w-5 h-5 text-gold-dark" />
+							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">General</p>
+						</div>
+						<h2 class="font-serif text-2xl font-light text-gray-800">Association Documents</h2>
+						<div class="w-12 h-px bg-gold mt-3"></div>
+					</div>
+
+					<div v-if="generalDocuments.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<a
+							v-for="(doc, index) in generalDocuments"
+							:key="'doc-' + index"
+							:href="'https://admin.1033lenox.com/assets/' + doc.fileId"
+							target="_blank"
+							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
+							<div class="flex items-center gap-4">
+								<div
+									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
+									<UIcon
+										name="i-heroicons-document-arrow-down"
+										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+								</div>
+								<div class="flex-1 min-w-0">
+									<h3
+										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
+										{{ doc.title }}
+									</h3>
+									<p v-if="doc.description" class="text-xs text-gray-500 mt-1 truncate">{{ doc.description }}</p>
+								</div>
+								<span v-if="doc.type" class="text-[10px] tracking-[0.15em] uppercase text-gold-dark flex-shrink-0">
+									{{ doc.type }}
+								</span>
 							</div>
-							<nav class="flex flex-row flex-wrap lg:flex-col gap-2 lg:gap-0 border-t border-divider pt-4">
-								<a
-									v-for="(section, index) in sections"
-									:key="index"
-									:href="'#' + section.id"
-									class="nav-link flex items-center gap-2 py-2 text-gray-500 hover:text-gold-dark transition-colors duration-300"
-									@click="trackSectionClick(section.id, section.label)">
-									<span class="w-1.5 h-1.5 bg-gold rounded-full flex-shrink-0 opacity-50"></span>
-									<span class="text-xs tracking-[0.1em] uppercase">{{ section.label }}</span>
-								</a>
-							</nav>
+						</a>
+					</div>
+
+					<div v-else class="text-center py-10 bg-white border border-divider">
+						<UIcon name="i-heroicons-document" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
+						<p class="font-serif text-gray-500">No general documents available yet</p>
+						<p class="text-xs text-gray-400 mt-1">Documents will appear here as they are added</p>
+					</div>
+				</div>
+
+				<!-- Meeting Minutes & Agendas Section -->
+				<div v-if="activeCategory === 'all' || activeCategory === 'meetings'" class="document-section mb-16">
+					<div class="section-header mb-8 opacity-0">
+						<div class="flex items-center gap-3 mb-2">
+							<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-gold-dark" />
+							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Meetings</p>
+						</div>
+						<h2 class="font-serif text-2xl font-light text-gray-800">Meeting Minutes & Agendas</h2>
+						<div class="w-12 h-px bg-gold mt-3"></div>
+					</div>
+
+					<div v-if="meetingDocuments.length" class="space-y-3">
+						<div
+							v-for="(meeting, index) in meetingDocuments"
+							:key="'meeting-' + index"
+							class="document-card bg-white border border-divider p-5 opacity-0">
+							<div class="flex flex-col sm:flex-row sm:items-center gap-3">
+								<div class="flex-1 min-w-0">
+									<h3 class="font-serif text-base font-normal text-gray-800">
+										{{ meeting.title || 'Board Meeting' }}
+									</h3>
+									<p class="text-xs text-gray-500 mt-1">
+										{{ formatMeetingDate(meeting.date) }}
+										<span v-if="meeting.category" class="ml-2 text-gold-dark">{{ meeting.category }}</span>
+									</p>
+								</div>
+								<div class="flex items-center gap-2 flex-shrink-0">
+									<a
+										v-if="meeting.agendaFileId"
+										:href="'https://admin.1033lenox.com/assets/' + meeting.agendaFileId"
+										target="_blank"
+										class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wider uppercase border border-divider hover:border-gold hover:text-gold-dark transition-all duration-300">
+										<UIcon name="i-heroicons-document-text" class="w-3.5 h-3.5" />
+										Agenda
+									</a>
+									<a
+										v-if="meeting.minutesFileId"
+										:href="'https://admin.1033lenox.com/assets/' + meeting.minutesFileId"
+										target="_blank"
+										class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wider uppercase border border-divider hover:border-gold hover:text-gold-dark transition-all duration-300">
+										<UIcon name="i-heroicons-clipboard-document-list" class="w-3.5 h-3.5" />
+										Minutes
+									</a>
+								</div>
+							</div>
 						</div>
 					</div>
 
-					<!-- Document Content -->
-					<div class="flex-1 docs-content opacity-0">
-						<div class="bg-white border border-divider p-6 lg:p-10">
-							<div
-								v-if="page.document"
-								v-html="page.document"
-								class="by-laws-content prose prose-gray max-w-none"></div>
-						</div>
+					<div v-else class="text-center py-10 bg-white border border-divider">
+						<UIcon name="i-heroicons-calendar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
+						<p class="font-serif text-gray-500">No meeting documents available</p>
 					</div>
 				</div>
+
+				<!-- Financial Reports Section -->
+				<div v-if="activeCategory === 'all' || activeCategory === 'financial'" class="document-section mb-16">
+					<div class="section-header mb-8 opacity-0">
+						<div class="flex items-center gap-3 mb-2">
+							<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-gold-dark" />
+							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Financial</p>
+						</div>
+						<h2 class="font-serif text-2xl font-light text-gray-800">Financial Reports</h2>
+						<div class="w-12 h-px bg-gold mt-3"></div>
+					</div>
+
+					<div v-if="financialReports.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<a
+							v-for="(report, index) in financialReports"
+							:key="'report-' + index"
+							:href="'https://admin.1033lenox.com/assets/' + report.fileId"
+							target="_blank"
+							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
+							<div class="flex items-center gap-4">
+								<div
+									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
+									<UIcon
+										name="i-heroicons-chart-bar"
+										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+								</div>
+								<div class="flex-1 min-w-0">
+									<h3
+										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300">
+										{{ report.title }}
+									</h3>
+									<p class="text-xs text-gray-500 mt-1">{{ report.period }}</p>
+								</div>
+								<span class="text-[10px] tracking-[0.15em] uppercase text-gold-dark flex-shrink-0">
+									PDF
+								</span>
+							</div>
+						</a>
+					</div>
+
+					<div v-else class="text-center py-10 bg-white border border-divider">
+						<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
+						<p class="font-serif text-gray-500">No financial reports available</p>
+					</div>
+				</div>
+
 			</div>
 		</section>
 	</div>
@@ -60,6 +193,9 @@
 <script setup>
 import {onMounted, onUnmounted} from 'vue';
 import {gsap} from 'gsap';
+import {ScrollTrigger} from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // Analytics
 const analytics = useAnalytics();
@@ -70,34 +206,139 @@ definePageMeta({
 });
 
 useSeoMeta({
-	title: 'By-Laws - 1033 Lenox',
+	title: 'Documents - 1033 Lenox',
 });
 
-// Track document section navigation
-const trackSectionClick = (sectionId, sectionLabel) => {
-	analytics.trackEvent('document_section_click', {
-		section_id: sectionId,
-		section_label: sectionLabel,
-		document_type: 'by_laws',
+const activeCategory = ref('all');
+
+// Month name lookup
+const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+// ---- Fetch General Documents ----
+// The 'documents' collection may not exist yet in Directus.
+// When created, it should have: title, description, file (M2O to directus_files), status, category, sort
+const documentsCollection = useDirectusItems('documents');
+let rawDocuments = [];
+try {
+	rawDocuments = await documentsCollection.list({
+		fields: ['id', 'title', 'description', 'status', 'category', 'file.id', 'file.title', 'file.type', 'sort'],
+		filter: {status: {_eq: 'published'}},
+		sort: ['sort', '-date_created'],
 	});
-};
+} catch (e) {
+	// Collection may not exist yet - that's OK
+	rawDocuments = [];
+}
 
-const sections = [
-	{id: 'one', label: 'Identity'},
-	{id: 'two', label: 'Members'},
-	{id: 'three', label: "Members' Meeting"},
-	{id: 'four', label: 'Directors'},
-	{id: 'five', label: 'Officers'},
-	{id: 'six', label: 'Fiscal Management'},
-	{id: 'seven', label: 'Parliamentary Rules'},
-	{id: 'eight', label: 'Developer'},
-	{id: 'nine', label: 'Amendment'},
-];
+const generalDocuments = computed(() => {
+	if (!rawDocuments || !rawDocuments.length) return [];
+	return rawDocuments
+		.filter((doc) => doc.file?.id)
+		.map((doc) => ({
+			title: doc.title || doc.file?.title || 'Document',
+			description: doc.description || '',
+			fileId: doc.file.id,
+			type: doc.file.type ? doc.file.type.split('/').pop() : '',
+		}));
+});
 
-const byLawsCollection = useDirectusItems('by_laws');
+// ---- Fetch Meeting Documents (minutes & agendas) ----
+const meetingsCollection = useDirectusItems('meetings');
+const rawMeetings = await meetingsCollection.list({
+	fields: [
+		'id',
+		'title',
+		'date',
+		'category',
+		'files.directus_files_id.id',
+		'files.directus_files_id.tags',
+		'files.directus_files_id.title',
+	],
+	filter: {status: {_eq: 'published'}},
+	sort: ['-date'],
+});
 
-const page = await byLawsCollection.list({
-	fields: ['*'],
+const meetingDocuments = computed(() => {
+	if (!rawMeetings || !rawMeetings.length) return [];
+	return rawMeetings
+		.filter((m) => m.files && m.files.length > 0)
+		.map((meeting) => {
+			const agendaFile = meeting.files.find(
+				(f) => f.directus_files_id?.tags?.includes('Agenda')
+			);
+			const minutesFile = meeting.files.find(
+				(f) => f.directus_files_id?.tags?.includes('Minutes')
+			);
+
+			return {
+				title: meeting.title,
+				date: meeting.date,
+				category: meeting.category,
+				agendaFileId: agendaFile?.directus_files_id?.id || null,
+				minutesFileId: minutesFile?.directus_files_id?.id || null,
+			};
+		})
+		.filter((m) => m.agendaFileId || m.minutesFileId);
+});
+
+// ---- Fetch Financial Reports ----
+const reconciliationCollection = useDirectusItems('monthly_reconciliation_reports');
+let rawReports = [];
+try {
+	rawReports = await reconciliationCollection.list({
+		fields: ['id', 'report_month', 'fiscal_year.year', 'pdf_report.id', 'pdf_report.title', 'reconciliation_status'],
+		filter: {
+			_and: [
+				{reconciliation_status: {_eq: 'reconciled'}},
+				{pdf_report: {_nnull: true}},
+			],
+		},
+		sort: ['-fiscal_year.year', '-report_month'],
+	});
+} catch (e) {
+	rawReports = [];
+}
+
+const financialReports = computed(() => {
+	if (!rawReports || !rawReports.length) return [];
+	return rawReports
+		.filter((r) => r.pdf_report?.id)
+		.map((report) => {
+			const monthIndex = parseInt(report.report_month, 10) - 1;
+			const monthName = monthNames[monthIndex] || report.report_month;
+			const year = report.fiscal_year?.year || '';
+
+			return {
+				title: `Reconciliation Report - ${monthName} ${year}`,
+				period: `${monthName} ${year}`,
+				fileId: report.pdf_report.id,
+			};
+		});
+});
+
+// ---- Category counts ----
+const categories = computed(() => [
+	{id: 'all', label: 'All Documents', count: generalDocuments.value.length + meetingDocuments.value.length + financialReports.value.length},
+	{id: 'general', label: 'General', count: generalDocuments.value.length},
+	{id: 'meetings', label: 'Meeting Documents', count: meetingDocuments.value.length},
+	{id: 'financial', label: 'Financial Reports', count: financialReports.value.length},
+]);
+
+function formatMeetingDate(dateStr) {
+	if (!dateStr) return '';
+	const [year, month, day] = dateStr.split('-');
+	return new Date(year, month - 1, day).toLocaleDateString('en-US', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric',
+	});
+}
+
+// Track category changes
+watch(activeCategory, (newCat) => {
+	analytics.trackEvent('documents_category_filter', {
+		category: newCat,
+	});
 });
 
 let ctx;
@@ -105,12 +346,28 @@ let ctx;
 onMounted(() => {
 	ctx = gsap.context(() => {
 		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
-		gsap.fromTo('.docs-nav', {opacity: 0, x: -20}, {opacity: 1, x: 0, duration: 0.6, ease: 'power3.out', delay: 0.4});
-		gsap.fromTo(
-			'.docs-content',
-			{opacity: 0, y: 20},
-			{opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.5}
-		);
+
+		gsap.fromTo('.section-header', {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.3, stagger: 0.15});
+
+		const cards = document.querySelectorAll('.document-card');
+		cards.forEach((card, index) => {
+			gsap.fromTo(
+				card,
+				{opacity: 0, y: 15},
+				{
+					opacity: 1,
+					y: 0,
+					duration: 0.5,
+					ease: 'power3.out',
+					scrollTrigger: {
+						trigger: card,
+						start: 'top 92%',
+						toggleActions: 'play none none none',
+					},
+					delay: (index % 4) * 0.06,
+				}
+			);
+		});
 	});
 });
 
@@ -121,32 +378,13 @@ onUnmounted(() => {
 
 <style scoped>
 @reference "~/assets/css/tailwind.css";
+
 .documents-page {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
-:deep(.by-laws-content) {
-	h2,
-	h3,
-	h4 {
-		@apply font-serif font-normal text-gray-800 mt-8 mb-4 first:mt-0;
-	}
-	h2 {
-		@apply text-2xl border-b border-divider pb-3;
-	}
-	h3 {
-		@apply text-xl;
-	}
-	p {
-		@apply text-gray-600 leading-relaxed mb-4;
-	}
-	ul,
-	ol {
-		@apply text-gray-600 mb-4 pl-6;
-	}
-	li {
-		@apply mb-2;
-	}
+.category-btn {
+	min-width: fit-content;
 }
 </style>

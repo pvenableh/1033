@@ -68,6 +68,7 @@ export const PAGE_ACCESS: Record<string, AccessRule> = {
   // Owners only (includes property managers acting on behalf of owners)
   '/documents': { requireOwner: true },
   '/meetings': { requireOwner: true },
+  '/corporation': { requireOwner: true },
 
   // All approved members (residents, owners, property managers)
   '/dashboard': { roles: [APP_ROLES.MEMBER, APP_ROLES.BOARD_MEMBER, APP_ROLES.ADMIN] },
