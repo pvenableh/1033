@@ -436,6 +436,21 @@ export interface CorporationFile {
 	sort?: number | null;
 }
 
+export interface Document {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	title?: string | null;
+	description?: string | null;
+	category?: string | null;
+	file?: DirectusFile | string | null;
+}
+
 export interface EmailActivity {
 	/** @primaryKey */
 	id: string;
@@ -891,7 +906,7 @@ export interface ReactionType {
 	name?: string | null;
 	emoji?: string | null;
 	icon?: string | null;
-	icon_family?: 'emoji' | 'heroicons' | 'lucide' | null;
+	icon_family?: `fluent-emoji-flat` | 'heroicons' | 'lucide' | null;
 }
 
 export interface ReconciliationNote {
@@ -1787,6 +1802,7 @@ export interface Schema {
 	compliance_alerts: ComplianceAlert[];
 	corporation: Corporation;
 	corporation_files: CorporationFile[];
+	documents: Document[];
 	email_activity: EmailActivity[];
 	features: Features;
 	features_files: FeaturesFile[];
@@ -1892,6 +1908,7 @@ export enum CollectionNames {
 	compliance_alerts = 'compliance_alerts',
 	corporation = 'corporation',
 	corporation_files = 'corporation_files',
+	documents = 'documents',
 	email_activity = 'email_activity',
 	features = 'features',
 	features_files = 'features_files',
