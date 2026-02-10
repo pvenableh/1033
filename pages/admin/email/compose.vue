@@ -49,7 +49,7 @@ const form = reactive({
 // Recipients state
 const allPeople = ref<any[]>([]);
 const selectedRecipients = ref<string[]>([]);
-const recipientFilter = ref<'all' | 'owners' | 'tenants'>('all');
+const recipientFilter = ref<'all' | 'owners' | 'tenants' | 'managers'>('all');
 const loadingRecipients = ref(false);
 const selectionMode = ref<'all' | 'selected'>('all');
 
@@ -94,6 +94,7 @@ const recipientFilterOptions = [
   { label: 'All Members', value: 'all', icon: 'i-heroicons-users' },
   { label: 'Owners Only', value: 'owners', icon: 'i-heroicons-home' },
   { label: 'Tenants Only', value: 'tenants', icon: 'i-heroicons-key' },
+  { label: 'Managers', value: 'managers', icon: 'i-heroicons-briefcase' },
 ] as const;
 
 // Computed
@@ -102,10 +103,13 @@ const filteredRecipients = computed(() => {
 
   switch (recipientFilter.value) {
     case 'owners':
-      result = result.filter(p => p.is_owner);
+      result = result.filter(p => p.category === 'Owner');
       break;
     case 'tenants':
-      result = result.filter(p => p.is_resident && !p.is_owner);
+      result = result.filter(p => p.category === 'Tenant');
+      break;
+    case 'managers':
+      result = result.filter(p => p.category === 'Property Manager');
       break;
   }
 
@@ -123,8 +127,9 @@ const recipientCount = computed(() => selectedRecipientsList.value.length);
 
 const memberCounts = computed(() => ({
   all: allPeople.value.length,
-  owners: allPeople.value.filter(p => p.is_owner).length,
-  tenants: allPeople.value.filter(p => p.is_resident && !p.is_owner).length,
+  owners: allPeople.value.filter(p => p.category === 'Owner').length,
+  tenants: allPeople.value.filter(p => p.category === 'Tenant').length,
+  managers: allPeople.value.filter(p => p.category === 'Property Manager').length,
 }));
 
 // Fetch existing announcement if editing
