@@ -272,6 +272,53 @@
 					</div>
 				</div>
 
+				<!-- Documentation & Review Status -->
+				<Card>
+					<CardHeader>
+						<CardTitle class="text-lg uppercase tracking-wide">DOCUMENTATION STATUS</CardTitle>
+						<CardDescription>
+							Transaction review and receipt tracking
+						</CardDescription>
+					</CardHeader>
+					<CardContent>
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+							<div class="text-center p-4 bg-red-50 dark:bg-red-950/30 rounded-lg border border-red-200 dark:border-red-800">
+								<Icon name="i-heroicons-document-magnifying-glass" class="w-8 h-8 mx-auto text-red-600 mb-2" />
+								<p class="text-sm uppercase tracking-wider text-gray-600 dark:text-gray-400">NEEDS RECEIPT</p>
+								<p class="text-2xl font-bold text-red-600">{{ documentationStats.undocumentedCount }}</p>
+								<p class="text-xs text-gray-500">{{ formatCurrency(documentationStats.undocumentedTotal) }} undocumented</p>
+							</div>
+							<div class="text-center p-4 bg-yellow-50 dark:bg-yellow-950/30 rounded-lg border border-yellow-200 dark:border-yellow-800">
+								<Icon name="i-heroicons-clock" class="w-8 h-8 mx-auto text-yellow-600 mb-2" />
+								<p class="text-sm uppercase tracking-wider text-gray-600 dark:text-gray-400">PENDING REVIEW</p>
+								<p class="text-2xl font-bold text-yellow-600">{{ documentationStats.pendingReview }}</p>
+								<p class="text-xs text-gray-500">Awaiting treasurer review</p>
+							</div>
+							<div class="text-center p-4 rounded-lg border dark:border-gray-700">
+								<Icon name="i-heroicons-flag" class="w-8 h-8 mx-auto text-red-500 mb-2" />
+								<p class="text-sm uppercase tracking-wider text-gray-600 dark:text-gray-400">FLAGGED</p>
+								<p class="text-2xl font-bold text-red-500">{{ documentationStats.flagged }}</p>
+								<p class="text-xs text-gray-500">Requires attention</p>
+							</div>
+							<div class="text-center p-4 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+								<Icon name="i-heroicons-check-badge" class="w-8 h-8 mx-auto text-green-600 mb-2" />
+								<p class="text-sm uppercase tracking-wider text-gray-600 dark:text-gray-400">APPROVED</p>
+								<p class="text-2xl font-bold text-green-600">{{ documentationStats.approved }}</p>
+								<p class="text-xs text-gray-500">{{ documentationStats.reviewed }} reviewed</p>
+							</div>
+						</div>
+						<div class="mt-4 flex items-center justify-end">
+							<NuxtLink
+								to="/financials/reconciliation"
+								class="text-sm text-blue-600 hover:underline flex items-center gap-1"
+							>
+								View Reconciliation
+								<Icon name="i-heroicons-arrow-right" class="w-4 h-4" />
+							</NuxtLink>
+						</div>
+					</CardContent>
+				</Card>
+
 				<!-- ANALYSIS TABS -->
 				<Tabs v-model="activeTab" :items="contentTabs" class="space-y-6">
 					<!-- Budget & Categories Tab -->
@@ -1140,6 +1187,29 @@ const {
 
 const activeTab = ref(0);
 const complianceView = ref('transfers');
+
+// Documentation & review stats
+const documentationStats = computed(() => {
+	const allTxns = allAccountTransactions.value || [];
+	const withdrawals = allTxns.filter((t) => t.transaction_type === 'withdrawal');
+	const undocumented = withdrawals.filter((t) => {
+		const hasFiles = t.files && Array.isArray(t.files) && t.files.length > 0;
+		return !hasFiles && parseFloat(t.amount || 0) > 100;
+	});
+	const undocumentedTotal = undocumented.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+	const pendingReview = allTxns.filter((t) => !t.review_status || t.review_status === 'pending').length;
+	const flagged = allTxns.filter((t) => t.review_status === 'flagged').length;
+	const approved = allTxns.filter((t) => t.review_status === 'approved').length;
+	const reviewed = allTxns.filter((t) => t.review_status === 'reviewed').length;
+	return {
+		undocumentedCount: undocumented.length,
+		undocumentedTotal,
+		pendingReview,
+		flagged,
+		approved,
+		reviewed,
+	};
+});
 
 const contentTabs = computed(() => [
 	{
