@@ -41,15 +41,27 @@ const form = reactive({
   content: '',
   template: 'Generic' as 'Generic' | 'Parking',
   urgent: false,
-  greeting: '',
   closing: '',
+  url: '',
   status: 'draft' as 'draft' | 'sent' | 'archived',
+});
+
+// Auto-generate URL slug from title
+const urlManuallyEdited = ref(false);
+
+watch(() => form.title, (newTitle) => {
+  if (!urlManuallyEdited.value) {
+    form.url = newTitle
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+  }
 });
 
 // Recipients state
 const allPeople = ref<any[]>([]);
 const selectedRecipients = ref<string[]>([]);
-const recipientFilter = ref<'all' | 'owners' | 'tenants'>('all');
+const recipientFilter = ref<'all' | 'owners' | 'tenants' | 'managers'>('all');
 const loadingRecipients = ref(false);
 const selectionMode = ref<'all' | 'selected'>('all');
 
@@ -94,6 +106,7 @@ const recipientFilterOptions = [
   { label: 'All Members', value: 'all', icon: 'i-heroicons-users' },
   { label: 'Owners Only', value: 'owners', icon: 'i-heroicons-home' },
   { label: 'Tenants Only', value: 'tenants', icon: 'i-heroicons-key' },
+  { label: 'Managers', value: 'managers', icon: 'i-heroicons-briefcase' },
 ] as const;
 
 // Computed
@@ -102,10 +115,13 @@ const filteredRecipients = computed(() => {
 
   switch (recipientFilter.value) {
     case 'owners':
-      result = result.filter(p => p.is_owner);
+      result = result.filter(p => p.category === 'Owner');
       break;
     case 'tenants':
-      result = result.filter(p => p.is_resident && !p.is_owner);
+      result = result.filter(p => p.category === 'Tenant');
+      break;
+    case 'managers':
+      result = result.filter(p => p.category === 'Property Manager');
       break;
   }
 
@@ -123,8 +139,9 @@ const recipientCount = computed(() => selectedRecipientsList.value.length);
 
 const memberCounts = computed(() => ({
   all: allPeople.value.length,
-  owners: allPeople.value.filter(p => p.is_owner).length,
-  tenants: allPeople.value.filter(p => p.is_resident && !p.is_owner).length,
+  owners: allPeople.value.filter(p => p.category === 'Owner').length,
+  tenants: allPeople.value.filter(p => p.category === 'Tenant').length,
+  managers: allPeople.value.filter(p => p.category === 'Property Manager').length,
 }));
 
 // Fetch existing announcement if editing
@@ -153,9 +170,12 @@ async function fetchAnnouncement() {
       form.content = response.content || '';
       form.template = response.template || 'Generic';
       form.urgent = response.urgent || false;
-      form.greeting = response.greeting || '';
       form.closing = response.closing || '';
       form.status = response.status || 'draft';
+      if (response.url) {
+        form.url = response.url;
+        urlManuallyEdited.value = true;
+      }
     }
   } catch (error: any) {
     console.error('Failed to fetch announcement:', error);
@@ -203,22 +223,16 @@ async function saveAnnouncement(status: 'draft' | 'sent' = 'draft') {
 
   saving.value = true;
   try {
-    // Generate URL slug from title
-    const url = form.title
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/(^-|-$)/g, '');
-
     const data = {
       title: form.title,
       subtitle: form.subtitle,
       content: form.content,
       template: form.template,
       urgent: form.urgent,
-      greeting: form.greeting,
+      greeting: 'Hello {{first_name}},',
       closing: form.closing,
       status,
-      url,
+      url: form.url,
     };
 
     let result: Announcement;
@@ -375,9 +389,10 @@ async function generatePreview() {
       <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #333; margin-bottom: 8px;">${form.title || 'Untitled'}</h1>
         ${form.subtitle ? `<p style="color: #666; margin-bottom: 24px;">${form.subtitle}</p>` : ''}
-        ${form.greeting ? `<p style="color: #333;">${form.greeting.replace('{{first_name}}', 'Resident')},</p>` : ''}
+        <p style="color: #333;">Hello Lenox Residents,</p>
         <div style="color: #333; line-height: 1.6;">${form.content || '<p>No content</p>'}</div>
         ${form.closing ? `<p style="color: #333; margin-top: 24px;">${form.closing}</p>` : ''}
+        <p style="color: #333;">Lenox Plaza Association Board of Directors ☀️</p>
         ${form.urgent ? '<div style="background: #fee2e2; color: #dc2626; padding: 12px; border-radius: 8px; margin-top: 16px;"><strong>URGENT</strong></div>' : ''}
       </div>
     `;
@@ -708,10 +723,17 @@ onMounted(async () => {
                 <Input v-model="form.subtitle" placeholder="Brief summary (optional)" />
               </FormGroup>
 
-              <FormGroup label="Greeting">
-                <Input v-model="form.greeting" placeholder="Dear {{first_name}}," />
+              <FormGroup label="URL Slug">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm text-gray-500 whitespace-nowrap">/announcements/email/</span>
+                  <Input
+                    v-model="form.url"
+                    placeholder="auto-generated-from-title"
+                    @input="urlManuallyEdited = true"
+                  />
+                </div>
                 <template #hint>
-                  Use <code class="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{{first_name}}</code> for personalization
+                  Auto-generated from title. Edit to customize. Must be unique.
                 </template>
               </FormGroup>
 
@@ -734,8 +756,11 @@ onMounted(async () => {
               </FormGroup>
 
               <FormGroup label="Closing">
-                <Input v-model="form.closing" placeholder="Best regards,\nThe Board" />
+                <Input v-model="form.closing" placeholder="Sincerely," />
               </FormGroup>
+              <p class="text-sm text-gray-600 dark:text-gray-400 -mt-2">
+                Lenox Plaza Association Board of Directors ☀️
+              </p>
 
               <Checkbox v-model="form.urgent" label="Mark as urgent" />
             </div>
@@ -899,6 +924,17 @@ onMounted(async () => {
                     Save Draft
                   </Button>
                 </div>
+
+                <a
+                  v-if="isEditing && form.url"
+                  :href="`https://www.1033lenox.com/announcements/email/${form.url}`"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="flex items-center justify-center gap-2 w-full px-4 py-2 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+                >
+                  <Icon name="i-heroicons-globe-alt" class="w-4 h-4" />
+                  View Web Version
+                </a>
 
                 <Button variant="ghost" class="w-full" @click="handleCancel">
                   Cancel

@@ -214,6 +214,29 @@ const reconciliationStats = computed(() => {
 	return { total: txns.length, reconciled, pending, disputed }
 })
 
+// Documentation & review stats
+const documentationStats = computed(() => {
+	const allTxns = transactions.value || []
+	const withdrawals = allTxns.filter((t) => t.transaction_type === 'withdrawal')
+	const undocumented = withdrawals.filter((t) => {
+		const hasFiles = t.files && Array.isArray(t.files) && t.files.length > 0
+		return !hasFiles && parseFloat(t.amount || 0) > 100
+	})
+	const undocumentedTotal = undocumented.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0)
+	const pendingReview = allTxns.filter((t) => !t.review_status || t.review_status === 'pending').length
+	const flagged = allTxns.filter((t) => t.review_status === 'flagged').length
+	const approved = allTxns.filter((t) => t.review_status === 'approved').length
+	const reviewed = allTxns.filter((t) => t.review_status === 'reviewed').length
+	return {
+		undocumentedCount: undocumented.length,
+		undocumentedTotal,
+		pendingReview,
+		flagged,
+		approved,
+		reviewed,
+	}
+})
+
 // Select/deselect transaction for bulk reconciliation
 const toggleReconcileSelection = (id) => {
 	const idx = reconcileSelectedIds.value.indexOf(id)
@@ -549,6 +572,53 @@ const monthOptions = [
 						</Card>
 					</div>
 
+					<!-- Documentation Status -->
+					<Card class="border">
+						<CardHeader class="pb-2">
+							<CardTitle class="text-base">Documentation Status</CardTitle>
+							<CardDescription>Transaction review and receipt tracking</CardDescription>
+						</CardHeader>
+						<CardContent>
+							<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+								<div class="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+									<p class="text-xs text-muted-foreground">Needs Receipt</p>
+									<p class="text-xl font-bold text-red-600 dark:text-red-400">
+										{{ documentationStats.undocumentedCount }}
+									</p>
+									<p class="text-xs text-muted-foreground">
+										{{ formatCurrency(documentationStats.undocumentedTotal) }}
+									</p>
+								</div>
+								<div class="p-3 rounded-lg bg-yellow-50 dark:bg-yellow-950/30 border border-yellow-200 dark:border-yellow-800">
+									<p class="text-xs text-muted-foreground">Pending Review</p>
+									<p class="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+										{{ documentationStats.pendingReview }}
+									</p>
+								</div>
+								<div class="p-3 rounded-lg bg-muted/50">
+									<p class="text-xs text-muted-foreground">Flagged</p>
+									<p class="text-xl font-bold text-red-600 dark:text-red-400">
+										{{ documentationStats.flagged }}
+									</p>
+								</div>
+								<div class="p-3 rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800">
+									<p class="text-xs text-muted-foreground">Approved</p>
+									<p class="text-xl font-bold text-green-600 dark:text-green-400">
+										{{ documentationStats.approved }}
+									</p>
+								</div>
+							</div>
+							<div class="mt-3 flex items-center gap-2">
+								<NuxtLink
+									to="/financials/reconciliation"
+									class="text-xs text-primary hover:underline"
+								>
+									View reconciliation details &rarr;
+								</NuxtLink>
+							</div>
+						</CardContent>
+					</Card>
+
 					<!-- Variance Summary + Cash Flow -->
 					<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 						<!-- Budget Variance -->
@@ -782,6 +852,30 @@ const monthOptions = [
 							</CardContent>
 						</Card>
 					</div>
+
+					<!-- Review Status Breakdown -->
+					<Card class="border">
+						<CardContent class="pt-4 pb-3">
+							<p class="text-xs text-muted-foreground mb-2">Review Status</p>
+							<div class="flex items-center gap-3 flex-wrap">
+								<Badge variant="soft" color="green" size="xs">
+									Approved: {{ documentationStats.approved }}
+								</Badge>
+								<Badge variant="soft" color="blue" size="xs">
+									Reviewed: {{ documentationStats.reviewed }}
+								</Badge>
+								<Badge variant="soft" color="gray" size="xs">
+									Pending: {{ documentationStats.pendingReview }}
+								</Badge>
+								<Badge variant="soft" color="red" size="xs">
+									Flagged: {{ documentationStats.flagged }}
+								</Badge>
+								<span v-if="documentationStats.undocumentedCount > 0" class="text-xs text-red-600 dark:text-red-400 ml-auto">
+									{{ documentationStats.undocumentedCount }} need receipts
+								</span>
+							</div>
+						</CardContent>
+					</Card>
 
 					<!-- Actions bar -->
 					<div class="flex flex-wrap items-center gap-3">

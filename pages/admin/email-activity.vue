@@ -442,14 +442,10 @@ onMounted(() => {
 					<SelectMenu
 						v-model="eventFilter"
 						:options="eventOptions"
-						value-attribute="value"
-						option-attribute="label"
 						class="w-40" />
 					<SelectMenu
 						v-model="announcementFilter"
 						:options="announcementOptions"
-						value-attribute="value"
-						option-attribute="label"
 						class="w-60" />
 				</div>
 

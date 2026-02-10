@@ -1109,6 +1109,26 @@ export interface Transaction {
 	/** @required */
 	fiscal_year: FiscalYear | string;
 	reconciliation_notes?: ReconciliationNote[] | string[];
+	review_status?: 'pending' | 'reviewed' | 'approved' | 'flagged' | null;
+	reviewed_by?: DirectusUser | string | null;
+	reviewed_date?: string | null;
+	review_notes?: string | null;
+	payment_method?: 'ach' | 'check' | 'zelle' | 'wire' | 'cash' | 'card' | 'online' | 'other' | null;
+	check_number?: string | null;
+	invoice_number?: string | null;
+	files?: TransactionFile[] | string[];
+}
+
+export interface TransactionFile {
+	/** @primaryKey */
+	id: number;
+	sort?: number | null;
+	transaction_id?: Transaction | string | null;
+	directus_files_id?: DirectusFile | string | null;
+	file_type?: 'invoice' | 'receipt' | 'contract' | 'approval' | 'quote' | 'photo' | 'other' | null;
+	description?: string | null;
+	uploaded_by?: DirectusUser | string | null;
+	date_created?: string | null;
 }
 
 export interface Unit {
@@ -1844,6 +1864,7 @@ export interface Schema {
 	rules: Rule[];
 	tasks: Task[];
 	transactions: Transaction[];
+	transaction_files: TransactionFile[];
 	units: Unit[];
 	units_people: UnitsPeople[];
 	user_permissions: UserPermission[];
@@ -1950,6 +1971,7 @@ export enum CollectionNames {
 	rules = 'rules',
 	tasks = 'tasks',
 	transactions = 'transactions',
+	transaction_files = 'transaction_files',
 	units = 'units',
 	units_people = 'units_people',
 	user_permissions = 'user_permissions',

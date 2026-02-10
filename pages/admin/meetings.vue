@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Meeting } from '~/types/directus';
+import type { Meeting, DirectusFile } from '~/types/directus';
 
 definePageMeta({
   layout: 'default',
@@ -12,6 +12,8 @@ useSeoMeta({
 
 const toast = useToast();
 const { isAdmin, isBoardMember } = useRoles();
+const filesComposable = useDirectusFiles();
+const config = useRuntimeConfig();
 
 // State
 const meetings = ref<Meeting[]>([]);
@@ -21,6 +23,14 @@ const showMeetingModal = ref(false);
 const showDeleteModal = ref(false);
 const saving = ref(false);
 const isEditing = ref(false);
+
+// File upload state
+const agendaFileInput = ref<HTMLInputElement | null>(null);
+const minutesFileInput = ref<HTMLInputElement | null>(null);
+const uploadingAgenda = ref(false);
+const uploadingMinutes = ref(false);
+const agendaFile = ref<{ id: string; filename: string; type: string; filesize: number } | null>(null);
+const minutesFile = ref<{ id: string; filename: string; type: string; filesize: number } | null>(null);
 
 // Filters
 const statusFilter = ref('all');
@@ -54,7 +64,6 @@ const meetingForm = ref<Partial<Meeting>>({
   time: '',
   location: 'Community Room',
   video_link: '',
-  agenda: '',
   url: '',
 });
 
@@ -115,14 +124,20 @@ async function fetchMeetings() {
             'location',
             'video_link',
             'url',
-            'agenda',
-            'minutes',
             'sort',
             'date_created',
             'date_updated',
             'user_created.id',
             'user_created.first_name',
             'user_created.last_name',
+            'agenda_file.id',
+            'agenda_file.filename_download',
+            'agenda_file.type',
+            'agenda_file.filesize',
+            'minutes_file.id',
+            'minutes_file.filename_download',
+            'minutes_file.type',
+            'minutes_file.filesize',
             'files.directus_files_id.id',
             'files.directus_files_id.title',
             'files.directus_files_id.tags',
@@ -154,6 +169,8 @@ function getDefaultDate() {
 function openCreateModal() {
   isEditing.value = false;
   selectedMeeting.value = null;
+  agendaFile.value = null;
+  minutesFile.value = null;
 
   meetingForm.value = {
     title: '',
@@ -164,7 +181,6 @@ function openCreateModal() {
     time: '19:00',
     location: 'Community Room',
     video_link: '',
-    agenda: '',
     url: '',
   };
   showMeetingModal.value = true;
@@ -173,6 +189,32 @@ function openCreateModal() {
 function openEditModal(meeting: Meeting) {
   isEditing.value = true;
   selectedMeeting.value = meeting;
+
+  // Set file state from existing meeting data
+  const af = meeting.agenda_file;
+  if (af && typeof af === 'object' && af.id) {
+    agendaFile.value = {
+      id: af.id,
+      filename: af.filename_download || 'Agenda',
+      type: af.type || '',
+      filesize: af.filesize || 0,
+    };
+  } else {
+    agendaFile.value = null;
+  }
+
+  const mf = meeting.minutes_file;
+  if (mf && typeof mf === 'object' && mf.id) {
+    minutesFile.value = {
+      id: mf.id,
+      filename: mf.filename_download || 'Minutes',
+      type: mf.type || '',
+      filesize: mf.filesize || 0,
+    };
+  } else {
+    minutesFile.value = null;
+  }
+
   meetingForm.value = {
     title: meeting.title || '',
     description: meeting.description || '',
@@ -182,7 +224,6 @@ function openEditModal(meeting: Meeting) {
     time: meeting.time || '',
     location: meeting.location || 'Community Room',
     video_link: meeting.video_link || '',
-    agenda: meeting.agenda || '',
     url: meeting.url || '',
   };
   showMeetingModal.value = true;
@@ -191,6 +232,88 @@ function openEditModal(meeting: Meeting) {
 function confirmDelete(meeting: Meeting) {
   selectedMeeting.value = meeting;
   showDeleteModal.value = true;
+}
+
+async function uploadFile(event: Event, type: 'agenda' | 'minutes') {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  if (type === 'agenda') {
+    uploadingAgenda.value = true;
+  } else {
+    uploadingMinutes.value = true;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const result = await filesComposable.uploadFiles(formData);
+    const uploadedFile = Array.isArray(result) ? result[0] : result;
+
+    if (uploadedFile?.id) {
+      const fileInfo = {
+        id: uploadedFile.id,
+        filename: uploadedFile.filename_download || file.name,
+        type: uploadedFile.type || file.type,
+        filesize: uploadedFile.filesize || file.size,
+      };
+
+      if (type === 'agenda') {
+        agendaFile.value = fileInfo;
+      } else {
+        minutesFile.value = fileInfo;
+      }
+
+      toast.add({
+        title: 'Uploaded',
+        description: `${type === 'agenda' ? 'Agenda' : 'Minutes'} file uploaded`,
+        color: 'green',
+      });
+    }
+  } catch (error: any) {
+    console.error('Upload failed:', error);
+    toast.add({
+      title: 'Error',
+      description: 'Failed to upload file',
+      color: 'red',
+    });
+  } finally {
+    if (type === 'agenda') {
+      uploadingAgenda.value = false;
+    } else {
+      uploadingMinutes.value = false;
+    }
+    if (input) input.value = '';
+  }
+}
+
+function removeFile(type: 'agenda' | 'minutes') {
+  if (type === 'agenda') {
+    agendaFile.value = null;
+  } else {
+    minutesFile.value = null;
+  }
+}
+
+function getFileIcon(type: string): string {
+  if (type?.startsWith('image/')) return 'i-lucide-image';
+  if (type?.includes('pdf')) return 'i-lucide-file-text';
+  if (type?.includes('word') || type?.includes('document')) return 'i-lucide-file-text';
+  if (type?.includes('excel') || type?.includes('spreadsheet')) return 'i-lucide-file-spreadsheet';
+  return 'i-lucide-file';
+}
+
+function formatFileSize(bytes: number | null | undefined): string {
+  if (!bytes) return '';
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getFileDownloadUrl(fileId: string): string {
+  return `${config.public.directusUrl}/assets/${fileId}`;
 }
 
 async function saveMeeting() {
@@ -214,7 +337,7 @@ async function saveMeeting() {
 
   saving.value = true;
   try {
-    const data = {
+    const data: Record<string, any> = {
       title: meetingForm.value.title,
       description: meetingForm.value.description || null,
       category: meetingForm.value.category || 'Board Meeting',
@@ -223,8 +346,9 @@ async function saveMeeting() {
       time: meetingForm.value.time || null,
       location: meetingForm.value.location || null,
       video_link: meetingForm.value.video_link || null,
-      agenda: meetingForm.value.agenda || null,
       url: meetingForm.value.url || null,
+      agenda_file: agendaFile.value?.id || null,
+      minutes_file: minutesFile.value?.id || null,
     };
 
     if (isEditing.value && selectedMeeting.value) {
@@ -417,15 +541,11 @@ onMounted(() => {
           <SelectMenu
             v-model="statusFilter"
             :options="statusOptions"
-            value-attribute="value"
-            option-attribute="label"
             class="md:w-48"
           />
           <SelectMenu
             v-model="categoryFilter"
             :options="categoryOptions"
-            value-attribute="value"
-            option-attribute="label"
             class="md:w-48"
           />
         </div>
@@ -533,16 +653,12 @@ onMounted(() => {
                 <SelectMenu
                   v-model="meetingForm.category"
                   :options="categoryOptions.slice(1)"
-                  value-attribute="value"
-                  option-attribute="label"
                 />
               </FormGroup>
               <FormGroup label="Status">
                 <SelectMenu
                   v-model="meetingForm.status"
                   :options="statusOptions.slice(1)"
-                  value-attribute="value"
-                  option-attribute="label"
                 />
               </FormGroup>
             </div>
@@ -562,8 +678,6 @@ onMounted(() => {
               <SelectMenu
                 v-model="meetingForm.location"
                 :options="locationOptions"
-                value-attribute="value"
-                option-attribute="label"
               />
             </FormGroup>
 
@@ -586,12 +700,73 @@ onMounted(() => {
               />
             </FormGroup>
 
-            <!-- Agenda -->
+            <!-- Agenda File -->
             <FormGroup label="Agenda">
-              <Textarea
-                v-model="meetingForm.agenda"
-                placeholder="Meeting agenda items..."
-                rows="4"
+              <div v-if="agendaFile" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                <div class="flex items-center gap-3 min-w-0">
+                  <Icon :name="getFileIcon(agendaFile.type)" class="w-5 h-5 text-gray-500 shrink-0" />
+                  <div class="min-w-0">
+                    <a
+                      :href="getFileDownloadUrl(agendaFile.id)"
+                      target="_blank"
+                      class="font-medium text-sm text-primary hover:underline truncate block"
+                    >
+                      {{ agendaFile.filename }}
+                    </a>
+                    <div class="text-xs text-gray-500">{{ formatFileSize(agendaFile.filesize) }}</div>
+                  </div>
+                </div>
+                <Button variant="ghost" size="xs" @click="removeFile('agenda')">
+                  <Icon name="i-heroicons-x-mark" class="w-4 h-4" />
+                </Button>
+              </div>
+              <div v-else class="flex gap-2">
+                <Button variant="outline" size="sm" :loading="uploadingAgenda" @click="agendaFileInput?.click()">
+                  <Icon name="i-lucide-upload" class="w-4 h-4 mr-2" />
+                  Upload Agenda
+                </Button>
+              </div>
+              <input
+                ref="agendaFileInput"
+                type="file"
+                class="hidden"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                @change="uploadFile($event, 'agenda')"
+              />
+            </FormGroup>
+
+            <!-- Minutes File -->
+            <FormGroup label="Minutes">
+              <div v-if="minutesFile" class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700">
+                <div class="flex items-center gap-3 min-w-0">
+                  <Icon :name="getFileIcon(minutesFile.type)" class="w-5 h-5 text-gray-500 shrink-0" />
+                  <div class="min-w-0">
+                    <a
+                      :href="getFileDownloadUrl(minutesFile.id)"
+                      target="_blank"
+                      class="font-medium text-sm text-primary hover:underline truncate block"
+                    >
+                      {{ minutesFile.filename }}
+                    </a>
+                    <div class="text-xs text-gray-500">{{ formatFileSize(minutesFile.filesize) }}</div>
+                  </div>
+                </div>
+                <Button variant="ghost" size="xs" @click="removeFile('minutes')">
+                  <Icon name="i-heroicons-x-mark" class="w-4 h-4" />
+                </Button>
+              </div>
+              <div v-else class="flex gap-2">
+                <Button variant="outline" size="sm" :loading="uploadingMinutes" @click="minutesFileInput?.click()">
+                  <Icon name="i-lucide-upload" class="w-4 h-4 mr-2" />
+                  Upload Minutes
+                </Button>
+              </div>
+              <input
+                ref="minutesFileInput"
+                type="file"
+                class="hidden"
+                accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                @change="uploadFile($event, 'minutes')"
               />
             </FormGroup>
           </div>

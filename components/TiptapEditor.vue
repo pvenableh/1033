@@ -31,40 +31,40 @@
 
 			<!-- Headings Group (full mode only) -->
 			<div v-if="mode === 'full'" class="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-				<Popover :popper="{placement: 'bottom-start'}">
-					<ToolbarButton
-						icon="i-lucide-heading"
-						:active="editor.isActive('heading')"
-						title="Headings"
-						:showChevron="true" />
-					<template #panel="{close}">
-						<div class="p-2 space-y-1 min-w-32">
-							<button
-								v-for="level in [1, 2, 3]"
-								:key="level"
-								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-								:class="{'bg-primary-100 dark:bg-primary-900': editor.isActive('heading', {level})}"
-								@click="
-									editor.chain().focus().toggleHeading({level}).run();
-									close();
-								">
-								<span :class="`text-${level === 1 ? 'lg' : level === 2 ? 'base' : 'sm'} font-bold`">H{{ level }}</span>
-								<span class="text-gray-500 text-sm">Heading {{ level }}</span>
-							</button>
-							<button
-								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-								:class="{
-									'bg-primary-100 dark:bg-primary-900': editor.isActive('paragraph') && !editor.isActive('heading'),
-								}"
-								@click="
-									editor.chain().focus().setParagraph().run();
-									close();
-								">
-								<span class="text-sm">P</span>
-								<span class="text-gray-500 text-sm">Paragraph</span>
-							</button>
-						</div>
-					</template>
+				<Popover v-model:open="headingOpen">
+					<PopoverTrigger as-child>
+						<ToolbarButton
+							icon="i-lucide-heading"
+							:active="editor.isActive('heading')"
+							title="Headings"
+							:showChevron="true" />
+					</PopoverTrigger>
+					<PopoverContent side="bottom" align="start" :side-offset="4" class="w-auto p-2 space-y-1 min-w-32">
+						<button
+							v-for="level in [1, 2, 3]"
+							:key="level"
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							:class="{'bg-primary-100 dark:bg-primary-900': editor.isActive('heading', {level})}"
+							@click="
+								editor.chain().focus().toggleHeading({level}).run();
+								headingOpen = false;
+							">
+							<span :class="`text-${level === 1 ? 'lg' : level === 2 ? 'base' : 'sm'} font-bold`">H{{ level }}</span>
+							<span class="text-gray-500 text-sm">Heading {{ level }}</span>
+						</button>
+						<button
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							:class="{
+								'bg-primary-100 dark:bg-primary-900': editor.isActive('paragraph') && !editor.isActive('heading'),
+							}"
+							@click="
+								editor.chain().focus().setParagraph().run();
+								headingOpen = false;
+							">
+							<span class="text-sm">P</span>
+							<span class="text-gray-500 text-sm">Paragraph</span>
+						</button>
+					</PopoverContent>
 				</Popover>
 			</div>
 
@@ -117,110 +117,110 @@
 
 			<!-- Links -->
 			<div class="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-				<Popover :popper="{placement: 'bottom-start'}" mode="click">
-					<ToolbarButton icon="i-heroicons-link" :active="editor.isActive('link')" title="Insert Link" />
-					<template #panel="{close}">
-						<div class="p-3 w-80 space-y-3">
-							<FormGroup label="URL">
-								<Input v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink(close)" />
-							</FormGroup>
-							<div class="flex justify-end gap-2">
-								<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink(close)">
-									Remove
-								</Button>
-								<Button size="xs" color="primary" @click="setLink(close)">
-									{{ editor.isActive('link') ? 'Update' : 'Add' }}
-								</Button>
-							</div>
+				<Popover v-model:open="linkOpen">
+					<PopoverTrigger as-child>
+						<ToolbarButton icon="i-heroicons-link" :active="editor.isActive('link')" title="Insert Link" />
+					</PopoverTrigger>
+					<PopoverContent side="bottom" align="start" :side-offset="4" class="w-80 p-3 space-y-3">
+						<FormGroup label="URL">
+							<Input v-model="linkUrl" placeholder="https://example.com" @keyup.enter="setLink" />
+						</FormGroup>
+						<div class="flex justify-end gap-2">
+							<Button v-if="editor.isActive('link')" size="xs" color="red" variant="soft" @click="removeLink">
+								Remove
+							</Button>
+							<Button size="xs" color="primary" @click="setLink">
+								{{ editor.isActive('link') ? 'Update' : 'Add' }}
+							</Button>
 						</div>
-					</template>
+					</PopoverContent>
 				</Popover>
 			</div>
 
 			<!-- Table (full mode only) -->
 			<div v-if="mode === 'full'" class="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-				<Popover :popper="{placement: 'bottom-start'}">
-					<ToolbarButton icon="i-lucide-table" :active="editor.isActive('table')" title="Table" :showChevron="true" />
-					<template #panel="{close}">
-						<div class="p-2 space-y-1 min-w-40">
+				<Popover v-model:open="tableOpen">
+					<PopoverTrigger as-child>
+						<ToolbarButton icon="i-lucide-table" :active="editor.isActive('table')" title="Table" :showChevron="true" />
+					</PopoverTrigger>
+					<PopoverContent side="bottom" align="start" :side-offset="4" class="w-auto p-2 space-y-1 min-w-40">
+						<button
+							v-if="!editor.isActive('table')"
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							@click="
+								editor.chain().focus().insertTable({rows: 3, cols: 3, withHeaderRow: true}).run();
+								tableOpen = false;
+							">
+							<Icon name="i-lucide-plus" class="w-4 h-4" />
+							Insert Table
+						</button>
+						<template v-if="editor.isActive('table')">
 							<button
-								v-if="!editor.isActive('table')"
 								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
 								@click="
-									editor.chain().focus().insertTable({rows: 3, cols: 3, withHeaderRow: true}).run();
-									close();
+									editor.chain().focus().addColumnBefore().run();
+									tableOpen = false;
 								">
-								<Icon name="i-lucide-plus" class="w-4 h-4" />
-								Insert Table
+								<Icon name="i-lucide-columns-3" class="w-4 h-4" />
+								Add Column Before
 							</button>
-							<template v-if="editor.isActive('table')">
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().addColumnBefore().run();
-										close();
-									">
-									<Icon name="i-lucide-columns-3" class="w-4 h-4" />
-									Add Column Before
-								</button>
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().addColumnAfter().run();
-										close();
-									">
-									<Icon name="i-lucide-columns-3" class="w-4 h-4" />
-									Add Column After
-								</button>
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().addRowBefore().run();
-										close();
-									">
-									<Icon name="i-lucide-rows-3" class="w-4 h-4" />
-									Add Row Before
-								</button>
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().addRowAfter().run();
-										close();
-									">
-									<Icon name="i-lucide-rows-3" class="w-4 h-4" />
-									Add Row After
-								</button>
-								<hr class="my-1 border-gray-200 dark:border-gray-700" />
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().deleteColumn().run();
-										close();
-									">
-									<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
-									Delete Column
-								</button>
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().deleteRow().run();
-										close();
-									">
-									<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
-									Delete Row
-								</button>
-								<button
-									class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-									@click="
-										editor.chain().focus().deleteTable().run();
-										close();
-									">
-									<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
-									Delete Table
-								</button>
-							</template>
-						</div>
-					</template>
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().addColumnAfter().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-columns-3" class="w-4 h-4" />
+								Add Column After
+							</button>
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().addRowBefore().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-rows-3" class="w-4 h-4" />
+								Add Row Before
+							</button>
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().addRowAfter().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-rows-3" class="w-4 h-4" />
+								Add Row After
+							</button>
+							<hr class="my-1 border-gray-200 dark:border-gray-700" />
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().deleteColumn().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
+								Delete Column
+							</button>
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().deleteRow().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
+								Delete Row
+							</button>
+							<button
+								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+								@click="
+									editor.chain().focus().deleteTable().run();
+									tableOpen = false;
+								">
+								<Icon name="i-lucide-trash-2" class="w-4 h-4 text-red-500" />
+								Delete Table
+							</button>
+						</template>
+					</PopoverContent>
 				</Popover>
 			</div>
 
@@ -228,41 +228,41 @@
 			<div
 				v-if="mode === 'full' && allowUploads"
 				class="flex items-center border-r border-gray-300 dark:border-gray-600 pr-1 mr-1">
-				<Popover :popper="{placement: 'bottom-start'}">
-					<ToolbarButton icon="i-lucide-image" title="Insert Image" :showChevron="true" />
-					<template #panel="{close}">
-						<div class="p-2 space-y-1 min-w-40">
-							<button
-								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-								@click="
-									triggerFileUpload();
-									close();
-								">
-								<Icon name="i-lucide-upload" class="w-4 h-4" />
-								Upload Image
-							</button>
-							<button
-								v-if="folderId"
-								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-								@click="
-									openFileBrowser();
-									close();
-								">
-								<Icon name="i-lucide-folder-open" class="w-4 h-4" />
-								Browse Files
-							</button>
-							<hr class="my-1 border-gray-200 dark:border-gray-700" />
-							<button
-								class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
-								@click="
-									showImageUrlInput = true;
-									close();
-								">
-								<Icon name="i-lucide-link" class="w-4 h-4" />
-								From URL
-							</button>
-						</div>
-					</template>
+				<Popover v-model:open="mediaOpen">
+					<PopoverTrigger as-child>
+						<ToolbarButton icon="i-lucide-image" title="Insert Image" :showChevron="true" />
+					</PopoverTrigger>
+					<PopoverContent side="bottom" align="start" :side-offset="4" class="w-auto p-2 space-y-1 min-w-40">
+						<button
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							@click="
+								triggerFileUpload();
+								mediaOpen = false;
+							">
+							<Icon name="i-lucide-upload" class="w-4 h-4" />
+							Upload Image
+						</button>
+						<button
+							v-if="folderId"
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							@click="
+								openFileBrowser();
+								mediaOpen = false;
+							">
+							<Icon name="i-lucide-folder-open" class="w-4 h-4" />
+							Browse Files
+						</button>
+						<hr class="my-1 border-gray-200 dark:border-gray-700" />
+						<button
+							class="w-full text-left px-3 py-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+							@click="
+								showImageUrlInput = true;
+								mediaOpen = false;
+							">
+							<Icon name="i-lucide-link" class="w-4 h-4" />
+							From URL
+						</button>
+					</PopoverContent>
 				</Popover>
 				<input ref="fileInput" type="file" accept="image/*" class="hidden" @change="handleFileUpload" />
 			</div>
@@ -473,6 +473,12 @@ const heightClass = computed(() => props.height ?? 'min-h-[200px] max-h-[500px]'
 const editor = ref<Editor | null>(null);
 const linkUrl = ref('');
 
+// Popover open states
+const headingOpen = ref(false);
+const linkOpen = ref(false);
+const tableOpen = ref(false);
+const mediaOpen = ref(false);
+
 // Image state
 const showImageUrlInput = ref(false);
 const imageUrl = ref('');
@@ -663,7 +669,7 @@ watch(
 );
 
 // Link functions
-const setLink = (close: () => void) => {
+const setLink = () => {
 	if (linkUrl.value) {
 		let url = linkUrl.value;
 		// Add https:// if no protocol
@@ -673,13 +679,13 @@ const setLink = (close: () => void) => {
 		editor.value?.chain().focus().setLink({href: url, target: '_blank'}).run();
 	}
 	linkUrl.value = '';
-	close();
+	linkOpen.value = false;
 };
 
-const removeLink = (close: () => void) => {
+const removeLink = () => {
 	editor.value?.chain().focus().unsetLink().run();
 	linkUrl.value = '';
-	close();
+	linkOpen.value = false;
 };
 
 // Update link URL when selection changes

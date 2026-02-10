@@ -306,9 +306,48 @@
 									@click="bulkReconcile('reconciled')">
 									Mark Selected Reconciled ({{ selectedTransactions.length }})
 								</UButton>
+								<UButton
+									v-if="canReconcile && selectedTransactions.length > 0"
+									color="blue"
+									variant="soft"
+									size="sm"
+									icon="i-heroicons-check-badge"
+									@click="bulkApprove">
+									Approve Selected ({{ selectedTransactions.length }})
+								</UButton>
+								<UButton
+									v-if="canReconcile && selectedTransactions.length > 0"
+									color="red"
+									variant="soft"
+									size="sm"
+									icon="i-heroicons-flag"
+									@click="bulkFlag">
+									Flag Selected ({{ selectedTransactions.length }})
+								</UButton>
 							</div>
 						</div>
 					</template>
+
+					<!-- Filter Controls -->
+					<div class="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b dark:border-gray-700">
+						<div class="flex items-center gap-2">
+							<label class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Review:</label>
+							<div class="flex gap-1">
+								<UButton
+									v-for="opt in reviewFilterOptions"
+									:key="opt.value"
+									size="xs"
+									:color="reviewFilter === opt.value ? 'primary' : 'gray'"
+									:variant="reviewFilter === opt.value ? 'solid' : 'soft'"
+									@click="reviewFilter = opt.value">
+									{{ opt.label }}
+								</UButton>
+							</div>
+						</div>
+						<div class="flex items-center gap-2">
+							<UCheckbox v-model="needsReceiptFilter" label="Needs Receipt (>$100)" />
+						</div>
+					</div>
 
 					<!-- Transaction Table -->
 					<div class="overflow-x-auto">
@@ -334,15 +373,19 @@
 										Status
 									</th>
 									<th class="py-3 px-4 text-center uppercase tracking-wider text-xs font-semibold text-gray-600 dark:text-gray-400">
+										Review
+									</th>
+									<th class="py-3 px-4 text-center uppercase tracking-wider text-xs font-semibold text-gray-600 dark:text-gray-400">
 										Actions
 									</th>
 								</tr>
 							</thead>
 							<tbody>
 								<tr
-									v-for="transaction in monthlyReconciliation?.allTransactions || []"
+									v-for="transaction in filteredTransactions"
 									:key="transaction.id"
-									class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800">
+									class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+									@click="openDetailModal(transaction)">
 									<td v-if="canReconcile" class="py-3 px-2">
 										<UCheckbox
 											:model-value="selectedTransactions.includes(transaction.id)"
@@ -376,6 +419,30 @@
 									</td>
 									<td class="py-3 px-4 text-center">
 										<div class="flex items-center justify-center gap-1">
+											<UBadge
+												:color="getReviewStatusColor(transaction.review_status)"
+												variant="soft"
+												size="xs">
+												{{ getReviewStatusLabel(transaction.review_status) }}
+											</UBadge>
+											<UIcon
+												v-if="transaction.files && transaction.files.length > 0"
+												name="i-heroicons-paper-clip"
+												class="w-3.5 h-3.5 text-gray-400 ml-1"
+											/>
+											<span v-if="transaction.files && transaction.files.length > 0" class="text-xs text-gray-400">
+												{{ transaction.files.length }}
+											</span>
+										</div>
+									</td>
+									<td class="py-3 px-4 text-center" @click.stop>
+										<div class="flex items-center justify-center gap-1">
+											<UButton
+												color="gray"
+												variant="ghost"
+												size="xs"
+												icon="i-heroicons-document-magnifying-glass"
+												@click="openDetailModal(transaction)" />
 											<UButton
 												color="gray"
 												variant="ghost"
@@ -884,6 +951,14 @@
 				</template>
 			</UCard>
 		</UModal>
+
+		<!-- Transaction Detail Modal -->
+		<TransactionDetailModal
+			v-model="showDetailModal"
+			:transaction="detailTransaction"
+			:can-edit="canReconcile"
+			@saved="onDetailSaved"
+		/>
 	</div>
 </template>
 
@@ -961,6 +1036,74 @@ const reconcilingMonth = ref(false);
 const transactionsCollection = useDirectusItems('transactions');
 const budgetCategoriesCollection = useDirectusItems('budget_categories');
 const reconciliationNotesCollection = useDirectusItems('reconciliation_notes');
+
+// Transaction files composable
+const {
+	bulkUpdateReviewStatus,
+	getReviewStatusColor,
+	getReviewStatusLabel,
+} = useTransactionFiles();
+
+// Transaction detail modal state
+const showDetailModal = ref(false);
+const detailTransaction = ref(null);
+
+// Review filter state
+const reviewFilter = ref('all');
+const needsReceiptFilter = ref(false);
+
+const reviewFilterOptions = [
+	{ label: 'All', value: 'all' },
+	{ label: 'Pending', value: 'pending' },
+	{ label: 'Reviewed', value: 'reviewed' },
+	{ label: 'Approved', value: 'approved' },
+	{ label: 'Flagged', value: 'flagged' },
+];
+
+const filteredTransactions = computed(() => {
+	let txns = monthlyReconciliation.value?.allTransactions || [];
+
+	if (reviewFilter.value !== 'all') {
+		txns = txns.filter((t) => {
+			const status = t.review_status || 'pending';
+			return status === reviewFilter.value;
+		});
+	}
+
+	if (needsReceiptFilter.value) {
+		txns = txns.filter((t) => {
+			const hasFiles = t.files && Array.isArray(t.files) && t.files.length > 0;
+			return !hasFiles && parseFloat(t.amount || 0) > 100 && t.transaction_type === 'withdrawal';
+		});
+	}
+
+	return txns;
+});
+
+const openDetailModal = (transaction) => {
+	detailTransaction.value = transaction;
+	showDetailModal.value = true;
+};
+
+const onDetailSaved = async () => {
+	await fetchData();
+};
+
+const bulkApprove = async () => {
+	if (selectedTransactions.value.length === 0) return;
+	await bulkUpdateReviewStatus(selectedTransactions.value, 'approved');
+	selectedTransactions.value = [];
+	selectAll.value = false;
+	await fetchData();
+};
+
+const bulkFlag = async () => {
+	if (selectedTransactions.value.length === 0) return;
+	await bulkUpdateReviewStatus(selectedTransactions.value, 'flagged');
+	selectedTransactions.value = [];
+	selectAll.value = false;
+	await fetchData();
+};
 
 // Find the current month's reconciliation report
 const currentMonthReport = computed(() => {
