@@ -732,7 +732,7 @@
 
 						<!-- Batch PDF Import -->
 						<div v-if="stmtFileType === 'batch'">
-							<BatchPdfImport
+							<FinancialsBatchPdfImport
 								v-model:account-id="stmtAccountId"
 								v-model:fiscal-year="stmtFiscalYear"
 								:accounts="accounts"
