@@ -139,49 +139,70 @@ export const useBatchPdfImport = () => {
 		batchFile.status = 'processing';
 		batchFile.error = null;
 
-		try {
-			const formData = new FormData();
-			formData.append('file', batchFile.file);
+		const MAX_RETRIES = 2;
+		for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+			try {
+				const formData = new FormData();
+				formData.append('file', batchFile.file);
 
-			const result = await $fetch('/api/admin/pdf-to-csv', {
-				method: 'POST',
-				body: formData,
-			});
+				const result = await $fetch('/api/admin/pdf-to-csv', {
+					method: 'POST',
+					body: formData,
+					timeout: 150000, // 150s client timeout (server max is 120s)
+				});
 
-			if (result.success) {
-				batchFile.result = result;
-				batchFile.status = 'done';
+				if (result.success) {
+					batchFile.result = result;
+					batchFile.status = 'done';
 
-				// Auto-detect month from result if not detected from filename
-				if (!batchFile.month && result.statement_period) {
-					const periodLower = result.statement_period.toLowerCase();
-					for (let i = 0; i < MONTH_NAMES.length; i++) {
-						if (periodLower.includes(MONTH_NAMES[i].toLowerCase())) {
-							batchFile.month = String(i + 1).padStart(2, '0');
-							batchFile.monthName = MONTH_NAMES[i];
-							break;
+					// Auto-detect month from result if not detected from filename
+					if (!batchFile.month && result.statement_period) {
+						const periodLower = result.statement_period.toLowerCase();
+						for (let i = 0; i < MONTH_NAMES.length; i++) {
+							if (periodLower.includes(MONTH_NAMES[i].toLowerCase())) {
+								batchFile.month = String(i + 1).padStart(2, '0');
+								batchFile.monthName = MONTH_NAMES[i];
+								break;
+							}
 						}
 					}
-				}
 
-				// Auto-detect year from result
-				if (!batchFile.detectedYear && result.transactions?.length > 0) {
-					const dates = result.transactions.map((t) => t.date).filter(Boolean);
-					for (const d of dates) {
-						const yearMatch = d.match(/(\d{4})/);
-						if (yearMatch) {
-							batchFile.detectedYear = parseInt(yearMatch[1], 10);
-							break;
+					// Auto-detect year from result
+					if (!batchFile.detectedYear && result.transactions?.length > 0) {
+						const dates = result.transactions.map((t) => t.date).filter(Boolean);
+						for (const d of dates) {
+							const yearMatch = d.match(/(\d{4})/);
+							if (yearMatch) {
+								batchFile.detectedYear = parseInt(yearMatch[1], 10);
+								break;
+							}
 						}
 					}
+					return; // success — exit retry loop
+				} else {
+					batchFile.error = result.error || 'Claude could not extract transactions.';
+					batchFile.status = 'error';
+					return; // non-retryable application-level error
 				}
-			} else {
-				batchFile.error = result.error || 'Claude could not extract transactions.';
+			} catch (err) {
+				const statusCode = err?.statusCode || err?.data?.statusCode || err?.status;
+				const isTimeout = statusCode === 504 || statusCode === 408 || err?.name === 'AbortError';
+
+				if (isTimeout && attempt < MAX_RETRIES) {
+					// Exponential backoff: 3s, 9s
+					const delay = 3000 * Math.pow(3, attempt);
+					console.warn(
+						`PDF extraction attempt ${attempt + 1} timed out for ${batchFile.file.name}, retrying in ${delay / 1000}s...`
+					);
+					await new Promise((r) => setTimeout(r, delay));
+					continue;
+				}
+
+				batchFile.error = isTimeout
+					? `Request timed out after ${attempt + 1} attempts. The PDF may be too large or complex.`
+					: (err.data?.message || err.message || 'API request failed.');
 				batchFile.status = 'error';
 			}
-		} catch (err) {
-			batchFile.error = err.data?.message || err.message || 'API request failed.';
-			batchFile.status = 'error';
 		}
 	}
 
@@ -195,9 +216,9 @@ export const useBatchPdfImport = () => {
 			currentIndex.value = i;
 			await processOne(bf);
 
-			// Small delay between requests to avoid overwhelming the API
+			// Delay between requests to avoid overwhelming the API
 			if (i < batchFiles.value.length - 1) {
-				await new Promise((r) => setTimeout(r, 1000));
+				await new Promise((r) => setTimeout(r, 2000));
 			}
 		}
 

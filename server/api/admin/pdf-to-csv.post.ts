@@ -53,10 +53,16 @@ interface PdfToCsvResult {
 	message?: string;
 }
 
-// Extend Vercel timeout for AI endpoints
+// Extend Vercel timeout for AI endpoints — Nitro compile-time metadata
+// (more reliable than export const config for Nitro-bundled Vercel functions)
+defineRouteMeta({
+	maxDuration: 120,
+});
+
+// Keep export const config as fallback for direct Vercel detection
 export const config = {
 	maxDuration: 120,
-}
+};
 
 export default defineEventHandler(async (event): Promise<PdfToCsvResult> => {
 	const session = await getUserSession(event);
@@ -110,26 +116,27 @@ export default defineEventHandler(async (event): Promise<PdfToCsvResult> => {
 			};
 		}
 
-		// Fetch budget categories and accounts for context
+		// Fetch budget categories and accounts in parallel for context
 		const client = useDirectusAdmin();
 
 		let categoriesList = '';
 		let accountsList = '';
 		try {
-			const budgetCategories = await client.request(
-				readItems('budget_categories', {
-					fields: ['id', 'category_name'],
-					limit: -1,
-				})
-			);
+			const [budgetCategories, accounts] = await Promise.all([
+				client.request(
+					readItems('budget_categories', {
+						fields: ['id', 'category_name'],
+						limit: -1,
+					})
+				),
+				client.request(
+					readItems('accounts', {
+						fields: ['id', 'account_name', 'account_number', 'account_type'],
+						limit: -1,
+					})
+				),
+			]);
 			categoriesList = [...new Set(budgetCategories.map((c: any) => c.category_name).filter(Boolean))].join(', ');
-
-			const accounts = await client.request(
-				readItems('accounts', {
-					fields: ['id', 'account_name', 'account_number', 'account_type'],
-					limit: -1,
-				})
-			);
 			accountsList = accounts.map((a: any) =>
 				`${a.account_name} (${a.account_type}, ending ...${(a.account_number || '').slice(-4)})`
 			).join('; ');

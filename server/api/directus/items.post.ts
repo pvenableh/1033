@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
   const isPublicRequest = body.public === true;
 
   let client;
+  let usedUserClient = false;
   if (isPublicRequest && isReadOperation && !isSystemCollection) {
     // Use public client (no authentication) for explicitly public read requests
     // This allows reading data from collections with public read permissions
@@ -74,6 +75,7 @@ export default defineEventHandler(async (event) => {
     // Use user's authenticated client for write operations and system collections (with auto token refresh)
     try {
       client = await getUserDirectus(event);
+      usedUserClient = true;
     } catch (error: any) {
       // Don't fall back to admin - propagate auth errors properly
       if (error.statusCode === 401) {
@@ -100,6 +102,9 @@ export default defineEventHandler(async (event) => {
   // Check if this is the notifications collection (requires special SDK methods)
   const isNotificationsCollection = body.collection === 'directus_notifications';
 
+  // Retry loop: if the Directus API returns 401 (token expired on the remote
+  // side but not yet detected locally), refresh the token and retry once.
+  for (let attempt = 0; attempt < 2; attempt++) {
   try {
     switch (body.operation) {
       case 'list': {
@@ -359,6 +364,22 @@ export default defineEventHandler(async (event) => {
         });
     }
   } catch (error: any) {
+    // On first attempt, if we got a 401 from Directus and used the user's
+    // client, retry with a force-refreshed token before giving up.
+    const is401 = error?.errors?.[0]?.message?.includes('Token expired') ||
+                  error?.message?.includes('Token expired') ||
+                  error?.response?.status === 401 ||
+                  (error?.errors?.[0]?.extensions?.code === 'TOKEN_EXPIRED');
+
+    if (attempt === 0 && is401 && usedUserClient && session?.user) {
+      try {
+        client = await getUserDirectus(event, true); // force refresh
+        continue; // retry the operation
+      } catch {
+        // Refresh failed — fall through to normal error handling
+      }
+    }
+
     console.error('Directus items error:', error);
 
     // Re-throw if already a proper error
@@ -367,9 +388,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // Handle token expiration errors
-    if (error?.errors?.[0]?.message?.includes('Token expired') ||
-        error?.message?.includes('Token expired') ||
-        error?.response?.status === 401) {
+    if (is401) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
@@ -392,4 +411,5 @@ export default defineEventHandler(async (event) => {
       message: 'Operation failed',
     });
   }
+  } // end retry loop
 });

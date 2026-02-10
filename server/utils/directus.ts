@@ -141,9 +141,11 @@ export async function getUserDirectus(
   // The token will still work and the client-side refresh will eventually set expiresAt
   const needsRefresh = forceRefresh || (expiresAt !== undefined && expiresAt - now < 60000);
 
-  // If token needs refresh but no refresh token is available, clear session
+  // If token needs refresh but no refresh token is available, throw without
+  // clearing the session. Clearing the session here would destroy it for other
+  // endpoints (e.g. pdf-to-csv) that only need session.user, not the user's
+  // Directus token. The auth middleware will handle cleanup on next navigation.
   if (needsRefresh && !refreshToken) {
-    await clearUserSession(event);
     throw createError({
       statusCode: 401,
       statusMessage: 'Session expired - please log in again',
@@ -177,7 +179,9 @@ export async function getUserDirectus(
 
       accessToken = authResult.access_token;
     } catch (error) {
-      await clearUserSession(event);
+      // Don't clear the session here — other endpoints that only check
+      // session.user (like pdf-to-csv) would break. The auth middleware
+      // will clear the session on the next navigation.
       throw createError({
         statusCode: 401,
         statusMessage: 'Session expired - please log in again',
