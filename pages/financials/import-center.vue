@@ -9,9 +9,9 @@
 
 		<template v-if="canReadFinancials">
 			<!-- Header -->
-			<div class="bg-white rounded-lg shadow-sm border p-6">
-				<h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wider">Financial Import Center</h1>
-				<p class="text-gray-600">
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+				<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wider">Financial Import Center</h1>
+				<p class="text-gray-600 dark:text-gray-400">
 					Import budgets, bank statements, and transactions. Manage bank accounts and fiscal year assignments.
 				</p>
 			</div>
