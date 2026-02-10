@@ -66,6 +66,7 @@ const financialSubLinks = [
   { title: 'Budget Overview', icon: 'i-heroicons-chart-pie', to: '/financials/budget' },
   { title: 'Year-End', icon: 'i-heroicons-calendar-days', to: '/financials/yearly-reconciliation' },
   { title: 'Import Center', icon: 'i-heroicons-arrow-up-tray', to: '/financials/import-center', boardOnly: true },
+  { title: 'Directions', icon: 'i-heroicons-book-open', to: '/admin/financial-directions' },
 ]
 
 const communicationsLinks = [
