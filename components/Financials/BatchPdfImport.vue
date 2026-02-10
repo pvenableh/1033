@@ -274,7 +274,7 @@
 
 <script setup>
 import {ref} from 'vue';
-import {useBatchPdfImport} from '~/composables/useBatchPdfImport';
+import {useBatchPdfImport} from '~/composables/useBatchImport';
 
 const props = defineProps({
 	accounts: {type: Array, default: () => []},
