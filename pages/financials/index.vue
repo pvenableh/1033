@@ -1,7 +1,7 @@
 <template>
 	<div class="container mx-auto min-h-svh p-6 space-y-6">
 		<!-- Header -->
-		<div class="t-bg-subtle rounded-lg border t-border p-6">
+		<div class="bg-card rounded-lg shadow-sm border p-6">
 			<div class="flex items-center justify-between">
 				<div>
 					<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 dark:text-white">
