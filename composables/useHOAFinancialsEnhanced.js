@@ -6,7 +6,7 @@ export const useHOAFinancialsEnhanced = () => {
 	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 	// Reactive state
-	const selectedYear = ref(2025);
+	const selectedYear = ref(new Date().getFullYear());
 	const selectedAccount = ref(1); // Default to Operating Account
 	const selectedCategory = ref('all');
 	const selectedVendor = ref('all');

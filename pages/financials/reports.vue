@@ -285,7 +285,7 @@ const budgetCategories = ref([]);
 const yearOptions = computed(() => {
 	const years = [];
 	for (let y = currentYear - 2; y <= currentYear + 1; y++) {
-		years.push({ label: `FY ${y}`, value: y });
+		years.push({ label: `${y}`, value: y });
 	}
 	return years;
 });
@@ -406,13 +406,18 @@ const fetchData = async () => {
 				fields: ['*'],
 			}),
 			transactionsCollection.list({
-				filter: { fiscal_year: { _eq: year } },
+				filter: {
+					transaction_date: {
+						_gte: `${year}-01-01`,
+						_lte: `${year}-12-31`,
+					},
+				},
 				sort: ['transaction_date'],
 				fields: ['*'],
 				limit: -1,
 			}),
 			monthlyStatementsCollection.list({
-				filter: { fiscal_year: { _eq: year } },
+				filter: { fiscal_year: { year: { _eq: year } } },
 				sort: ['statement_month'],
 				fields: ['*'],
 			}),

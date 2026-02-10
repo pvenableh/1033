@@ -5,7 +5,7 @@ export const useHOAReconciliation = () => {
 	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 	// State
-	const selectedYear = ref(2025);
+	const selectedYear = ref(new Date().getFullYear());
 	const selectedAccount = ref(1);
 	const selectedMonth = ref('08');
 	const loading = ref(false);
@@ -29,6 +29,7 @@ export const useHOAReconciliation = () => {
 		error.value = null;
 
 		try {
+			const year = unref(selectedYear);
 			const [accountsData, transactionsData, statementsData] = await Promise.all([
 				accountsCollection.list({
 					sort: ['account_number'],
@@ -36,7 +37,10 @@ export const useHOAReconciliation = () => {
 				}),
 				transactionsCollection.list({
 					filter: {
-						fiscal_year: {_eq: unref(selectedYear)},
+						transaction_date: {
+							_gte: `${year}-01-01`,
+							_lte: `${year}-12-31`,
+						},
 					},
 					sort: ['transaction_date'],
 					fields: ['*', 'linked_transfer_id.*'],
@@ -44,7 +48,7 @@ export const useHOAReconciliation = () => {
 				}),
 				monthlyStatementsCollection.list({
 					filter: {
-						fiscal_year: {_eq: unref(selectedYear)},
+						fiscal_year: {year: {_eq: year}},
 					},
 					sort: ['statement_month'],
 					fields: ['*'],
@@ -71,12 +75,12 @@ export const useHOAReconciliation = () => {
 
 			// Get statement for this month
 			const statement = monthlyStatements.value.find(
-				(s) => s.account_id === accountId && s.statement_month === month && s.fiscal_year === year
+				(s) => s.account_id === accountId && s.statement_month === month
 			);
 
 			// Get all transactions for this month
 			const monthTransactions = transactions.value.filter(
-				(t) => t.account_id === accountId && t.statement_month === month && t.fiscal_year === year
+				(t) => t.account_id === accountId && t.statement_month === month
 			);
 
 			// Separate transaction types
@@ -171,13 +175,13 @@ export const useHOAReconciliation = () => {
 
 			// Get all transactions up to and including selected month
 			const ytdTransactions = transactions.value.filter((t) => {
-				if (t.account_id !== accountId || t.fiscal_year !== year) return false;
+				if (t.account_id !== accountId) return false;
 				return t.statement_month <= month;
 			});
 
 			// Get first and last statements
 			const accountStatements = monthlyStatements.value
-				.filter((s) => s.account_id === accountId && s.fiscal_year === year && s.statement_month <= month)
+				.filter((s) => s.account_id === accountId && s.statement_month <= month)
 				.sort((a, b) => a.statement_month.localeCompare(b.statement_month));
 
 			const firstStatement = accountStatements[0];
@@ -272,7 +276,7 @@ export const useHOAReconciliation = () => {
 		try {
 			const year = unref(selectedYear);
 			const allTransfers = transactions.value.filter(
-				(t) => t.fiscal_year === year && (t.transaction_type === 'transfer_in' || t.transaction_type === 'transfer_out')
+				(t) => t.transaction_type === 'transfer_in' || t.transaction_type === 'transfer_out'
 			);
 
 			// Find unmatched transfers
