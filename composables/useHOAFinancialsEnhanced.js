@@ -952,18 +952,14 @@ export const useHOAFinancialsEnhanced = () => {
 
 	// Available filter options
 	const yearOptions = computed(() => [
-		// {label: '2023', value: 2023},
 		{label: '2024', value: 2024},
 		{label: '2025', value: 2025},
-		// {label: '2026', value: 2026},
-		// {label: '2027', value: 2027},
+		{label: '2026', value: 2026},
 	]);
 
 	const monthOptions = computed(() => {
-		const latestMonth = latestMonthWithData.value;
-		const monthsWithDataSet = new Set(monthsWithData.value);
-
-		const baseOptions = [
+		return [
+			{label: 'All Months', value: 'all'},
 			{label: 'January', value: '01'},
 			{label: 'February', value: '02'},
 			{label: 'March', value: '03'},
@@ -977,31 +973,6 @@ export const useHOAFinancialsEnhanced = () => {
 			{label: 'November', value: '11'},
 			{label: 'December', value: '12'},
 		];
-
-		const enhancedOptions = baseOptions.map((option) => {
-			const monthNum = parseInt(option.value);
-			const latestMonthNum = parseInt(latestMonth || '12');
-			const hasData = monthsWithDataSet.has(option.value);
-
-			// Disable if:
-			// 1. Month is after the latest month with data, OR
-			// 2. Month has no data (except for future months which are already covered by rule 1)
-			const isDisabled = monthNum > latestMonthNum || (!hasData && monthNum <= latestMonthNum);
-
-			return {
-				...option,
-				disabled: isDisabled,
-				// Add visual indicator for months with no data
-				label: hasData
-					? option.label
-					: monthNum <= latestMonthNum
-						? `${option.label} (No Data)`
-						: `${option.label} (Future)`,
-			};
-		});
-
-		// Always allow "All Months" option
-		return [{label: 'All Months', value: 'all', disabled: false}, ...enhancedOptions];
 	});
 
 	const categoryOptions = computed(() => {
