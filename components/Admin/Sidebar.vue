@@ -66,7 +66,7 @@ const financialSubLinks = [
   { title: 'Budget Overview', icon: 'i-heroicons-chart-pie', to: '/financials/budget' },
   { title: 'Year-End', icon: 'i-heroicons-calendar-days', to: '/financials/yearly-reconciliation' },
   { title: 'Import Center', icon: 'i-heroicons-arrow-up-tray', to: '/financials/import-center', boardOnly: true },
-  { title: 'Directions', icon: 'i-heroicons-book-open', to: '/admin/financial-directions' },
+  { title: 'Directions', icon: 'i-heroicons-book-open', to: '/admin/financial-directions', popup: true },
 ]
 
 const communicationsLinks = [
@@ -98,6 +98,10 @@ const quickLinks = [
 ]
 
 const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
+
+function openDirectionsPopup() {
+  window.open('/admin/financial-directions', 'financial-directions', 'width=720,height=860,scrollbars=yes,resizable=yes')
+}
 </script>
 
 <template>
@@ -150,7 +154,14 @@ const canAccessFinancials = computed(() => isBoardMember.value || isOwner.value)
                   <SidebarMenuSub>
                     <template v-for="sub in financialSubLinks" :key="sub.to">
                       <SidebarMenuSubItem v-if="!sub.boardOnly || isBoardMember">
+                        <SidebarMenuSubButton v-if="sub.popup" as-child>
+                          <a href="#" @click.prevent="openDirectionsPopup">
+                            <span>{{ sub.title }}</span>
+                            <Icon name="i-heroicons-arrow-top-right-on-square" class="ml-auto h-3 w-3 shrink-0 opacity-50" />
+                          </a>
+                        </SidebarMenuSubButton>
                         <SidebarMenuSubButton
+                          v-else
                           as-child
                           :is-active="isActive(sub.to)"
                         >
