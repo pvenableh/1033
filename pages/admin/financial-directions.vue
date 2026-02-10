@@ -1,15 +1,11 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'admin',
-  middleware: ['auth', 'role'],
+  layout: false,
 })
 
 useSeoMeta({
   title: 'Financial System Directions',
 })
-
-const { isBoardMember, isOwner } = useRoles()
-const canAccess = computed(() => isBoardMember.value || isOwner.value)
 
 const activeSection = ref<string | null>(null)
 
@@ -36,15 +32,7 @@ const toggle = (section: string) => {
         </div>
       </div>
 
-      <div v-if="!canAccess" class="text-center py-12">
-        <Icon name="i-heroicons-shield-exclamation" class="size-16 text-red-500 mx-auto mb-4" />
-        <h2 class="text-xl font-semibold mb-2 dark:text-white">Access Denied</h2>
-        <p class="text-muted-foreground">
-          You need board member or owner access to view financial directions.
-        </p>
-      </div>
-
-      <div v-else class="space-y-6">
+      <div class="space-y-6">
         <!-- Quick Links -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <button
