@@ -139,7 +139,7 @@ export const useBatchPdfImport = () => {
 		batchFile.status = 'processing';
 		batchFile.error = null;
 
-		const MAX_RETRIES = 2;
+		const MAX_RETRIES = 3;
 		for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
 			try {
 				const formData = new FormData();
@@ -187,20 +187,33 @@ export const useBatchPdfImport = () => {
 			} catch (err) {
 				const statusCode = err?.statusCode || err?.data?.statusCode || err?.status;
 				const isTimeout = statusCode === 504 || statusCode === 408 || err?.name === 'AbortError';
+				const isRateLimited = statusCode === 429;
+				const isRetryable = isTimeout || isRateLimited;
 
-				if (isTimeout && attempt < MAX_RETRIES) {
-					// Exponential backoff: 3s, 9s
-					const delay = 3000 * Math.pow(3, attempt);
+				if (isRetryable && attempt < MAX_RETRIES) {
+					// For 429, respect Retry-After header if present, otherwise use longer backoff
+					let delay;
+					if (isRateLimited) {
+						const retryAfter = err?.data?.headers?.['retry-after'] || err?.response?.headers?.get?.('retry-after');
+						delay = retryAfter ? parseInt(retryAfter, 10) * 1000 : 30000 * (attempt + 1); // 30s, 60s, 90s
+					} else {
+						delay = 5000 * Math.pow(2, attempt); // 5s, 10s, 20s for timeouts
+					}
+					const reason = isRateLimited ? 'rate limited (429)' : 'timed out';
 					console.warn(
-						`PDF extraction attempt ${attempt + 1} timed out for ${batchFile.file.name}, retrying in ${delay / 1000}s...`
+						`PDF extraction attempt ${attempt + 1} ${reason} for ${batchFile.file.name}, retrying in ${Math.round(delay / 1000)}s...`
 					);
 					await new Promise((r) => setTimeout(r, delay));
 					continue;
 				}
 
-				batchFile.error = isTimeout
-					? `Request timed out after ${attempt + 1} attempts. The PDF may be too large or complex.`
-					: (err.data?.message || err.message || 'API request failed.');
+				if (isRateLimited) {
+					batchFile.error = `API rate limit exceeded after ${attempt + 1} attempts. Please wait a minute and retry.`;
+				} else if (isTimeout) {
+					batchFile.error = `Request timed out after ${attempt + 1} attempts. The PDF may be too large or complex.`;
+				} else {
+					batchFile.error = err.data?.message || err.message || 'API request failed.';
+				}
 				batchFile.status = 'error';
 			}
 		}
@@ -216,9 +229,12 @@ export const useBatchPdfImport = () => {
 			currentIndex.value = i;
 			await processOne(bf);
 
-			// Delay between requests to avoid overwhelming the API
+			// Delay between requests to avoid rate limiting on the AI API
 			if (i < batchFiles.value.length - 1) {
-				await new Promise((r) => setTimeout(r, 2000));
+				const prev = batchFiles.value[i];
+				// Longer cooldown after a rate-limit error to let the API recover
+				const delay = prev.status === 'error' && prev.error?.includes('rate limit') ? 60000 : 5000;
+				await new Promise((r) => setTimeout(r, delay));
 			}
 		}
 
