@@ -70,6 +70,7 @@ const financialSubLinks = [
 	{title: 'Reconciliation', icon: 'i-heroicons-document-check', to: '/financials/reconciliation', boardOnly: true},
 	{title: 'Budget Mgmt', icon: 'i-heroicons-calculator', to: '/financials/budget-management', boardOnly: true},
 	{title: 'Import', icon: 'i-heroicons-arrow-up-tray', to: '/financials/import-center', boardOnly: true},
+	{title: 'Directions', icon: 'i-heroicons-book-open', to: '/admin/financial-directions', popup: true},
 ];
 
 const communicationsLinks = [
@@ -156,6 +157,10 @@ const financialsFirstLink = computed(() => financialSubLinks[0]?.to || '/financi
 const communicationsFirstLink = computed(() => communicationsLinks[0]?.to || '/admin/announcements');
 const managementFirstLink = computed(() => managementLinks[0]?.to || '/admin/users');
 const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/projects');
+
+function openDirectionsPopup() {
+	window.open('/admin/financial-directions', 'financial-directions', 'width=720,height=860,scrollbars=yes,resizable=yes');
+}
 </script>
 
 <template>
@@ -206,7 +211,13 @@ const operationsFirstLink = computed(() => operationsLinks[0]?.to || '/admin/pro
 										<SidebarMenuSub>
 											<template v-for="sub in financialSubLinks" :key="sub.to">
 												<SidebarMenuSubItem v-if="!sub.boardOnly || isBoardMember">
-													<SidebarMenuSubButton as-child :is-active="isActive(sub.to)">
+													<SidebarMenuSubButton v-if="sub.popup" as-child>
+														<a href="#" @click.prevent="openDirectionsPopup">
+															<span>{{ sub.title }}</span>
+															<Icon name="i-heroicons-arrow-top-right-on-square" class="ml-auto h-3 w-3 shrink-0 opacity-50" />
+														</a>
+													</SidebarMenuSubButton>
+													<SidebarMenuSubButton v-else as-child :is-active="isActive(sub.to)">
 														<nuxt-link :to="sub.to">
 															<span>{{ sub.title }}</span>
 														</nuxt-link>

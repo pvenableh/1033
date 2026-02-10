@@ -1,38 +1,36 @@
 <template>
-	<div class="min-h-screen t-bg">
+	<div class="container mx-auto p-6 space-y-6">
 		<!-- Header -->
-		<div class="bg-white dark:bg-gray-800 shadow">
-			<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-				<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-					<div>
-						<h1 class="text-2xl font-bold text-gray-900 dark:text-white">
-							Financial Analysis
-						</h1>
-						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-							Comprehensive financial analytics and projections
-						</p>
-					</div>
-					<div class="flex items-center gap-4">
-						<Select
-							v-model="selectedFiscalYear"
-							:options="yearOptions"
-							placeholder="Fiscal Year"
-							class="w-32"
-						/>
-						<UButton
-							icon="i-heroicons-arrow-path"
-							:loading="loading"
-							@click="refreshData"
-						>
-							Refresh
-						</UButton>
-					</div>
+		<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+			<div class="flex items-center justify-between">
+				<div>
+					<h1 class="text-3xl font-bold uppercase tracking-wider mb-2 dark:text-white">
+						FINANCIAL ANALYSIS
+					</h1>
+					<p class="text-gray-600 dark:text-gray-400">
+						Comprehensive financial analytics and projections
+					</p>
+				</div>
+				<div class="flex items-center gap-3">
+					<Select
+						v-model="selectedFiscalYear"
+						:options="yearOptions"
+						placeholder="Fiscal Year"
+						class="w-32"
+					/>
+					<UButton
+						icon="i-heroicons-arrow-path"
+						:loading="loading"
+						@click="refreshData"
+					>
+						Refresh
+					</UButton>
 				</div>
 			</div>
 		</div>
 
 		<!-- Main Content -->
-		<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+		<div>
 			<!-- Financial Health Score -->
 			<div class="mb-8">
 				<UCard>

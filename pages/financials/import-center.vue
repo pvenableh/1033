@@ -9,9 +9,9 @@
 
 		<template v-if="canReadFinancials">
 			<!-- Header -->
-			<div class="bg-white rounded-lg shadow-sm border p-6">
-				<h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wider">Financial Import Center</h1>
-				<p class="text-gray-600">
+			<div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border dark:border-gray-700 p-6">
+				<h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2 uppercase tracking-wider">Financial Import Center</h1>
+				<p class="text-gray-600 dark:text-gray-400">
 					Import budgets, bank statements, and transactions. Manage bank accounts and fiscal year assignments.
 				</p>
 			</div>
@@ -519,14 +519,6 @@
 								</div>
 							</div>
 
-							<BatchPdfImport
-								v-if="stmtFileType === 'batch'"
-								v-model:account-id="stmtAccountId"
-								v-model:fiscal-year="stmtFiscalYear"
-								:accounts="accounts"
-								:available-fiscal-years="availableFiscalYears"
-								@load-result="handleBatchLoadResult" />
-
 							<!-- PDF Action Buttons -->
 							<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
 								<button
@@ -736,6 +728,16 @@
 									{{ stmtParsing ? 'Parsing...' : 'Parse CSV File' }}
 								</button>
 							</div>
+						</div>
+
+						<!-- Batch PDF Import -->
+						<div v-if="stmtFileType === 'batch'">
+							<BatchPdfImport
+								v-model:account-id="stmtAccountId"
+								v-model:fiscal-year="stmtFiscalYear"
+								:accounts="accounts"
+								:available-fiscal-years="availableFiscalYears"
+								@load-result="handleBatchLoadResult" />
 						</div>
 
 						<!-- ======================== -->
@@ -1354,6 +1356,7 @@ const fileTypes = [
 		description: 'Structured transaction data',
 	},
 	{id: 'csv', label: 'CSV Statement', icon: 'i-heroicons-table-cells', description: 'Reconciliation CSV format'},
+	{id: 'batch', label: 'Batch PDF Import', icon: 'i-heroicons-document-duplicate', description: 'Upload multiple PDFs at once'},
 ];
 
 // ======================
@@ -2089,6 +2092,29 @@ function loadPdfCsvIntoPreview() {
 		beginning_balance: pdfToCsvResult.value.beginning_balance ?? null,
 		ending_balance: pdfToCsvResult.value.ending_balance ?? null,
 		statement_period: pdfToCsvResult.value.statement_period || null,
+	});
+}
+
+function handleBatchLoadResult(batchFile) {
+	if (!batchFile?.result) return;
+	const r = batchFile.result;
+	const txs = (r.transactions || []).map((tx, index) => ({
+		date: tx.date || '',
+		description: tx.description || '',
+		amount: Math.abs(parseFloat(tx.amount) || 0),
+		type: normalizeType(tx.type || ''),
+		vendor: tx.vendor || '',
+		category: tx.category || '',
+		period: tx.period || '',
+		_raw: {...tx, Category: tx.category, Period: tx.period},
+		_source_line: index + 1,
+	}));
+	applyParsedTransactions({
+		success: true,
+		transactions: txs,
+		beginning_balance: r.beginning_balance ?? null,
+		ending_balance: r.ending_balance ?? null,
+		statement_period: r.statement_period || null,
 	});
 }
 
