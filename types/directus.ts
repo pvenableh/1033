@@ -569,6 +569,8 @@ export interface Meeting {
 	url?: string | null;
 	category?: `Board Meeting` | null;
 	location?: `Community Room` | 'Zoom' | null;
+	agenda_file?: DirectusFile | string | null;
+	minutes_file?: DirectusFile | string | null;
 	files?: MeetingsFile[] | string[];
 	presentations?: MeetingsPresentation[] | string[];
 	people?: MeetingsPeople[] | string[];
