@@ -77,6 +77,12 @@ const adminLinks = [
     icon: 'i-heroicons-envelope',
     to: '/admin/invite',
   },
+  {
+    title: 'Financial Directions',
+    description: 'Step-by-step guides for reconciliation, transactions, and transfers',
+    icon: 'i-heroicons-book-open',
+    to: '/admin/financial-directions',
+  },
 ];
 </script>
 
