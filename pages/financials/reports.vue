@@ -284,7 +284,7 @@ const budgetCategories = ref([]);
 // Year options
 const yearOptions = computed(() => {
 	const years = [];
-	for (let y = currentYear - 2; y <= currentYear + 1; y++) {
+	for (let y = 2023; y <= currentYear + 1; y++) {
 		years.push({ label: `${y}`, value: y });
 	}
 	return years;
