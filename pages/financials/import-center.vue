@@ -8,573 +8,686 @@
 		</div>
 
 		<template v-if="canReadFinancials">
-		<!-- Header -->
-		<div class="bg-white rounded-lg shadow-sm border p-6">
-			<h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wider">Financial Import Center</h1>
-			<p class="text-gray-600">
-				Import budgets, bank statements, and transactions. Manage bank accounts and fiscal year assignments.
-			</p>
-		</div>
-
-		<!-- Tab Navigation -->
-		<div class="border-b border-gray-200">
-			<nav class="-mb-px flex space-x-1">
-				<button
-					v-for="tab in visibleTabs"
-					:key="tab.id"
-					@click="activeTab = tab.id"
-					:class="[
-						'py-3 px-6 text-sm font-medium border-b-2 transition-all duration-200 uppercase tracking-wide',
-						activeTab === tab.id
-							? 'border-blue-500 text-blue-600 bg-blue-50'
-							: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-					]">
-					<div class="flex items-center gap-2">
-						<Icon :name="tab.icon" class="w-5 h-5" />
-						{{ tab.label }}
-					</div>
-				</button>
-			</nav>
-		</div>
-
-		<!-- ==================== -->
-		<!-- TAB: Bank Accounts   -->
-		<!-- ==================== -->
-		<div v-if="activeTab === 'accounts'" class="space-y-6">
-			<!-- Create Account Form -->
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4 flex items-center justify-between">
-					<h2 class="text-xl font-semibold text-gray-900">Bank Accounts</h2>
-					<button
-						v-if="canCreateFinancials"
-						@click="showCreateAccount = !showCreateAccount"
-						class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
-						{{ showCreateAccount ? 'Cancel' : '+ Create Account' }}
-					</button>
-				</div>
-
-				<!-- Create Form -->
-				<div v-if="showCreateAccount" class="p-6 bg-blue-50 border-b">
-					<h3 class="text-lg font-medium text-gray-900 mb-4">New Bank Account</h3>
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
-							<input
-								v-model="newAccount.account_name"
-								type="text"
-								placeholder="e.g., Operating Account"
-								class="w-full border rounded-lg px-3 py-2 text-sm" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-							<input
-								v-model="newAccount.account_number"
-								type="text"
-								placeholder="e.g., 5129"
-								class="w-full border rounded-lg px-3 py-2 text-sm" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
-							<select v-model="newAccount.account_type" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option value="operating">Operating</option>
-								<option value="reserve">Reserve</option>
-								<option value="special">Special Assessment</option>
-							</select>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
-							<input v-model="newAccount.color" type="color" class="w-16 h-10 rounded border" />
-						</div>
-						<div class="md:col-span-2">
-							<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
-							<input
-								v-model="newAccount.description"
-								type="text"
-								placeholder="Account description"
-								class="w-full border rounded-lg px-3 py-2 text-sm" />
-						</div>
-					</div>
-					<div class="mt-4">
-						<button
-							@click="createAccount"
-							:disabled="!newAccount.account_name || !newAccount.account_number || accountSaving"
-							class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
-							{{ accountSaving ? 'Creating...' : 'Create Account' }}
-						</button>
-					</div>
-				</div>
-
-				<!-- Accounts List -->
-				<div class="p-6">
-					<div v-if="accountsLoading" class="text-center py-8">
-						<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-						<p class="text-gray-500 text-sm">Loading accounts...</p>
-					</div>
-					<div v-else-if="accounts.length === 0" class="text-center py-8 text-gray-500">
-						No accounts found. Create one above.
-					</div>
-					<div v-else class="space-y-3">
-						<div
-							v-for="account in accounts"
-							:key="account.id"
-							class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
-							<div class="flex items-center gap-4">
-								<div class="w-4 h-4 rounded-full" :style="{ backgroundColor: account.color || '#6B7280' }"></div>
-								<div>
-									<p class="font-medium text-gray-900">{{ account.account_name }}</p>
-									<p class="text-sm text-gray-500">#{{ account.account_number }} &middot; {{ account.account_type }}</p>
-								</div>
-							</div>
-							<span class="text-xs text-gray-400 uppercase">{{ account.description || '' }}</span>
-						</div>
-					</div>
-				</div>
+			<!-- Header -->
+			<div class="bg-white rounded-lg shadow-sm border p-6">
+				<h1 class="text-3xl font-bold text-gray-900 mb-2 uppercase tracking-wider">Financial Import Center</h1>
+				<p class="text-gray-600">
+					Import budgets, bank statements, and transactions. Manage bank accounts and fiscal year assignments.
+				</p>
 			</div>
 
-			<!-- Fiscal Years Management -->
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4 flex items-center justify-between">
-					<div>
-						<h2 class="text-xl font-semibold text-gray-900">Fiscal Years</h2>
-						<p class="text-sm text-gray-500 mt-1">
-							Fiscal years are required before importing budgets or transactions. Each financial record references a fiscal year via M2O relationship.
-						</p>
-					</div>
+			<!-- Tab Navigation -->
+			<div class="border-b border-gray-200">
+				<nav class="-mb-px flex space-x-1">
 					<button
-						v-if="canCreateFinancials"
-						@click="showCreateFiscalYear = !showCreateFiscalYear"
-						class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
-						{{ showCreateFiscalYear ? 'Cancel' : '+ Add Fiscal Year' }}
+						v-for="tab in visibleTabs"
+						:key="tab.id"
+						@click="activeTab = tab.id"
+						:class="[
+							'py-3 px-6 text-sm font-medium border-b-2 transition-all duration-200 uppercase tracking-wide',
+							activeTab === tab.id
+								? 'border-blue-500 text-blue-600 bg-blue-50'
+								: 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
+						]">
+						<div class="flex items-center gap-2">
+							<Icon :name="tab.icon" class="w-5 h-5" />
+							{{ tab.label }}
+						</div>
 					</button>
-				</div>
+				</nav>
+			</div>
 
-				<!-- Create Fiscal Year Form -->
-				<div v-if="showCreateFiscalYear" class="p-6 bg-blue-50 border-b">
-					<h3 class="text-lg font-medium text-gray-900 mb-4">New Fiscal Year</h3>
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
-							<input
-								v-model.number="newFiscalYear.year"
-								type="number"
-								min="2020"
-								max="2050"
-								placeholder="e.g., 2026"
-								class="w-full border rounded-lg px-3 py-2 text-sm" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
-							<input
-								v-model="newFiscalYear.start_date"
-								type="date"
-								class="w-full border rounded-lg px-3 py-2 text-sm" />
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-							<select v-model="newFiscalYear.status" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option value="published">Published (Active)</option>
-								<option value="draft">Draft</option>
-								<option value="archived">Archived</option>
-							</select>
-						</div>
-					</div>
-					<div v-if="newFiscalYear.year && fiscalYearExists(newFiscalYear.year)" class="mt-3 text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
-						A fiscal year record for {{ newFiscalYear.year }} already exists.
-					</div>
-					<div class="mt-4">
+			<!-- ==================== -->
+			<!-- TAB: Bank Accounts   -->
+			<!-- ==================== -->
+			<div v-if="activeTab === 'accounts'" class="space-y-6">
+				<!-- Create Account Form -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4 flex items-center justify-between">
+						<h2 class="text-xl font-semibold text-gray-900">Bank Accounts</h2>
 						<button
-							@click="createFiscalYear"
-							:disabled="!newFiscalYear.year || !newFiscalYear.start_date || fiscalYearSaving || fiscalYearExists(newFiscalYear.year)"
-							class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
-							{{ fiscalYearSaving ? 'Creating...' : 'Create Fiscal Year' }}
+							v-if="canCreateFinancials"
+							@click="showCreateAccount = !showCreateAccount"
+							class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm">
+							{{ showCreateAccount ? 'Cancel' : '+ Create Account' }}
 						</button>
 					</div>
+
+					<!-- Create Form -->
+					<div v-if="showCreateAccount" class="p-6 bg-blue-50 border-b">
+						<h3 class="text-lg font-medium text-gray-900 mb-4">New Bank Account</h3>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Account Name</label>
+								<input
+									v-model="newAccount.account_name"
+									type="text"
+									placeholder="e.g., Operating Account"
+									class="w-full border rounded-lg px-3 py-2 text-sm" />
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
+								<input
+									v-model="newAccount.account_number"
+									type="text"
+									placeholder="e.g., 5129"
+									class="w-full border rounded-lg px-3 py-2 text-sm" />
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Account Type</label>
+								<select v-model="newAccount.account_type" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option value="operating">Operating</option>
+									<option value="reserve">Reserve</option>
+									<option value="special">Special Assessment</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Color</label>
+								<input v-model="newAccount.color" type="color" class="w-16 h-10 rounded border" />
+							</div>
+							<div class="md:col-span-2">
+								<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+								<input
+									v-model="newAccount.description"
+									type="text"
+									placeholder="Account description"
+									class="w-full border rounded-lg px-3 py-2 text-sm" />
+							</div>
+						</div>
+						<div class="mt-4">
+							<button
+								@click="createAccount"
+								:disabled="!newAccount.account_name || !newAccount.account_number || accountSaving"
+								class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
+								{{ accountSaving ? 'Creating...' : 'Create Account' }}
+							</button>
+						</div>
+					</div>
+
+					<!-- Accounts List -->
+					<div class="p-6">
+						<div v-if="accountsLoading" class="text-center py-8">
+							<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+							<p class="text-gray-500 text-sm">Loading accounts...</p>
+						</div>
+						<div v-else-if="accounts.length === 0" class="text-center py-8 text-gray-500">
+							No accounts found. Create one above.
+						</div>
+						<div v-else class="space-y-3">
+							<div
+								v-for="account in accounts"
+								:key="account.id"
+								class="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
+								<div class="flex items-center gap-4">
+									<div class="w-4 h-4 rounded-full" :style="{backgroundColor: account.color || '#6B7280'}"></div>
+									<div>
+										<p class="font-medium text-gray-900">{{ account.account_name }}</p>
+										<p class="text-sm text-gray-500">
+											#{{ account.account_number }} &middot; {{ account.account_type }}
+										</p>
+									</div>
+								</div>
+								<span class="text-xs text-gray-400 uppercase">{{ account.description || '' }}</span>
+							</div>
+						</div>
+					</div>
 				</div>
 
-				<!-- Fiscal Years List -->
-				<div class="p-6">
-					<div v-if="fiscalYearsLoading" class="text-center py-8">
-						<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-						<p class="text-gray-500 text-sm">Loading fiscal years...</p>
+				<!-- Fiscal Years Management -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4 flex items-center justify-between">
+						<div>
+							<h2 class="text-xl font-semibold text-gray-900">Fiscal Years</h2>
+							<p class="text-sm text-gray-500 mt-1">
+								Fiscal years are required before importing budgets or transactions. Each financial record references a
+								fiscal year via M2O relationship.
+							</p>
+						</div>
+						<button
+							v-if="canCreateFinancials"
+							@click="showCreateFiscalYear = !showCreateFiscalYear"
+							class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm whitespace-nowrap">
+							{{ showCreateFiscalYear ? 'Cancel' : '+ Add Fiscal Year' }}
+						</button>
 					</div>
-					<div v-else-if="allFiscalYears.length === 0" class="text-center py-8 text-gray-500">
-						No fiscal years found. Create one to start importing financial data.
-					</div>
-					<div v-else class="space-y-3">
-						<div
-							v-for="fy in allFiscalYears"
-							:key="fy.id"
-							class="flex items-center justify-between p-4 rounded-lg border"
-							:class="fy.status === 'published' ? 'bg-green-50 border-green-200' : fy.status === 'archived' ? 'bg-gray-100 border-gray-300' : 'bg-yellow-50 border-yellow-200'">
-							<div class="flex items-center gap-4">
-								<div class="text-2xl font-bold" :class="fy.status === 'published' ? 'text-green-700' : fy.status === 'archived' ? 'text-gray-500' : 'text-yellow-700'">
-									{{ fy.year }}
-								</div>
-								<div>
-									<p class="text-sm text-gray-600">
-										Start: {{ fy.start_date || 'Not set' }}
-									</p>
-									<p class="text-xs text-gray-400">
-										Record ID: {{ fy.id }}
-									</p>
-								</div>
+
+					<!-- Create Fiscal Year Form -->
+					<div v-if="showCreateFiscalYear" class="p-6 bg-blue-50 border-b">
+						<h3 class="text-lg font-medium text-gray-900 mb-4">New Fiscal Year</h3>
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Year</label>
+								<input
+									v-model.number="newFiscalYear.year"
+									type="number"
+									min="2020"
+									max="2050"
+									placeholder="e.g., 2026"
+									class="w-full border rounded-lg px-3 py-2 text-sm" />
 							</div>
-							<div class="flex items-center gap-3">
-								<span
-									class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
-									:class="{
-										'bg-green-100 text-green-800': fy.status === 'published',
-										'bg-yellow-100 text-yellow-800': fy.status === 'draft',
-										'bg-gray-200 text-gray-600': fy.status === 'archived',
-									}">
-									{{ fy.status }}
-								</span>
-								<!-- Status toggle for admins -->
-								<select
-									v-if="canUpdateFinancials"
-									:value="fy.status"
-									@change="updateFiscalYearStatus(fy.id, $event.target.value)"
-									class="border rounded px-2 py-1 text-xs">
-									<option value="published">Published</option>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+								<input
+									v-model="newFiscalYear.start_date"
+									type="date"
+									class="w-full border rounded-lg px-3 py-2 text-sm" />
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+								<select v-model="newFiscalYear.status" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option value="published">Published (Active)</option>
 									<option value="draft">Draft</option>
 									<option value="archived">Archived</option>
 								</select>
 							</div>
 						</div>
+						<div
+							v-if="newFiscalYear.year && fiscalYearExists(newFiscalYear.year)"
+							class="mt-3 text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+							A fiscal year record for {{ newFiscalYear.year }} already exists.
+						</div>
+						<div class="mt-4">
+							<button
+								@click="createFiscalYear"
+								:disabled="
+									!newFiscalYear.year ||
+									!newFiscalYear.start_date ||
+									fiscalYearSaving ||
+									fiscalYearExists(newFiscalYear.year)
+								"
+								class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
+								{{ fiscalYearSaving ? 'Creating...' : 'Create Fiscal Year' }}
+							</button>
+						</div>
+					</div>
+
+					<!-- Fiscal Years List -->
+					<div class="p-6">
+						<div v-if="fiscalYearsLoading" class="text-center py-8">
+							<div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
+							<p class="text-gray-500 text-sm">Loading fiscal years...</p>
+						</div>
+						<div v-else-if="allFiscalYears.length === 0" class="text-center py-8 text-gray-500">
+							No fiscal years found. Create one to start importing financial data.
+						</div>
+						<div v-else class="space-y-3">
+							<div
+								v-for="fy in allFiscalYears"
+								:key="fy.id"
+								class="flex items-center justify-between p-4 rounded-lg border"
+								:class="
+									fy.status === 'published'
+										? 'bg-green-50 border-green-200'
+										: fy.status === 'archived'
+											? 'bg-gray-100 border-gray-300'
+											: 'bg-yellow-50 border-yellow-200'
+								">
+								<div class="flex items-center gap-4">
+									<div
+										class="text-2xl font-bold"
+										:class="
+											fy.status === 'published'
+												? 'text-green-700'
+												: fy.status === 'archived'
+													? 'text-gray-500'
+													: 'text-yellow-700'
+										">
+										{{ fy.year }}
+									</div>
+									<div>
+										<p class="text-sm text-gray-600">Start: {{ fy.start_date || 'Not set' }}</p>
+										<p class="text-xs text-gray-400">Record ID: {{ fy.id }}</p>
+									</div>
+								</div>
+								<div class="flex items-center gap-3">
+									<span
+										class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+										:class="{
+											'bg-green-100 text-green-800': fy.status === 'published',
+											'bg-yellow-100 text-yellow-800': fy.status === 'draft',
+											'bg-gray-200 text-gray-600': fy.status === 'archived',
+										}">
+										{{ fy.status }}
+									</span>
+									<!-- Status toggle for admins -->
+									<select
+										v-if="canUpdateFinancials"
+										:value="fy.status"
+										@change="updateFiscalYearStatus(fy.id, $event.target.value)"
+										class="border rounded px-2 py-1 text-xs">
+										<option value="published">Published</option>
+										<option value="draft">Draft</option>
+										<option value="archived">Archived</option>
+									</select>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
 
-		<!-- ==================== -->
-		<!-- TAB: Budget Import   -->
-		<!-- ==================== -->
-		<div v-if="activeTab === 'budgets'" class="space-y-6">
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4">
-					<h2 class="text-xl font-semibold text-gray-900">Import Budget from CSV</h2>
-					<p class="text-sm text-gray-500 mt-1">
-						Upload a budget CSV file to create or update budget categories and line items.
-					</p>
-				</div>
-				<div class="p-6 space-y-6">
-					<!-- Fiscal Year Selection -->
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Fiscal Year</label>
-							<select v-model="budgetFiscalYear" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">
-									{{ fy.year }}{{ fy.is_current ? ' (Current)' : '' }}
-								</option>
-							</select>
-							<p class="text-xs text-gray-400 mt-1">
-								Budget items will be linked to this fiscal year record in Directus.
-							</p>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Target Account</label>
-							<select v-model="budgetAccountId" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option value="">All Accounts (Operating Budget)</option>
-								<option v-for="account in accounts" :key="account.id" :value="account.id">
-									{{ account.account_name }} ({{ account.account_number }})
-								</option>
-							</select>
-						</div>
-					</div>
-
-					<!-- File Upload -->
-					<div
-						class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-						:class="{ 'border-blue-500 bg-blue-50': budgetDragging }"
-						@dragover.prevent="budgetDragging = true"
-						@dragleave.prevent="budgetDragging = false"
-						@drop.prevent="handleBudgetDrop">
-						<input ref="budgetFileInput" type="file" accept=".csv" @change="handleBudgetFileSelect" class="hidden" />
-
-						<div v-if="!budgetFile">
-							<Icon name="i-heroicons-document-arrow-up" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-							<p class="text-lg text-gray-600 mb-2">Drop your budget CSV file here</p>
-							<p class="text-sm text-gray-500 mb-4">
-								CSV format matching public/data/2025 Operating Budget.csv
-							</p>
-							<button
-								@click="$refs.budgetFileInput.click()"
-								class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-								Choose File
-							</button>
-						</div>
-						<div v-else class="text-green-600">
-							<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
-							<p class="text-lg font-semibold">{{ budgetFile.name }}</p>
-							<p class="text-sm text-gray-500">{{ (budgetFile.size / 1024).toFixed(1) }} KB</p>
-							<button @click="clearBudgetFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
-								Remove file
-							</button>
-						</div>
-					</div>
-
-					<!-- Parse & Preview -->
-					<div v-if="budgetFile" class="text-center">
-						<button
-							@click="parseBudgetCSV"
-							:disabled="budgetParsing"
-							class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-							{{ budgetParsing ? 'Parsing...' : 'Parse Budget CSV' }}
-						</button>
-					</div>
-
-					<!-- Budget Preview -->
-					<div v-if="budgetPreview.length > 0" class="space-y-4">
-						<div class="bg-green-50 p-4 rounded-lg border border-green-200">
-							<h3 class="font-semibold text-green-800">
-								Parsed {{ budgetPreview.length }} budget line items
-							</h3>
-							<p class="text-sm text-green-600">
-								Fiscal Year: {{ budgetFiscalYear }} (Directus record ID: {{ resolvedBudgetFiscalYearId || 'resolving...' }})
-							</p>
-						</div>
-
-						<div class="overflow-x-auto">
-							<table class="min-w-full divide-y divide-gray-200 text-sm">
-								<thead class="bg-gray-50">
-									<tr>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Category</th>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Description</th>
-										<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Monthly</th>
-										<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Yearly</th>
-									</tr>
-								</thead>
-								<tbody class="divide-y divide-gray-200">
-									<tr v-for="(item, idx) in budgetPreview.slice(0, 25)" :key="idx">
-										<td class="px-4 py-2 text-gray-600">{{ item.category }}</td>
-										<td class="px-4 py-2 text-gray-900">{{ item.description }}</td>
-										<td class="px-4 py-2 text-right font-mono">${{ item.monthly_budget?.toLocaleString() || '0' }}</td>
-										<td class="px-4 py-2 text-right font-mono">${{ item.yearly_budget?.toLocaleString() || '0' }}</td>
-									</tr>
-								</tbody>
-							</table>
-							<p v-if="budgetPreview.length > 25" class="text-sm text-gray-500 text-center mt-2">
-								Showing 25 of {{ budgetPreview.length }} items
-							</p>
-						</div>
-
-						<div class="text-center">
-							<button
-								v-if="canCreateFinancials"
-								@click="importBudget"
-								:disabled="budgetImporting || !resolvedBudgetFiscalYearId"
-								class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-								{{ budgetImporting ? `Importing... (${budgetImportProgress}/${budgetPreview.length})` : 'Import Budget Data' }}
-							</button>
-							<p v-else class="text-sm text-red-600">You need financials create permission to import budgets.</p>
-						</div>
-					</div>
-
-					<!-- Budget Import Results -->
-					<div v-if="budgetImportResults" class="p-4 rounded-lg border" :class="budgetImportResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-						<h3 :class="budgetImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
-							{{ budgetImportResults.success ? 'Budget Import Complete' : 'Import Failed' }}
-						</h3>
-						<p class="text-sm mt-1" :class="budgetImportResults.success ? 'text-green-600' : 'text-red-600'">
-							{{ budgetImportResults.message }}
+			<!-- ==================== -->
+			<!-- TAB: Budget Import   -->
+			<!-- ==================== -->
+			<div v-if="activeTab === 'budgets'" class="space-y-6">
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Import Budget from CSV</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Upload a budget CSV file to create or update budget categories and line items.
 						</p>
 					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- ======================== -->
-		<!-- TAB: Statement Import    -->
-		<!-- ======================== -->
-		<div v-if="activeTab === 'statements'" class="space-y-6">
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4">
-					<h2 class="text-xl font-semibold text-gray-900">Import Bank Statement</h2>
-					<p class="text-sm text-gray-500 mt-1">
-						Upload a PDF bank statement, a JSON transaction file, or a CSV statement export.
-					</p>
-				</div>
-				<div class="p-6 space-y-6">
-					<!-- Configuration Row -->
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">Account</label>
-							<select v-model="stmtAccountId" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option value="">Select Account</option>
-								<option v-for="account in accounts" :key="account.id" :value="account.id">
-									{{ account.account_name }} ({{ account.account_number }})
-								</option>
-							</select>
+					<div class="p-6 space-y-6">
+						<!-- Fiscal Year Selection -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Fiscal Year</label>
+								<select v-model="budgetFiscalYear" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">
+										{{ fy.year }}{{ fy.is_current ? ' (Current)' : '' }}
+									</option>
+								</select>
+								<p class="text-xs text-gray-400 mt-1">
+									Budget items will be linked to this fiscal year record in Directus.
+								</p>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Target Account</label>
+								<select v-model="budgetAccountId" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option value="">All Accounts (Operating Budget)</option>
+									<option v-for="account in accounts" :key="account.id" :value="account.id">
+										{{ account.account_name }} ({{ account.account_number }})
+									</option>
+								</select>
+							</div>
 						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">
-								Fiscal Year
-								<span v-if="stmtDetectedYear" class="text-green-600 text-xs ml-1">(auto-detected: {{ stmtDetectedYear }})</span>
-							</label>
-							<select v-model="stmtFiscalYear" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">
-									{{ fy.year }}{{ fy.is_current ? ' (Current)' : '' }}
-								</option>
-							</select>
-							<p class="text-xs text-gray-400 mt-1">
-								{{ stmtDetectedYear ? 'Detected from transaction dates. You can override.' : 'Select or let auto-detect from file.' }}
-							</p>
-						</div>
-						<div>
-							<label class="block text-sm font-medium text-gray-700 mb-1">
-								Statement Month
-								<span v-if="stmtDetectedMonth" class="text-green-600 text-xs ml-1">(auto-detected)</span>
-							</label>
-							<select v-model="stmtMonth" class="w-full border rounded-lg px-3 py-2 text-sm">
-								<option value="">Auto-detect from file</option>
-								<option v-for="month in monthOptions" :key="month.value" :value="month.value">
-									{{ month.label }}
-								</option>
-							</select>
-						</div>
-					</div>
 
-					<!-- File Type Selector -->
-					<div class="flex gap-4">
-						<button
-							v-for="ft in fileTypes"
-							:key="ft.id"
-							@click="stmtFileType = ft.id"
-							:class="[
-								'flex-1 p-4 rounded-lg border-2 transition-all text-center',
-								stmtFileType === ft.id
-									? 'border-blue-500 bg-blue-50'
-									: 'border-gray-200 hover:border-gray-300',
-							]">
-							<Icon :name="ft.icon" class="w-8 h-8 mx-auto mb-2" :class="stmtFileType === ft.id ? 'text-blue-600' : 'text-gray-400'" />
-							<p class="font-medium text-sm" :class="stmtFileType === ft.id ? 'text-blue-700' : 'text-gray-700'">{{ ft.label }}</p>
-							<p class="text-xs text-gray-500 mt-1">{{ ft.description }}</p>
-						</button>
-					</div>
-
-					<!-- PDF Upload -->
-					<div v-if="stmtFileType === 'pdf'" class="space-y-4">
+						<!-- File Upload -->
 						<div
 							class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-							:class="{ 'border-blue-500 bg-blue-50': stmtDragging }"
-							@dragover.prevent="stmtDragging = true"
-							@dragleave.prevent="stmtDragging = false"
-							@drop.prevent="handleStmtDrop">
-							<input ref="stmtFileInput" type="file" accept=".pdf" @change="handleStmtFileSelect" class="hidden" />
+							:class="{'border-blue-500 bg-blue-50': budgetDragging}"
+							@dragover.prevent="budgetDragging = true"
+							@dragleave.prevent="budgetDragging = false"
+							@drop.prevent="handleBudgetDrop">
+							<input ref="budgetFileInput" type="file" accept=".csv" @change="handleBudgetFileSelect" class="hidden" />
 
-							<div v-if="!stmtFile">
-								<Icon name="i-heroicons-document" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-								<p class="text-lg text-gray-600 mb-2">Drop your PDF bank statement here</p>
-								<p class="text-sm text-gray-500 mb-4">
-									Claude AI will extract transactions automatically, or you can provide JSON manually.
-								</p>
+							<div v-if="!budgetFile">
+								<Icon name="i-heroicons-document-arrow-up" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+								<p class="text-lg text-gray-600 mb-2">Drop your budget CSV file here</p>
+								<p class="text-sm text-gray-500 mb-4">CSV format matching public/data/2025 Operating Budget.csv</p>
 								<button
-									@click="$refs.stmtFileInput.click()"
+									@click="$refs.budgetFileInput.click()"
 									class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-									Choose PDF
+									Choose File
 								</button>
 							</div>
 							<div v-else class="text-green-600">
 								<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
-								<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
-								<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
-								<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
+								<p class="text-lg font-semibold">{{ budgetFile.name }}</p>
+								<p class="text-sm text-gray-500">{{ (budgetFile.size / 1024).toFixed(1) }} KB</p>
+								<button @click="clearBudgetFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
 									Remove file
 								</button>
 							</div>
 						</div>
 
-						<!-- PDF Action Buttons -->
-						<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
+						<!-- Parse & Preview -->
+						<div v-if="budgetFile" class="text-center">
 							<button
-								@click="extractPdfToCsv"
-								:disabled="claudeExtracting || pdfToCsvExtracting"
-								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
-								<Icon v-if="pdfToCsvExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
-								<Icon v-else name="i-heroicons-table-cells" class="w-5 h-5" />
-								{{ pdfToCsvExtracting ? 'Claude is extracting CSV...' : 'PDF → CSV (Recommended)' }}
-							</button>
-							<button
-								@click="extractPdfWithClaude"
-								:disabled="claudeExtracting || pdfToCsvExtracting"
-								class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
-								<Icon v-if="claudeExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
-								<Icon v-else name="i-heroicons-sparkles" class="w-5 h-5" />
-								{{ claudeExtracting ? 'Claude is reading PDF...' : 'Extract Raw (No Categories)' }}
-							</button>
-							<button
-								@click="uploadPdf"
-								:disabled="stmtUploading"
-								class="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm">
-								{{ stmtUploading ? 'Uploading...' : 'Upload PDF Only (provide JSON later)' }}
+								@click="parseBudgetCSV"
+								:disabled="budgetParsing"
+								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+								{{ budgetParsing ? 'Parsing...' : 'Parse Budget CSV' }}
 							</button>
 						</div>
 
-						<!-- PDF → CSV Success Banner -->
-						<div v-if="pdfToCsvResult && pdfToCsvResult.success" class="p-4 bg-green-50 rounded-lg border border-green-200 space-y-3">
-							<div class="flex items-center gap-2">
-								<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-600" />
-								<h3 class="font-semibold text-green-800">PDF Extracted with Categories</h3>
+						<!-- Budget Preview -->
+						<div v-if="budgetPreview.length > 0" class="space-y-4">
+							<div class="bg-green-50 p-4 rounded-lg border border-green-200">
+								<h3 class="font-semibold text-green-800">Parsed {{ budgetPreview.length }} budget line items</h3>
+								<p class="text-sm text-green-600">
+									Fiscal Year: {{ budgetFiscalYear }} (Directus record ID:
+									{{ resolvedBudgetFiscalYearId || 'resolving...' }})
+								</p>
 							</div>
-							<p class="text-sm text-green-600">{{ pdfToCsvResult.message }}</p>
-							<div class="flex flex-wrap gap-3 text-sm">
-								<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
-									{{ pdfToCsvResult.transactions?.length || 0 }} transactions
-								</span>
-								<span v-if="pdfToCsvResult.beginning_balance != null" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-									Begin: ${{ pdfToCsvResult.beginning_balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</span>
-								<span v-if="pdfToCsvResult.ending_balance != null" class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-									End: ${{ pdfToCsvResult.ending_balance?.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</span>
-								<span v-if="pdfToCsvResult.statement_period" class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
-									{{ pdfToCsvResult.statement_period }}
-								</span>
-								<span v-if="pdfToCsvResult.pdf_file_id" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
-									PDF saved to Directus
-								</span>
+
+							<div class="overflow-x-auto">
+								<table class="min-w-full divide-y divide-gray-200 text-sm">
+									<thead class="bg-gray-50">
+										<tr>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Category</th>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Description</th>
+											<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Monthly</th>
+											<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Yearly</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-gray-200">
+										<tr v-for="(item, idx) in budgetPreview.slice(0, 25)" :key="idx">
+											<td class="px-4 py-2 text-gray-600">{{ item.category }}</td>
+											<td class="px-4 py-2 text-gray-900">{{ item.description }}</td>
+											<td class="px-4 py-2 text-right font-mono">
+												${{ item.monthly_budget?.toLocaleString() || '0' }}
+											</td>
+											<td class="px-4 py-2 text-right font-mono">${{ item.yearly_budget?.toLocaleString() || '0' }}</td>
+										</tr>
+									</tbody>
+								</table>
+								<p v-if="budgetPreview.length > 25" class="text-sm text-gray-500 text-center mt-2">
+									Showing 25 of {{ budgetPreview.length }} items
+								</p>
 							</div>
-							<div class="flex gap-3">
+
+							<div class="text-center">
 								<button
-									@click="downloadCsvFromPdf"
-									class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm inline-flex items-center gap-2">
-									<Icon name="i-heroicons-arrow-down-tray" class="w-4 h-4" />
-									Download CSV File
+									v-if="canCreateFinancials"
+									@click="importBudget"
+									:disabled="budgetImporting || !resolvedBudgetFiscalYearId"
+									class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+									{{
+										budgetImporting
+											? `Importing... (${budgetImportProgress}/${budgetPreview.length})`
+											: 'Import Budget Data'
+									}}
 								</button>
-								<button
-									@click="loadPdfCsvIntoPreview"
-									class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm inline-flex items-center gap-2">
-									<Icon name="i-heroicons-arrow-right" class="w-4 h-4" />
-									Load into Import Preview
-								</button>
+								<p v-else class="text-sm text-red-600">You need financials create permission to import budgets.</p>
 							</div>
 						</div>
 
-						<!-- Claude Extraction Error -->
-						<div v-if="claudeExtractionError" class="p-4 bg-red-50 rounded-lg border border-red-200">
-							<h3 class="font-semibold text-red-800">Extraction Failed</h3>
-							<p class="text-sm text-red-600 mt-1">{{ claudeExtractionError }}</p>
-							<p class="text-sm text-gray-600 mt-2">You can try again, or paste JSON manually below.</p>
-						</div>
-
-						<!-- Claude Token Usage -->
-						<div v-if="claudeTokenUsage" class="text-xs text-gray-400 text-center">
-							Claude API usage: {{ claudeTokenUsage.input.toLocaleString() }} input + {{ claudeTokenUsage.output.toLocaleString() }} output tokens
-						</div>
-
-						<!-- PDF Upload Result (store-only fallback) -->
-						<div v-if="pdfUploadResult && !stmtTransactions.length" class="p-4 bg-blue-50 rounded-lg border border-blue-200">
-							<h3 class="font-semibold text-blue-800">PDF Uploaded Successfully</h3>
-							<p class="text-sm text-blue-600 mt-1">{{ pdfUploadResult.message }}</p>
-							<p class="text-sm text-blue-600 mt-2">
-								Paste the transaction JSON below to continue.
+						<!-- Budget Import Results -->
+						<div
+							v-if="budgetImportResults"
+							class="p-4 rounded-lg border"
+							:class="budgetImportResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+							<h3 :class="budgetImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
+								{{ budgetImportResults.success ? 'Budget Import Complete' : 'Import Failed' }}
+							</h3>
+							<p class="text-sm mt-1" :class="budgetImportResults.success ? 'text-green-600' : 'text-red-600'">
+								{{ budgetImportResults.message }}
 							</p>
-							<div class="mt-4">
-								<label class="block text-sm font-medium text-gray-700 mb-1">Paste Transaction JSON</label>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- ======================== -->
+			<!-- TAB: Statement Import    -->
+			<!-- ======================== -->
+			<div v-if="activeTab === 'statements'" class="space-y-6">
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Import Bank Statement</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Upload a PDF bank statement, a JSON transaction file, or a CSV statement export.
+						</p>
+					</div>
+					<div class="p-6 space-y-6">
+						<!-- Configuration Row -->
+						<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">Account</label>
+								<select v-model="stmtAccountId" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option value="">Select Account</option>
+									<option v-for="account in accounts" :key="account.id" :value="account.id">
+										{{ account.account_name }} ({{ account.account_number }})
+									</option>
+								</select>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">
+									Fiscal Year
+									<span v-if="stmtDetectedYear" class="text-green-600 text-xs ml-1">
+										(auto-detected: {{ stmtDetectedYear }})
+									</span>
+								</label>
+								<select v-model="stmtFiscalYear" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">
+										{{ fy.year }}{{ fy.is_current ? ' (Current)' : '' }}
+									</option>
+								</select>
+								<p class="text-xs text-gray-400 mt-1">
+									{{
+										stmtDetectedYear
+											? 'Detected from transaction dates. You can override.'
+											: 'Select or let auto-detect from file.'
+									}}
+								</p>
+							</div>
+							<div>
+								<label class="block text-sm font-medium text-gray-700 mb-1">
+									Statement Month
+									<span v-if="stmtDetectedMonth" class="text-green-600 text-xs ml-1">(auto-detected)</span>
+								</label>
+								<select v-model="stmtMonth" class="w-full border rounded-lg px-3 py-2 text-sm">
+									<option value="">Auto-detect from file</option>
+									<option v-for="month in monthOptions" :key="month.value" :value="month.value">
+										{{ month.label }}
+									</option>
+								</select>
+							</div>
+						</div>
+
+						<!-- File Type Selector -->
+						<div class="flex gap-4">
+							<button
+								v-for="ft in fileTypes"
+								:key="ft.id"
+								@click="stmtFileType = ft.id"
+								:class="[
+									'flex-1 p-4 rounded-lg border-2 transition-all text-center',
+									stmtFileType === ft.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300',
+								]">
+								<Icon
+									:name="ft.icon"
+									class="w-8 h-8 mx-auto mb-2"
+									:class="stmtFileType === ft.id ? 'text-blue-600' : 'text-gray-400'" />
+								<p class="font-medium text-sm" :class="stmtFileType === ft.id ? 'text-blue-700' : 'text-gray-700'">
+									{{ ft.label }}
+								</p>
+								<p class="text-xs text-gray-500 mt-1">{{ ft.description }}</p>
+							</button>
+						</div>
+
+						<!-- PDF Upload -->
+						<div v-if="stmtFileType === 'pdf'" class="space-y-4">
+							<div
+								class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+								:class="{'border-blue-500 bg-blue-50': stmtDragging}"
+								@dragover.prevent="stmtDragging = true"
+								@dragleave.prevent="stmtDragging = false"
+								@drop.prevent="handleStmtDrop">
+								<input ref="stmtFileInput" type="file" accept=".pdf" @change="handleStmtFileSelect" class="hidden" />
+
+								<div v-if="!stmtFile">
+									<Icon name="i-heroicons-document" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+									<p class="text-lg text-gray-600 mb-2">Drop your PDF bank statement here</p>
+									<p class="text-sm text-gray-500 mb-4">
+										Claude AI will extract transactions automatically, or you can provide JSON manually.
+									</p>
+									<button
+										@click="$refs.stmtFileInput.click()"
+										class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+										Choose PDF
+									</button>
+								</div>
+								<div v-else class="text-green-600">
+									<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
+									<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
+									<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
+									<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
+										Remove file
+									</button>
+								</div>
+							</div>
+
+							<BatchPdfImport
+								v-if="stmtFileType === 'batch'"
+								v-model:account-id="stmtAccountId"
+								v-model:fiscal-year="stmtFiscalYear"
+								:accounts="accounts"
+								:available-fiscal-years="availableFiscalYears"
+								@load-result="handleBatchLoadResult" />
+
+							<!-- PDF Action Buttons -->
+							<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
+								<button
+									@click="extractPdfToCsv"
+									:disabled="claudeExtracting || pdfToCsvExtracting"
+									class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
+									<Icon v-if="pdfToCsvExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
+									<Icon v-else name="i-heroicons-table-cells" class="w-5 h-5" />
+									{{ pdfToCsvExtracting ? 'Claude is extracting CSV...' : 'PDF → CSV (Recommended)' }}
+								</button>
+								<button
+									@click="extractPdfWithClaude"
+									:disabled="claudeExtracting || pdfToCsvExtracting"
+									class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 inline-flex items-center justify-center gap-2">
+									<Icon v-if="claudeExtracting" name="i-heroicons-arrow-path" class="w-5 h-5 animate-spin" />
+									<Icon v-else name="i-heroicons-sparkles" class="w-5 h-5" />
+									{{ claudeExtracting ? 'Claude is reading PDF...' : 'Extract Raw (No Categories)' }}
+								</button>
+								<button
+									@click="uploadPdf"
+									:disabled="stmtUploading"
+									class="bg-gray-600 text-white px-8 py-3 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm">
+									{{ stmtUploading ? 'Uploading...' : 'Upload PDF Only (provide JSON later)' }}
+								</button>
+							</div>
+
+							<!-- PDF → CSV Success Banner -->
+							<div
+								v-if="pdfToCsvResult && pdfToCsvResult.success"
+								class="p-4 bg-green-50 rounded-lg border border-green-200 space-y-3">
+								<div class="flex items-center gap-2">
+									<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-600" />
+									<h3 class="font-semibold text-green-800">PDF Extracted with Categories</h3>
+								</div>
+								<p class="text-sm text-green-600">{{ pdfToCsvResult.message }}</p>
+								<div class="flex flex-wrap gap-3 text-sm">
+									<span class="bg-green-100 text-green-800 px-3 py-1 rounded-full">
+										{{ pdfToCsvResult.transactions?.length || 0 }} transactions
+									</span>
+									<span
+										v-if="pdfToCsvResult.beginning_balance != null"
+										class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+										Begin: ${{
+											pdfToCsvResult.beginning_balance?.toLocaleString(undefined, {minimumFractionDigits: 2})
+										}}
+									</span>
+									<span
+										v-if="pdfToCsvResult.ending_balance != null"
+										class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+										End: ${{ pdfToCsvResult.ending_balance?.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									</span>
+									<span
+										v-if="pdfToCsvResult.statement_period"
+										class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full">
+										{{ pdfToCsvResult.statement_period }}
+									</span>
+									<span v-if="pdfToCsvResult.pdf_file_id" class="bg-gray-100 text-gray-700 px-3 py-1 rounded-full">
+										PDF saved to Directus
+									</span>
+								</div>
+								<div class="flex gap-3">
+									<button
+										@click="downloadCsvFromPdf"
+										class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm inline-flex items-center gap-2">
+										<Icon name="i-heroicons-arrow-down-tray" class="w-4 h-4" />
+										Download CSV File
+									</button>
+									<button
+										@click="loadPdfCsvIntoPreview"
+										class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm inline-flex items-center gap-2">
+										<Icon name="i-heroicons-arrow-right" class="w-4 h-4" />
+										Load into Import Preview
+									</button>
+								</div>
+							</div>
+
+							<!-- Claude Extraction Error -->
+							<div v-if="claudeExtractionError" class="p-4 bg-red-50 rounded-lg border border-red-200">
+								<h3 class="font-semibold text-red-800">Extraction Failed</h3>
+								<p class="text-sm text-red-600 mt-1">{{ claudeExtractionError }}</p>
+								<p class="text-sm text-gray-600 mt-2">You can try again, or paste JSON manually below.</p>
+							</div>
+
+							<!-- Claude Token Usage -->
+							<div v-if="claudeTokenUsage" class="text-xs text-gray-400 text-center">
+								Claude API usage: {{ claudeTokenUsage.input.toLocaleString() }} input +
+								{{ claudeTokenUsage.output.toLocaleString() }} output tokens
+							</div>
+
+							<!-- PDF Upload Result (store-only fallback) -->
+							<div
+								v-if="pdfUploadResult && !stmtTransactions.length"
+								class="p-4 bg-blue-50 rounded-lg border border-blue-200">
+								<h3 class="font-semibold text-blue-800">PDF Uploaded Successfully</h3>
+								<p class="text-sm text-blue-600 mt-1">{{ pdfUploadResult.message }}</p>
+								<p class="text-sm text-blue-600 mt-2">Paste the transaction JSON below to continue.</p>
+								<div class="mt-4">
+									<label class="block text-sm font-medium text-gray-700 mb-1">Paste Transaction JSON</label>
+									<textarea
+										v-model="pastedJson"
+										rows="8"
+										placeholder='[{"date":"01/02","description":"Remote Deposit","amount":2300,"type":"deposit","vendor":"Multiple Units"}]'
+										class="w-full border rounded-lg px-3 py-2 text-sm font-mono"></textarea>
+									<button
+										@click="parseJsonFromPaste"
+										:disabled="!pastedJson.trim()"
+										class="mt-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm">
+										Parse Pasted JSON
+									</button>
+								</div>
+							</div>
+						</div>
+
+						<!-- JSON Upload -->
+						<div v-if="stmtFileType === 'json'" class="space-y-4">
+							<div
+								class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+								:class="{'border-blue-500 bg-blue-50': stmtDragging}"
+								@dragover.prevent="stmtDragging = true"
+								@dragleave.prevent="stmtDragging = false"
+								@drop.prevent="handleStmtDrop">
+								<input ref="stmtFileInput" type="file" accept=".json" @change="handleStmtFileSelect" class="hidden" />
+
+								<div v-if="!stmtFile">
+									<Icon name="i-heroicons-code-bracket" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+									<p class="text-lg text-gray-600 mb-2">Drop your JSON transaction file here</p>
+									<p class="text-sm text-gray-500 mb-4">
+										JSON array of transactions or object with "transactions" array
+									</p>
+									<button
+										@click="$refs.stmtFileInput.click()"
+										class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+										Choose JSON File
+									</button>
+								</div>
+								<div v-else class="text-green-600">
+									<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
+									<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
+									<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
+									<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
+										Remove file
+									</button>
+								</div>
+							</div>
+
+							<div v-if="stmtFile" class="text-center">
+								<button
+									@click="parseStmtFile"
+									:disabled="stmtParsing"
+									class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+									{{ stmtParsing ? 'Parsing...' : 'Parse JSON File' }}
+								</button>
+							</div>
+
+							<!-- Or paste JSON -->
+							<div class="text-center text-gray-400 text-sm">- or paste JSON directly -</div>
+							<div>
 								<textarea
 									v-model="pastedJson"
-									rows="8"
-									placeholder='[{"date":"01/02","description":"Remote Deposit","amount":2300,"type":"deposit","vendor":"Multiple Units"}]'
+									rows="6"
+									placeholder='{"beginning_balance":46086.55,"ending_balance":64114.11,"statement_period":"January 2025","transactions":[{"date":"01/02","description":"Remote Deposit","amount":2300,"type":"deposit"}]}'
 									class="w-full border rounded-lg px-3 py-2 text-sm font-mono"></textarea>
 								<button
 									@click="parseJsonFromPaste"
@@ -584,553 +697,567 @@
 								</button>
 							</div>
 						</div>
-					</div>
 
-					<!-- JSON Upload -->
-					<div v-if="stmtFileType === 'json'" class="space-y-4">
-						<div
-							class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-							:class="{ 'border-blue-500 bg-blue-50': stmtDragging }"
-							@dragover.prevent="stmtDragging = true"
-							@dragleave.prevent="stmtDragging = false"
-							@drop.prevent="handleStmtDrop">
-							<input ref="stmtFileInput" type="file" accept=".json" @change="handleStmtFileSelect" class="hidden" />
+						<!-- CSV Upload -->
+						<div v-if="stmtFileType === 'csv'" class="space-y-4">
+							<div
+								class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
+								:class="{'border-blue-500 bg-blue-50': stmtDragging}"
+								@dragover.prevent="stmtDragging = true"
+								@dragleave.prevent="stmtDragging = false"
+								@drop.prevent="handleStmtDrop">
+								<input ref="stmtFileInput" type="file" accept=".csv" @change="handleStmtFileSelect" class="hidden" />
 
-							<div v-if="!stmtFile">
-								<Icon name="i-heroicons-code-bracket" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-								<p class="text-lg text-gray-600 mb-2">Drop your JSON transaction file here</p>
-								<p class="text-sm text-gray-500 mb-4">
-									JSON array of transactions or object with "transactions" array
-								</p>
+								<div v-if="!stmtFile">
+									<Icon name="i-heroicons-table-cells" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
+									<p class="text-lg text-gray-600 mb-2">Drop your CSV bank statement here</p>
+									<p class="text-sm text-gray-500 mb-4">Same format as public/data/reconciliation CSVs</p>
+									<button
+										@click="$refs.stmtFileInput.click()"
+										class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+										Choose CSV File
+									</button>
+								</div>
+								<div v-else class="text-green-600">
+									<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
+									<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
+									<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
+									<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
+										Remove file
+									</button>
+								</div>
+							</div>
+
+							<div v-if="stmtFile" class="text-center">
 								<button
-									@click="$refs.stmtFileInput.click()"
-									class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-									Choose JSON File
-								</button>
-							</div>
-							<div v-else class="text-green-600">
-								<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
-								<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
-								<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
-								<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
-									Remove file
+									@click="parseStmtFile"
+									:disabled="stmtParsing"
+									class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
+									{{ stmtParsing ? 'Parsing...' : 'Parse CSV File' }}
 								</button>
 							</div>
 						</div>
 
-						<div v-if="stmtFile" class="text-center">
-							<button
-								@click="parseStmtFile"
-								:disabled="stmtParsing"
-								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-								{{ stmtParsing ? 'Parsing...' : 'Parse JSON File' }}
-							</button>
-						</div>
+						<!-- ======================== -->
+						<!-- Transaction Preview      -->
+						<!-- ======================== -->
+						<div v-if="stmtTransactions.length > 0" class="space-y-4">
+							<!-- Summary -->
+							<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+								<div class="bg-gray-50 p-4 rounded-lg text-center">
+									<p class="text-xs text-gray-500 uppercase">Transactions</p>
+									<p class="text-2xl font-bold text-gray-900">{{ stmtTransactions.length }}</p>
+								</div>
+								<div class="bg-green-50 p-4 rounded-lg text-center">
+									<p class="text-xs text-green-600 uppercase">Deposits</p>
+									<p class="text-2xl font-bold text-green-700">
+										${{ stmtTotalDeposits.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									</p>
+								</div>
+								<div class="bg-red-50 p-4 rounded-lg text-center">
+									<p class="text-xs text-red-600 uppercase">Withdrawals</p>
+									<p class="text-2xl font-bold text-red-700">
+										${{ stmtTotalWithdrawals.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									</p>
+								</div>
+								<div class="bg-blue-50 p-4 rounded-lg text-center">
+									<p class="text-xs text-blue-600 uppercase">Fiscal Year</p>
+									<p class="text-2xl font-bold text-blue-700">{{ stmtFiscalYear }}</p>
+									<p class="text-xs text-blue-400">ID: {{ resolvedStmtFiscalYearId || '...' }}</p>
+								</div>
+								<div class="bg-purple-50 p-4 rounded-lg text-center">
+									<p class="text-xs text-purple-600 uppercase">Balance</p>
+									<p class="text-sm font-bold text-purple-700" v-if="stmtBeginningBalance != null">
+										Begin: ${{ stmtBeginningBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									</p>
+									<p class="text-sm font-bold text-purple-700" v-if="stmtEndingBalance != null">
+										End: ${{ stmtEndingBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									</p>
+								</div>
+							</div>
 
-						<!-- Or paste JSON -->
-						<div class="text-center text-gray-400 text-sm">- or paste JSON directly -</div>
-						<div>
-							<textarea
-								v-model="pastedJson"
-								rows="6"
-								placeholder='{"beginning_balance":46086.55,"ending_balance":64114.11,"statement_period":"January 2025","transactions":[{"date":"01/02","description":"Remote Deposit","amount":2300,"type":"deposit"}]}'
-								class="w-full border rounded-lg px-3 py-2 text-sm font-mono"></textarea>
-							<button
-								@click="parseJsonFromPaste"
-								:disabled="!pastedJson.trim()"
-								class="mt-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm">
-								Parse Pasted JSON
-							</button>
-						</div>
-					</div>
-
-					<!-- CSV Upload -->
-					<div v-if="stmtFileType === 'csv'" class="space-y-4">
-						<div
-							class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 transition-colors"
-							:class="{ 'border-blue-500 bg-blue-50': stmtDragging }"
-							@dragover.prevent="stmtDragging = true"
-							@dragleave.prevent="stmtDragging = false"
-							@drop.prevent="handleStmtDrop">
-							<input ref="stmtFileInput" type="file" accept=".csv" @change="handleStmtFileSelect" class="hidden" />
-
-							<div v-if="!stmtFile">
-								<Icon name="i-heroicons-table-cells" class="w-12 h-12 text-gray-400 mx-auto mb-4" />
-								<p class="text-lg text-gray-600 mb-2">Drop your CSV bank statement here</p>
-								<p class="text-sm text-gray-500 mb-4">
-									Same format as public/data/reconciliation CSVs
+							<!-- Preview Table -->
+							<div class="overflow-x-auto">
+								<table class="min-w-full divide-y divide-gray-200 text-sm">
+									<thead class="bg-gray-50">
+										<tr>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Date</th>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Type</th>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Description</th>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Vendor</th>
+											<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Amount</th>
+											<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Category</th>
+										</tr>
+									</thead>
+									<tbody class="divide-y divide-gray-200">
+										<tr v-for="(tx, idx) in stmtTransactions.slice(0, 30)" :key="idx">
+											<td class="px-4 py-2 text-gray-900 whitespace-nowrap">{{ formatTransactionDate(tx.date) }}</td>
+											<td class="px-4 py-2 whitespace-nowrap">
+												<span
+													class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+													:class="getTypeClass(tx.type)">
+													{{ tx.type }}
+												</span>
+											</td>
+											<td class="px-4 py-2 text-gray-900 max-w-xs truncate" :title="tx.description">
+												{{ tx.description }}
+											</td>
+											<td class="px-4 py-2 text-gray-600 whitespace-nowrap">{{ tx.vendor || '-' }}</td>
+											<td
+												class="px-4 py-2 text-right font-mono whitespace-nowrap"
+												:class="tx.type === 'deposit' ? 'text-green-600' : 'text-red-600'">
+												${{ tx.amount.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+											</td>
+											<td class="px-4 py-2 text-gray-600 whitespace-nowrap">{{ tx.category || '-' }}</td>
+										</tr>
+									</tbody>
+								</table>
+								<p v-if="stmtTransactions.length > 30" class="text-sm text-gray-500 text-center mt-2">
+									Showing 30 of {{ stmtTransactions.length }} transactions
 								</p>
+							</div>
+
+							<!-- Import Button -->
+							<div class="text-center space-y-3">
+								<div v-if="!stmtAccountId" class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+									Please select a target account above before importing.
+								</div>
+								<div v-if="!canCreateFinancials" class="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+									You need financials create permission to import transactions.
+								</div>
 								<button
-									@click="$refs.stmtFileInput.click()"
-									class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-									Choose CSV File
-								</button>
-							</div>
-							<div v-else class="text-green-600">
-								<Icon name="i-heroicons-check-circle" class="w-12 h-12 mx-auto mb-4" />
-								<p class="text-lg font-semibold">{{ stmtFile.name }}</p>
-								<p class="text-sm text-gray-500">{{ (stmtFile.size / 1024).toFixed(1) }} KB</p>
-								<button @click="clearStmtFile" class="mt-2 text-red-600 hover:text-red-800 text-sm">
-									Remove file
+									v-if="canCreateFinancials"
+									@click="importTransactions"
+									:disabled="stmtImporting || !stmtAccountId || !resolvedStmtFiscalYearId"
+									class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
+									<span v-if="stmtImporting">
+										Importing... ({{ stmtImportProgress }}/{{ stmtTransactions.length }})
+									</span>
+									<span v-else>Import {{ stmtTransactions.length }} Transactions to {{ selectedAccountName }}</span>
 								</button>
 							</div>
 						</div>
 
-						<div v-if="stmtFile" class="text-center">
-							<button
-								@click="parseStmtFile"
-								:disabled="stmtParsing"
-								class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50">
-								{{ stmtParsing ? 'Parsing...' : 'Parse CSV File' }}
-							</button>
+						<!-- Statement Import Results -->
+						<div
+							v-if="stmtImportResults"
+							class="p-4 rounded-lg border"
+							:class="stmtImportResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+							<h3 :class="stmtImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
+								{{ stmtImportResults.success ? 'Transaction Import Complete' : 'Import Failed' }}
+							</h3>
+							<ul class="text-sm mt-2 space-y-1" :class="stmtImportResults.success ? 'text-green-600' : 'text-red-600'">
+								<li v-if="stmtImportResults.created">{{ stmtImportResults.created }} transactions created</li>
+								<li v-if="stmtImportResults.skipped">{{ stmtImportResults.skipped }} duplicates skipped</li>
+								<li v-if="stmtImportResults.errors?.length">{{ stmtImportResults.errors.length }} errors</li>
+							</ul>
+							<!-- Auto-categorization results -->
+							<div v-if="autoCategorizing" class="mt-3 flex items-center gap-2 text-sm text-blue-600">
+								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								Auto-categorizing transactions...
+							</div>
+							<div
+								v-if="autoCategorizeResults"
+								class="mt-3 p-3 rounded border"
+								:class="
+									autoCategorizeResults.categorized > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'
+								">
+								<p
+									class="text-sm font-medium"
+									:class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
+									Auto-Categorization: {{ autoCategorizeResults.categorized }} of
+									{{ autoCategorizeResults.total_uncategorized }} transactions matched to budget categories
+								</p>
+								<p v-if="autoCategorizeResults.skipped > 0" class="text-xs text-gray-500 mt-1">
+									{{ autoCategorizeResults.skipped }} transactions could not be matched (no matching keywords found)
+								</p>
+							</div>
+
+							<div v-if="stmtImportResults.success" class="mt-4">
+								<NuxtLink
+									to="/financials"
+									class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+									View Financial Dashboard
+								</NuxtLink>
+							</div>
 						</div>
 					</div>
+				</div>
+			</div>
 
-					<!-- ======================== -->
-					<!-- Transaction Preview      -->
-					<!-- ======================== -->
-					<div v-if="stmtTransactions.length > 0" class="space-y-4">
-						<!-- Summary -->
-						<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-							<div class="bg-gray-50 p-4 rounded-lg text-center">
-								<p class="text-xs text-gray-500 uppercase">Transactions</p>
-								<p class="text-2xl font-bold text-gray-900">{{ stmtTransactions.length }}</p>
-							</div>
-							<div class="bg-green-50 p-4 rounded-lg text-center">
-								<p class="text-xs text-green-600 uppercase">Deposits</p>
-								<p class="text-2xl font-bold text-green-700">
-									${{ stmtTotalDeposits.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</p>
-							</div>
-							<div class="bg-red-50 p-4 rounded-lg text-center">
-								<p class="text-xs text-red-600 uppercase">Withdrawals</p>
-								<p class="text-2xl font-bold text-red-700">
-									${{ stmtTotalWithdrawals.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</p>
-							</div>
-							<div class="bg-blue-50 p-4 rounded-lg text-center">
-								<p class="text-xs text-blue-600 uppercase">Fiscal Year</p>
-								<p class="text-2xl font-bold text-blue-700">{{ stmtFiscalYear }}</p>
-								<p class="text-xs text-blue-400">ID: {{ resolvedStmtFiscalYearId || '...' }}</p>
-							</div>
-							<div class="bg-purple-50 p-4 rounded-lg text-center">
-								<p class="text-xs text-purple-600 uppercase">Balance</p>
-								<p class="text-sm font-bold text-purple-700" v-if="stmtBeginningBalance != null">
-									Begin: ${{ stmtBeginningBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</p>
-								<p class="text-sm font-bold text-purple-700" v-if="stmtEndingBalance != null">
-									End: ${{ stmtEndingBalance.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-								</p>
-							</div>
-						</div>
-
-						<!-- Preview Table -->
-						<div class="overflow-x-auto">
-							<table class="min-w-full divide-y divide-gray-200 text-sm">
-								<thead class="bg-gray-50">
-									<tr>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Date</th>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Type</th>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Description</th>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Vendor</th>
-										<th class="px-4 py-2 text-right font-medium text-gray-500 uppercase text-xs">Amount</th>
-										<th class="px-4 py-2 text-left font-medium text-gray-500 uppercase text-xs">Category</th>
-									</tr>
-								</thead>
-								<tbody class="divide-y divide-gray-200">
-									<tr v-for="(tx, idx) in stmtTransactions.slice(0, 30)" :key="idx">
-										<td class="px-4 py-2 text-gray-900 whitespace-nowrap">{{ formatTransactionDate(tx.date) }}</td>
-										<td class="px-4 py-2 whitespace-nowrap">
-											<span
-												class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
-												:class="getTypeClass(tx.type)">
-												{{ tx.type }}
-											</span>
-										</td>
-										<td class="px-4 py-2 text-gray-900 max-w-xs truncate" :title="tx.description">
-											{{ tx.description }}
-										</td>
-										<td class="px-4 py-2 text-gray-600 whitespace-nowrap">{{ tx.vendor || '-' }}</td>
-										<td
-											class="px-4 py-2 text-right font-mono whitespace-nowrap"
-											:class="tx.type === 'deposit' ? 'text-green-600' : 'text-red-600'">
-											${{ tx.amount.toLocaleString(undefined, { minimumFractionDigits: 2 }) }}
-										</td>
-										<td class="px-4 py-2 text-gray-600 whitespace-nowrap">{{ tx.category || '-' }}</td>
-									</tr>
-								</tbody>
-							</table>
-							<p v-if="stmtTransactions.length > 30" class="text-sm text-gray-500 text-center mt-2">
-								Showing 30 of {{ stmtTransactions.length }} transactions
-							</p>
-						</div>
-
-						<!-- Import Button -->
-						<div class="text-center space-y-3">
-							<div v-if="!stmtAccountId" class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
-								Please select a target account above before importing.
-							</div>
-							<div v-if="!canCreateFinancials" class="text-sm text-red-600 bg-red-50 p-3 rounded-lg">
-								You need financials create permission to import transactions.
+			<!-- ======================== -->
+			<!-- TAB: Data Maintenance    -->
+			<!-- ======================== -->
+			<div v-if="activeTab === 'maintenance'" class="space-y-6">
+				<!-- Auto-Categorize Transactions -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Auto-Categorize Transactions</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Scan uncategorized transactions and automatically match them to budget categories using vendor patterns,
+							keywords, and description matching.
+						</p>
+					</div>
+					<div class="p-6 space-y-6">
+						<div class="flex items-center gap-4">
+							<div class="flex items-center gap-3">
+								<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+								<select v-model="autoCatFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+									<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+								</select>
 							</div>
 							<button
 								v-if="canCreateFinancials"
-								@click="importTransactions"
-								:disabled="stmtImporting || !stmtAccountId || !resolvedStmtFiscalYearId"
-								class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-								<span v-if="stmtImporting">
-									Importing... ({{ stmtImportProgress }}/{{ stmtTransactions.length }})
+								@click="runAutoCategorize(autoCatFiscalYear)"
+								:disabled="autoCategorizing || !autoCatFiscalYear"
+								class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm">
+								<span v-if="autoCategorizing" class="flex items-center gap-2">
+									<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+									Categorizing...
 								</span>
-								<span v-else>
-									Import {{ stmtTransactions.length }} Transactions to {{ selectedAccountName }}
-								</span>
+								<span v-else>Run Auto-Categorize</span>
 							</button>
 						</div>
-					</div>
 
-					<!-- Statement Import Results -->
-					<div v-if="stmtImportResults" class="p-4 rounded-lg border" :class="stmtImportResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-						<h3 :class="stmtImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
-							{{ stmtImportResults.success ? 'Transaction Import Complete' : 'Import Failed' }}
-						</h3>
-						<ul class="text-sm mt-2 space-y-1" :class="stmtImportResults.success ? 'text-green-600' : 'text-red-600'">
-							<li v-if="stmtImportResults.created">{{ stmtImportResults.created }} transactions created</li>
-							<li v-if="stmtImportResults.skipped">{{ stmtImportResults.skipped }} duplicates skipped</li>
-							<li v-if="stmtImportResults.errors?.length">{{ stmtImportResults.errors.length }} errors</li>
-						</ul>
-						<!-- Auto-categorization results -->
-						<div v-if="autoCategorizing" class="mt-3 flex items-center gap-2 text-sm text-blue-600">
-							<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
-							Auto-categorizing transactions...
-						</div>
-						<div v-if="autoCategorizeResults" class="mt-3 p-3 rounded border"
-							:class="autoCategorizeResults.categorized > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'">
-							<p class="text-sm font-medium" :class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
-								Auto-Categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} transactions matched to budget categories
-							</p>
-							<p v-if="autoCategorizeResults.skipped > 0" class="text-xs text-gray-500 mt-1">
-								{{ autoCategorizeResults.skipped }} transactions could not be matched (no matching keywords found)
-							</p>
-						</div>
-
-						<div v-if="stmtImportResults.success" class="mt-4">
-							<NuxtLink
-								to="/financials"
-								class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
-								View Financial Dashboard
-							</NuxtLink>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-
-		<!-- ======================== -->
-		<!-- TAB: Data Maintenance    -->
-		<!-- ======================== -->
-		<div v-if="activeTab === 'maintenance'" class="space-y-6">
-			<!-- Auto-Categorize Transactions -->
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4">
-					<h2 class="text-xl font-semibold text-gray-900">Auto-Categorize Transactions</h2>
-					<p class="text-sm text-gray-500 mt-1">
-						Scan uncategorized transactions and automatically match them to budget categories using vendor patterns, keywords, and description matching.
-					</p>
-				</div>
-				<div class="p-6 space-y-6">
-					<div class="flex items-center gap-4">
-						<div class="flex items-center gap-3">
-							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
-							<select v-model="autoCatFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
-							</select>
-						</div>
-						<button
-							v-if="canCreateFinancials"
-							@click="runAutoCategorize(autoCatFiscalYear)"
-							:disabled="autoCategorizing || !autoCatFiscalYear"
-							class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm">
-							<span v-if="autoCategorizing" class="flex items-center gap-2">
-								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
-								Categorizing...
-							</span>
-							<span v-else>Run Auto-Categorize</span>
-						</button>
-					</div>
-
-					<!-- Results -->
-					<div v-if="autoCategorizeResults" class="p-4 rounded-lg border"
-						:class="autoCategorizeResults.categorized > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50 border-gray-200'">
-						<h3 class="font-semibold" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-800' : 'text-gray-700'">
-							Auto-Categorization Results
-						</h3>
-						<ul class="text-sm mt-2 space-y-1" :class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
-							<li>Total uncategorized: {{ autoCategorizeResults.total_uncategorized }}</li>
-							<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
-							<li v-if="autoCategorizeResults.skipped > 0">Skipped (low confidence): {{ autoCategorizeResults.skipped }}</li>
-							<li v-if="autoCategorizeResults.failed > 0" class="text-red-600">Failed: {{ autoCategorizeResults.failed }}</li>
-						</ul>
-						<!-- Detailed matches -->
-						<div v-if="autoCategorizeResults.results?.length > 0 && autoCategorizeResults.categorized > 0" class="mt-4">
-							<details class="text-sm">
-								<summary class="cursor-pointer text-purple-700 font-medium">View matched transactions</summary>
-								<div class="mt-2 max-h-64 overflow-y-auto">
-									<table class="w-full text-xs">
-										<thead class="bg-purple-100 sticky top-0">
-											<tr>
-												<th class="text-left px-2 py-1">Description</th>
-												<th class="text-left px-2 py-1">Category</th>
-												<th class="text-left px-2 py-1">Budget Item</th>
-												<th class="text-left px-2 py-1">Matched By</th>
-												<th class="text-right px-2 py-1">Confidence</th>
-											</tr>
-										</thead>
-										<tbody>
-											<tr v-for="r in autoCategorizeResults.results.filter(r => r.confidence >= 25)" :key="r.transaction_id" class="border-t border-purple-100">
-												<td class="px-2 py-1 truncate max-w-[200px]">{{ r.description }}</td>
-												<td class="px-2 py-1">{{ r.matched_category || '-' }}</td>
-												<td class="px-2 py-1 truncate max-w-[150px]">{{ r.matched_budget_item || '-' }}</td>
-												<td class="px-2 py-1">{{ r.matched_by }}</td>
-												<td class="px-2 py-1 text-right">{{ r.confidence }}%</td>
-											</tr>
-										</tbody>
-									</table>
-								</div>
-							</details>
-						</div>
-						<div v-if="autoCategorizeResults.errors?.length > 0" class="mt-3">
-							<details class="text-sm text-red-600">
-								<summary class="cursor-pointer font-medium">View errors ({{ autoCategorizeResults.errors.length }})</summary>
-								<ul class="mt-1 space-y-1 text-xs">
-									<li v-for="(err, i) in autoCategorizeResults.errors" :key="i">{{ err }}</li>
-								</ul>
-							</details>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Monthly Statements Backfill & PDF Upload -->
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4">
-					<h2 class="text-xl font-semibold text-gray-900">Monthly Statements Manager</h2>
-					<p class="text-sm text-gray-500 mt-1">
-						Create monthly_statement records from existing transactions and attach PDF bank statements.
-						Statements are used for reconciliation and balance tracking.
-					</p>
-				</div>
-				<div class="p-6 space-y-6">
-					<!-- Backfill Controls -->
-					<div class="flex items-center gap-4">
-						<div class="flex items-center gap-3">
-							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
-							<select v-model="stmtMgrFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
-							</select>
-						</div>
-						<div class="flex items-center gap-3">
-							<label class="text-sm font-medium text-gray-700">Account:</label>
-							<select v-model="stmtMgrAccountId" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
-								<option :value="null">All Accounts</option>
-								<option v-for="acct in accounts" :key="acct.id" :value="acct.id">
-									{{ acct.account_name }} ({{ acct.account_number }})
-								</option>
-							</select>
-						</div>
-						<label class="flex items-center gap-2 text-sm text-gray-700">
-							<input type="checkbox" v-model="stmtMgrForceRecalc" class="rounded border-gray-300" />
-							Force recalculate existing
-						</label>
-						<button
-							v-if="canCreateFinancials"
-							@click="runBackfillStatements"
-							:disabled="stmtMgrBackfilling"
-							class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 text-sm">
-							<span v-if="stmtMgrBackfilling" class="flex items-center gap-2">
-								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
-								Creating Statements...
-							</span>
-							<span v-else>Create Monthly Statements</span>
-						</button>
-						<button
-							v-if="stmtMgrStatements.length > 0"
-							@click="loadExistingStatements"
-							class="text-indigo-600 hover:text-indigo-800 text-sm underline">
-							Refresh List
-						</button>
-					</div>
-
-					<!-- Starting Balances -->
-					<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
-						<h4 class="text-sm font-medium text-gray-700 mb-2">Starting Balances (Jan 1 opening balance from bank)</h4>
-						<p class="text-xs text-gray-500 mb-3">Enter the beginning balance from each account's January statement so running balances are accurate.</p>
-						<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-							<div v-for="acct in accounts" :key="'bal-' + acct.id" class="flex items-center gap-2">
-								<label class="text-xs text-gray-600 whitespace-nowrap">{{ acct.account_name }}:</label>
-								<input
-									type="number"
-									step="0.01"
-									v-model.number="startingBalances[acct.id]"
-									placeholder="$0.00"
-									class="border border-gray-300 rounded px-2 py-1 text-sm w-32 font-mono" />
+						<!-- Results -->
+						<div
+							v-if="autoCategorizeResults"
+							class="p-4 rounded-lg border"
+							:class="
+								autoCategorizeResults.categorized > 0 ? 'bg-purple-50 border-purple-200' : 'bg-gray-50 border-gray-200'
+							">
+							<h3
+								class="font-semibold"
+								:class="autoCategorizeResults.categorized > 0 ? 'text-purple-800' : 'text-gray-700'">
+								Auto-Categorization Results
+							</h3>
+							<ul
+								class="text-sm mt-2 space-y-1"
+								:class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
+								<li>Total uncategorized: {{ autoCategorizeResults.total_uncategorized }}</li>
+								<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
+								<li v-if="autoCategorizeResults.skipped > 0">
+									Skipped (low confidence): {{ autoCategorizeResults.skipped }}
+								</li>
+								<li v-if="autoCategorizeResults.failed > 0" class="text-red-600">
+									Failed: {{ autoCategorizeResults.failed }}
+								</li>
+							</ul>
+							<!-- Detailed matches -->
+							<div
+								v-if="autoCategorizeResults.results?.length > 0 && autoCategorizeResults.categorized > 0"
+								class="mt-4">
+								<details class="text-sm">
+									<summary class="cursor-pointer text-purple-700 font-medium">View matched transactions</summary>
+									<div class="mt-2 max-h-64 overflow-y-auto">
+										<table class="w-full text-xs">
+											<thead class="bg-purple-100 sticky top-0">
+												<tr>
+													<th class="text-left px-2 py-1">Description</th>
+													<th class="text-left px-2 py-1">Category</th>
+													<th class="text-left px-2 py-1">Budget Item</th>
+													<th class="text-left px-2 py-1">Matched By</th>
+													<th class="text-right px-2 py-1">Confidence</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr
+													v-for="r in autoCategorizeResults.results.filter((r) => r.confidence >= 25)"
+													:key="r.transaction_id"
+													class="border-t border-purple-100">
+													<td class="px-2 py-1 truncate max-w-[200px]">{{ r.description }}</td>
+													<td class="px-2 py-1">{{ r.matched_category || '-' }}</td>
+													<td class="px-2 py-1 truncate max-w-[150px]">{{ r.matched_budget_item || '-' }}</td>
+													<td class="px-2 py-1">{{ r.matched_by }}</td>
+													<td class="px-2 py-1 text-right">{{ r.confidence }}%</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</details>
+							</div>
+							<div v-if="autoCategorizeResults.errors?.length > 0" class="mt-3">
+								<details class="text-sm text-red-600">
+									<summary class="cursor-pointer font-medium">
+										View errors ({{ autoCategorizeResults.errors.length }})
+									</summary>
+									<ul class="mt-1 space-y-1 text-xs">
+										<li v-for="(err, i) in autoCategorizeResults.errors" :key="i">{{ err }}</li>
+									</ul>
+								</details>
 							</div>
 						</div>
 					</div>
+				</div>
 
-					<!-- Backfill Results -->
-					<div v-if="stmtMgrBackfillResults" class="p-4 rounded-lg border"
-						:class="stmtMgrBackfillResults.created > 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'">
-						<h3 class="font-semibold" :class="stmtMgrBackfillResults.created > 0 ? 'text-indigo-800' : 'text-gray-700'">
-							Backfill Results
-						</h3>
-						<ul class="text-sm mt-2 space-y-1">
-							<li>Created: {{ stmtMgrBackfillResults.created }}</li>
-							<li v-if="stmtMgrBackfillResults.updated > 0">Updated: {{ stmtMgrBackfillResults.updated }}</li>
-							<li v-if="stmtMgrBackfillResults.skipped > 0">Already existed: {{ stmtMgrBackfillResults.skipped }}</li>
-						</ul>
+				<!-- Monthly Statements Backfill & PDF Upload -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Monthly Statements Manager</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Create monthly_statement records from existing transactions and attach PDF bank statements. Statements are
+							used for reconciliation and balance tracking.
+						</p>
 					</div>
-
-					<!-- Existing Statements with PDF Upload -->
-					<div v-if="stmtMgrStatements.length > 0">
-						<h3 class="font-semibold text-gray-800 mb-3">Monthly Statements</h3>
-						<div class="overflow-x-auto">
-							<table class="w-full text-sm">
-								<thead class="bg-gray-50">
-									<tr>
-										<th class="text-left px-3 py-2">Account</th>
-										<th class="text-left px-3 py-2">Month</th>
-										<th class="text-right px-3 py-2">Beginning Balance</th>
-										<th class="text-right px-3 py-2">Ending Balance</th>
-										<th class="text-center px-3 py-2">Reconciled</th>
-										<th class="text-center px-3 py-2">PDF Statement</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr v-for="stmt in stmtMgrStatements" :key="stmt.id" class="border-t">
-										<td class="px-3 py-2">{{ getAccountNameById(stmt.account_id) }}</td>
-										<td class="px-3 py-2">{{ monthLabel(stmt.statement_month) }}</td>
-										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.beginning_balance) }}</td>
-										<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.ending_balance) }}</td>
-										<td class="px-3 py-2 text-center">
-											<span v-if="stmt.reconciled" class="text-green-600 text-xs font-medium">Reconciled</span>
-											<span v-else class="text-gray-400 text-xs">Pending</span>
-										</td>
-										<td class="px-3 py-2 text-center">
-											<span v-if="stmt.pdf_statement" class="inline-flex items-center gap-1 text-green-600 text-xs">
-												<Icon name="i-heroicons-document-check" class="w-4 h-4" />
-												Attached
-											</span>
-											<label v-else class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer text-xs">
-												<Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
-												Upload PDF
-												<input
-													type="file"
-													accept=".pdf"
-													class="hidden"
-													@change="(e) => uploadStatementPdf(stmt.id, e)" />
-											</label>
-										</td>
-									</tr>
-								</tbody>
-							</table>
+					<div class="p-6 space-y-6">
+						<!-- Backfill Controls -->
+						<div class="flex items-center gap-4">
+							<div class="flex items-center gap-3">
+								<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+								<select v-model="stmtMgrFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+									<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+								</select>
+							</div>
+							<div class="flex items-center gap-3">
+								<label class="text-sm font-medium text-gray-700">Account:</label>
+								<select v-model="stmtMgrAccountId" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+									<option :value="null">All Accounts</option>
+									<option v-for="acct in accounts" :key="acct.id" :value="acct.id">
+										{{ acct.account_name }} ({{ acct.account_number }})
+									</option>
+								</select>
+							</div>
+							<label class="flex items-center gap-2 text-sm text-gray-700">
+								<input type="checkbox" v-model="stmtMgrForceRecalc" class="rounded border-gray-300" />
+								Force recalculate existing
+							</label>
+							<button
+								v-if="canCreateFinancials"
+								@click="runBackfillStatements"
+								:disabled="stmtMgrBackfilling"
+								class="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 text-sm">
+								<span v-if="stmtMgrBackfilling" class="flex items-center gap-2">
+									<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+									Creating Statements...
+								</span>
+								<span v-else>Create Monthly Statements</span>
+							</button>
+							<button
+								v-if="stmtMgrStatements.length > 0"
+								@click="loadExistingStatements"
+								class="text-indigo-600 hover:text-indigo-800 text-sm underline">
+								Refresh List
+							</button>
 						</div>
-						<p class="text-xs text-gray-500 mt-3">
-							To reconcile monthly statements, go to
-							<NuxtLink to="/financials/reconciliation" class="text-indigo-600 hover:underline">
-								Financials &rarr; Reconciliation
-							</NuxtLink>
-						</p>
-					</div>
-				</div>
-			</div>
 
-			<div class="bg-white rounded-lg shadow-sm border">
-				<div class="border-b px-6 py-4">
-					<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
-					<p class="text-sm text-gray-500 mt-1">
-						Fix transactions that have raw year numbers instead of proper fiscal_years M2O record IDs.
-						This repairs data from older imports that stored the year number (e.g., 2025) instead of the
-						Directus fiscal_years record ID.
-					</p>
-				</div>
-				<div class="p-6 space-y-6">
-					<!-- Scan -->
-					<div class="flex items-center gap-4">
-						<button
-							@click="scanFiscalYearIssues"
-							:disabled="repairScanning"
-							class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 text-sm">
-							{{ repairScanning ? 'Scanning...' : 'Scan for Issues' }}
-						</button>
-						<p class="text-sm text-gray-500">
-							Checks all transactions to identify records with incorrect fiscal_year values.
-						</p>
-					</div>
+						<!-- Starting Balances -->
+						<div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+							<h4 class="text-sm font-medium text-gray-700 mb-2">
+								Starting Balances (Jan 1 opening balance from bank)
+							</h4>
+							<p class="text-xs text-gray-500 mb-3">
+								Enter the beginning balance from each account's January statement so running balances are accurate.
+							</p>
+							<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+								<div v-for="acct in accounts" :key="'bal-' + acct.id" class="flex items-center gap-2">
+									<label class="text-xs text-gray-600 whitespace-nowrap">{{ acct.account_name }}:</label>
+									<input
+										type="number"
+										step="0.01"
+										v-model.number="startingBalances[acct.id]"
+										placeholder="$0.00"
+										class="border border-gray-300 rounded px-2 py-1 text-sm w-32 font-mono" />
+								</div>
+							</div>
+						</div>
 
-					<!-- Scan Results -->
-					<div v-if="repairScanResults" class="space-y-4">
-						<div class="p-4 rounded-lg border" :class="repairScanResults.issueCount > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'">
-							<h3 :class="repairScanResults.issueCount > 0 ? 'text-yellow-800' : 'text-green-800'" class="font-semibold">
-								{{ repairScanResults.issueCount > 0 ? `Found ${repairScanResults.issueCount} transactions to repair` : 'All transactions have correct fiscal year references' }}
+						<!-- Backfill Results -->
+						<div
+							v-if="stmtMgrBackfillResults"
+							class="p-4 rounded-lg border"
+							:class="
+								stmtMgrBackfillResults.created > 0 ? 'bg-indigo-50 border-indigo-200' : 'bg-gray-50 border-gray-200'
+							">
+							<h3
+								class="font-semibold"
+								:class="stmtMgrBackfillResults.created > 0 ? 'text-indigo-800' : 'text-gray-700'">
+								Backfill Results
 							</h3>
-							<ul class="text-sm mt-2 space-y-1" :class="repairScanResults.issueCount > 0 ? 'text-yellow-700' : 'text-green-700'">
-								<li>Total transactions scanned: {{ repairScanResults.totalScanned }}</li>
-								<li>Correct M2O references: {{ repairScanResults.correctCount }}</li>
-								<li>Raw year numbers needing repair: {{ repairScanResults.issueCount }}</li>
-								<li v-if="repairScanResults.yearBreakdown">
-									Breakdown: {{ Object.entries(repairScanResults.yearBreakdown).map(([y, c]) => `${y}: ${c} transactions`).join(', ') }}
-								</li>
+							<ul class="text-sm mt-2 space-y-1">
+								<li>Created: {{ stmtMgrBackfillResults.created }}</li>
+								<li v-if="stmtMgrBackfillResults.updated > 0">Updated: {{ stmtMgrBackfillResults.updated }}</li>
+								<li v-if="stmtMgrBackfillResults.skipped > 0">Already existed: {{ stmtMgrBackfillResults.skipped }}</li>
 							</ul>
 						</div>
 
-						<!-- Missing fiscal years warning -->
-						<div v-if="repairScanResults.issueCount > 0 && repairScanResults.missingYears?.length > 0" class="p-4 bg-red-50 border border-red-200 rounded-lg">
-							<h3 class="font-semibold text-red-800">Missing Fiscal Year Records</h3>
-							<p class="text-sm text-red-700 mt-1">
-								The following year(s) were found in transactions but have no matching <code class="bg-red-100 px-1 rounded">fiscal_years</code> record in Directus:
-							</p>
-							<div class="flex flex-wrap gap-2 mt-3">
-								<span v-for="year in repairScanResults.missingYears" :key="year" class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
-									{{ year }}
-									<span class="ml-1 text-red-500 text-xs">({{ repairScanResults.yearBreakdown[year] }} transactions)</span>
-								</span>
+						<!-- Existing Statements with PDF Upload -->
+						<div v-if="stmtMgrStatements.length > 0">
+							<h3 class="font-semibold text-gray-800 mb-3">Monthly Statements</h3>
+							<div class="overflow-x-auto">
+								<table class="w-full text-sm">
+									<thead class="bg-gray-50">
+										<tr>
+											<th class="text-left px-3 py-2">Account</th>
+											<th class="text-left px-3 py-2">Month</th>
+											<th class="text-right px-3 py-2">Beginning Balance</th>
+											<th class="text-right px-3 py-2">Ending Balance</th>
+											<th class="text-center px-3 py-2">Reconciled</th>
+											<th class="text-center px-3 py-2">PDF Statement</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr v-for="stmt in stmtMgrStatements" :key="stmt.id" class="border-t">
+											<td class="px-3 py-2">{{ getAccountNameById(stmt.account_id) }}</td>
+											<td class="px-3 py-2">{{ monthLabel(stmt.statement_month) }}</td>
+											<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.beginning_balance) }}</td>
+											<td class="px-3 py-2 text-right font-mono">{{ formatMoney(stmt.ending_balance) }}</td>
+											<td class="px-3 py-2 text-center">
+												<span v-if="stmt.reconciled" class="text-green-600 text-xs font-medium">Reconciled</span>
+												<span v-else class="text-gray-400 text-xs">Pending</span>
+											</td>
+											<td class="px-3 py-2 text-center">
+												<span v-if="stmt.pdf_statement" class="inline-flex items-center gap-1 text-green-600 text-xs">
+													<Icon name="i-heroicons-document-check" class="w-4 h-4" />
+													Attached
+												</span>
+												<label
+													v-else
+													class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 cursor-pointer text-xs">
+													<Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
+													Upload PDF
+													<input
+														type="file"
+														accept=".pdf"
+														class="hidden"
+														@change="(e) => uploadStatementPdf(stmt.id, e)" />
+												</label>
+											</td>
+										</tr>
+									</tbody>
+								</table>
 							</div>
-							<p class="text-sm text-red-700 mt-3">
-								You must create these fiscal years before the repair can run. Go to the
-								<button @click="activeTab = 'accounts'" class="underline font-medium hover:text-red-900">Bank Accounts tab</button>
-								and use "+ Add Fiscal Year" to create them, then scan again.
-							</p>
-						</div>
-
-						<!-- Repair Button -->
-						<div v-if="repairScanResults.issueCount > 0" class="flex items-center gap-4">
-							<button
-								v-if="canUpdateFinancials"
-								@click="repairFiscalYears"
-								:disabled="repairRunning || (repairScanResults.repairableCount === 0)"
-								class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm">
-								<span v-if="repairRunning">Repairing... ({{ repairProgress }}/{{ repairScanResults.repairableCount }})</span>
-								<span v-else-if="repairScanResults.repairableCount === 0">No Repairable Transactions (create fiscal years first)</span>
-								<span v-else>Repair {{ repairScanResults.repairableCount }} Transactions</span>
-							</button>
-							<p v-if="!canUpdateFinancials" class="text-sm text-red-600">
-								You need financials update permission to run repairs.
-							</p>
-						</div>
-
-						<!-- Repair Results -->
-						<div v-if="repairResults" class="p-4 rounded-lg border" :class="repairResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-							<h3 :class="repairResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
-								{{ repairResults.success ? 'Repair Complete' : 'Repair Failed' }}
-							</h3>
-							<p class="text-sm mt-1" :class="repairResults.success ? 'text-green-600' : 'text-red-600'">
-								{{ repairResults.message }}
+							<p class="text-xs text-gray-500 mt-3">
+								To reconcile monthly statements, go to
+								<NuxtLink to="/financials/reconciliation" class="text-indigo-600 hover:underline">
+									Financials &rarr; Reconciliation
+								</NuxtLink>
 							</p>
 						</div>
 					</div>
 				</div>
+
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Fiscal Year Data Repair</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Fix transactions that have raw year numbers instead of proper fiscal_years M2O record IDs. This repairs
+							data from older imports that stored the year number (e.g., 2025) instead of the Directus fiscal_years
+							record ID.
+						</p>
+					</div>
+					<div class="p-6 space-y-6">
+						<!-- Scan -->
+						<div class="flex items-center gap-4">
+							<button
+								@click="scanFiscalYearIssues"
+								:disabled="repairScanning"
+								class="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors disabled:opacity-50 text-sm">
+								{{ repairScanning ? 'Scanning...' : 'Scan for Issues' }}
+							</button>
+							<p class="text-sm text-gray-500">
+								Checks all transactions to identify records with incorrect fiscal_year values.
+							</p>
+						</div>
+
+						<!-- Scan Results -->
+						<div v-if="repairScanResults" class="space-y-4">
+							<div
+								class="p-4 rounded-lg border"
+								:class="
+									repairScanResults.issueCount > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-green-50 border-green-200'
+								">
+								<h3
+									:class="repairScanResults.issueCount > 0 ? 'text-yellow-800' : 'text-green-800'"
+									class="font-semibold">
+									{{
+										repairScanResults.issueCount > 0
+											? `Found ${repairScanResults.issueCount} transactions to repair`
+											: 'All transactions have correct fiscal year references'
+									}}
+								</h3>
+								<ul
+									class="text-sm mt-2 space-y-1"
+									:class="repairScanResults.issueCount > 0 ? 'text-yellow-700' : 'text-green-700'">
+									<li>Total transactions scanned: {{ repairScanResults.totalScanned }}</li>
+									<li>Correct M2O references: {{ repairScanResults.correctCount }}</li>
+									<li>Raw year numbers needing repair: {{ repairScanResults.issueCount }}</li>
+									<li v-if="repairScanResults.yearBreakdown">
+										Breakdown:
+										{{
+											Object.entries(repairScanResults.yearBreakdown)
+												.map(([y, c]) => `${y}: ${c} transactions`)
+												.join(', ')
+										}}
+									</li>
+								</ul>
+							</div>
+
+							<!-- Missing fiscal years warning -->
+							<div
+								v-if="repairScanResults.issueCount > 0 && repairScanResults.missingYears?.length > 0"
+								class="p-4 bg-red-50 border border-red-200 rounded-lg">
+								<h3 class="font-semibold text-red-800">Missing Fiscal Year Records</h3>
+								<p class="text-sm text-red-700 mt-1">
+									The following year(s) were found in transactions but have no matching
+									<code class="bg-red-100 px-1 rounded">fiscal_years</code>
+									record in Directus:
+								</p>
+								<div class="flex flex-wrap gap-2 mt-3">
+									<span
+										v-for="year in repairScanResults.missingYears"
+										:key="year"
+										class="inline-flex items-center px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-semibold">
+										{{ year }}
+										<span class="ml-1 text-red-500 text-xs">
+											({{ repairScanResults.yearBreakdown[year] }} transactions)
+										</span>
+									</span>
+								</div>
+								<p class="text-sm text-red-700 mt-3">
+									You must create these fiscal years before the repair can run. Go to the
+									<button @click="activeTab = 'accounts'" class="underline font-medium hover:text-red-900">
+										Bank Accounts tab
+									</button>
+									and use "+ Add Fiscal Year" to create them, then scan again.
+								</p>
+							</div>
+
+							<!-- Repair Button -->
+							<div v-if="repairScanResults.issueCount > 0" class="flex items-center gap-4">
+								<button
+									v-if="canUpdateFinancials"
+									@click="repairFiscalYears"
+									:disabled="repairRunning || repairScanResults.repairableCount === 0"
+									class="bg-red-600 text-white px-6 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm">
+									<span v-if="repairRunning">
+										Repairing... ({{ repairProgress }}/{{ repairScanResults.repairableCount }})
+									</span>
+									<span v-else-if="repairScanResults.repairableCount === 0">
+										No Repairable Transactions (create fiscal years first)
+									</span>
+									<span v-else>Repair {{ repairScanResults.repairableCount }} Transactions</span>
+								</button>
+								<p v-if="!canUpdateFinancials" class="text-sm text-red-600">
+									You need financials update permission to run repairs.
+								</p>
+							</div>
+
+							<!-- Repair Results -->
+							<div
+								v-if="repairResults"
+								class="p-4 rounded-lg border"
+								:class="repairResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
+								<h3 :class="repairResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
+									{{ repairResults.success ? 'Repair Complete' : 'Repair Failed' }}
+								</h3>
+								<p class="text-sm mt-1" :class="repairResults.success ? 'text-green-600' : 'text-red-600'">
+									{{ repairResults.message }}
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
 		</template>
 	</div>
 </template>
@@ -1157,7 +1284,7 @@ const fiscalYearBudgetsCollection = useDirectusItems('fiscal_year_budgets');
 const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 // Permission checks
-const { canCreate, canRead, canUpdate, canDelete, hasFullAccess } = useUserPermissions();
+const {canCreate, canRead, canUpdate, canDelete, hasFullAccess} = useUserPermissions();
 const canReadFinancials = computed(() => canRead('financials'));
 const canCreateFinancials = computed(() => canCreate('financials'));
 const canUpdateFinancials = computed(() => canUpdate('financials'));
@@ -1165,10 +1292,10 @@ const canDeleteFinancials = computed(() => canDelete('financials'));
 
 // Tab state - maintenance tab only visible to users with update permission
 const allTabs = [
-	{ id: 'accounts', label: 'Bank Accounts', icon: 'i-heroicons-building-library', requiresCreate: false },
-	{ id: 'budgets', label: 'Budget Import', icon: 'i-heroicons-calculator', requiresCreate: true },
-	{ id: 'statements', label: 'Statement Import', icon: 'i-heroicons-document-arrow-up', requiresCreate: true },
-	{ id: 'maintenance', label: 'Data Maintenance', icon: 'i-heroicons-wrench-screwdriver', requiresUpdate: true },
+	{id: 'accounts', label: 'Bank Accounts', icon: 'i-heroicons-building-library', requiresCreate: false},
+	{id: 'budgets', label: 'Budget Import', icon: 'i-heroicons-calculator', requiresCreate: true},
+	{id: 'statements', label: 'Statement Import', icon: 'i-heroicons-document-arrow-up', requiresCreate: true},
+	{id: 'maintenance', label: 'Data Maintenance', icon: 'i-heroicons-wrench-screwdriver', requiresUpdate: true},
 ];
 const visibleTabs = computed(() =>
 	allTabs.filter((tab) => {
@@ -1199,24 +1326,34 @@ const stmtMgrForceRecalc = ref(false);
 const fiscalYearIdCache = {};
 
 const monthOptions = [
-	{ label: 'January', value: '01' },
-	{ label: 'February', value: '02' },
-	{ label: 'March', value: '03' },
-	{ label: 'April', value: '04' },
-	{ label: 'May', value: '05' },
-	{ label: 'June', value: '06' },
-	{ label: 'July', value: '07' },
-	{ label: 'August', value: '08' },
-	{ label: 'September', value: '09' },
-	{ label: 'October', value: '10' },
-	{ label: 'November', value: '11' },
-	{ label: 'December', value: '12' },
+	{label: 'January', value: '01'},
+	{label: 'February', value: '02'},
+	{label: 'March', value: '03'},
+	{label: 'April', value: '04'},
+	{label: 'May', value: '05'},
+	{label: 'June', value: '06'},
+	{label: 'July', value: '07'},
+	{label: 'August', value: '08'},
+	{label: 'September', value: '09'},
+	{label: 'October', value: '10'},
+	{label: 'November', value: '11'},
+	{label: 'December', value: '12'},
 ];
 
 const fileTypes = [
-	{ id: 'pdf', label: 'PDF Statement', icon: 'i-heroicons-document', description: 'Upload PDF — Claude extracts CSV with categories' },
-	{ id: 'json', label: 'JSON Transactions', icon: 'i-heroicons-code-bracket', description: 'Structured transaction data' },
-	{ id: 'csv', label: 'CSV Statement', icon: 'i-heroicons-table-cells', description: 'Reconciliation CSV format' },
+	{
+		id: 'pdf',
+		label: 'PDF Statement',
+		icon: 'i-heroicons-document',
+		description: 'Upload PDF — Claude extracts CSV with categories',
+	},
+	{
+		id: 'json',
+		label: 'JSON Transactions',
+		icon: 'i-heroicons-code-bracket',
+		description: 'Structured transaction data',
+	},
+	{id: 'csv', label: 'CSV Statement', icon: 'i-heroicons-table-cells', description: 'Reconciliation CSV format'},
 ];
 
 // ======================
@@ -1228,7 +1365,7 @@ async function resolveFiscalYearId(yearNumber) {
 
 	try {
 		const data = await fiscalYearsCollection.list({
-			filter: { year: { _eq: yearNumber } },
+			filter: {year: {_eq: yearNumber}},
 			fields: ['id'],
 			limit: 1,
 		});
@@ -1317,7 +1454,7 @@ async function loadAccounts() {
 	accountsLoading.value = true;
 	try {
 		accounts.value = await accountsCollection.list({
-			filter: { status: { _eq: 'published' } },
+			filter: {status: {_eq: 'published'}},
 			sort: ['account_number'],
 			fields: ['id', 'account_name', 'account_number', 'account_type', 'color', 'description'],
 		});
@@ -1404,7 +1541,7 @@ async function createFiscalYear() {
 		const currentYear = new Date().getFullYear();
 		availableFiscalYears.value = allFiscalYears.value
 			.filter((fy) => fy.status === 'published')
-			.map((fy) => ({ ...fy, is_current: fy.year === currentYear }));
+			.map((fy) => ({...fy, is_current: fy.year === currentYear}));
 
 		// Update cache
 		fiscalYearIdCache[created.year] = created.id;
@@ -1425,7 +1562,7 @@ async function createFiscalYear() {
 
 async function updateFiscalYearStatus(id, newStatus) {
 	try {
-		await fiscalYearsCollection.update(id, { status: newStatus });
+		await fiscalYearsCollection.update(id, {status: newStatus});
 
 		// Update local state
 		const fy = allFiscalYears.value.find((f) => f.id === id);
@@ -1435,7 +1572,7 @@ async function updateFiscalYearStatus(id, newStatus) {
 		const currentYear = new Date().getFullYear();
 		availableFiscalYears.value = allFiscalYears.value
 			.filter((f) => f.status === 'published')
-			.map((f) => ({ ...f, is_current: f.year === currentYear }));
+			.map((f) => ({...f, is_current: f.year === currentYear}));
 	} catch (err) {
 		console.error('Failed to update fiscal year:', err);
 		alert('Failed to update status: ' + (err.message || 'Unknown error'));
@@ -1457,9 +1594,13 @@ const budgetImportResults = ref(null);
 const resolvedBudgetFiscalYearId = ref(null);
 
 // Resolve fiscal year ID when year changes
-watch(budgetFiscalYear, async (year) => {
-	resolvedBudgetFiscalYearId.value = await resolveFiscalYearId(year);
-}, { immediate: true });
+watch(
+	budgetFiscalYear,
+	async (year) => {
+		resolvedBudgetFiscalYearId.value = await resolveFiscalYearId(year);
+	},
+	{immediate: true}
+);
 
 function handleBudgetDrop(event) {
 	budgetDragging.value = false;
@@ -1517,7 +1658,10 @@ async function parseBudgetCSV() {
 					description,
 					monthly_budget: monthly,
 					yearly_budget: yearly,
-					item_code: (description || category).toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+					item_code: (description || category)
+						.toLowerCase()
+						.replace(/\s+/g, '-')
+						.replace(/[^a-z0-9-]/g, ''),
 				});
 			}
 		}
@@ -1537,7 +1681,7 @@ async function importBudget() {
 	budgetImporting.value = true;
 	budgetImportProgress.value = 0;
 
-	const results = { success: true, message: '', categoriesCreated: 0, itemsCreated: 0, itemsSkipped: 0 };
+	const results = {success: true, message: '', categoriesCreated: 0, itemsCreated: 0, itemsSkipped: 0};
 
 	try {
 		const fyId = resolvedBudgetFiscalYearId.value;
@@ -1552,7 +1696,7 @@ async function importBudget() {
 
 		// Load existing categories for this fiscal year
 		const existingCategories = await budgetCategoriesCollection.list({
-			filter: { fiscal_year: { _eq: fyId } },
+			filter: {fiscal_year: {_eq: fyId}},
 			fields: ['id', 'category_name'],
 			limit: -1,
 		});
@@ -1561,7 +1705,7 @@ async function importBudget() {
 
 		// Load existing budget items for duplicate detection
 		const existingItems = await budgetItemsCollection.list({
-			filter: { fiscal_year: { _eq: fyId } },
+			filter: {fiscal_year: {_eq: fyId}},
 			fields: ['id', 'item_code', 'category_id', 'description'],
 			limit: -1,
 		});
@@ -1621,9 +1765,10 @@ async function importBudget() {
 		if (results.categoriesCreated) parts.push(`${results.categoriesCreated} categories created`);
 		if (results.itemsCreated) parts.push(`${results.itemsCreated} budget items created`);
 		if (results.itemsSkipped) parts.push(`${results.itemsSkipped} duplicate items skipped`);
-		results.message = parts.length > 0
-			? `${parts.join(', ')} for fiscal year ${budgetFiscalYear.value}.`
-			: `No new items to import for fiscal year ${budgetFiscalYear.value} (all duplicates).`;
+		results.message =
+			parts.length > 0
+				? `${parts.join(', ')} for fiscal year ${budgetFiscalYear.value}.`
+				: `No new items to import for fiscal year ${budgetFiscalYear.value} (all duplicates).`;
 	} catch (err) {
 		results.success = false;
 		results.message = 'Budget import failed: ' + (err.message || 'Unknown error');
@@ -1683,9 +1828,13 @@ const stmtTotalWithdrawals = computed(() =>
 );
 
 // Resolve fiscal year ID when year changes
-watch(stmtFiscalYear, async (year) => {
-	resolvedStmtFiscalYearId.value = await resolveFiscalYearId(year);
-}, { immediate: true });
+watch(
+	stmtFiscalYear,
+	async (year) => {
+		resolvedStmtFiscalYearId.value = await resolveFiscalYearId(year);
+	},
+	{immediate: true}
+);
 
 function handleStmtDrop(event) {
 	stmtDragging.value = false;
@@ -1800,8 +1949,20 @@ async function extractPdfWithClaude() {
 			// If Claude detected a statement period, try to auto-detect month from it
 			if (result.statement_period && !stmtMonth.value) {
 				const periodLower = result.statement_period.toLowerCase();
-				const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
-					'july', 'august', 'september', 'october', 'november', 'december'];
+				const monthNames = [
+					'january',
+					'february',
+					'march',
+					'april',
+					'may',
+					'june',
+					'july',
+					'august',
+					'september',
+					'october',
+					'november',
+					'december',
+				];
 				const matchedIdx = monthNames.findIndex((m) => periodLower.includes(m));
 				if (matchedIdx >= 0) {
 					stmtMonth.value = String(matchedIdx + 1).padStart(2, '0');
@@ -1849,8 +2010,20 @@ async function extractPdfToCsv() {
 			// Auto-detect statement period for month selection
 			if (result.statement_period && !stmtMonth.value) {
 				const periodLower = result.statement_period.toLowerCase();
-				const monthNames = ['january', 'february', 'march', 'april', 'may', 'june',
-					'july', 'august', 'september', 'october', 'november', 'december'];
+				const monthNames = [
+					'january',
+					'february',
+					'march',
+					'april',
+					'may',
+					'june',
+					'july',
+					'august',
+					'september',
+					'october',
+					'november',
+					'december',
+				];
 				const matchedIdx = monthNames.findIndex((m) => periodLower.includes(m));
 				if (matchedIdx >= 0) {
 					stmtMonth.value = String(matchedIdx + 1).padStart(2, '0');
@@ -1883,7 +2056,7 @@ async function extractPdfToCsv() {
 function downloadCsvFromPdf() {
 	if (!pdfToCsvResult.value?.csv_text) return;
 
-	const blob = new Blob([pdfToCsvResult.value.csv_text], { type: 'text/csv' });
+	const blob = new Blob([pdfToCsvResult.value.csv_text], {type: 'text/csv'});
 	const url = URL.createObjectURL(blob);
 	const link = document.createElement('a');
 	link.href = url;
@@ -1906,7 +2079,7 @@ function loadPdfCsvIntoPreview() {
 		vendor: tx.vendor || '',
 		category: tx.category || '',
 		period: tx.period || '',
-		_raw: { ...tx, Category: tx.category, Period: tx.period },
+		_raw: {...tx, Category: tx.category, Period: tx.period},
 		_source_line: index + 1,
 	}));
 
@@ -2005,10 +2178,7 @@ async function importTransactions() {
 		try {
 			const categories = await budgetCategoriesCollection.list({
 				filter: {
-					_or: [
-						{ fiscal_year: { _eq: fyId } },
-						{ fiscal_year: { _null: true } },
-					],
+					_or: [{fiscal_year: {_eq: fyId}}, {fiscal_year: {_null: true}}],
 				},
 				fields: ['id', 'category_name'],
 				limit: -1,
@@ -2024,8 +2194,8 @@ async function importTransactions() {
 
 		// Load existing transactions for duplicate detection
 		const existingFilter = {
-			account_id: { _eq: stmtAccountId.value },
-			fiscal_year: { _eq: fyId },
+			account_id: {_eq: stmtAccountId.value},
+			fiscal_year: {_eq: fyId},
 		};
 
 		let existingTransactions = [];
@@ -2098,7 +2268,14 @@ async function importTransactions() {
 					statement_month: stmtMonth.value || null,
 					import_batch_id: batchId,
 					csv_source_line: tx._source_line || i + 1,
-					original_csv_data: tx._raw || { date: tx.date, description: tx.description, amount: tx.amount, type: tx.type, vendor: tx.vendor, category: csvCategory },
+					original_csv_data: tx._raw || {
+						date: tx.date,
+						description: tx.description,
+						amount: tx.amount,
+						type: tx.type,
+						vendor: tx.vendor,
+						category: csvCategory,
+					},
 					status: 'published',
 				};
 
@@ -2184,7 +2361,7 @@ async function runBackfillStatements() {
 	stmtMgrBackfillResults.value = null;
 
 	try {
-		const body = { fiscal_year: stmtMgrFiscalYear.value };
+		const body = {fiscal_year: stmtMgrFiscalYear.value};
 		if (stmtMgrAccountId.value) {
 			body.account_id = stmtMgrAccountId.value;
 		}
@@ -2228,10 +2405,18 @@ async function loadExistingStatements() {
 	try {
 		const data = await monthlyStatementsCollection.list({
 			filter: {
-				fiscal_year: { year: { _eq: stmtMgrFiscalYear.value } },
-				...(stmtMgrAccountId.value ? { account_id: { _eq: stmtMgrAccountId.value } } : {}),
+				fiscal_year: {year: {_eq: stmtMgrFiscalYear.value}},
+				...(stmtMgrAccountId.value ? {account_id: {_eq: stmtMgrAccountId.value}} : {}),
 			},
-			fields: ['id', 'account_id', 'statement_month', 'beginning_balance', 'ending_balance', 'reconciled', 'pdf_statement'],
+			fields: [
+				'id',
+				'account_id',
+				'statement_month',
+				'beginning_balance',
+				'ending_balance',
+				'reconciled',
+				'pdf_statement',
+			],
 			sort: ['account_id', 'statement_month'],
 			limit: -1,
 		});
@@ -2270,9 +2455,18 @@ function getAccountNameById(accountId) {
 
 function monthLabel(monthValue) {
 	const labels = {
-		'01': 'January', '02': 'February', '03': 'March', '04': 'April',
-		'05': 'May', '06': 'June', '07': 'July', '08': 'August',
-		'09': 'September', '10': 'October', '11': 'November', '12': 'December',
+		'01': 'January',
+		'02': 'February',
+		'03': 'March',
+		'04': 'April',
+		'05': 'May',
+		'06': 'June',
+		'07': 'July',
+		'08': 'August',
+		'09': 'September',
+		10: 'October',
+		11: 'November',
+		12: 'December',
 	};
 	return labels[monthValue] || monthValue;
 }
@@ -2280,7 +2474,7 @@ function monthLabel(monthValue) {
 function formatMoney(value) {
 	const num = parseFloat(value);
 	if (isNaN(num)) return '$0.00';
-	return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
+	return new Intl.NumberFormat('en-US', {style: 'currency', currency: 'USD'}).format(num);
 }
 
 async function saveStatementBalances() {
@@ -2297,15 +2491,15 @@ async function saveStatementBalances() {
 		// Check if a monthly_statements record already exists for this account/month
 		const existing = await monthlyStatementsCollection.list({
 			filter: {
-				account_id: { _eq: accountId },
-				statement_month: { _eq: month },
-				fiscal_year: { _eq: fyId },
+				account_id: {_eq: accountId},
+				statement_month: {_eq: month},
+				fiscal_year: {_eq: fyId},
 			},
 			fields: ['id', 'beginning_balance', 'ending_balance', 'pdf_statement'],
 			limit: 1,
 		});
 
-		const updates = { status: 'published' };
+		const updates = {status: 'published'};
 		if (beginBal != null) updates.beginning_balance = beginBal;
 		if (endBal != null) updates.ending_balance = endBal;
 		if (extractedPdfFileId.value) updates.pdf_statement = extractedPdfFileId.value;
@@ -2388,7 +2582,7 @@ async function loadFiscalYears() {
 		const years = await fiscalYearsCollection.list({
 			sort: ['-year'],
 			fields: ['id', 'year', 'start_date', 'status'],
-			filter: { status: { _eq: 'published' } },
+			filter: {status: {_eq: 'published'}},
 			limit: -1,
 		});
 
@@ -2411,9 +2605,9 @@ async function loadFiscalYears() {
 		// Fallback
 		const currentYear = new Date().getFullYear();
 		availableFiscalYears.value = [
-			{ id: null, year: currentYear - 1, is_current: false },
-			{ id: null, year: currentYear, is_current: true },
-			{ id: null, year: currentYear + 1, is_current: false },
+			{id: null, year: currentYear - 1, is_current: false},
+			{id: null, year: currentYear, is_current: true},
+			{id: null, year: currentYear + 1, is_current: false},
 		];
 	}
 }
@@ -2469,7 +2663,7 @@ async function scanFiscalYearIssues() {
 		for (const fyId of validIds) {
 			try {
 				const batch = await transactionsCollection.list({
-					filter: { fiscal_year: { _eq: fyId } },
+					filter: {fiscal_year: {_eq: fyId}},
 					fields: ['id'],
 					limit: -1,
 				});
@@ -2483,7 +2677,7 @@ async function scanFiscalYearIssues() {
 		// These are the ones with raw year numbers (e.g., 2025 stored as FK)
 		// Directus returns null for unresolvable M2O values, so query for null fiscal_year
 		const nullFyTransactions = await transactionsCollection.list({
-			filter: { fiscal_year: { _null: true } },
+			filter: {fiscal_year: {_null: true}},
 			fields: ['id'],
 			limit: -1,
 		});
@@ -2493,7 +2687,7 @@ async function scanFiscalYearIssues() {
 		// Directus returns null for unresolvable M2O references.
 		if (nullFyTransactions.length > 0) {
 			const nullTxDetails = await transactionsCollection.list({
-				filter: { fiscal_year: { _null: true } },
+				filter: {fiscal_year: {_null: true}},
 				fields: ['id', 'transaction_date', 'fiscal_year'],
 				limit: -1,
 			});
@@ -2531,9 +2725,7 @@ async function scanFiscalYearIssues() {
 			fields: ['id', 'fiscal_year', 'transaction_date'],
 			limit: -1,
 		});
-		const alreadyCounted = new Set([
-			...transactionsToFix.map((t) => t.id),
-		]);
+		const alreadyCounted = new Set([...transactionsToFix.map((t) => t.id)]);
 		for (const tx of allTransactions) {
 			if (alreadyCounted.has(tx.id)) continue;
 			const fyValue = tx.fiscal_year;
@@ -2562,7 +2754,7 @@ async function scanFiscalYearIssues() {
 		// Count how many transactions can actually be repaired (have a matching fiscal year)
 		const repairableCount = transactionsToFix.filter((tx) => tx.correctId !== null).length;
 
-		console.log('Scan results:', { correctCount, issueCount, repairableCount, missingYears, yearBreakdown, yearToIdMap });
+		console.log('Scan results:', {correctCount, issueCount, repairableCount, missingYears, yearBreakdown, yearToIdMap});
 
 		const totalScanned = correctCount + issueCount;
 		repairScanResults.value = {
