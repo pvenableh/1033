@@ -346,11 +346,14 @@ const {
 const allReports = ref([]);
 const reconcilingMonthKey = ref(null);
 
-const yearOptions = [
-	{ label: '2024', value: 2024 },
-	{ label: '2025', value: 2025 },
-	{ label: '2026', value: 2026 },
-];
+const currentYear = new Date().getFullYear();
+const yearOptions = computed(() => {
+	const years = [];
+	for (let y = 2023; y <= currentYear + 1; y++) {
+		years.push({ label: `${y}`, value: y });
+	}
+	return years;
+});
 
 const accountOptions = computed(() =>
 	accounts.value.map((a) => ({
