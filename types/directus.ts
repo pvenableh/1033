@@ -245,13 +245,12 @@ export interface BudgetItem {
 	monthly_budget: number;
 	/** @description Annual budgeted amount @required */
 	yearly_budget: number;
-	category_id?: BudgetCategory | string | null;
-	/** @description Links to vendors collection */
-	vendor_id?: number | null;
 	keywords?: string[] | null;
 	fiscal_year_budget_id?: FiscalYearBudget | string | null;
+	category_id?: BudgetCategory | string | null;
 	/** @required */
 	fiscal_year: FiscalYear | string;
+	vendor_id?: Vendor | string | null;
 }
 
 export interface ByLaws {
@@ -1064,6 +1063,20 @@ export interface Task {
 	assigned_to?: DirectusUser | string | null;
 }
 
+export interface TransactionFile {
+	/** @primaryKey */
+	id: number;
+	sort?: number | null;
+	file_type?: 'invoice' | 'receipt' | 'contract' | 'approval' | 'quote' | 'photo' | 'other' | null;
+	/** @description Optional description */
+	description?: string | null;
+	uploaded_by?: string | null;
+	date_created?: string | null;
+	transaction_id?: Transaction | string;
+	/** @description Upload invoice, receipt, or supporting document */
+	directus_files_id?: DirectusFile | string | null;
+}
+
 export interface Transaction {
 	/** @primaryKey */
 	id: number;
@@ -1108,27 +1121,20 @@ export interface Transaction {
 	reconciled_by?: DirectusUser | string | null;
 	/** @required */
 	fiscal_year: FiscalYear | string;
-	reconciliation_notes?: ReconciliationNote[] | string[];
+	/** @description Review status for reconciliation workflow */
 	review_status?: 'pending' | 'reviewed' | 'approved' | 'flagged' | null;
-	reviewed_by?: DirectusUser | string | null;
+	/** @description Date the transaction was reviewed */
 	reviewed_date?: string | null;
+	/** @description Notes from the reviewer (Treasurer/President) */
 	review_notes?: string | null;
+	/** @description How this transaction was paid/received */
 	payment_method?: 'ach' | 'check' | 'zelle' | 'wire' | 'cash' | 'card' | 'online' | 'other' | null;
+	/** @description Check number (if payment method is check) */
 	check_number?: string | null;
+	/** @description Vendor invoice or reference number */
 	invoice_number?: string | null;
-	files?: TransactionFile[] | string[];
-}
-
-export interface TransactionFile {
-	/** @primaryKey */
-	id: number;
-	sort?: number | null;
-	transaction_id?: Transaction | string | null;
-	directus_files_id?: DirectusFile | string | null;
-	file_type?: 'invoice' | 'receipt' | 'contract' | 'approval' | 'quote' | 'photo' | 'other' | null;
-	description?: string | null;
-	uploaded_by?: DirectusUser | string | null;
-	date_created?: string | null;
+	reviewed_by?: DirectusUser | string | null;
+	reconciliation_notes?: ReconciliationNote[] | string[];
 }
 
 export interface Unit {
@@ -1863,8 +1869,8 @@ export interface Schema {
 	reserve_studies: ReserveStudy[];
 	rules: Rule[];
 	tasks: Task[];
-	transactions: Transaction[];
 	transaction_files: TransactionFile[];
+	transactions: Transaction[];
 	units: Unit[];
 	units_people: UnitsPeople[];
 	user_permissions: UserPermission[];
@@ -1970,8 +1976,8 @@ export enum CollectionNames {
 	reserve_studies = 'reserve_studies',
 	rules = 'rules',
 	tasks = 'tasks',
-	transactions = 'transactions',
 	transaction_files = 'transaction_files',
+	transactions = 'transactions',
 	units = 'units',
 	units_people = 'units_people',
 	user_permissions = 'user_permissions',
