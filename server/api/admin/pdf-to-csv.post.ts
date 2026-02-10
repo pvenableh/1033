@@ -349,6 +349,16 @@ Return ONLY the JSON object, no other text.`;
 			throw error;
 		}
 
+		// Propagate rate-limit errors from Anthropic so the client can retry
+		const upstreamStatus = error?.status || error?.response?.status || error?.data?.status;
+		if (upstreamStatus === 429) {
+			throw createError({
+				statusCode: 429,
+				statusMessage: 'Too Many Requests',
+				message: 'Claude API rate limit reached. Please wait before retrying.',
+			});
+		}
+
 		return {
 			success: false,
 			error: `Failed to extract transactions: ${error.message}`,
