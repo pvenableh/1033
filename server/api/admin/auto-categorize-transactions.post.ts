@@ -333,6 +333,11 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'jbl corp': 'Maintenance',
 	'nenad rakita': 'Maintenance',
 	'alejandro 207': 'Maintenance',
+	'207 alejandro': 'Maintenance',
+	'305 bernie': 'Maintenance',
+	'camila hoffman': 'Maintenance',
+	'jani-king': 'Contract Services',
+	'jani king': 'Contract Services',
 	'amax tax pro': 'Administrative',
 	'amax tax': 'Administrative',
 };
