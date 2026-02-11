@@ -321,7 +321,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'first insurance': 'Insurance',
 	'citizens': 'Insurance',
 	'buildium': 'Administrative',
-	'diana wyatt': 'Administrative',
+	'diana wyatt': 'Maintenance',
 	'harry tompkins': 'Administrative',
 	'harry tempki': 'Administrative',
 	'acg engineering': 'Maintenance',
