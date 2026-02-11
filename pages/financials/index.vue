@@ -828,62 +828,176 @@
 
 					<!-- All Transactions Tab -->
 					<template #transactions>
-						<div class="space-y-6">
-							<Card>
-								<CardContent class="pt-6">
-									<div class="flex flex-wrap gap-4 items-center">
-										<div class="flex items-center gap-2">
-											<label class="text-sm font-medium text-gray-700 uppercase">Search:</label>
+						<div class="space-y-5">
+							<!-- Search & Filter Bar -->
+							<Card class="overflow-hidden">
+								<CardContent class="pt-5 pb-4 space-y-4">
+									<!-- Search Input -->
+									<div class="relative group">
+										<Icon name="i-heroicons-magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 transition-colors group-focus-within:text-blue-500" />
+										<Input
+											v-model="searchQuery"
+											placeholder="Search by description, vendor, amount, or category..."
+											class="w-full h-10 pl-10 pr-10 rounded-xl bg-gray-50 dark:bg-gray-800/60 border-gray-200 dark:border-gray-700 focus:bg-white dark:focus:bg-gray-800 transition-all" />
+										<button
+											v-if="searchQuery"
+											@click="searchQuery = ''"
+											class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full bg-gray-300 dark:bg-gray-600 text-white flex items-center justify-center hover:bg-gray-400 transition-colors">
+											<Icon name="i-heroicons-x-mark" class="w-3 h-3" />
+										</button>
+									</div>
+
+									<!-- Filter Controls -->
+									<div class="flex flex-wrap gap-3 items-center">
+										<!-- Transaction Type Pills -->
+										<div class="flex items-center gap-1.5">
+											<button
+												v-for="opt in transactionTypeOptions"
+												:key="opt.value"
+												@click="txTypeFilter = opt.value"
+												:class="[
+													'px-3 py-1.5 text-xs font-semibold rounded-full transition-all duration-200',
+													txTypeFilter === opt.value
+														? 'bg-blue-600 text-white shadow-sm shadow-blue-200 dark:shadow-blue-900/30 scale-105'
+														: 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700',
+												]">
+												{{ opt.label }}
+											</button>
+										</div>
+
+										<div class="w-px h-5 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
+
+										<!-- Category -->
+										<div class="flex items-center gap-1.5">
+											<label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Category</label>
+											<Select v-model="selectedCategory" :options="categoryOptions" class="w-36" />
+										</div>
+
+										<!-- Vendor -->
+										<div class="flex items-center gap-1.5">
+											<label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Vendor</label>
+											<Select v-model="selectedVendor" :options="vendorOptions" class="w-36" />
+										</div>
+
+										<div class="w-px h-5 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
+
+										<!-- Amount Range -->
+										<div class="flex items-center gap-1.5">
+											<label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Amount</label>
 											<Input
-												v-model="searchQuery"
-												placeholder="Search description, vendor, amount..."
-												class="w-64 h-9" />
+												v-model="amountMin"
+												type="number"
+												placeholder="Min"
+												class="w-20 h-8 text-xs rounded-lg" />
+											<span class="text-gray-300 dark:text-gray-600">-</span>
+											<Input
+												v-model="amountMax"
+												type="number"
+												placeholder="Max"
+												class="w-20 h-8 text-xs rounded-lg" />
 										</div>
-										<div class="flex items-center gap-2">
-											<label class="text-sm font-medium text-gray-700 uppercase">Category:</label>
-											<Select v-model="selectedCategory" :options="categoryOptions" class="w-40" />
+
+										<div class="w-px h-5 bg-gray-200 dark:bg-gray-700 hidden md:block"></div>
+
+										<!-- Sort -->
+										<div class="flex items-center gap-1.5">
+											<label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Sort</label>
+											<Select v-model="txSortBy" :options="sortOptions" class="w-36" />
 										</div>
-										<div class="flex items-center gap-2">
-											<label class="text-sm font-medium text-gray-700 uppercase">Vendor:</label>
-											<Select v-model="selectedVendor" :options="vendorOptions" class="w-40" />
-										</div>
-										<Button @click="clearAllFilters" size="sm" variant="outline">Clear All Filters</Button>
+									</div>
+
+									<!-- Active Filter Chips -->
+									<div v-if="hasActiveFilters" class="flex items-center gap-2 flex-wrap pt-2 border-t border-gray-100 dark:border-gray-800">
+										<span class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Filters:</span>
+										<span v-if="searchQuery" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full">
+											"{{ searchQuery }}"
+											<button @click="searchQuery = ''" class="ml-0.5 hover:text-blue-900 dark:hover:text-blue-100 transition-colors"><Icon name="i-heroicons-x-mark" class="w-3 h-3" /></button>
+										</span>
+										<span v-if="txTypeFilter !== 'all'" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full">
+											{{ transactionTypeOptions.find(o => o.value === txTypeFilter)?.label }}
+											<button @click="txTypeFilter = 'all'" class="ml-0.5 hover:text-purple-900 dark:hover:text-purple-100 transition-colors"><Icon name="i-heroicons-x-mark" class="w-3 h-3" /></button>
+										</span>
+										<span v-if="selectedCategory !== 'all'" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full">
+											{{ categoryOptions.find(o => o.value === selectedCategory)?.label }}
+											<button @click="selectedCategory = 'all'" class="ml-0.5 hover:text-green-900 dark:hover:text-green-100 transition-colors"><Icon name="i-heroicons-x-mark" class="w-3 h-3" /></button>
+										</span>
+										<span v-if="selectedVendor !== 'all'" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 rounded-full">
+											{{ selectedVendor === 'no_vendor' ? 'No Vendor' : selectedVendor }}
+											<button @click="selectedVendor = 'all'" class="ml-0.5 hover:text-orange-900 dark:hover:text-orange-100 transition-colors"><Icon name="i-heroicons-x-mark" class="w-3 h-3" /></button>
+										</span>
+										<span v-if="amountMin || amountMax" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-yellow-50 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full">
+											${{ amountMin || '0' }} - ${{ amountMax || 'Any' }}
+											<button @click="amountMin = ''; amountMax = ''" class="ml-0.5 hover:text-yellow-900 dark:hover:text-yellow-100 transition-colors"><Icon name="i-heroicons-x-mark" class="w-3 h-3" /></button>
+										</span>
+										<button
+											@click="clearAllFilters"
+											class="ml-auto text-xs text-gray-400 hover:text-red-500 font-medium flex items-center gap-1 transition-colors">
+											<Icon name="i-heroicons-x-circle" class="w-3.5 h-3.5" />
+											Clear All
+										</button>
 									</div>
 								</CardContent>
 							</Card>
 
-							<Card v-if="selectedCategory !== 'all' || selectedVendor !== 'all'">
-								<CardContent class="pt-6">
-									<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-										<div class="text-center p-4">
-											<p class="text-2xl font-bold text-blue-600">{{ accountTransactions.length }}</p>
-											<p class="text-sm text-gray-500">Filtered Transactions</p>
-										</div>
-										<div class="text-center p-4">
-											<p class="text-2xl font-bold text-red-600">{{ formatCurrency(getFilteredExpenseTotal()) }}</p>
-											<p class="text-sm text-gray-500">Total Expenses</p>
-										</div>
-										<div class="text-center p-4">
-											<p class="text-2xl font-bold text-green-600">{{ formatCurrency(getFilteredRevenueTotal()) }}</p>
-											<p class="text-sm text-gray-500">Total Revenue</p>
-										</div>
-									</div>
-								</CardContent>
-							</Card>
+							<!-- Filter Summary Metrics -->
+							<div v-if="hasActiveFilters" class="grid grid-cols-2 md:grid-cols-4 gap-3">
+								<Card class="filter-summary-card overflow-hidden">
+									<CardContent class="pt-4 pb-3 text-center">
+										<p class="text-2xl font-bold text-blue-600 tabular-nums">{{ displayTransactions.length }}</p>
+										<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mt-0.5">Matching</p>
+									</CardContent>
+								</Card>
+								<Card class="filter-summary-card overflow-hidden">
+									<CardContent class="pt-4 pb-3 text-center">
+										<p class="text-2xl font-bold text-red-600 tabular-nums">{{ formatCurrency(displayExpenseTotal) }}</p>
+										<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mt-0.5">Expenses</p>
+									</CardContent>
+								</Card>
+								<Card class="filter-summary-card overflow-hidden">
+									<CardContent class="pt-4 pb-3 text-center">
+										<p class="text-2xl font-bold text-green-600 tabular-nums">{{ formatCurrency(displayRevenueTotal) }}</p>
+										<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mt-0.5">Revenue</p>
+									</CardContent>
+								</Card>
+								<Card class="filter-summary-card overflow-hidden">
+									<CardContent class="pt-4 pb-3 text-center">
+										<p class="text-2xl font-bold tabular-nums" :class="displayNetTotal >= 0 ? 'text-green-600' : 'text-red-600'">
+											{{ displayNetTotal >= 0 ? '+' : '' }}{{ formatCurrency(displayNetTotal) }}
+										</p>
+										<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium mt-0.5">Net</p>
+									</CardContent>
+								</Card>
+							</div>
 
+							<!-- Transactions Table -->
 							<Card>
 								<CardHeader>
 									<div class="flex items-center justify-between">
 										<CardTitle class="text-lg uppercase tracking-wide">ALL TRANSACTIONS</CardTitle>
-										<Badge color="primary" variant="soft">
-											{{ accountTransactions.length }} OF {{ allAccountTransactions.length }} TOTAL
-										</Badge>
+										<div class="flex items-center gap-2">
+											<Badge v-if="hasActiveFilters" color="blue" variant="soft">
+												{{ displayTransactions.length }} OF {{ allAccountTransactions.length }}
+											</Badge>
+											<Badge v-else color="primary" variant="soft">
+												{{ allAccountTransactions.length }} TOTAL
+											</Badge>
+										</div>
 									</div>
 								</CardHeader>
 								<CardContent>
-									<Table :rows="displayTransactions" :columns="transactionColumnsDetailed">
+									<!-- Empty State -->
+									<div v-if="displayTransactions.length === 0" class="text-center py-16">
+										<div class="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+											<Icon name="i-heroicons-magnifying-glass" class="w-8 h-8 text-gray-300 dark:text-gray-600" />
+										</div>
+										<p class="text-gray-500 dark:text-gray-400 font-medium mb-1">No transactions match your filters</p>
+										<p class="text-sm text-gray-400 dark:text-gray-500">Try adjusting your search or filter criteria</p>
+										<button @click="clearAllFilters" class="mt-4 text-sm text-blue-600 hover:text-blue-700 font-medium transition-colors">Clear all filters</button>
+									</div>
+
+									<Table v-else :rows="displayTransactions" :columns="transactionColumnsDetailed">
 										<template #transaction_date-data="{row}">
-											<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
+											<span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{ formatDate(row.transaction_date) }}</span>
 										</template>
 										<template #transaction_type-data="{row}">
 											<Badge :color="getTransactionTypeColor(row.transaction_type)" variant="soft" size="xs">
@@ -891,7 +1005,7 @@
 											</Badge>
 										</template>
 										<template #amount-data="{row}">
-											<span class="font-bold" :class="getAmountColor(row.transaction_type, row.amount)">
+											<span class="font-bold tabular-nums" :class="getAmountColor(row.transaction_type, row.amount)">
 												{{ getAmountDisplay(row.transaction_type, row.amount) }}
 											</span>
 										</template>
@@ -900,7 +1014,7 @@
 												<select
 													:value="normalizeCategoryId(row.category_id)"
 													@change="updateTransactionCategory(row.id, $event.target.value)"
-													class="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-white dark:bg-gray-800 dark:border-gray-600"
+													class="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 dark:border-gray-600 transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
 													:class="normalizeCategoryId(row.category_id) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400'">
 													<option value="">Uncategorized</option>
 													<option v-for="cat in budgetCategories" :key="cat.id" :value="cat.id">
@@ -911,11 +1025,11 @@
 											<div v-else>
 												<div class="flex items-center gap-2" v-if="row.category_id">
 													<div
-														class="w-3 h-3 rounded-full"
+														class="w-2.5 h-2.5 rounded-full"
 														:style="{backgroundColor: getCategoryColor(row.category_id)}"></div>
 													<span class="text-xs">{{ getCategoryName(row.category_id) }}</span>
 												</div>
-												<span v-else class="text-xs text-gray-400">Uncategorized</span>
+												<span v-else class="text-xs text-gray-400 italic">Uncategorized</span>
 											</div>
 										</template>
 										<template #is_violation-data="{row}">
@@ -931,205 +1045,269 @@
 
 					<!-- Compliance Tab -->
 					<template #compliance>
-						<div class="space-y-6">
-							<Card>
-								<CardContent class="pt-6">
-									<div class="flex gap-2">
-										<Button
+						<div class="space-y-5">
+							<!-- Segmented Control for compliance views -->
+							<Card class="overflow-hidden">
+								<CardContent class="pt-5 pb-4">
+									<div class="inline-flex bg-gray-100 dark:bg-gray-800 rounded-xl p-1 gap-1">
+										<button
 											@click="complianceView = 'transfers'"
-											:variant="complianceView === 'transfers' ? 'default' : 'outline'"
-											size="sm">
-											<Icon name="i-heroicons-arrows-right-left" class="w-4 h-4 mr-2" />
+											:class="[
+												'relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200',
+												complianceView === 'transfers'
+													? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+													: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
+											]">
+											<Icon name="i-heroicons-arrows-right-left" class="w-4 h-4" />
 											Transfer Reconciliation
-											<Badge v-if="transferActivity.unmatchedCount > 0" color="red" class="ml-2">
+											<span v-if="transferActivity.unmatchedCount > 0"
+												class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-red-500 text-white rounded-full">
 												{{ transferActivity.unmatchedCount }}
-											</Badge>
-										</Button>
-										<Button
+											</span>
+										</button>
+										<button
 											@click="complianceView = 'clumped'"
-											:variant="complianceView === 'clumped' ? 'default' : 'outline'"
-											size="sm">
-											<Icon name="i-heroicons-exclamation-triangle" class="w-4 h-4 mr-2" />
-											Fund Mixing Issues
-											<Badge v-if="clumpedPayments.length > 0" color="red" class="ml-2">
+											:class="[
+												'relative flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200',
+												complianceView === 'clumped'
+													? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+													: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
+											]">
+											<Icon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+											Payment Allocations
+											<span v-if="clumpedPayments.length > 0"
+												class="inline-flex items-center justify-center w-5 h-5 text-[10px] font-bold bg-red-500 text-white rounded-full">
 												{{ clumpedPayments.length }}
-											</Badge>
-										</Button>
+											</span>
+										</button>
 									</div>
 								</CardContent>
 							</Card>
 
-							<!-- Transfers View -->
-							<div v-show="complianceView === 'transfers'" class="space-y-6">
-								<Alert v-if="transferActivity.unmatchedCount > 0" variant="destructive">
-									<Icon name="i-heroicons-exclamation-triangle" class="h-4 w-4" />
-									<h5 class="mb-1 font-bold leading-none tracking-tight">TRANSFER RECONCILIATION REQUIRED</h5>
-									<div class="text-sm">
-										{{ transferActivity.unmatchedCount }} unmatched transfer{{
-											transferActivity.unmatchedCount !== 1 ? 's' : ''
-										}}
-										detected. These may represent fund mixing violations or missing data.
+							<!-- TRANSFERS VIEW -->
+							<div v-show="complianceView === 'transfers'" class="space-y-5">
+								<!-- Status Banner -->
+								<div v-if="transferActivity.unmatchedCount > 0"
+									class="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4 flex items-start gap-3">
+									<div class="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+										<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-600" />
 									</div>
-								</Alert>
-
-								<Alert
-									v-else-if="transferActivity.totalTransfers > 0"
-									variant="success"
-									title="All Transfers Reconciled">
-									<div class="text-sm">
-										All {{ transferActivity.totalTransfers }} transfers are properly matched and linked.
+									<div>
+										<p class="font-semibold text-red-800 dark:text-red-200 text-sm">Transfer Reconciliation Required</p>
+										<p class="text-sm text-red-600 dark:text-red-300 mt-0.5">
+											{{ transferActivity.unmatchedCount }} unmatched transfer{{ transferActivity.unmatchedCount !== 1 ? 's' : '' }} detected that may indicate fund mixing violations or missing data.
+										</p>
 									</div>
-								</Alert>
+								</div>
 
-								<div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-									<Card class="text-center">
-										<CardContent class="pt-6">
-											<div class="space-y-2">
-												<Icon name="i-heroicons-arrows-right-left" class="w-8 h-8 mx-auto text-purple-600" />
-												<p class="text-sm uppercase tracking-wider text-gray-600">TOTAL TRANSFERS</p>
-												<p class="text-2xl font-bold text-purple-600">{{ transferActivity.totalTransfers }}</p>
+								<div v-else-if="transferActivity.totalTransfers > 0"
+									class="rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-4 flex items-center gap-3">
+									<div class="w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+										<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-600" />
+									</div>
+									<div>
+										<p class="font-semibold text-green-800 dark:text-green-200 text-sm">All Transfers Reconciled</p>
+										<p class="text-sm text-green-600 dark:text-green-300">All {{ transferActivity.totalTransfers }} transfers are properly matched and linked.</p>
+									</div>
+								</div>
+
+								<!-- Transfer Metrics -->
+								<div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+									<Card class="text-center overflow-hidden">
+										<CardContent class="pt-4 pb-3">
+											<div class="w-8 h-8 mx-auto mb-2 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center">
+												<Icon name="i-heroicons-arrows-right-left" class="w-4 h-4 text-purple-600" />
 											</div>
+											<p class="text-xl font-bold text-purple-600 tabular-nums">{{ transferActivity.totalTransfers }}</p>
+											<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Total</p>
 										</CardContent>
 									</Card>
 
-									<Card class="text-center">
-										<CardContent class="pt-6">
-											<div class="space-y-2">
-												<Icon name="i-heroicons-arrow-up-circle" class="w-8 h-8 mx-auto text-green-600" />
-												<p class="text-sm uppercase tracking-wider text-gray-600">TRANSFERS IN</p>
-												<p class="text-2xl font-bold text-green-600">
-													{{ formatCurrency(transferActivity.transfersIn) }}
-												</p>
+									<Card class="text-center overflow-hidden">
+										<CardContent class="pt-4 pb-3">
+											<div class="w-8 h-8 mx-auto mb-2 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+												<Icon name="i-heroicons-arrow-up-circle" class="w-4 h-4 text-green-600" />
 											</div>
+											<p class="text-xl font-bold text-green-600 tabular-nums">{{ formatCurrency(transferActivity.transfersIn) }}</p>
+											<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">In</p>
 										</CardContent>
 									</Card>
 
-									<Card class="text-center">
-										<CardContent class="pt-6">
-											<div class="space-y-2">
-												<Icon name="i-heroicons-arrow-down-circle" class="w-8 h-8 mx-auto text-red-600" />
-												<p class="text-sm uppercase tracking-wider text-gray-600">TRANSFERS OUT</p>
-												<p class="text-2xl font-bold text-red-600">{{ formatCurrency(transferActivity.transfersOut) }}</p>
+									<Card class="text-center overflow-hidden">
+										<CardContent class="pt-4 pb-3">
+											<div class="w-8 h-8 mx-auto mb-2 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+												<Icon name="i-heroicons-arrow-down-circle" class="w-4 h-4 text-red-600" />
 											</div>
+											<p class="text-xl font-bold text-red-600 tabular-nums">{{ formatCurrency(transferActivity.transfersOut) }}</p>
+											<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Out</p>
 										</CardContent>
 									</Card>
 
-									<Card class="text-center">
-										<CardContent class="pt-6">
-											<div class="space-y-2">
-												<Icon name="i-heroicons-link" class="w-8 h-8 mx-auto text-blue-600" />
-												<p class="text-sm uppercase tracking-wider text-gray-600">LINKED</p>
-												<p class="text-2xl font-bold text-blue-600">{{ transferActivity.linkedCount }}</p>
+									<Card class="text-center overflow-hidden">
+										<CardContent class="pt-4 pb-3">
+											<div class="w-8 h-8 mx-auto mb-2 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+												<Icon name="i-heroicons-link" class="w-4 h-4 text-blue-600" />
 											</div>
+											<p class="text-xl font-bold text-blue-600 tabular-nums">{{ transferActivity.linkedCount }}</p>
+											<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Linked</p>
 										</CardContent>
 									</Card>
 
-									<Card
-										class="text-center"
-										:class="transferActivity.unmatchedCount > 0 ? 'ring-2 ring-red-500 ring-offset-2' : ''">
-										<CardContent class="pt-6">
-											<div class="space-y-2">
-												<Icon
-													name="i-heroicons-exclamation-triangle"
-													class="w-8 h-8 mx-auto"
-													:class="
-														transferActivity.unmatchedCount > 0 ? 'text-red-600 animate-pulse' : 'text-green-600'
-													" />
-												<p class="text-sm uppercase tracking-wider text-gray-600">UNMATCHED</p>
-												<p
-													class="text-2xl font-bold"
-													:class="transferActivity.unmatchedCount > 0 ? 'text-red-600' : 'text-green-600'">
-													{{ transferActivity.unmatchedCount }}
-												</p>
+									<Card class="text-center overflow-hidden"
+										:class="transferActivity.unmatchedCount > 0 ? 'ring-2 ring-red-400 dark:ring-red-600' : ''">
+										<CardContent class="pt-4 pb-3">
+											<div class="w-8 h-8 mx-auto mb-2 rounded-full flex items-center justify-center"
+												:class="transferActivity.unmatchedCount > 0 ? 'bg-red-100 dark:bg-red-900/40' : 'bg-green-100 dark:bg-green-900/40'">
+												<Icon :name="transferActivity.unmatchedCount > 0 ? 'i-heroicons-exclamation-triangle' : 'i-heroicons-check-circle'"
+													class="w-4 h-4" :class="transferActivity.unmatchedCount > 0 ? 'text-red-600' : 'text-green-600'" />
 											</div>
+											<p class="text-xl font-bold tabular-nums"
+												:class="transferActivity.unmatchedCount > 0 ? 'text-red-600' : 'text-green-600'">
+												{{ transferActivity.unmatchedCount }}
+											</p>
+											<p class="text-[10px] text-gray-500 uppercase tracking-wider font-medium">Unmatched</p>
 										</CardContent>
 									</Card>
 								</div>
 
-								<Card v-if="unmatchedTransfers.length > 0" class="border-2 border-red-500">
-									<CardHeader>
-										<div class="flex items-center justify-between">
-											<div class="flex items-center gap-3">
-												<Icon name="i-heroicons-exclamation-triangle" class="w-6 h-6 text-red-600 animate-pulse" />
-												<div>
-													<CardTitle class="text-lg uppercase tracking-wide text-red-800">
-														UNMATCHED TRANSFERS - ACTION REQUIRED
-													</CardTitle>
-													<p class="text-sm text-red-600 mt-1 font-medium">
-														These transfers don't have matching counterparts
-													</p>
-												</div>
-											</div>
-											<Badge color="red" variant="solid" size="lg">{{ unmatchedTransfers.length }}</Badge>
+								<!-- Reconciliation Progress -->
+								<Card v-if="transferActivity.totalTransfers > 0" class="overflow-hidden">
+									<CardContent class="pt-4 pb-3">
+										<div class="flex items-center justify-between mb-2">
+											<span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Reconciliation Progress</span>
+											<span class="text-xs font-bold tabular-nums"
+												:class="transferActivity.unmatchedCount === 0 ? 'text-green-600' : 'text-blue-600'">
+												{{ Math.round((transferActivity.linkedCount / transferActivity.totalTransfers) * 100) }}%
+											</span>
 										</div>
-									</CardHeader>
-									<CardContent>
-										<Table
-											:rows="unmatchedTransfers"
-											:columns="[
-												{key: 'transaction_date', label: 'DATE'},
-												{key: 'transaction_type', label: 'TYPE'},
-												{key: 'description', label: 'DESCRIPTION'},
-												{key: 'amount', label: 'AMOUNT'},
-											]">
-											<template #transaction_date-data="{row}">
-												<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
-											</template>
-											<template #transaction_type-data="{row}">
-												<Badge :color="row.transaction_type === 'withdrawal' ? 'red' : 'green'" variant="solid" size="sm">
-													{{ row.transaction_type === 'withdrawal' ? 'OUT' : 'IN' }}
-												</Badge>
-											</template>
-											<template #amount-data="{row}">
-												<span
-													class="font-bold text-lg"
-													:class="row.transaction_type === 'withdrawal' ? 'text-red-600' : 'text-green-600'">
-													{{ formatCurrency(row.amount) }}
-												</span>
-											</template>
-										</Table>
+										<div class="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+											<div
+												class="h-full rounded-full transition-all duration-500"
+												:class="transferActivity.unmatchedCount === 0 ? 'bg-green-500' : 'bg-blue-500'"
+												:style="{ width: `${Math.round((transferActivity.linkedCount / transferActivity.totalTransfers) * 100)}%` }">
+											</div>
+										</div>
+										<p class="text-[11px] text-gray-400 mt-1.5">
+											{{ transferActivity.linkedCount }} of {{ transferActivity.totalTransfers }} transfers reconciled
+										</p>
 									</CardContent>
 								</Card>
 
+								<!-- Unmatched Transfers - Card-based layout -->
+								<div v-if="unmatchedTransfers.length > 0" class="space-y-3">
+									<div class="flex items-center justify-between">
+										<h3 class="text-sm font-semibold text-red-700 dark:text-red-300 uppercase tracking-wide flex items-center gap-2">
+											<Icon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+											Unmatched Transfers
+										</h3>
+										<Badge color="red" variant="soft">{{ unmatchedTransfers.length }} Action{{ unmatchedTransfers.length !== 1 ? 's' : '' }} Required</Badge>
+									</div>
+
+									<div class="space-y-2">
+										<div
+											v-for="transfer in unmatchedTransfers"
+											:key="transfer.id"
+											@click="expandedUnmatchedId = expandedUnmatchedId === transfer.id ? null : transfer.id"
+											class="border rounded-xl p-4 cursor-pointer transition-all duration-200 hover:shadow-md"
+											:class="transfer.transaction_type === 'withdrawal'
+												? 'border-red-200 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 hover:border-red-300'
+												: 'border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 hover:border-green-300'">
+											<div class="flex items-center justify-between">
+												<div class="flex items-center gap-3">
+													<div class="w-10 h-10 rounded-full flex items-center justify-center"
+														:class="transfer.transaction_type === 'withdrawal'
+															? 'bg-red-100 dark:bg-red-900/50'
+															: 'bg-green-100 dark:bg-green-900/50'">
+														<Icon
+															:name="transfer.transaction_type === 'withdrawal' ? 'i-heroicons-arrow-up-right' : 'i-heroicons-arrow-down-left'"
+															class="w-5 h-5"
+															:class="transfer.transaction_type === 'withdrawal' ? 'text-red-600' : 'text-green-600'" />
+													</div>
+													<div>
+														<p class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ transfer.description }}</p>
+														<p class="text-xs text-gray-500 dark:text-gray-400">{{ formatDate(transfer.transaction_date) }}</p>
+													</div>
+												</div>
+												<div class="flex items-center gap-3">
+													<div class="text-right">
+														<p class="font-bold text-lg tabular-nums"
+															:class="transfer.transaction_type === 'withdrawal' ? 'text-red-600' : 'text-green-600'">
+															{{ transfer.transaction_type === 'withdrawal' ? '-' : '+' }}{{ formatCurrency(transfer.amount) }}
+														</p>
+														<Badge :color="transfer.transaction_type === 'withdrawal' ? 'red' : 'green'" variant="soft" size="xs">
+															{{ transfer.transaction_type === 'withdrawal' ? 'OUT' : 'IN' }}
+														</Badge>
+													</div>
+													<Icon
+														name="i-heroicons-chevron-down"
+														class="w-4 h-4 text-gray-400 transition-transform duration-200"
+														:class="{ 'rotate-180': expandedUnmatchedId === transfer.id }" />
+												</div>
+											</div>
+
+											<!-- Expandable Details -->
+											<div v-if="expandedUnmatchedId === transfer.id" class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 text-sm space-y-1">
+												<div class="flex justify-between">
+													<span class="text-gray-500">Vendor</span>
+													<span class="font-medium">{{ transfer.vendor || 'None' }}</span>
+												</div>
+												<div class="flex justify-between">
+													<span class="text-gray-500">Type</span>
+													<span class="font-medium">{{ transfer.transaction_type }}</span>
+												</div>
+												<div class="flex justify-between">
+													<span class="text-gray-500">Status</span>
+													<Badge color="yellow" variant="soft" size="xs">Needs Matching</Badge>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<!-- Linked Transfer Pairs - Visual flow -->
 								<Card v-if="transferPairs.length > 0">
 									<CardHeader>
-										<CardTitle class="text-lg uppercase tracking-wide">LINKED TRANSFER PAIRS</CardTitle>
-										<CardDescription>Properly matched transfers across accounts</CardDescription>
+										<div class="flex items-center justify-between">
+											<CardTitle class="text-sm uppercase tracking-wide">Linked Transfer Pairs</CardTitle>
+											<Badge color="green" variant="soft">{{ transferPairs.length }} Reconciled</Badge>
+										</div>
 									</CardHeader>
 									<CardContent>
-										<div class="space-y-4">
+										<div class="space-y-3">
 											<div
 												v-for="pair in transferPairs"
 												:key="pair.id"
-												class="border border-green-200 bg-green-50 rounded-lg p-4">
+												class="rounded-xl border border-gray-200 dark:border-gray-700 p-4 hover:shadow-sm transition-shadow">
+												<!-- Amount & Date Header -->
 												<div class="flex items-center justify-between mb-3">
-													<div class="flex items-center gap-3">
-														<Icon name="i-heroicons-link" class="w-5 h-5 text-green-600" />
-														<span class="font-mono text-sm text-gray-600">{{ formatDate(pair.date) }}</span>
-														<span class="font-bold text-lg text-green-700">{{ formatCurrency(pair.amount) }}</span>
+													<div class="flex items-center gap-2">
+														<div class="w-7 h-7 rounded-full bg-green-100 dark:bg-green-900/40 flex items-center justify-center">
+															<Icon name="i-heroicons-check" class="w-4 h-4 text-green-600" />
+														</div>
+														<span class="font-bold text-lg tabular-nums">{{ formatCurrency(pair.amount) }}</span>
 													</div>
-													<Badge color="green" variant="soft">RECONCILED</Badge>
+													<span class="text-xs text-gray-500 font-mono">{{ formatDate(pair.date) }}</span>
 												</div>
 
-												<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-													<div class="bg-white p-3 rounded border border-red-200">
-														<div class="flex items-center justify-between mb-2">
-															<p class="text-xs font-semibold text-red-600 uppercase">Transfer Out</p>
-															<Icon name="i-heroicons-arrow-right" class="w-4 h-4 text-red-600" />
-														</div>
-														<p class="font-semibold text-sm">{{ pair.fromAccount?.account_name || 'Unknown' }}</p>
-														<p class="text-xs text-gray-500">Account #{{ pair.fromAccount?.account_number || 'N/A' }}</p>
-														<p class="text-xs text-gray-600 mt-2">{{ pair.outTransfer.description }}</p>
+												<!-- Flow Visualization -->
+												<div class="flex items-center gap-2">
+													<!-- Source Account -->
+													<div class="flex-1 bg-red-50 dark:bg-red-950/20 rounded-lg p-3 border border-red-100 dark:border-red-900">
+														<p class="text-[10px] font-semibold text-red-500 uppercase tracking-wider mb-1">From</p>
+														<p class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ pair.fromAccount?.account_name || 'Unknown' }}</p>
+														<p class="text-[11px] text-gray-500 truncate">{{ pair.outTransfer.description }}</p>
 													</div>
 
-													<div class="bg-white p-3 rounded border border-green-200">
-														<div class="flex items-center justify-between mb-2">
-															<p class="text-xs font-semibold text-green-600 uppercase">Transfer In</p>
-															<Icon name="i-heroicons-arrow-left" class="w-4 h-4 text-green-600" />
-														</div>
-														<p class="font-semibold text-sm">{{ pair.toAccount?.account_name || 'Unknown' }}</p>
-														<p class="text-xs text-gray-500">Account #{{ pair.toAccount?.account_number || 'N/A' }}</p>
-														<p class="text-xs text-gray-600 mt-2">{{ pair.inTransfer.description }}</p>
+													<!-- Arrow -->
+													<div class="flex-shrink-0 w-8 flex items-center justify-center">
+														<Icon name="i-heroicons-arrow-right" class="w-5 h-5 text-gray-400" />
+													</div>
+
+													<!-- Destination Account -->
+													<div class="flex-1 bg-green-50 dark:bg-green-950/20 rounded-lg p-3 border border-green-100 dark:border-green-900">
+														<p class="text-[10px] font-semibold text-green-500 uppercase tracking-wider mb-1">To</p>
+														<p class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ pair.toAccount?.account_name || 'Unknown' }}</p>
+														<p class="text-[11px] text-gray-500 truncate">{{ pair.inTransfer.description }}</p>
 													</div>
 												</div>
 											</div>
@@ -1138,56 +1316,73 @@
 								</Card>
 							</div>
 
-							<!-- Clumped Payments View -->
-							<div v-show="complianceView === 'clumped'" class="space-y-6">
-								<Alert v-if="clumpedPayments.length > 0" variant="destructive">
-									<Icon name="i-heroicons-exclamation-triangle" class="h-4 w-4" />
-									<h5 class="mb-1 font-bold leading-none tracking-tight">FUND MIXING VIOLATIONS DETECTED</h5>
-									<div class="text-sm space-y-2">
-										<p class="font-semibold">
-											{{ clumpedPayments.length }} transaction(s) identified as potentially clumped payments totaling
-											{{ formatCurrency(clumpedPaymentTotal) }}.
-										</p>
-										<p>
-											These payments likely combine HOA dues and special assessment fees but were deposited into a
-											single account, violating Florida HOA accounting requirements (FS 718.111(11)).
-										</p>
+							<!-- PAYMENT ALLOCATIONS VIEW -->
+							<div v-show="complianceView === 'clumped'" class="space-y-5">
+								<!-- Status Banner -->
+								<div v-if="clumpedPayments.length > 0"
+									class="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 p-4">
+									<div class="flex items-start gap-3">
+										<div class="w-9 h-9 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center flex-shrink-0 mt-0.5">
+											<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-red-600" />
+										</div>
+										<div>
+											<p class="font-semibold text-red-800 dark:text-red-200 text-sm">Fund Mixing Violations Detected</p>
+											<p class="text-sm text-red-600 dark:text-red-300 mt-0.5">
+												{{ clumpedPayments.length }} transaction{{ clumpedPayments.length !== 1 ? 's' : '' }} totaling
+												<span class="font-semibold">{{ formatCurrency(clumpedPaymentTotal) }}</span>
+												identified as potentially clumped payments.
+											</p>
+											<p class="text-xs text-red-500 dark:text-red-400 mt-2">
+												These may combine HOA dues and special assessment fees into a single deposit, violating Florida HOA accounting requirements (FS 718.111(11)).
+											</p>
+										</div>
 									</div>
-								</Alert>
+								</div>
 
-								<Alert v-else variant="success" title="No Fund Mixing Issues Detected">
-									<div class="text-sm">
-										All electronic payments appear to be properly allocated to their respective accounts.
+								<div v-else
+									class="rounded-xl bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-4 flex items-center gap-3">
+									<div class="w-9 h-9 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center flex-shrink-0">
+										<Icon name="i-heroicons-check-circle" class="w-5 h-5 text-green-600" />
 									</div>
-								</Alert>
+									<div>
+										<p class="font-semibold text-green-800 dark:text-green-200 text-sm">No Fund Mixing Issues</p>
+										<p class="text-sm text-green-600 dark:text-green-300">All electronic payments appear to be properly allocated to their respective accounts.</p>
+									</div>
+								</div>
 
-								<Card v-if="clumpedPayments.length > 0">
-									<CardHeader>
-										<CardTitle class="text-lg uppercase tracking-wide text-red-800">
-											SUSPECTED CLUMPED PAYMENTS
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<Table
-											:rows="clumpedPayments"
-											:columns="[
-												{key: 'transaction_date', label: 'DATE'},
-												{key: 'description', label: 'DESCRIPTION'},
-												{key: 'amount', label: 'AMOUNT'},
-												{key: 'account_id', label: 'DEPOSITED TO'},
-											]">
-											<template #transaction_date-data="{row}">
-												<span class="font-mono text-sm">{{ formatDate(row.transaction_date) }}</span>
-											</template>
-											<template #amount-data="{row}">
-												<span class="font-bold text-lg text-red-600">{{ formatCurrency(row.amount) }}</span>
-											</template>
-											<template #account_id-data="{row}">
-												<span class="text-sm">{{ getAccountById(row.account_id)?.account_name || 'Unknown' }}</span>
-											</template>
-										</Table>
-									</CardContent>
-								</Card>
+								<!-- Clumped Payment Cards -->
+								<div v-if="clumpedPayments.length > 0" class="space-y-3">
+									<div class="flex items-center justify-between">
+										<h3 class="text-sm font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">
+											Suspected Clumped Payments
+										</h3>
+										<Badge color="red" variant="soft">{{ clumpedPayments.length }}</Badge>
+									</div>
+
+									<div class="space-y-2">
+										<div
+											v-for="payment in clumpedPayments"
+											:key="payment.id"
+											class="rounded-xl border border-red-200 dark:border-red-800 bg-white dark:bg-gray-900 p-4 hover:shadow-md transition-all duration-200">
+											<div class="flex items-center justify-between">
+												<div class="flex items-center gap-3">
+													<div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/50 flex items-center justify-center">
+														<Icon name="i-heroicons-banknotes" class="w-5 h-5 text-red-600" />
+													</div>
+													<div>
+														<p class="font-medium text-sm text-gray-900 dark:text-gray-100">{{ payment.description }}</p>
+														<div class="flex items-center gap-2 mt-0.5">
+															<span class="text-xs text-gray-500 font-mono">{{ formatDate(payment.transaction_date) }}</span>
+															<span class="text-xs text-gray-400">-</span>
+															<span class="text-xs text-gray-500">{{ getAccountById(payment.account_id)?.account_name || 'Unknown' }}</span>
+														</div>
+													</div>
+												</div>
+												<p class="font-bold text-lg text-red-600 tabular-nums">{{ formatCurrency(payment.amount) }}</p>
+											</div>
+										</div>
+									</div>
+								</div>
 							</div>
 						</div>
 					</template>
@@ -1212,6 +1407,7 @@ useSeoMeta({
 import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';
 import { CurveType } from '@unovis/ts';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
+import gsap from 'gsap';
 
 // Admin permissions and reconciliation
 const { canReconcile, canCreateNotes, fetchUserPermissions } = useReconciliationNotes();
@@ -1268,6 +1464,39 @@ const {
 
 const activeTab = ref(0);
 const complianceView = ref('transfers');
+
+// Enhanced All Transactions filters
+const txTypeFilter = ref('all');
+const amountMin = ref('');
+const amountMax = ref('');
+const txSortBy = ref('date_desc');
+
+const transactionTypeOptions = [
+	{ label: 'All', value: 'all' },
+	{ label: 'Deposits', value: 'deposit' },
+	{ label: 'Withdrawals', value: 'withdrawal' },
+	{ label: 'Fees', value: 'fee' },
+	{ label: 'Transfers', value: 'transfer' },
+];
+
+const sortOptions = computed(() => [
+	{ label: 'Date (Newest)', value: 'date_desc' },
+	{ label: 'Date (Oldest)', value: 'date_asc' },
+	{ label: 'Amount (High)', value: 'amount_desc' },
+	{ label: 'Amount (Low)', value: 'amount_asc' },
+]);
+
+const hasActiveFilters = computed(() => {
+	return searchQuery.value.trim() !== '' ||
+		txTypeFilter.value !== 'all' ||
+		selectedCategory.value !== 'all' ||
+		selectedVendor.value !== 'all' ||
+		amountMin.value !== '' ||
+		amountMax.value !== '';
+});
+
+// Compliance: expanded unmatched transfer cards
+const expandedUnmatchedId = ref(null);
 
 // Documentation & review stats
 const documentationStats = computed(() => {
@@ -1359,18 +1588,82 @@ const displayTransactions = computed(() => {
 				? allAccountTransactions.value || []
 				: accountTransactions.value || [];
 
+		// Text search
 		if (searchQuery.value.trim()) {
 			const query = searchQuery.value.toLowerCase();
 			transactions = transactions.filter((t) => {
-				const searchable = [t.description || '', t.vendor || '', t.amount?.toString() || ''].join(' ').toLowerCase();
+				const searchable = [
+					t.description || '',
+					t.vendor || '',
+					t.amount?.toString() || '',
+					getCategoryName(t.category_id) || '',
+				].join(' ').toLowerCase();
 				return searchable.includes(query);
 			});
 		}
-		return transactions;
+
+		// Transaction type filter
+		if (txTypeFilter.value !== 'all') {
+			if (txTypeFilter.value === 'transfer') {
+				transactions = transactions.filter((t) => isTransferTransaction(t));
+			} else {
+				transactions = transactions.filter((t) => t.transaction_type === txTypeFilter.value && !isTransferTransaction(t));
+			}
+		}
+
+		// Amount range filter
+		if (amountMin.value !== '') {
+			const min = parseFloat(amountMin.value);
+			if (!isNaN(min)) {
+				transactions = transactions.filter((t) => parseFloat(t.amount || 0) >= min);
+			}
+		}
+		if (amountMax.value !== '') {
+			const max = parseFloat(amountMax.value);
+			if (!isNaN(max)) {
+				transactions = transactions.filter((t) => parseFloat(t.amount || 0) <= max);
+			}
+		}
+
+		// Sort
+		const sorted = [...transactions];
+		switch (txSortBy.value) {
+			case 'date_asc':
+				sorted.sort((a, b) => new Date(a.transaction_date) - new Date(b.transaction_date));
+				break;
+			case 'amount_desc':
+				sorted.sort((a, b) => parseFloat(b.amount || 0) - parseFloat(a.amount || 0));
+				break;
+			case 'amount_asc':
+				sorted.sort((a, b) => parseFloat(a.amount || 0) - parseFloat(b.amount || 0));
+				break;
+			default: // date_desc
+				sorted.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
+				break;
+		}
+
+		return sorted;
 	} catch (error) {
 		console.error('Error in displayTransactions:', error);
 		return [];
 	}
+});
+
+// Computed totals for the filtered display
+const displayExpenseTotal = computed(() => {
+	return displayTransactions.value
+		.filter((t) => t.transaction_type === 'withdrawal' || t.transaction_type === 'fee')
+		.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+});
+
+const displayRevenueTotal = computed(() => {
+	return displayTransactions.value
+		.filter((t) => t.transaction_type === 'deposit' || t.transaction_type === 'interest')
+		.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+});
+
+const displayNetTotal = computed(() => {
+	return displayRevenueTotal.value - displayExpenseTotal.value;
 });
 
 const formatDate = (dateString) => {
@@ -1435,6 +1728,10 @@ const clearAllFilters = () => {
 	selectedCategory.value = 'all';
 	selectedVendor.value = 'all';
 	searchQuery.value = '';
+	txTypeFilter.value = 'all';
+	amountMin.value = '';
+	amountMax.value = '';
+	txSortBy.value = 'date_desc';
 };
 
 const getFilteredExpenseTotal = () => {
@@ -1518,6 +1815,30 @@ const updateTransactionCategory = async (transactionId, categoryId) => {
 	}
 };
 
+// GSAP animation for tab content
+const txListRef = ref(null);
+
+watch(activeTab, () => {
+	nextTick(() => {
+		const container = document.querySelector('.tab-content-enter');
+		if (container) {
+			gsap.fromTo(container, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.35, ease: 'power2.out' });
+		}
+	});
+});
+
+// Animate filter summary cards when filters change
+watch(hasActiveFilters, (val) => {
+	if (val) {
+		nextTick(() => {
+			const cards = document.querySelectorAll('.filter-summary-card');
+			if (cards.length) {
+				gsap.fromTo(cards, { opacity: 0, y: 8, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, stagger: 0.05, ease: 'power2.out' });
+			}
+		});
+	}
+});
+
 onMounted(() => {
 	refreshAll();
 });
@@ -1526,5 +1847,15 @@ onMounted(() => {
 <style scoped>
 button:focus {
 	outline: none;
+}
+
+/* Smooth transitions for filter chips */
+.filter-summary-card {
+	transition: all 0.2s ease;
+}
+
+/* Tabular numbers for financial data */
+.tabular-nums {
+	font-variant-numeric: tabular-nums;
 }
 </style>
