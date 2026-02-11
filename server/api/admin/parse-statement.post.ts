@@ -333,15 +333,18 @@ function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResul
 		};
 	}).filter(tx => tx.date);
 
-	// Chase CSVs list newest transactions first. Sort chronologically for balance calculation.
+	// Chase CSVs list newest transactions first (both across dates and within the same date).
+	// Sort chronologically: by date ascending, then by source line descending within the same
+	// date so that intra-day order matches the actual posting sequence.
 	const chronological = [...transactions].sort((a, b) => {
-		// Parse MM/DD/YYYY dates for comparison
 		const parseDate = (d: string) => {
 			const parts = d.split('/');
 			if (parts.length === 3) return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
 			return d;
 		};
-		return parseDate(a.date).localeCompare(parseDate(b.date));
+		const dateCompare = parseDate(a.date).localeCompare(parseDate(b.date));
+		if (dateCompare !== 0) return dateCompare;
+		return (b._source_line ?? 0) - (a._source_line ?? 0);
 	});
 
 	// Compute the signed amount from a transaction's type and amount.
