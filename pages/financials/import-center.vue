@@ -919,7 +919,7 @@
 									class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors">
 									<span class="flex items-center gap-1.5">
 										<Icon name="i-heroicons-document-duplicate" class="w-4 h-4" />
-										{{ stmtImportResults.skippedDetails.length }} Skipped Duplicate{{ stmtImportResults.skippedDetails.length !== 1 ? 's' : '' }}
+										{{ stmtImportResults.skippedDetails.length }} Skipped (already in database)
 									</span>
 									<Icon
 										name="i-heroicons-chevron-down"
@@ -2589,10 +2589,11 @@ async function importTransactions() {
 					categoryId = categoryNameMap[csvCategory.toLowerCase().trim()] || null;
 				}
 
-				// Duplicate check: skip only if this fingerprint still has unmatched
-				// existing records. Decrement the count so that legitimate duplicates
-				// in the CSV (e.g., two $2,300 check deposits on the same day) are
-				// imported after the existing matches are consumed.
+				// Duplicate check: skip only if this fingerprint matches a
+				// pre-existing DB record. Decrement the count so that if the DB
+				// has N records with fingerprint X and the CSV has N+M rows with
+				// the same fingerprint, only N are skipped and the remaining M
+				// are imported as new transactions.
 				const fp = txFingerprint(txDate, txAmount, txDesc, txType);
 				const existingCount = existingFpCounts.get(fp) || 0;
 				if (existingCount > 0) {
@@ -2650,10 +2651,6 @@ async function importTransactions() {
 				}
 
 				await transactionsCollection.create(txRecord);
-
-				// Track this newly created record so re-importing the same CSV
-				// won't create duplicates. Increment the count for this fingerprint.
-				existingFpCounts.set(fp, (existingFpCounts.get(fp) || 0) + 1);
 				results.created++;
 			} catch (err) {
 				results.errors.push(`Row ${i + 1}: ${err.message}`);
