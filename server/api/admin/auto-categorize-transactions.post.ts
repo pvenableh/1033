@@ -273,6 +273,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'repair', 'maintenance', 'hvac', 'plumbing', 'a/c',
 		'air condition', 'roofing', 'painting', 'electrical repair',
 		'tree trimming', 'handyman', 'contractor',
+		'engineering', 'engineer', 'structural',
 	],
 	Regulatory: [
 		'permit', 'license', 'inspection', 'certificate', 'compliance',
@@ -320,6 +321,8 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'buildium': 'Administrative',
 	'diana wyatt': 'Administrative',
 	'harry tompkins': 'Administrative',
+	'harry tempki': 'Administrative',
+	'acg engineering': 'Maintenance',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
 };
@@ -584,6 +587,63 @@ function matchTransaction(
 					}
 				}
 				if (result.category_id) break;
+			}
+		}
+	}
+
+	// --- Pass 3b: Extract embedded vendor from bill-pay / Zelle descriptions ---
+	// Chase descriptions like "Online Payment 12345 To Acme Corp 01/08" or
+	// "Zelle payment to Jane Doe" embed the payee name after " to ".
+	// Extract it and re-run the vendor map lookup.
+	if (!result.category_id) {
+		const toPatterns = [
+			/\bonline payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
+			/\bzelle\s+(?:payment\s+)?to\s+(.+?)$/i,
+			/\bbill\s*pay(?:ment)?\s+(?:\d+\s+)?to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
+		];
+
+		for (const pattern of toPatterns) {
+			const match = description.match(pattern);
+			if (match) {
+				const extractedVendor = match[1].trim().toLowerCase();
+				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
+				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
+					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
+						for (const [catId, catInfo] of categoryKeywordMap) {
+							const catNameLower = catInfo.name.toLowerCase();
+							if (
+								catNameLower === groupName.toLowerCase() ||
+								catNameLower.includes(groupName.toLowerCase()) ||
+								groupName.toLowerCase().includes(catNameLower)
+							) {
+								result.category_id = catId;
+								result.category_name = catInfo.name;
+								result.confidence = 70;
+								result.matched_by = 'vendor_lookup';
+								break;
+							}
+						}
+						if (result.category_id) break;
+					}
+				}
+				if (result.category_id) break;
+
+				// Also check against category keywords using the extracted vendor name
+				if (!result.category_id) {
+					for (const [catId, catInfo] of categoryKeywordMap) {
+						for (const keyword of catInfo.keywords) {
+							if (extractedVendor.includes(keyword) || keyword.includes(extractedVendor)) {
+								result.category_id = catId;
+								result.category_name = catInfo.name;
+								result.confidence = 60;
+								result.matched_by = 'category_keyword';
+								break;
+							}
+						}
+						if (result.category_id) break;
+					}
+				}
+				break;
 			}
 		}
 	}

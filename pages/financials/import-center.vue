@@ -919,7 +919,7 @@
 									class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors">
 									<span class="flex items-center gap-1.5">
 										<Icon name="i-heroicons-document-duplicate" class="w-4 h-4" />
-										{{ stmtImportResults.skippedDetails.length }} Skipped Duplicate{{ stmtImportResults.skippedDetails.length !== 1 ? 's' : '' }}
+										{{ stmtImportResults.skippedDetails.length }} Skipped (already in database)
 									</span>
 									<Icon
 										name="i-heroicons-chevron-down"
