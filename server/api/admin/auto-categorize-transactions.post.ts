@@ -18,6 +18,7 @@ import {
 	useDirectusAdmin,
 	readItems,
 	updateItem,
+	updateItems,
 } from '~/server/utils/directus';
 
 interface CategorizationResult {
@@ -137,7 +138,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		//    to our keyword dictionary using fuzzy name matching
 		const categoryKeywordMap = buildCategoryKeywordMap(budgetCategories);
 
-		// 6. Run matching algorithm
+		// 6. Run matching algorithm (collect results first, then batch-write)
 		const result: CategorizationResult = {
 			success: true,
 			total_uncategorized: transactions.length,
@@ -147,6 +148,9 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			results: [],
 			errors: [],
 		};
+
+		// Phase 1: Match all transactions (CPU only, no DB writes)
+		const pendingUpdates: Array<{ id: number; updates: Record<string, any> }> = [];
 
 		for (const tx of transactions) {
 			try {
@@ -170,9 +174,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						}
 					}
 
-					await client.request(
-						updateItem('transactions', tx.id, updates)
-					);
+					pendingUpdates.push({ id: tx.id, updates });
 
 					result.categorized++;
 					result.results.push({
@@ -199,6 +201,25 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			}
 		}
 
+		// Phase 2: Batch-write updates in parallel chunks to avoid timeout
+		const BATCH_SIZE = 25;
+		for (let i = 0; i < pendingUpdates.length; i += BATCH_SIZE) {
+			const batch = pendingUpdates.slice(i, i + BATCH_SIZE);
+			try {
+				await Promise.all(
+					batch.map(({ id, updates }) =>
+						client.request(updateItem('transactions', id, updates))
+					)
+				);
+			} catch (err: any) {
+				// If a batch fails, count the failures
+				const failCount = batch.length;
+				result.categorized -= failCount;
+				result.failed += failCount;
+				result.errors.push(`Batch update failed (items ${i}-${i + batch.length - 1}): ${err.message}`);
+			}
+		}
+
 		return result;
 	} catch (err: any) {
 		console.error('Auto-categorize error:', err);
@@ -221,10 +242,26 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'first insurance', 'flood insurance', 'building insurance',
 		'citizens', 'fednat', 'heritage',
 	],
-	Professional: [
+	// Maps to DB "Administrative" category
+	Administrative: [
 		'management', 'legal', 'attorney', 'cpa', 'accountant', 'audit',
 		'boir', 'consulting', 'vte', 'law office', 'law firm',
-		'accounting', 'bookkeeping', 'tax prep',
+		'accounting', 'bookkeeping', 'tax prep', 'admin',
+		'bank fee', 'service charge', 'wire fee', 'ach fee',
+		'monthly maintenance fee', 'account fee', 'overdraft',
+		'nsf', 'returned item', 'chase fee',
+		'office', 'supply', 'supplies', 'printing', 'postage',
+		'fedex', 'ups', 'shipping', 'miscellaneous', 'misc',
+		'phone line', 'telephone',
+	],
+	// Maps to DB "Contract Services" category
+	'Contract Services': [
+		'waste', 'trash', 'garbage', 'betterwaste', 'waste management',
+		'laundry', 'wash multifamily', 'landscaping', 'lawn', 'garden',
+		'elevator', '1-touch', '1 touch', 'pool', 'pest', 'exterminator',
+		'cleaning', 'janitorial', 'pressure wash', 'security', 'camera',
+		'gate', 'access control', 'fire equip', 'fire alarm',
+		'maverick', 'gutierrez', 'contract', 'service agreement',
 	],
 	Utilities: [
 		'electric', 'water', 'gas', 'internet', 'cable', 'fpl',
@@ -233,13 +270,9 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'miami beach water',
 	],
 	Maintenance: [
-		'repair', 'maintenance', 'cleaning', 'janitorial', 'landscaping',
-		'pool', 'elevator', 'hvac', 'plumbing', 'pest', 'exterminator',
-		'waste', 'trash', 'garbage', 'lawn', 'garden', 'a/c',
-		'air condition', 'fire equip', 'fire alarm', 'security',
-		'camera', 'gate', 'access control', 'maverick', 'gutierrez',
-		'laundry', 'pressure wash', 'roofing',
-		'painting', 'electrical repair',
+		'repair', 'maintenance', 'hvac', 'plumbing', 'a/c',
+		'air condition', 'roofing', 'painting', 'electrical repair',
+		'tree trimming', 'handyman', 'contractor',
 	],
 	Regulatory: [
 		'permit', 'license', 'inspection', 'certificate', 'compliance',
@@ -247,19 +280,18 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'miami beach', 'miami-dade', 'city of', 'county',
 		'department of', 'validation permit', 'annual inspection',
 	],
-	Banking: [
-		'bank fee', 'service charge', 'wire fee', 'ach fee',
-		'monthly maintenance fee', 'account fee', 'overdraft',
-		'nsf', 'returned item', 'chase fee',
-	],
-	Other: [
-		'office', 'supply', 'supplies', 'printing', 'postage',
-		'fedex', 'ups', 'shipping', 'miscellaneous', 'misc',
-		'phone line', 'telephone', '1-touch',
+	// Maps to DB "Revenue" / "Income" category (for deposits)
+	Revenue: [
+		'assessment', 'dues', 'hoa', 'maintenance fee', 'condo fee',
+		'owner payment', 'unit payment', 'monthly assessment',
+		'special assessment', 'rental income', 'laundry income',
+		'interest income', 'late fee income',
 	],
 };
 
-// Additional vendor-to-category map for common HOA vendors (applies to withdrawals)
+// Additional vendor-to-category map for common HOA vendors
+// Values should match actual DB category names (Insurance, Utilities, Contract Services,
+// Administrative, Regulatory, Maintenance) or fuzzy-matchable group names
 const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'fpl': 'Utilities',
 	'florida power': 'Utilities',
@@ -270,24 +302,24 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'att': 'Utilities',
 	'miami beach water': 'Utilities',
 	'miami-dade water': 'Utilities',
-	'betterwaste': 'Utilities',
-	'waste management': 'Maintenance',
-	'wash multifamily': 'Maintenance',
-	'maverick': 'Maintenance',
-	'gutierrez': 'Maintenance',
-	'a plus fire': 'Maintenance',
-	'vte consulting': 'Professional',
-	'vte': 'Professional',
-	'chase': 'Banking',
+	'betterwaste': 'Contract Services',
+	'waste management': 'Contract Services',
+	'wash multifamily': 'Contract Services',
+	'maverick': 'Contract Services',
+	'gutierrez': 'Contract Services',
+	'a plus fire': 'Contract Services',
+	'1 touch elevator': 'Contract Services',
+	'1-touch': 'Contract Services',
+	'vte consulting': 'Administrative',
+	'vte': 'Administrative',
+	'chase': 'Administrative',
 	'sunbiz': 'Regulatory',
 	'dbpr': 'Regulatory',
 	'first insurance': 'Insurance',
 	'citizens': 'Insurance',
-	'1 touch elevator': 'Maintenance',
-	'1-touch': 'Maintenance',
-	'buildium': 'Professional',
-	'diana wyatt': 'Professional',
-	'harry tompkins': 'Professional',
+	'buildium': 'Administrative',
+	'diana wyatt': 'Administrative',
+	'harry tompkins': 'Administrative',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
 };
@@ -354,9 +386,8 @@ function buildCategoryKeywordMap(
 				keywords: CATEGORY_KEYWORDS[bestGroup],
 			});
 		} else {
-			// If no match found, use the category name itself and 'Other' keywords as fallback
-			const keywords = [catNameLower, ...(CATEGORY_KEYWORDS['Other'] || [])];
-			map.set(category.id, { name: catName, keywords });
+			// If no match found, use the category name itself as a keyword
+			map.set(category.id, { name: catName, keywords: [catNameLower] });
 		}
 	}
 
@@ -559,8 +590,9 @@ function matchTransaction(
 
 	// --- Pass 4: Transaction type heuristics ---
 	// In an HOA context, nearly all deposits are assessment/dues revenue.
-	// Only match deposit-type transactions (NOT transfers) to the Revenue/Income category.
-	if (!result.category_id && transaction.transaction_type === 'deposit') {
+	// Handles deposits, transfer_in, and interest as income.
+	const incomeTypes = ['deposit', 'transfer_in', 'interest'];
+	if (!result.category_id && incomeTypes.includes(transaction.transaction_type)) {
 		// Find the revenue/income category
 		const revenueCategory = budgetCategories.find((cat: any) => {
 			const name = (cat.category_name || '').toLowerCase();
@@ -574,6 +606,8 @@ function matchTransaction(
 				'maintenance fee', 'condo fee', 'remote deposit',
 				'remote online deposit', 'mobile deposit', 'check deposit',
 				'online transfer', 'ach deposit', 'direct deposit',
+				'ach credit', 'orig co', 'payment from', 'deposit',
+				'credit', 'quickpay', 'cashapp', 'cash app',
 			];
 
 			const isHighConfidence = highConfidenceKeywords.some((kw) => searchText.includes(kw));
@@ -593,11 +627,25 @@ function matchTransaction(
 		}
 	}
 
-	// Fees
+	// Transfer out — categorize to Administrative by default (inter-account transfers)
+	if (!result.category_id && transaction.transaction_type === 'transfer_out') {
+		const adminCategory = budgetCategories.find((cat: any) => {
+			const name = (cat.category_name || '').toLowerCase();
+			return name.includes('admin') || name.includes('banking') || name.includes('other');
+		});
+		if (adminCategory) {
+			result.category_id = adminCategory.id;
+			result.category_name = adminCategory.category_name;
+			result.confidence = 40;
+			result.matched_by = 'transfer_out_type';
+		}
+	}
+
+	// Fees — map to Administrative (which includes bank fees in the keyword list)
 	if (!result.category_id && transaction.transaction_type === 'fee') {
 		for (const cat of budgetCategories) {
 			const name = (cat.category_name || '').toLowerCase();
-			if (name.includes('bank') || name.includes('fee') || name.includes('other')) {
+			if (name.includes('admin') || name.includes('bank') || name.includes('fee') || name.includes('other')) {
 				result.category_id = cat.id;
 				result.category_name = cat.category_name;
 				result.confidence = 65;

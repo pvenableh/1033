@@ -212,6 +212,19 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
+	// Resolve the effective month for a transaction.
+	// Uses statement_month if set, otherwise derives from transaction_date.
+	const getTransactionMonth = (transaction) => {
+		if (transaction.statement_month) return transaction.statement_month;
+		if (transaction.transaction_date) {
+			// transaction_date is ISO format "2025-01-15" — extract month
+			const datePart = String(transaction.transaction_date).slice(0, 10);
+			const month = datePart.split('-')[1]; // "01", "02", etc.
+			if (month && month.length === 2) return month;
+		}
+		return null;
+	};
+
 	// Helper function to check if a month is in the selected range
 	const isMonthInRange = (transactionMonth) => {
 		try {
@@ -502,7 +515,7 @@ export const useHOAFinancialsEnhanced = () => {
 				return (
 					t &&
 					t.account_id === currentAccount &&
-					isMonthInRange(t.statement_month)
+					isMonthInRange(getTransactionMonth(t))
 				);
 			});
 
@@ -544,7 +557,7 @@ export const useHOAFinancialsEnhanced = () => {
 				return (
 					t &&
 					t.account_id === currentAccount &&
-					isMonthInRange(t.statement_month)
+					isMonthInRange(getTransactionMonth(t))
 				);
 			});
 		} catch (error) {
@@ -595,7 +608,7 @@ export const useHOAFinancialsEnhanced = () => {
 			const monthsWithData = new Set(
 				transactions
 					.filter((t) => t && !isTransferTransaction(t))
-					.map((t) => t.statement_month)
+					.map((t) => getTransactionMonth(t))
 					.filter((month) => month && month !== '')
 			).size;
 
@@ -706,8 +719,9 @@ export const useHOAFinancialsEnhanced = () => {
 					vendorGroups[vendor].categories.add(getCategoryName(t.category_id));
 				}
 
-				if (t.statement_month) {
-					vendorGroups[vendor].monthSpread.add(t.statement_month);
+				const txMonth = getTransactionMonth(t);
+				if (txMonth) {
+					vendorGroups[vendor].monthSpread.add(txMonth);
 				}
 			});
 
@@ -751,10 +765,10 @@ export const useHOAFinancialsEnhanced = () => {
 				return [];
 			}
 
-			const monthsInData = [...new Set(transactions.map((t) => t.statement_month).filter((m) => m))].sort();
+			const monthsInData = [...new Set(transactions.map((t) => getTransactionMonth(t)).filter((m) => m))].sort();
 
 			const result = monthsInData.map((month) => {
-				const monthTransactions = transactions.filter((t) => t.statement_month === month);
+				const monthTransactions = transactions.filter((t) => getTransactionMonth(t) === month);
 
 				const revenue = monthTransactions
 					.filter((t) => t.transaction_type === 'deposit' && !t.is_violation && !isTransferTransaction(t))
@@ -817,7 +831,7 @@ export const useHOAFinancialsEnhanced = () => {
 			// Fallback: compute running balance from transactions
 			let runningBalance = 0;
 			return result.map((m) => {
-				const monthTx = transactions.filter((t) => t.statement_month === m.monthValue);
+				const monthTx = transactions.filter((t) => getTransactionMonth(t) === m.monthValue);
 
 				const totalIn = monthTx
 					.filter((t) => t.transaction_type === 'deposit' || t.transaction_type === 'transfer_in')
@@ -879,7 +893,7 @@ export const useHOAFinancialsEnhanced = () => {
 			const netBalance = totalDeposits - totalWithdrawals;
 
 			// Get the latest month for context
-			const months = [...new Set(txs.map((t) => t.statement_month).filter((m) => m))].sort();
+			const months = [...new Set(txs.map((t) => getTransactionMonth(t)).filter((m) => m))].sort();
 			const latestMonth = months[months.length - 1] || null;
 
 			return {
@@ -1524,7 +1538,7 @@ export const useHOAFinancialsEnhanced = () => {
 	const getCategoryMonthSpread = (budgetCategory) => {
 		try {
 			const transactions = getCategoryTransactions(budgetCategory);
-			const months = new Set(transactions.map((t) => t.statement_month).filter((m) => m));
+			const months = new Set(transactions.map((t) => getTransactionMonth(t)).filter((m) => m));
 
 			if (months.size === 0) return 'No data';
 			if (months.size === 1) return `${months.size} month`;
@@ -1546,8 +1560,7 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			// Get latest month from transactions (already filtered by fiscal year on server)
 			const transactionMonths = transactions.value
-				.filter((t) => t && t.statement_month)
-				.map((t) => t.statement_month)
+				.map((t) => getTransactionMonth(t))
 				.filter((month) => month);
 
 			// Get latest month from statements (already filtered by fiscal year on server)
@@ -1586,8 +1599,8 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			// Get months from transactions (already filtered by fiscal year on server)
 			const transactionMonths = transactions.value
-				.filter((t) => t && t.statement_month)
-				.map((t) => t.statement_month);
+				.map((t) => getTransactionMonth(t))
+				.filter((m) => m);
 
 			// Get months from statements (already filtered by fiscal year on server)
 			const statementMonths = monthlyStatements.value

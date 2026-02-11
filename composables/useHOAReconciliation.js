@@ -23,6 +23,17 @@ export const useHOAReconciliation = () => {
 		return isNaN(parsed) ? 0 : parsed;
 	};
 
+	// Derive month from statement_month or fallback to transaction_date
+	const getTransactionMonth = (transaction) => {
+		if (transaction.statement_month) return transaction.statement_month;
+		if (transaction.transaction_date) {
+			const datePart = String(transaction.transaction_date).slice(0, 10);
+			const month = datePart.split('-')[1];
+			if (month && month.length === 2) return month;
+		}
+		return null;
+	};
+
 	// Fetch data
 	const fetchData = async () => {
 		loading.value = true;
@@ -80,7 +91,7 @@ export const useHOAReconciliation = () => {
 
 			// Get all transactions for this month
 			const monthTransactions = transactions.value.filter(
-				(t) => t.account_id === accountId && t.statement_month === month
+				(t) => t.account_id === accountId && getTransactionMonth(t) === month
 			);
 
 			// Separate transaction types
@@ -176,7 +187,8 @@ export const useHOAReconciliation = () => {
 			// Get all transactions up to and including selected month
 			const ytdTransactions = transactions.value.filter((t) => {
 				if (t.account_id !== accountId) return false;
-				return t.statement_month <= month;
+				const txMonth = getTransactionMonth(t);
+				return txMonth && txMonth <= month;
 			});
 
 			// Get first and last statements

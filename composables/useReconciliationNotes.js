@@ -389,10 +389,21 @@ export const useReconciliationNotes = () => {
 		}
 	};
 
+	// Derive month from statement_month or fallback to transaction_date
+	const getTransactionMonth = (transaction) => {
+		if (transaction.statement_month) return transaction.statement_month;
+		if (transaction.transaction_date) {
+			const datePart = String(transaction.transaction_date).slice(0, 10);
+			const month = datePart.split('-')[1];
+			if (month && month.length === 2) return month;
+		}
+		return null;
+	};
+
 	// Generate monthly reconciliation report from transaction data
 	const generateMonthlyReport = async (fiscalYear, accountId, month, transactions, statement) => {
 		const monthTransactions = transactions.filter(
-			(t) => t.statement_month === month && t.account_id === accountId
+			(t) => getTransactionMonth(t) === month && t.account_id === accountId
 		);
 
 		// Calculate totals by transaction type

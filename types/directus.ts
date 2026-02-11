@@ -689,6 +689,28 @@ export interface Notice {
 	visibility?: 'public' | 'residents' | 'board' | 'staff' | null;
 }
 
+export interface PaymentAllocation {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description The original deposit */
+	source_transaction_id?: Transaction | string | null;
+	fund_type?: 'operating' | 'special_assessment' | 'reserve' | null;
+	amount?: number | null;
+	target_account_id?: Account | string | null;
+	/** @description The transfer that moved fund */
+	linked_transfer_id?: Transaction | string | null;
+	allocation_status?: 'pending_transfer' | 'transferred' | 'reconciled' | null;
+	/** @description Optional notes */
+	notes?: string | null;
+	fiscal_year?: FiscalYear | string | null;
+}
+
 export interface People {
 	/** @primaryKey */
 	id: number;
@@ -1846,6 +1868,7 @@ export interface Schema {
 	monthly_statements: MonthlyStatement[];
 	newsletters: Newsletter[];
 	notices: Notice[];
+	payment_allocations: PaymentAllocation[];
 	people: People[];
 	people_units: PeopleUnit[];
 	pets: Pet[];
@@ -1953,6 +1976,7 @@ export enum CollectionNames {
 	monthly_statements = 'monthly_statements',
 	newsletters = 'newsletters',
 	notices = 'notices',
+	payment_allocations = 'payment_allocations',
 	people = 'people',
 	people_units = 'people_units',
 	pets = 'pets',
