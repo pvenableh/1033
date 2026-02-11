@@ -274,6 +274,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'air condition', 'roofing', 'painting', 'electrical repair',
 		'tree trimming', 'handyman', 'contractor',
 		'engineering', 'engineer', 'structural',
+		'gutter', 'rain gutter',
 	],
 	Regulatory: [
 		'permit', 'license', 'inspection', 'certificate', 'compliance',
@@ -325,6 +326,13 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'acg engineering': 'Maintenance',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
+	'del toro rain gutters': 'Maintenance',
+	'del toro': 'Maintenance',
+	'yurian castro': 'Maintenance',
+	'services jbl': 'Maintenance',
+	'jbl corp': 'Maintenance',
+	'nenad rakita': 'Maintenance',
+	'alejandro 207': 'Maintenance',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
@@ -598,7 +606,7 @@ function matchTransaction(
 	if (!result.category_id) {
 		const toPatterns = [
 			/\bonline payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
-			/\bzelle\s+(?:payment\s+)?to\s+(.+?)$/i,
+			/\bzelle\s+(?:payment\s+)?to\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i,
 			/\bbill\s*pay(?:ment)?\s+(?:\d+\s+)?to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
 		];
 
