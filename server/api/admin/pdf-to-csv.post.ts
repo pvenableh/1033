@@ -343,14 +343,23 @@ Return ONLY the JSON object, no other text.`;
 			message: `Claude extracted ${transactions.length} transactions with categories from the PDF statement.`,
 		};
 	} catch (error: any) {
-		console.error('PDF-to-CSV extraction error:', error);
+		// Extract the actual API error details (ofetch puts the response body in error.data)
+		const apiError = error?.data?.error || error?.data;
+		const upstreamStatus = error?.status || error?.statusCode || error?.response?.status;
 
-		if (error.statusCode) {
+		console.error('PDF-to-CSV extraction error:', {
+			status: upstreamStatus,
+			message: error.message,
+			apiErrorType: apiError?.type,
+			apiErrorMessage: apiError?.message,
+		});
+
+		// Only re-throw H3 errors we created (auth/permission checks)
+		if (error.statusCode && error.__h3_error__) {
 			throw error;
 		}
 
 		// Propagate rate-limit errors from Anthropic so the client can retry
-		const upstreamStatus = error?.status || error?.response?.status || error?.data?.status;
 		if (upstreamStatus === 429) {
 			throw createError({
 				statusCode: 429,
@@ -359,9 +368,10 @@ Return ONLY the JSON object, no other text.`;
 			});
 		}
 
+		const detail = apiError?.message || error.message || 'Unknown error';
 		return {
 			success: false,
-			error: `Failed to extract transactions: ${error.message}`,
+			error: `Failed to extract transactions: ${detail}`,
 		};
 	}
 });

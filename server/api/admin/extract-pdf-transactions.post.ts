@@ -218,15 +218,33 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
       message: `Claude extracted ${transactions.length} transactions from the PDF statement.`,
     };
   } catch (error: any) {
-    console.error('PDF extraction error:', error);
+    const apiError = error?.data?.error || error?.data;
+    const upstreamStatus = error?.status || error?.statusCode || error?.response?.status;
 
-    if (error.statusCode) {
+    console.error('PDF extraction error:', {
+      status: upstreamStatus,
+      message: error.message,
+      apiErrorType: apiError?.type,
+      apiErrorMessage: apiError?.message,
+    });
+
+    // Only re-throw H3 errors we created (auth/permission checks)
+    if (error.statusCode && error.__h3_error__) {
       throw error;
     }
 
+    if (upstreamStatus === 429) {
+      throw createError({
+        statusCode: 429,
+        statusMessage: 'Too Many Requests',
+        message: 'Claude API rate limit reached. Please wait before retrying.',
+      });
+    }
+
+    const detail = apiError?.message || error.message || 'Unknown error';
     return {
       success: false,
-      error: `Failed to extract transactions: ${error.message}`,
+      error: `Failed to extract transactions: ${detail}`,
     };
   }
 });
