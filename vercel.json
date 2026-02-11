@@ -1,8 +1,5 @@
 {
 	"functions": {
-		"api/**": {
-			"maxDuration": 60
-		},
 		".output/server/**": {
 			"maxDuration": 60
 		}
