@@ -1374,7 +1374,11 @@ const displayTransactions = computed(() => {
 });
 
 const formatDate = (dateString) => {
-	return new Date(dateString).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
+	if (!dateString) return '';
+	// Parse YYYY-MM-DD manually to avoid UTC midnight interpretation.
+	// new Date("2025-01-02") → UTC midnight → displays as Jan 1 in US timezones.
+	const [y, m, d] = dateString.substring(0, 10).split('-');
+	return new Date(+y, +m - 1, +d).toLocaleDateString('en-US', {month: 'short', day: 'numeric'});
 };
 
 const getTransactionTypeColor = (type) => {
