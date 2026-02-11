@@ -2404,8 +2404,16 @@ async function importTransactions() {
 					continue;
 				}
 
-				// Derive statement_month from transaction date (not global stmtMonth)
-				const txStatementMonth = deriveStatementMonth(txDate, tx.date) || chaseSelectedMonth.value || stmtMonth.value || null;
+				// Derive statement_month strictly from the transaction's own date.
+				// Never fall back to a global month — that causes boundary transactions
+				// (first/last day of month) to land in the wrong month.
+				const txStatementMonth = deriveStatementMonth(txDate, tx.date);
+				if (!txStatementMonth) {
+					console.warn(`Row ${i + 1}: Could not derive month from date "${tx.date}" (formatted: "${txDate}"). Skipping.`);
+					results.errors.push(`Row ${i + 1}: Could not determine month from date "${tx.date}"`);
+					stmtImportProgress.value++;
+					continue;
+				}
 
 				const txRecord = {
 					fiscal_year: fyId,
@@ -2702,20 +2710,25 @@ async function saveStatementBalances() {
 // ======================
 /**
  * Derive the statement month (MM) from a transaction date.
- * Handles both ISO (YYYY-MM-DD) and US (MM/DD/YYYY) formats.
+ * Handles ISO (YYYY-MM-DD), US (MM/DD/YYYY), and short (MM/DD) formats.
+ * Returns null only if the date cannot be parsed at all.
  */
 function deriveStatementMonth(isoDate, rawDate) {
-	// Try ISO format first: "2025-01-15"
+	// Try ISO format first: "2025-01-15" or "2025-01-15T00:00:00..."
 	if (isoDate && /^\d{4}-\d{2}-\d{2}/.test(isoDate)) {
 		return isoDate.substring(5, 7);
 	}
-	// Try US format: "01/15/2025" or "1/15/2025"
+	// Try US format: "01/15/2025", "1/15/2025", or "01/15"
 	if (rawDate) {
 		const parts = rawDate.split('/');
 		if (parts.length >= 2) {
 			const month = parseInt(parts[0]);
 			if (month >= 1 && month <= 12) return month.toString().padStart(2, '0');
 		}
+	}
+	// Try ISO from rawDate as well (in case only rawDate was provided)
+	if (rawDate && /^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
+		return rawDate.substring(5, 7);
 	}
 	return null;
 }

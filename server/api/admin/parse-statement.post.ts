@@ -344,16 +344,21 @@ function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResul
 		return parseDate(a.date).localeCompare(parseDate(b.date));
 	});
 
+	// Compute the signed amount from a transaction's type and amount.
+	// Chase Balance = previous balance + signed amount, so:
+	// previous balance (beginning) = balance - signed amount
+	const signedAmount = (tx: ParsedTransaction): number => {
+		if (tx.type === 'deposit' || tx.type === 'transfer_in') return tx.amount;
+		return -tx.amount; // withdrawal, fee, transfer_out
+	};
+
 	// Calculate overall beginning and ending balances from Chase's running Balance column.
 	let beginningBalance: number | undefined;
 	let endingBalance: number | undefined;
 
 	if (chronological.length > 0) {
 		const first = chronological[0];
-		const firstSignedAmount = parseFloat(
-			rows.find(r => (r['Posting Date'] || '').trim() === first.date && (r['Description'] || '').trim() === first.description)?.['Amount'] || '0'
-		);
-		beginningBalance = Math.round((first.balance! - firstSignedAmount) * 100) / 100;
+		beginningBalance = Math.round((first.balance! - signedAmount(first)) * 100) / 100;
 		endingBalance = chronological[chronological.length - 1].balance;
 	}
 
@@ -374,11 +379,8 @@ function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResul
 		if (monthTxs.length === 0) continue;
 		const firstTx = monthTxs[0];
 		const lastTx = monthTxs[monthTxs.length - 1];
-		const firstSignedAmount = parseFloat(
-			rows.find(r => (r['Posting Date'] || '').trim() === firstTx.date && (r['Description'] || '').trim() === firstTx.description)?.['Amount'] || '0'
-		);
 		monthBalances[mm] = {
-			beginning_balance: Math.round((firstTx.balance! - firstSignedAmount) * 100) / 100,
+			beginning_balance: Math.round((firstTx.balance! - signedAmount(firstTx)) * 100) / 100,
 			ending_balance: Math.round(lastTx.balance! * 100) / 100,
 			transaction_count: monthTxs.length,
 		};
