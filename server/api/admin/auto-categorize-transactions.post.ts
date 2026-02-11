@@ -290,6 +290,11 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'special assessment', 'rental income', 'laundry income',
 		'interest income', 'late fee income',
 	],
+	// Maps to DB "40-Year Project" category (special assessment capital project)
+	'40-Year Project': [
+		'40 year', '40yr', '40-year', 'recertification',
+		'general contractor', 'ryder',
+	],
 };
 
 // Additional vendor-to-category map for common HOA vendors
@@ -342,6 +347,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'amax tax pro': 'Administrative',
 	'amax tax': 'Administrative',
 	'florida garage door': 'Maintenance',
+	'ryder': '40-Year Project',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
@@ -617,9 +623,10 @@ function matchTransaction(
 	// Extract it and re-run the vendor map lookup.
 	if (!result.category_id) {
 		const toPatterns = [
-			/\bonline payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
+			/\bonline\s+(?:ach\s+)?payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
 			/\bzelle\s+(?:payment\s+)?to\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i,
 			/\bbill\s*pay(?:ment)?\s+(?:\d+\s+)?to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
+			/\b(?:ach|online)\s+(?:\w+\s+)*?payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
 		];
 
 		for (const pattern of toPatterns) {
