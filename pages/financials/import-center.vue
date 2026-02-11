@@ -881,42 +881,177 @@
 						<!-- Statement Import Results -->
 						<div
 							v-if="stmtImportResults"
-							class="p-4 rounded-lg border"
-							:class="stmtImportResults.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'">
-							<h3 :class="stmtImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
-								{{ stmtImportResults.success ? 'Transaction Import Complete' : 'Import Failed' }}
-							</h3>
-							<ul class="text-sm mt-2 space-y-1" :class="stmtImportResults.success ? 'text-green-600' : 'text-red-600'">
-								<li v-if="stmtImportResults.created">{{ stmtImportResults.created }} transactions created</li>
-								<li v-if="stmtImportResults.skipped">{{ stmtImportResults.skipped }} duplicates skipped</li>
-								<li v-if="stmtImportResults.errors?.length">{{ stmtImportResults.errors.length }} errors</li>
-							</ul>
-							<!-- Auto-categorization results -->
-							<div v-if="autoCategorizing" class="mt-3 flex items-center gap-2 text-sm text-blue-600">
-								<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
-								Auto-categorizing transactions...
-							</div>
-							<div
-								v-if="autoCategorizeResults"
-								class="mt-3 p-3 rounded border"
-								:class="
-									autoCategorizeResults.categorized > 0 ? 'bg-blue-50 border-blue-200' : 'bg-gray-50 border-gray-200'
-								">
-								<p
-									class="text-sm font-medium"
-									:class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
-									Auto-Categorization: {{ autoCategorizeResults.categorized }} of
-									{{ autoCategorizeResults.total_uncategorized }} transactions matched to budget categories
-								</p>
-								<p v-if="autoCategorizeResults.skipped > 0" class="text-xs text-gray-500 mt-1">
-									{{ autoCategorizeResults.skipped }} transactions could not be matched (no matching keywords found)
-								</p>
+							class="rounded-xl border overflow-hidden"
+							:class="stmtImportResults.success ? 'border-green-200' : 'border-red-200'">
+
+							<!-- Summary Header -->
+							<div class="p-4"
+								:class="stmtImportResults.success ? 'bg-green-50' : 'bg-red-50'">
+								<div class="flex items-center gap-2 mb-2">
+									<Icon
+										:name="stmtImportResults.success ? 'i-heroicons-check-circle' : 'i-heroicons-x-circle'"
+										class="w-5 h-5"
+										:class="stmtImportResults.success ? 'text-green-600' : 'text-red-600'" />
+									<h3 :class="stmtImportResults.success ? 'text-green-800' : 'text-red-800'" class="font-semibold">
+										{{ stmtImportResults.success ? 'Transaction Import Complete' : 'Import Failed' }}
+									</h3>
+								</div>
+								<ul class="text-sm space-y-1 ml-7" :class="stmtImportResults.success ? 'text-green-700' : 'text-red-700'">
+									<li v-if="stmtImportResults.created" class="flex items-center gap-1.5">
+										<Icon name="i-heroicons-plus-circle" class="w-3.5 h-3.5" />
+										{{ stmtImportResults.created }} transactions created
+									</li>
+									<li v-if="stmtImportResults.skipped" class="flex items-center gap-1.5">
+										<Icon name="i-heroicons-arrow-path" class="w-3.5 h-3.5" />
+										{{ stmtImportResults.skipped }} duplicates skipped
+									</li>
+									<li v-if="stmtImportResults.errors?.length" class="flex items-center gap-1.5">
+										<Icon name="i-heroicons-exclamation-triangle" class="w-3.5 h-3.5" />
+										{{ stmtImportResults.errors.length }} errors
+									</li>
+								</ul>
 							</div>
 
-							<div v-if="stmtImportResults.success" class="mt-4">
+							<!-- Skipped Duplicates Details -->
+							<div v-if="stmtImportResults.skippedDetails?.length > 0" class="border-t border-green-200">
+								<button
+									@click="showSkippedDetails = !showSkippedDetails"
+									class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100 transition-colors">
+									<span class="flex items-center gap-1.5">
+										<Icon name="i-heroicons-document-duplicate" class="w-4 h-4" />
+										{{ stmtImportResults.skippedDetails.length }} Skipped Duplicate{{ stmtImportResults.skippedDetails.length !== 1 ? 's' : '' }}
+									</span>
+									<Icon
+										name="i-heroicons-chevron-down"
+										class="w-4 h-4 transition-transform duration-200"
+										:class="{ 'rotate-180': showSkippedDetails }" />
+								</button>
+								<div v-if="showSkippedDetails" class="px-4 py-3 bg-amber-50/50 space-y-1.5 max-h-48 overflow-y-auto">
+									<div
+										v-for="(dup, idx) in stmtImportResults.skippedDetails"
+										:key="idx"
+										class="flex items-center justify-between py-1.5 px-3 bg-white rounded-lg border border-amber-100 text-xs">
+										<div class="flex items-center gap-3 min-w-0 flex-1">
+											<span class="text-gray-400 font-mono w-6 flex-shrink-0">{{ dup.row }}</span>
+											<span class="text-gray-500 font-mono flex-shrink-0">{{ dup.date }}</span>
+											<span class="text-gray-800 truncate">{{ dup.description }}</span>
+										</div>
+										<div class="flex items-center gap-2 flex-shrink-0 ml-2">
+											<span class="font-mono font-medium"
+												:class="dup.type === 'deposit' ? 'text-green-600' : 'text-red-600'">
+												${{ parseFloat(dup.amount).toFixed(2) }}
+											</span>
+											<span class="text-[10px] uppercase text-gray-400 w-12">{{ dup.type }}</span>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Import Errors Details -->
+							<div v-if="stmtImportResults.errors?.length > 0" class="border-t border-red-200">
+								<button
+									@click="showErrorDetails = !showErrorDetails"
+									class="w-full flex items-center justify-between px-4 py-2.5 text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+									<span class="flex items-center gap-1.5">
+										<Icon name="i-heroicons-exclamation-triangle" class="w-4 h-4" />
+										{{ stmtImportResults.errors.length }} Error{{ stmtImportResults.errors.length !== 1 ? 's' : '' }}
+									</span>
+									<Icon
+										name="i-heroicons-chevron-down"
+										class="w-4 h-4 transition-transform duration-200"
+										:class="{ 'rotate-180': showErrorDetails }" />
+								</button>
+								<div v-if="showErrorDetails" class="px-4 py-3 bg-red-50/50 space-y-1.5 max-h-48 overflow-y-auto">
+									<div
+										v-for="(err, idx) in stmtImportResults.errors"
+										:key="idx"
+										class="py-1.5 px-3 bg-white rounded-lg border border-red-100 text-xs text-red-700">
+										{{ err }}
+									</div>
+								</div>
+							</div>
+
+							<!-- Auto-categorization Section -->
+							<div class="border-t" :class="stmtImportResults.success ? 'border-green-200' : 'border-red-200'">
+								<div v-if="autoCategorizing" class="px-4 py-3 flex items-center gap-2 text-sm text-blue-600 bg-blue-50">
+									<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+									Auto-categorizing transactions...
+								</div>
+								<div v-if="autoCategorizeResults" class="p-4 space-y-3">
+									<div class="flex items-center gap-2">
+										<Icon
+											:name="autoCategorizeResults.categorized > 0 ? 'i-heroicons-tag' : 'i-heroicons-question-mark-circle'"
+											class="w-4 h-4"
+											:class="autoCategorizeResults.categorized > 0 ? 'text-blue-600' : 'text-gray-400'" />
+										<p class="text-sm font-medium"
+											:class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
+											Auto-Categorization: {{ autoCategorizeResults.categorized }} of
+											{{ autoCategorizeResults.total_uncategorized }} matched to budget categories
+										</p>
+									</div>
+
+									<!-- Categorized Transactions (expandable) -->
+									<div v-if="categorizedResults.length > 0">
+										<button
+											@click="showCategorizedDetails = !showCategorizedDetails"
+											class="w-full flex items-center justify-between py-2 px-3 text-xs font-medium text-blue-700 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+											<span class="flex items-center gap-1.5">
+												<Icon name="i-heroicons-check-circle" class="w-3.5 h-3.5" />
+												{{ categorizedResults.length }} Categorized
+											</span>
+											<Icon
+												name="i-heroicons-chevron-down"
+												class="w-3.5 h-3.5 transition-transform duration-200"
+												:class="{ 'rotate-180': showCategorizedDetails }" />
+										</button>
+										<div v-if="showCategorizedDetails" class="mt-1.5 space-y-1 max-h-48 overflow-y-auto">
+											<div
+												v-for="r in categorizedResults"
+												:key="r.transaction_id"
+												class="flex items-center justify-between py-1.5 px-3 bg-blue-50/50 rounded-lg text-xs">
+												<span class="text-gray-700 truncate flex-1 min-w-0 mr-2">{{ r.description }}</span>
+												<div class="flex items-center gap-2 flex-shrink-0">
+													<span class="text-blue-700 font-medium">{{ r.matched_category }}</span>
+													<span v-if="r.matched_budget_item" class="text-blue-500 text-[10px]">({{ r.matched_budget_item }})</span>
+													<span class="text-[10px] text-gray-400 tabular-nums">{{ r.confidence }}%</span>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									<!-- Uncategorized Transactions (expandable) -->
+									<div v-if="uncategorizedResults.length > 0">
+										<button
+											@click="showUncategorizedDetails = !showUncategorizedDetails"
+											class="w-full flex items-center justify-between py-2 px-3 text-xs font-medium text-amber-700 bg-amber-50 rounded-lg hover:bg-amber-100 transition-colors">
+											<span class="flex items-center gap-1.5">
+												<Icon name="i-heroicons-question-mark-circle" class="w-3.5 h-3.5" />
+												{{ uncategorizedResults.length }} Not Matched
+											</span>
+											<Icon
+												name="i-heroicons-chevron-down"
+												class="w-3.5 h-3.5 transition-transform duration-200"
+												:class="{ 'rotate-180': showUncategorizedDetails }" />
+										</button>
+										<div v-if="showUncategorizedDetails" class="mt-1.5 space-y-1 max-h-48 overflow-y-auto">
+											<div
+												v-for="r in uncategorizedResults"
+												:key="r.transaction_id"
+												class="flex items-center justify-between py-1.5 px-3 bg-amber-50/50 rounded-lg text-xs">
+												<span class="text-gray-700 truncate flex-1 min-w-0 mr-2">{{ r.description }}</span>
+												<span class="text-[10px] text-gray-400 flex-shrink-0">No keyword match</span>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Dashboard Link -->
+							<div v-if="stmtImportResults.success" class="px-4 py-3 border-t border-green-200 bg-gray-50">
 								<NuxtLink
 									to="/financials"
-									class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm">
+									class="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-sm font-medium transition-colors">
+									<Icon name="i-heroicons-arrow-right" class="w-4 h-4" />
 									View Financial Dashboard
 								</NuxtLink>
 							</div>
@@ -1010,6 +1145,39 @@
 													<td class="px-2 py-1 truncate max-w-[150px]">{{ r.matched_budget_item || '-' }}</td>
 													<td class="px-2 py-1">{{ r.matched_by }}</td>
 													<td class="px-2 py-1 text-right">{{ r.confidence }}%</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</details>
+							</div>
+							<!-- Unmatched transactions detail -->
+							<div
+								v-if="uncategorizedResults.length > 0"
+								class="mt-4">
+								<details class="text-sm">
+									<summary class="cursor-pointer text-amber-700 font-medium">
+										View {{ uncategorizedResults.length }} unmatched transactions
+									</summary>
+									<div class="mt-2 max-h-64 overflow-y-auto">
+										<table class="w-full text-xs">
+											<thead class="bg-amber-100 sticky top-0">
+												<tr>
+													<th class="text-left px-2 py-1">ID</th>
+													<th class="text-left px-2 py-1">Description</th>
+													<th class="text-left px-2 py-1">Best Match</th>
+													<th class="text-right px-2 py-1">Confidence</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr
+													v-for="r in uncategorizedResults"
+													:key="r.transaction_id"
+													class="border-t border-amber-100">
+													<td class="px-2 py-1 text-gray-400 font-mono">{{ r.transaction_id }}</td>
+													<td class="px-2 py-1 truncate max-w-[250px]">{{ r.description }}</td>
+													<td class="px-2 py-1 text-gray-400">{{ r.matched_by || 'none' }}</td>
+													<td class="px-2 py-1 text-right text-gray-400">{{ r.confidence || 0 }}%</td>
 												</tr>
 											</tbody>
 										</table>
@@ -1858,6 +2026,23 @@ const stmtEndingBalance = ref(null);
 const stmtImportResults = ref(null);
 const autoCategorizing = ref(false);
 const autoCategorizeResults = ref(null);
+
+// Expandable detail toggles for import results
+const showSkippedDetails = ref(false);
+const showErrorDetails = ref(false);
+const showCategorizedDetails = ref(false);
+const showUncategorizedDetails = ref(false);
+
+// Computed: split auto-categorize results into categorized vs uncategorized
+const categorizedResults = computed(() => {
+	if (!autoCategorizeResults.value?.results) return [];
+	return autoCategorizeResults.value.results.filter((r) => r.matched_category);
+});
+
+const uncategorizedResults = computed(() => {
+	if (!autoCategorizeResults.value?.results) return [];
+	return autoCategorizeResults.value.results.filter((r) => !r.matched_category);
+});
 const pastedJson = ref('');
 const pdfUploadResult = ref(null);
 const extractedPdfFileId = ref(null);
@@ -1964,6 +2149,10 @@ function clearStmtFile() {
 	stmtEndingBalance.value = null;
 	stmtImportResults.value = null;
 	autoCategorizeResults.value = null;
+	showSkippedDetails.value = false;
+	showErrorDetails.value = false;
+	showCategorizedDetails.value = false;
+	showUncategorizedDetails.value = false;
 	pdfUploadResult.value = null;
 	extractedPdfFileId.value = null;
 	stmtDetectedYear.value = null;
@@ -2313,6 +2502,7 @@ async function importTransactions() {
 		success: true,
 		created: 0,
 		skipped: 0,
+		skippedDetails: [],
 		errors: [],
 	};
 
@@ -2408,6 +2598,13 @@ async function importTransactions() {
 				if (existingCount > 0) {
 					existingFpCounts.set(fp, existingCount - 1);
 					results.skipped++;
+					results.skippedDetails.push({
+						row: i + 1,
+						date: txDate,
+						description: txDesc,
+						amount: txAmount,
+						type: txType,
+					});
 					stmtImportProgress.value++;
 					continue;
 				}

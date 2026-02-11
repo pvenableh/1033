@@ -109,33 +109,47 @@
 			</template>
 		</UAlert>
 
-		<!-- Reconciliation Status Summary -->
-		<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-			<UCard class="text-center">
-				<p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-400">Total Transactions</p>
-				<p class="text-2xl font-bold text-blue-700 dark:text-blue-400">
-					{{ reconciliationSummary.total }}
-				</p>
-			</UCard>
-			<UCard class="text-center">
-				<p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-400">Reconciled</p>
-				<p class="text-2xl font-bold text-green-700 dark:text-green-400">
-					{{ reconciliationSummary.reconciled }}
-				</p>
-			</UCard>
-			<UCard class="text-center">
-				<p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-400">Pending</p>
-				<p class="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
-					{{ reconciliationSummary.pending }}
-				</p>
-			</UCard>
-			<UCard class="text-center">
-				<p class="text-sm uppercase tracking-wide text-gray-600 dark:text-gray-400">Disputed</p>
-				<p class="text-2xl font-bold text-red-700 dark:text-red-400">
-					{{ reconciliationSummary.disputed }}
-				</p>
-			</UCard>
-		</div>
+		<!-- Reconciliation Progress & Status -->
+		<UCard>
+			<div class="space-y-4">
+				<!-- Progress Bar -->
+				<div>
+					<div class="flex items-center justify-between mb-2">
+						<span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Reconciliation Progress</span>
+						<span class="text-sm font-bold tabular-nums"
+							:class="reconciliationSummary.total > 0 && reconciliationSummary.pending === 0 && reconciliationSummary.disputed === 0 ? 'text-green-600' : 'text-blue-600'">
+							{{ reconciliationSummary.total > 0 ? Math.round((reconciliationSummary.reconciled / reconciliationSummary.total) * 100) : 0 }}%
+						</span>
+					</div>
+					<div class="h-2.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+						<div class="h-full rounded-full transition-all duration-700 ease-out"
+							:class="reconciliationSummary.total > 0 && reconciliationSummary.pending === 0 && reconciliationSummary.disputed === 0 ? 'bg-green-500' : 'bg-blue-500'"
+							:style="{ width: `${reconciliationSummary.total > 0 ? Math.round((reconciliationSummary.reconciled / reconciliationSummary.total) * 100) : 0}%` }">
+						</div>
+					</div>
+				</div>
+
+				<!-- Status Cards -->
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+					<div class="text-center p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20">
+						<p class="text-2xl font-bold text-blue-700 dark:text-blue-400 tabular-nums">{{ reconciliationSummary.total }}</p>
+						<p class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Total</p>
+					</div>
+					<div class="text-center p-3 rounded-xl bg-green-50 dark:bg-green-900/20">
+						<p class="text-2xl font-bold text-green-700 dark:text-green-400 tabular-nums">{{ reconciliationSummary.reconciled }}</p>
+						<p class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Reconciled</p>
+					</div>
+					<div class="text-center p-3 rounded-xl bg-yellow-50 dark:bg-yellow-900/20">
+						<p class="text-2xl font-bold text-yellow-700 dark:text-yellow-400 tabular-nums">{{ reconciliationSummary.pending }}</p>
+						<p class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Pending</p>
+					</div>
+					<div class="text-center p-3 rounded-xl bg-red-50 dark:bg-red-900/20">
+						<p class="text-2xl font-bold text-red-700 dark:text-red-400 tabular-nums">{{ reconciliationSummary.disputed }}</p>
+						<p class="text-[10px] uppercase tracking-wider text-gray-500 dark:text-gray-400 font-medium">Disputed</p>
+					</div>
+				</div>
+			</div>
+		</UCard>
 
 		<!-- Main Content Tabs -->
 		<UTabs :items="tabs" class="w-full">
@@ -292,60 +306,75 @@
 			<template #transactions>
 				<UCard class="mt-4">
 					<template #header>
-						<div class="flex items-center justify-between">
-							<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
-								TRANSACTIONS - {{ getMonthName(selectedMonth) }} {{ selectedYear }}
-							</h2>
-							<div class="flex gap-2">
-								<UButton
-									v-if="canReconcile && selectedTransactions.length > 0"
-									color="green"
-									variant="soft"
-									size="sm"
-									icon="i-heroicons-check"
-									@click="bulkReconcile('reconciled')">
-									Mark Selected Reconciled ({{ selectedTransactions.length }})
+						<div class="space-y-3">
+							<div class="flex items-center justify-between">
+								<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
+									TRANSACTIONS - {{ getMonthName(selectedMonth) }} {{ selectedYear }}
+								</h2>
+								<UBadge color="blue" variant="soft">{{ filteredTransactions.length }} transactions</UBadge>
+							</div>
+
+							<!-- Bulk Action Bar - slides in when items selected -->
+							<div v-if="canReconcile && selectedTransactions.length > 0"
+								class="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+								<span class="text-sm font-medium text-blue-700 dark:text-blue-300 mr-2">
+									{{ selectedTransactions.length }} selected
+								</span>
+								<UButton color="green" variant="soft" size="xs" icon="i-heroicons-check" @click="bulkReconcile('reconciled')">
+									Reconcile
 								</UButton>
-								<UButton
-									v-if="canReconcile && selectedTransactions.length > 0"
-									color="blue"
-									variant="soft"
-									size="sm"
-									icon="i-heroicons-check-badge"
-									@click="bulkApprove">
-									Approve Selected ({{ selectedTransactions.length }})
+								<UButton color="blue" variant="soft" size="xs" icon="i-heroicons-check-badge" @click="bulkApprove">
+									Approve
 								</UButton>
-								<UButton
-									v-if="canReconcile && selectedTransactions.length > 0"
-									color="red"
-									variant="soft"
-									size="sm"
-									icon="i-heroicons-flag"
-									@click="bulkFlag">
-									Flag Selected ({{ selectedTransactions.length }})
+								<UButton color="red" variant="soft" size="xs" icon="i-heroicons-flag" @click="bulkFlag">
+									Flag
 								</UButton>
+								<button @click="selectedTransactions = []; selectAll = false"
+									class="ml-auto text-xs text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+									Deselect all
+								</button>
 							</div>
 						</div>
 					</template>
 
-					<!-- Filter Controls -->
-					<div class="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b dark:border-gray-700">
-						<div class="flex items-center gap-2">
-							<label class="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase">Review:</label>
-							<div class="flex gap-1">
-								<UButton
-									v-for="opt in reviewFilterOptions"
-									:key="opt.value"
-									size="xs"
-									:color="reviewFilter === opt.value ? 'primary' : 'gray'"
-									:variant="reviewFilter === opt.value ? 'solid' : 'soft'"
-									@click="reviewFilter = opt.value">
-									{{ opt.label }}
-								</UButton>
-							</div>
+					<!-- Search + Filter Controls -->
+					<div class="space-y-3 mb-4 pb-4 border-b dark:border-gray-700">
+						<!-- Search -->
+						<div class="relative">
+							<UIcon name="i-heroicons-magnifying-glass" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+							<input
+								v-model="reconTxSearch"
+								type="text"
+								placeholder="Search transactions..."
+								class="w-full h-9 pl-10 pr-8 text-sm border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/60 focus:bg-white dark:focus:bg-gray-800 focus:border-blue-400 focus:ring-1 focus:ring-blue-200 dark:focus:ring-blue-800 outline-none transition-all" />
+							<button v-if="reconTxSearch" @click="reconTxSearch = ''"
+								class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+								<UIcon name="i-heroicons-x-mark" class="w-4 h-4" />
+							</button>
 						</div>
-						<div class="flex items-center gap-2">
-							<UCheckbox v-model="needsReceiptFilter" label="Needs Receipt (>$100)" />
+
+						<!-- Filter Pills -->
+						<div class="flex flex-wrap items-center gap-3">
+							<div class="flex items-center gap-1.5">
+								<label class="text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Status:</label>
+								<div class="inline-flex bg-gray-100 dark:bg-gray-800 rounded-lg p-0.5 gap-0.5">
+									<button
+										v-for="opt in reviewFilterOptions"
+										:key="opt.value"
+										@click="reviewFilter = opt.value"
+										:class="[
+											'px-2.5 py-1 text-xs font-medium rounded-md transition-all duration-200',
+											reviewFilter === opt.value
+												? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm'
+												: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
+										]">
+										{{ opt.label }}
+									</button>
+								</div>
+							</div>
+							<div class="flex items-center gap-2">
+								<UCheckbox v-model="needsReceiptFilter" label="Needs Receipt (>$100)" />
+							</div>
 						</div>
 					</div>
 
@@ -384,7 +413,12 @@
 								<tr
 									v-for="transaction in filteredTransactions"
 									:key="transaction.id"
-									class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+									class="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors border-l-3"
+									:class="{
+										'border-l-green-500': transaction.reconciliation_status === 'reconciled',
+										'border-l-red-500': transaction.reconciliation_status === 'disputed',
+										'border-l-yellow-400': !transaction.reconciliation_status || transaction.reconciliation_status === 'pending',
+									}"
 									@click="openDetailModal(transaction)">
 									<td v-if="canReconcile" class="py-3 px-2">
 										<UCheckbox
@@ -856,69 +890,86 @@
 		<Sheet :open="showNotesPanel" @update:open="showNotesPanel = $event">
 			<SheetContent side="right" class="w-full sm:max-w-md overflow-y-auto">
 				<SheetHeader>
-					<SheetTitle>Transaction Notes</SheetTitle>
+					<SheetTitle class="text-base uppercase tracking-wide">Transaction Notes</SheetTitle>
 				</SheetHeader>
 
-				<div class="space-y-4 py-4">
-					<div v-if="selectedTransaction" class="border-b dark:border-gray-700 pb-4">
-						<p class="text-sm text-gray-500 dark:text-gray-400">{{ formatDate(selectedTransaction.transaction_date) }}</p>
-						<p class="font-medium dark:text-white">{{ selectedTransaction.description }}</p>
-						<p class="text-lg font-bold" :class="getAmountClass(selectedTransaction)">
+				<div class="space-y-5 py-4">
+					<!-- Transaction Summary Card -->
+					<div v-if="selectedTransaction" class="rounded-xl bg-gray-50 dark:bg-gray-800/60 p-4 space-y-2">
+						<div class="flex items-center justify-between">
+							<span class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ formatDate(selectedTransaction.transaction_date) }}</span>
+							<UBadge
+								:color="getReconciliationStatusColor(selectedTransaction.reconciliation_status)"
+								variant="soft" size="xs">
+								{{ selectedTransaction.reconciliation_status || 'pending' }}
+							</UBadge>
+						</div>
+						<p class="font-medium text-sm text-gray-900 dark:text-white">{{ selectedTransaction.description }}</p>
+						<p class="text-xl font-bold tabular-nums" :class="getAmountClass(selectedTransaction)">
 							{{ getAmountDisplay(selectedTransaction) }}
 						</p>
 					</div>
 
 					<!-- Add Note Form -->
-					<div v-if="canCreateNotes" class="space-y-2">
-						<UFormGroup label="Add Note">
-							<UTextarea v-model="newNoteContent" placeholder="Enter your note..." rows="3" />
-						</UFormGroup>
-						<UFormGroup label="Note Type">
-							<USelectMenu v-model="newNoteType" :options="noteTypeOptions" />
-						</UFormGroup>
-						<UButton
-							color="primary"
-							:loading="savingNote"
-							:disabled="!newNoteContent.trim()"
-							@click="addNote">
-							Add Note
-						</UButton>
+					<div v-if="canCreateNotes" class="space-y-3 border-b dark:border-gray-700 pb-5">
+						<h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Add Note</h4>
+						<UTextarea v-model="newNoteContent" placeholder="Enter your note..." rows="3" class="text-sm" />
+						<div class="flex items-center gap-2">
+							<USelectMenu v-model="newNoteType" :options="noteTypeOptions" class="flex-1" />
+							<UButton
+								color="primary"
+								size="sm"
+								:loading="savingNote"
+								:disabled="!newNoteContent.trim()"
+								@click="addNote">
+								Add
+							</UButton>
+						</div>
 					</div>
 
 					<!-- Notes List -->
-					<div class="space-y-3 mt-4">
-						<h4 class="font-medium text-sm uppercase tracking-wide text-gray-500 dark:text-gray-400">Notes History</h4>
+					<div class="space-y-2">
+						<div class="flex items-center justify-between">
+							<h4 class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">History</h4>
+							<span class="text-xs text-gray-400">{{ transactionNotes.length }} note{{ transactionNotes.length !== 1 ? 's' : '' }}</span>
+						</div>
+
+						<div v-if="transactionNotes.length === 0" class="text-center py-8">
+							<div class="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
+								<UIcon name="i-heroicons-chat-bubble-bottom-center-text" class="w-6 h-6 text-gray-300 dark:text-gray-600" />
+							</div>
+							<p class="text-sm text-gray-400 dark:text-gray-500">No notes yet</p>
+						</div>
+
 						<div
 							v-for="note in transactionNotes"
 							:key="note.id"
-							class="border dark:border-gray-700 rounded-lg p-3"
-							:class="{ 'opacity-50': note.is_resolved }">
-							<div class="flex items-start justify-between">
-								<div class="flex-1">
-									<p class="text-sm dark:text-white">{{ note.note }}</p>
-									<div class="flex items-center gap-2 mt-2 text-xs text-gray-500 dark:text-gray-400">
+							class="rounded-xl p-3 transition-opacity"
+							:class="note.is_resolved
+								? 'bg-gray-50 dark:bg-gray-800/30 opacity-60'
+								: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'">
+							<div class="flex items-start justify-between gap-2">
+								<div class="flex-1 min-w-0">
+									<p class="text-sm text-gray-900 dark:text-white">{{ note.note }}</p>
+									<div class="flex items-center gap-2 mt-2 flex-wrap">
 										<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
 											{{ note.note_type }}
 										</UBadge>
-										<span>{{ formatDate(note.date_created) }}</span>
-										<span v-if="note.user_created?.first_name">
-											by {{ note.user_created.first_name }} {{ note.user_created.last_name }}
+										<span class="text-[11px] text-gray-400">{{ formatDate(note.date_created) }}</span>
+										<span v-if="note.user_created?.first_name" class="text-[11px] text-gray-400">
+											{{ note.user_created.first_name }} {{ note.user_created.last_name }}
 										</span>
 									</div>
 								</div>
-								<div v-if="canUpdateNotes && !note.is_resolved" class="flex gap-1">
-									<UButton
-										color="green"
-										variant="ghost"
-										size="xs"
-										icon="i-heroicons-check"
-										@click="resolveNoteHandler(note.id)" />
-								</div>
+								<UButton
+									v-if="canUpdateNotes && !note.is_resolved"
+									color="green"
+									variant="ghost"
+									size="xs"
+									icon="i-heroicons-check"
+									@click="resolveNoteHandler(note.id)" />
 							</div>
 						</div>
-						<p v-if="transactionNotes.length === 0" class="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
-							No notes for this transaction
-						</p>
 					</div>
 				</div>
 			</SheetContent>
@@ -964,6 +1015,7 @@
 
 <script setup>
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '~/components/ui/sheet'
+import gsap from 'gsap'
 
 definePageMeta({ layout: 'default' })
 
@@ -1051,6 +1103,7 @@ const detailTransaction = ref(null);
 // Review filter state
 const reviewFilter = ref('all');
 const needsReceiptFilter = ref(false);
+const reconTxSearch = ref('');
 
 const reviewFilterOptions = [
 	{ label: 'All', value: 'all' },
@@ -1062,6 +1115,19 @@ const reviewFilterOptions = [
 
 const filteredTransactions = computed(() => {
 	let txns = monthlyReconciliation.value?.allTransactions || [];
+
+	// Text search
+	if (reconTxSearch.value.trim()) {
+		const query = reconTxSearch.value.toLowerCase();
+		txns = txns.filter((t) => {
+			const searchable = [
+				t.description || '',
+				t.vendor || '',
+				t.amount?.toString() || '',
+			].join(' ').toLowerCase();
+			return searchable.includes(query);
+		});
+	}
 
 	if (reviewFilter.value !== 'all') {
 		txns = txns.filter((t) => {
@@ -1572,4 +1638,23 @@ watch([selectedYear, selectedAccount, selectedMonth], async () => {
 	assistantApplied.value = {};
 	autoLinkResults.value = null;
 });
+
+// GSAP: Animate progress bar on mount
+onMounted(() => {
+	nextTick(() => {
+		const progressBar = document.querySelector('.recon-progress-fill');
+		if (progressBar) {
+			gsap.fromTo(progressBar, { width: '0%' }, { width: progressBar.style.width, duration: 0.8, ease: 'power2.out' });
+		}
+	});
+});
 </script>
+
+<style scoped>
+.tabular-nums {
+	font-variant-numeric: tabular-nums;
+}
+.border-l-3 {
+	border-left-width: 3px;
+}
+</style>
