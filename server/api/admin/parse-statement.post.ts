@@ -187,11 +187,22 @@ function handleJsonFile(data: Buffer): StatementParseResult {
 }
 
 /**
- * Parse a CSV statement file (same format as existing reconciliation CSVs).
+ * Parse a CSV statement file.
+ * Supports both the internal reconciliation CSV format and Chase bank CSV exports.
+ *
+ * Chase CSV headers: Details, Posting Date, Description, Amount, Type, Balance, Check or Slip #
+ * Chase Type values: ACH_DEBIT, ACH_CREDIT, QUICKPAY_CREDIT, QUICKPAY_DEBIT,
+ *   PARTNERFI_TO_CHASE, CHASE_TO_PARTNERFI, CHECK_DEPOSIT, BILLPAY,
+ *   ACH_PAYMENT, ACCT_XFER, FEE_TRANSACTION, etc.
  */
 function handleCsvFile(data: Buffer): StatementParseResult {
 	try {
-		const csvText = data.toString('utf-8');
+		// Strip UTF-8 BOM if present
+		let csvText = data.toString('utf-8');
+		if (csvText.charCodeAt(0) === 0xfeff) {
+			csvText = csvText.slice(1);
+		}
+
 		const lines = csvText.split('\n').filter((line) => line.trim());
 
 		if (lines.length < 2) {
@@ -207,20 +218,29 @@ function handleCsvFile(data: Buffer): StatementParseResult {
 
 		for (let i = 1; i < lines.length; i++) {
 			const values = parseCsvLine(lines[i]);
-			if (values.length >= headers.length) {
+			if (values.length >= 4) {
 				const row: Record<string, string> = {};
 				headers.forEach((header, idx) => {
-					row[header] = values[idx];
+					row[header] = values[idx] || '';
 				});
 				rows.push(row);
 			}
 		}
 
-		// Separate balances and transactions
+		// Detect Chase CSV format by checking for Chase-specific headers
+		const isChaseFormat =
+			headers.includes('Details') &&
+			headers.includes('Posting Date') &&
+			headers.includes('Balance');
+
+		if (isChaseFormat) {
+			return handleChaseCsvRows(rows);
+		}
+
+		// ── Legacy/internal reconciliation CSV format ──
 		const balanceRows = rows.filter((r) => r.Type === 'BALANCE');
 		const transactionRows = rows.filter((r) => r.Type && ['DEPOSIT', 'WITHDRAWAL', 'FEE'].includes(r.Type));
 
-		// Support both SubType column and Category column for balance detection
 		const beginningBalance = balanceRows.find((b) =>
 			b.SubType === 'Beginning' ||
 			(b.Category || '').toLowerCase() === 'beginning' ||
@@ -259,6 +279,87 @@ function handleCsvFile(data: Buffer): StatementParseResult {
 			error: `Failed to parse CSV: ${error.message}`,
 		};
 	}
+}
+
+/**
+ * Handle rows from a Chase bank CSV export.
+ *
+ * Chase columns:
+ *   Details      – DEBIT, CREDIT, DSLIP
+ *   Posting Date – MM/DD/YYYY
+ *   Description  – full text (ACH details, Zelle info, etc.)
+ *   Amount       – signed number (negative = debit)
+ *   Type         – ACH_DEBIT, QUICKPAY_CREDIT, BILLPAY, ACCT_XFER, etc.
+ *   Balance      – running account balance after this transaction
+ *   Check or Slip # – optional
+ */
+function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResult {
+	if (rows.length === 0) {
+		return {
+			success: false,
+			file_type: 'csv',
+			error: 'Chase CSV file has no data rows.',
+		};
+	}
+
+	const transactions: ParsedTransaction[] = rows.map((row, index) => {
+		const details = (row['Details'] || '').trim();
+		const postingDate = (row['Posting Date'] || '').trim();
+		const description = (row['Description'] || '').trim();
+		const amount = parseFloat(row['Amount'] || '0');
+		const chaseType = (row['Type'] || '').trim();
+		const balance = parseFloat(row['Balance'] || '0');
+		const checkNumber = (row['Check or Slip #'] || '').trim();
+
+		return {
+			date: postingDate,
+			description,
+			amount: Math.abs(amount),
+			type: normalizeChaseType(details, chaseType, description),
+			vendor: extractChaseVendor(description, chaseType),
+			check_number: checkNumber || undefined,
+			balance,
+			_raw: row,
+			_source_line: index + 1,
+		};
+	}).filter(tx => tx.date);
+
+	// Calculate beginning and ending balances from Chase's running Balance column.
+	// Chase CSVs list newest transactions first, so the FIRST row has the latest balance
+	// and the LAST row has the earliest balance.
+	let beginningBalance: number | undefined;
+	let endingBalance: number | undefined;
+
+	if (transactions.length > 0) {
+		// Last row in file = earliest transaction → balance before that tx is the beginning balance
+		const earliest = transactions[transactions.length - 1];
+		const earliestAmount = parseFloat(rows[rows.length - 1]?.['Amount'] || '0');
+		beginningBalance = Math.round((earliest.balance! - earliestAmount) * 100) / 100;
+
+		// First row in file = latest transaction → its balance is the ending balance
+		endingBalance = transactions[0].balance;
+	}
+
+	// Detect statement period from date range
+	let statementPeriod: string | undefined;
+	if (transactions.length > 0) {
+		const dates = transactions
+			.map(tx => tx.date)
+			.filter(d => d);
+		if (dates.length > 0) {
+			statementPeriod = `${dates[dates.length - 1]} – ${dates[0]}`;
+		}
+	}
+
+	return {
+		success: true,
+		file_type: 'csv',
+		transactions,
+		beginning_balance: beginningBalance,
+		ending_balance: endingBalance,
+		statement_period: statementPeriod,
+		message: `Successfully parsed ${transactions.length} Chase transactions from CSV.`,
+	};
 }
 
 /**
@@ -356,4 +457,86 @@ function normalizeTransactionType(type: string): ParsedTransaction['type'] {
 	if (t === 'transfer_in' || t === 'transfer in') return 'transfer_in';
 	if (t === 'transfer_out' || t === 'transfer out') return 'transfer_out';
 	return 'withdrawal'; // default
+}
+
+/**
+ * Map a Chase CSV row to an app transaction type.
+ *
+ * Uses the Details column (DEBIT/CREDIT/DSLIP) and the Chase Type column
+ * (ACH_DEBIT, QUICKPAY_CREDIT, ACCT_XFER, etc.) to determine the normalized type.
+ */
+function normalizeChaseType(
+	details: string,
+	chaseType: string,
+	description: string,
+): ParsedTransaction['type'] {
+	const desc = (description || '').toLowerCase();
+
+	// Inter-account transfers
+	const isTransferDesc =
+		desc.includes('online transfer') ||
+		desc.includes('transfer from') ||
+		desc.includes('transfer to');
+
+	if (chaseType === 'ACCT_XFER' || isTransferDesc) {
+		return details === 'DEBIT' ? 'transfer_out' : 'transfer_in';
+	}
+
+	// Fee
+	if (chaseType === 'FEE_TRANSACTION') return 'fee';
+
+	// Deposit / credit types
+	const depositTypes = [
+		'QUICKPAY_CREDIT', 'ACH_CREDIT', 'PARTNERFI_TO_CHASE',
+		'CHECK_DEPOSIT', 'MISC_CREDIT', 'LOAN_PMT', 'ATM_CREDIT',
+	];
+	if (depositTypes.includes(chaseType)) return 'deposit';
+
+	// Withdrawal / debit types
+	const withdrawalTypes = [
+		'ACH_DEBIT', 'ACH_PAYMENT', 'DEBIT_CARD', 'QUICKPAY_DEBIT',
+		'CHASE_TO_PARTNERFI', 'BILLPAY', 'CHECK_PAID', 'MISC_DEBIT',
+		'ATM_DEBIT', 'WIRE_OUTGOING',
+	];
+	if (withdrawalTypes.includes(chaseType)) return 'withdrawal';
+
+	// Fallback by Details column
+	if (details === 'CREDIT' || details === 'DSLIP') return 'deposit';
+	if (details === 'DEBIT') return 'withdrawal';
+
+	return 'withdrawal';
+}
+
+/**
+ * Extract a meaningful vendor name from a Chase transaction description.
+ */
+function extractChaseVendor(description: string, chaseType: string): string | undefined {
+	if (!description) return undefined;
+	const desc = description.trim();
+
+	// Transfers have no vendor
+	if (desc.toLowerCase().includes('online transfer')) return undefined;
+
+	// ACH: "ORIG CO NAME:MDCBUILDINGS           ORIG ID:xxx..."
+	const achMatch = desc.match(/ORIG CO NAME:(.+?)(?:\s{2,}|\s*ORIG ID:)/i);
+	if (achMatch) return achMatch[1].trim();
+
+	// Zelle: "Zelle payment from JOHN DOE ..." or "Zelle payment to ..."
+	const zelleMatch = desc.match(/Zelle (?:payment|transfer)\s+(?:from|to)\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i);
+	if (zelleMatch) return zelleMatch[1].trim();
+
+	// Online Payment: "Online Payment 12345678 To Company Name 01/15"
+	const onlinePayMatch = desc.match(/Online Payment\s+\d+\s+To\s+(.+?)(?:\s+\d{2}\/\d{2}|$)/i);
+	if (onlinePayMatch) return onlinePayMatch[1].trim();
+
+	// Online ACH Payment: "Online ACH Payment 12345 To Company (..."
+	const achPayMatch = desc.match(/Online ACH Payment\s+\d+\s+To\s+(.+?)(?:\s+\(|$)/i);
+	if (achPayMatch) return achPayMatch[1].trim();
+
+	// Check deposit
+	if (chaseType === 'CHECK_DEPOSIT' || desc.toLowerCase().includes('remote online deposit')) {
+		return 'Check Deposit';
+	}
+
+	return undefined;
 }
