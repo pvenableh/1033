@@ -143,10 +143,21 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 			return isNaN(parsed) ? 0 : parsed;
 		};
 
+		// Helper: derive month from statement_month or transaction_date
+		const getTransactionMonth = (t: any): string | null => {
+			if (t.statement_month) return t.statement_month;
+			if (t.transaction_date) {
+				const datePart = String(t.transaction_date).slice(0, 10);
+				const month = datePart.split('-')[1];
+				if (month && month.length === 2) return month;
+			}
+			return null;
+		};
+
 		for (const account of accounts) {
 			// Get transactions for this account, grouped by month
 			const accountTx = transactions.filter((t: any) => t.account_id === account.id);
-			const monthsWithTx = [...new Set(accountTx.map((t: any) => t.statement_month).filter((m: any) => m))].sort();
+			const monthsWithTx = [...new Set(accountTx.map((t: any) => getTransactionMonth(t)).filter((m: any) => m))].sort();
 
 			if (monthsWithTx.length === 0) continue;
 
@@ -181,7 +192,7 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 				const earliestMonthIndex = monthsWithTx.indexOf(earliest.month);
 				let priorNet = 0;
 				for (let i = 0; i < earliestMonthIndex; i++) {
-					const mTx = accountTx.filter((t: any) => t.statement_month === monthsWithTx[i]);
+					const mTx = accountTx.filter((t: any) => getTransactionMonth(t) === monthsWithTx[i]);
 					const mIn = mTx
 						.filter((t: any) => t.transaction_type === 'deposit' || t.transaction_type === 'transfer_in')
 						.reduce((sum: number, t: any) => sum + safeParseFloat(t.amount), 0);
@@ -198,7 +209,7 @@ export default defineEventHandler(async (event): Promise<BackfillResult> => {
 			let runningBalance = startBal;
 
 			for (const month of monthsWithTx) {
-				const monthTx = accountTx.filter((t: any) => t.statement_month === month);
+				const monthTx = accountTx.filter((t: any) => getTransactionMonth(t) === month);
 				const prevBalance = runningBalance;
 
 				const totalIn = monthTx

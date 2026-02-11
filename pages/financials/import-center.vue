@@ -458,11 +458,14 @@
 									<span v-if="stmtDetectedMonth" class="text-green-600 text-xs ml-1">(auto-detected)</span>
 								</label>
 								<select v-model="stmtMonth" class="w-full border rounded-lg px-3 py-2 text-sm">
-									<option value="">Auto-detect from file</option>
+									<option value="">Per-transaction (multi-month)</option>
 									<option v-for="month in monthOptions" :key="month.value" :value="month.value">
 										{{ month.label }}
 									</option>
 								</select>
+								<p class="text-xs text-gray-400 mt-1">
+									Leave as "Per-transaction" for CSVs spanning multiple months. Each transaction's month will be derived from its date.
+								</p>
 							</div>
 						</div>
 
@@ -1418,25 +1421,42 @@ function detectFiscalYearFromDates(transactions) {
 
 /**
  * Detect month from transactions (MM/DD format or Period field).
+ * If transactions span multiple months, returns '' so per-transaction derivation is used.
  */
 function detectMonthFromTransactions(transactions) {
 	if (!transactions.length) return '';
 
-	// Check for Period field
+	// Check for Period field (only if consistent across transactions)
 	const period = transactions[0]?.Period || transactions[0]?.period;
 	if (period) {
 		const monthNum = new Date(`${period} 1, 2025`).getMonth() + 1;
 		if (!isNaN(monthNum)) return monthNum.toString().padStart(2, '0');
 	}
 
-	// Check date field
-	const dateStr = transactions[0]?.date || transactions[0]?.Date || '';
-	const parts = dateStr.split('/');
-	if (parts.length >= 2) {
-		const month = parseInt(parts[0]);
-		if (month >= 1 && month <= 12) return month.toString().padStart(2, '0');
+	// Collect all unique months from transaction dates
+	const months = new Set();
+	for (const tx of transactions) {
+		const dateStr = tx.date || tx.Date || '';
+		let month = null;
+
+		// ISO format: "2025-01-15"
+		if (/^\d{4}-\d{2}-\d{2}/.test(dateStr)) {
+			month = dateStr.substring(5, 7);
+		} else {
+			// US format: "01/15/2025" or "01/15"
+			const parts = dateStr.split('/');
+			if (parts.length >= 2) {
+				const m = parseInt(parts[0]);
+				if (m >= 1 && m <= 12) month = m.toString().padStart(2, '0');
+			}
+		}
+		if (month) months.add(month);
 	}
 
+	// If all transactions are in the same month, return it
+	if (months.size === 1) return [...months][0];
+
+	// Multiple months detected — leave empty so per-transaction month derivation is used
 	return '';
 }
 
@@ -2282,6 +2302,9 @@ async function importTransactions() {
 					continue;
 				}
 
+				// Derive statement_month from transaction date (not global stmtMonth)
+				const txStatementMonth = deriveStatementMonth(txDate, tx.date) || stmtMonth.value || null;
+
 				const txRecord = {
 					fiscal_year: fyId,
 					account_id: stmtAccountId.value,
@@ -2291,7 +2314,7 @@ async function importTransactions() {
 					amount: txAmount,
 					transaction_type: txType,
 					auto_categorized: false,
-					statement_month: stmtMonth.value || null,
+					statement_month: txStatementMonth,
 					import_batch_id: batchId,
 					csv_source_line: tx._source_line || i + 1,
 					original_csv_data: tx._raw || {
@@ -2327,9 +2350,9 @@ async function importTransactions() {
 			results.success = false;
 		}
 
-		// Save statement balances to monthly_statements if available
-		if (results.success && results.created > 0 && stmtMonth.value && stmtAccountId.value) {
-			await saveStatementBalances();
+		// Create monthly_statements for all months that have transactions
+		if (results.success && results.created > 0 && stmtAccountId.value) {
+			await saveAllMonthlyStatements();
 		}
 
 		// Auto-categorize after successful import
@@ -2558,6 +2581,48 @@ async function saveStatementBalances() {
 // ======================
 // HELPERS
 // ======================
+/**
+ * Derive the statement month (MM) from a transaction date.
+ * Handles both ISO (YYYY-MM-DD) and US (MM/DD/YYYY) formats.
+ */
+function deriveStatementMonth(isoDate, rawDate) {
+	// Try ISO format first: "2025-01-15"
+	if (isoDate && /^\d{4}-\d{2}-\d{2}/.test(isoDate)) {
+		return isoDate.substring(5, 7);
+	}
+	// Try US format: "01/15/2025" or "1/15/2025"
+	if (rawDate) {
+		const parts = rawDate.split('/');
+		if (parts.length >= 2) {
+			const month = parseInt(parts[0]);
+			if (month >= 1 && month <= 12) return month.toString().padStart(2, '0');
+		}
+	}
+	return null;
+}
+
+/**
+ * After importing a multi-month CSV, create/update monthly_statements
+ * for every month that has imported transactions (not just one month).
+ * Uses the backfill API to calculate balances correctly.
+ */
+async function saveAllMonthlyStatements() {
+	try {
+		const result = await $fetch('/api/admin/backfill-monthly-statements', {
+			method: 'POST',
+			body: {
+				fiscal_year: stmtFiscalYear.value,
+				account_id: stmtAccountId.value,
+			},
+		});
+		if (result.created > 0 || result.updated > 0) {
+			console.log(`Monthly statements: ${result.created} created, ${result.updated} updated, ${result.skipped} skipped`);
+		}
+	} catch (err) {
+		console.warn('Could not backfill monthly statements:', err.message);
+	}
+}
+
 function normalizeType(type) {
 	const t = (type || '').toLowerCase().trim();
 	if (t === 'deposit' || t === 'credit') return 'deposit';

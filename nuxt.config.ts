@@ -304,6 +304,8 @@ export default defineNuxtConfig({
 			'gsap',
 			'@vueuse/core',
 			'v-calendar',
+			'@unovis/vue',
+			'@unovis/ts',
 		],
 	},
 
