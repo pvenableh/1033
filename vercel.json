@@ -1,7 +1,1 @@
-{
-	"functions": {
-		".output/server/**": {
-			"maxDuration": 60
-		}
-	}
-}
+{}
