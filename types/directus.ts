@@ -1137,6 +1137,36 @@ export interface Transaction {
 	reconciliation_notes?: ReconciliationNote[] | string[];
 }
 
+/**
+ * Tracks how a single deposit (e.g. Zelle payment containing both
+ * HOA dues and 40-year special assessment) is allocated across funds.
+ */
+export interface PaymentAllocation {
+	/** @primaryKey */
+	id: number;
+	user_created?: string | null;
+	user_updated?: string | null;
+	date_created?: string | null;
+	date_updated?: string | null;
+	status?: 'published' | 'draft' | 'archived' | null;
+	/** @description The original deposit transaction @required */
+	source_transaction_id: Transaction | number;
+	/** @description Which fund this portion belongs to @required */
+	fund_type: 'operating' | 'special_assessment' | 'reserve';
+	/** @description The dollar amount allocated to this fund @required */
+	amount: number;
+	/** @description Target account for this allocation (e.g. special assessment account) */
+	target_account_id?: Account | number | null;
+	/** @description The transfer_out transaction that moved this portion to the target account */
+	linked_transfer_id?: Transaction | number | null;
+	/** @description Tracking status */
+	allocation_status: 'pending_transfer' | 'transferred' | 'reconciled';
+	/** @description Optional notes */
+	notes?: string | null;
+	/** @required */
+	fiscal_year: FiscalYear | string;
+}
+
 export interface Unit {
 	/** @primaryKey @required */
 	id: number;
