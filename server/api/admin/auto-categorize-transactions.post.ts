@@ -333,6 +333,8 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'jbl corp': 'Maintenance',
 	'nenad rakita': 'Maintenance',
 	'alejandro 207': 'Maintenance',
+	'amax tax pro': 'Administrative',
+	'amax tax': 'Administrative',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
