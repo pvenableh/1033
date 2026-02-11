@@ -274,6 +274,8 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'air condition', 'roofing', 'painting', 'electrical repair',
 		'tree trimming', 'handyman', 'contractor',
 		'engineering', 'engineer', 'structural',
+		'gutter', 'rain gutter',
+		'garage door',
 	],
 	Regulatory: [
 		'permit', 'license', 'inspection', 'certificate', 'compliance',
@@ -319,12 +321,27 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'first insurance': 'Insurance',
 	'citizens': 'Insurance',
 	'buildium': 'Administrative',
-	'diana wyatt': 'Administrative',
+	'diana wyatt': 'Maintenance',
 	'harry tompkins': 'Administrative',
 	'harry tempki': 'Administrative',
 	'acg engineering': 'Maintenance',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
+	'del toro rain gutters': 'Maintenance',
+	'del toro': 'Maintenance',
+	'yurian castro': 'Maintenance',
+	'services jbl': 'Maintenance',
+	'jbl corp': 'Maintenance',
+	'nenad rakita': 'Maintenance',
+	'alejandro 207': 'Maintenance',
+	'207 alejandro': 'Maintenance',
+	'305 bernie': 'Maintenance',
+	'camila hoffman': 'Maintenance',
+	'jani-king': 'Contract Services',
+	'jani king': 'Contract Services',
+	'amax tax pro': 'Administrative',
+	'amax tax': 'Administrative',
+	'florida garage door': 'Maintenance',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
@@ -431,7 +448,10 @@ function matchTransaction(
 
 	const description = (transaction.description || '').toLowerCase().trim();
 	const vendorField = (transaction.vendor || '').toLowerCase().trim();
-	const searchText = `${description} ${vendorField}`;
+	// Normalize hyphens to spaces so "Jani King" matches "JANI-KING", etc.
+	const descriptionNorm = description.replace(/-/g, ' ');
+	const vendorFieldNorm = vendorField.replace(/-/g, ' ');
+	const searchText = `${descriptionNorm} ${vendorFieldNorm}`;
 	const amount = Math.abs(parseFloat(transaction.amount) || 0);
 
 	// --- Pass 1: Match to a specific budget item ---
@@ -444,8 +464,8 @@ function matchTransaction(
 		// Check vendor patterns (highest priority)
 		const vendorPatterns: string[] = item.vendor_patterns || [];
 		for (const pattern of vendorPatterns) {
-			const p = pattern.toLowerCase().trim();
-			if (p && (vendorField.includes(p) || description.includes(p))) {
+			const p = pattern.toLowerCase().trim().replace(/-/g, ' ');
+			if (p && (vendorFieldNorm.includes(p) || descriptionNorm.includes(p))) {
 				score += 100;
 				break;
 			}
@@ -455,7 +475,7 @@ function matchTransaction(
 		const keywords: string[] = item.keywords || [];
 		for (const keyword of keywords) {
 			const kw = keyword.toLowerCase().trim();
-			if (kw && (description.includes(kw) || vendorField.includes(kw))) {
+			if (kw && (descriptionNorm.includes(kw) || vendorFieldNorm.includes(kw))) {
 				score += 50;
 			}
 		}
@@ -598,14 +618,14 @@ function matchTransaction(
 	if (!result.category_id) {
 		const toPatterns = [
 			/\bonline payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
-			/\bzelle\s+(?:payment\s+)?to\s+(.+?)$/i,
+			/\bzelle\s+(?:payment\s+)?to\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i,
 			/\bbill\s*pay(?:ment)?\s+(?:\d+\s+)?to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
 		];
 
 		for (const pattern of toPatterns) {
 			const match = description.match(pattern);
 			if (match) {
-				const extractedVendor = match[1].trim().toLowerCase();
+				const extractedVendor = match[1].trim().toLowerCase().replace(/-/g, ' ');
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
