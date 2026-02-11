@@ -213,11 +213,12 @@ function handleCsvFile(data: Buffer): StatementParseResult {
 			};
 		}
 
-		const headers = parseCsvLine(lines[0]);
+		const delimiter = detectDelimiter(lines[0]);
+		const headers = parseCsvLine(lines[0], delimiter);
 		const rows = [];
 
 		for (let i = 1; i < lines.length; i++) {
-			const values = parseCsvLine(lines[i]);
+			const values = parseCsvLine(lines[i], delimiter);
 			if (values.length >= 4) {
 				const row: Record<string, string> = {};
 				headers.forEach((header, idx) => {
@@ -422,7 +423,14 @@ async function handlePdfFile(
 	}
 }
 
-function parseCsvLine(line: string): string[] {
+function detectDelimiter(line: string): string {
+	const tabCount = (line.match(/\t/g) || []).length;
+	const commaCount = (line.match(/,/g) || []).length;
+	return tabCount >= 3 ? '\t' : ',';
+}
+
+function parseCsvLine(line: string, delimiter?: string): string[] {
+	const delim = delimiter || detectDelimiter(line);
 	const result: string[] = [];
 	let current = '';
 	let inQuotes = false;
@@ -438,7 +446,7 @@ function parseCsvLine(line: string): string[] {
 			} else {
 				inQuotes = !inQuotes;
 			}
-		} else if (char === ',' && !inQuotes) {
+		} else if (char === delim && !inQuotes) {
 			result.push(current.trim());
 			current = '';
 		} else {

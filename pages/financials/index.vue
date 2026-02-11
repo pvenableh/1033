@@ -31,6 +31,51 @@
 			<h5 class="mb-1 font-medium leading-none tracking-tight">{{ error }}</h5>
 		</Alert>
 
+		<!-- Admin Actions Bar -->
+		<div v-if="!loading && canReconcile" class="bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 p-4">
+			<div class="flex items-center justify-between flex-wrap gap-3">
+				<div class="flex items-center gap-2">
+					<Icon name="i-heroicons-shield-check" class="w-5 h-5 text-blue-600" />
+					<span class="text-sm font-semibold text-blue-800 dark:text-blue-200 uppercase tracking-wide">Admin Actions</span>
+				</div>
+				<div class="flex flex-wrap gap-2">
+					<NuxtLink
+						to="/financials/reconciliation"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium">
+						<Icon name="i-heroicons-clipboard-document-check" class="w-4 h-4" />
+						Reconcile Transactions
+					</NuxtLink>
+					<button
+						@click="runAutoLinkTransfers"
+						:disabled="autoLinking"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium disabled:opacity-50">
+						<Icon :name="autoLinking ? 'i-heroicons-arrow-path' : 'i-heroicons-link'" :class="{'animate-spin': autoLinking}" class="w-4 h-4" />
+						{{ autoLinking ? 'Linking...' : 'Auto-Link Transfers' }}
+					</button>
+					<button
+						@click="runAutoCategorize"
+						:disabled="autoCategorizing"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium disabled:opacity-50">
+						<Icon :name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-tag'" :class="{'animate-spin': autoCategorizing}" class="w-4 h-4" />
+						{{ autoCategorizing ? 'Categorizing...' : 'Auto-Categorize' }}
+					</button>
+					<NuxtLink
+						to="/financials/import-center"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium">
+						<Icon name="i-heroicons-arrow-up-tray" class="w-4 h-4" />
+						Import Center
+					</NuxtLink>
+				</div>
+			</div>
+			<!-- Auto-link / auto-categorize results -->
+			<div v-if="autoLinkResults" class="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
+				Transfer linking complete: {{ autoLinkResults.linked }} linked, {{ autoLinkResults.categorized || 0 }} categorized
+			</div>
+			<div v-if="autoCategorizeResults" class="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
+				Auto-categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} matched to budget categories
+			</div>
+		</div>
+
 		<!-- Main Dashboard Content -->
 		<div v-if="!loading && accounts.length > 0">
 			<!-- Account Tabs -->
@@ -190,35 +235,42 @@
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<div class="flex items-center gap-4 mb-4">
-								<VisBulletLegend :items="cashFlowLegendItems" />
-							</div>
-							<VisXYContainer
-								v-if="accountMonthlyTrend.length > 0"
-								:data="accountMonthlyTrend"
-								:height="320"
-								:margin="{ left: 60, right: 20, top: 10, bottom: 30 }">
-								<VisLine
-									:x="(d, i) => i"
-									:y="[(d) => d.revenue, (d) => d.expenses, (d) => d.balance]"
-									:color="['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)']"
-									:curveType="CurveType.MonotoneX" />
-								<VisAxis
-									type="x"
-									:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
-									:tickValues="accountMonthlyTrend.map((d, i) => i)"
-									:tickLine="false"
-									:domainLine="false" />
-								<VisAxis
-									type="y"
-									:tickFormat="(v) => '$' + Math.round(v).toLocaleString()"
-									:gridLine="true"
-									:tickLine="false"
-									:domainLine="false" />
-							</VisXYContainer>
-							<div v-else class="h-80 flex items-center justify-center text-muted-foreground">
-								No monthly data available
-							</div>
+							<ClientOnly>
+								<div class="flex items-center gap-4 mb-4">
+									<VisBulletLegend :items="cashFlowLegendItems" />
+								</div>
+								<VisXYContainer
+									v-if="accountMonthlyTrend.length > 0"
+									:data="accountMonthlyTrend"
+									:height="320"
+									:margin="{ left: 60, right: 20, top: 10, bottom: 30 }">
+									<VisLine
+										:x="(d, i) => i"
+										:y="[(d) => d.revenue, (d) => d.expenses, (d) => d.balance]"
+										:color="['rgb(34, 197, 94)', 'rgb(239, 68, 68)', 'rgb(59, 130, 246)']"
+										:curveType="CurveType.MonotoneX" />
+									<VisAxis
+										type="x"
+										:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
+										:tickValues="accountMonthlyTrend.map((d, i) => i)"
+										:tickLine="false"
+										:domainLine="false" />
+									<VisAxis
+										type="y"
+										:tickFormat="(v) => '$' + Math.round(v).toLocaleString()"
+										:gridLine="true"
+										:tickLine="false"
+										:domainLine="false" />
+								</VisXYContainer>
+								<div v-else class="h-80 flex items-center justify-center text-muted-foreground">
+									No monthly data available
+								</div>
+								<template #fallback>
+									<div class="h-80 flex items-center justify-center text-muted-foreground">
+										Loading chart...
+									</div>
+								</template>
+							</ClientOnly>
 						</CardContent>
 					</Card>
 
@@ -454,42 +506,49 @@
 									<CardDescription>Monthly comparison of budgeted vs actual spending</CardDescription>
 								</CardHeader>
 								<CardContent>
-									<div class="flex items-center gap-4 mb-4">
-										<VisBulletLegend :items="budgetChartLegendItems" />
-									</div>
-									<VisXYContainer
-										v-if="accountMonthlyTrend.length > 0"
-										:data="accountMonthlyTrend"
-										:height="320"
-										:margin="{ left: 60, right: 20, top: 10, bottom: 30 }">
-										<VisLine
-											:x="(d, i) => i"
-											:y="(d) => budget2025.totals.monthly"
-											color="rgb(59, 130, 246)"
-											:lineWidth="2"
-											:lineDashArray="[5, 5]" />
-										<VisLine
-											:x="(d, i) => i"
-											:y="(d) => d.expenses"
-											color="rgb(239, 68, 68)"
-											:lineWidth="2"
-											:curveType="CurveType.MonotoneX" />
-										<VisAxis
-											type="x"
-											:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
-											:tickValues="accountMonthlyTrend.map((d, i) => i)"
-											:tickLine="false"
-											:domainLine="false" />
-										<VisAxis
-											type="y"
-											:tickFormat="(v) => formatCurrency(v)"
-											:gridLine="true"
-											:tickLine="false"
-											:domainLine="false" />
-									</VisXYContainer>
-									<div v-else class="h-80 flex items-center justify-center text-muted-foreground">
-										No monthly data available
-									</div>
+									<ClientOnly>
+										<div class="flex items-center gap-4 mb-4">
+											<VisBulletLegend :items="budgetChartLegendItems" />
+										</div>
+										<VisXYContainer
+											v-if="accountMonthlyTrend.length > 0"
+											:data="accountMonthlyTrend"
+											:height="320"
+											:margin="{ left: 60, right: 20, top: 10, bottom: 30 }">
+											<VisLine
+												:x="(d, i) => i"
+												:y="(d) => budget2025.totals.monthly"
+												color="rgb(59, 130, 246)"
+												:lineWidth="2"
+												:lineDashArray="[5, 5]" />
+											<VisLine
+												:x="(d, i) => i"
+												:y="(d) => d.expenses"
+												color="rgb(239, 68, 68)"
+												:lineWidth="2"
+												:curveType="CurveType.MonotoneX" />
+											<VisAxis
+												type="x"
+												:tickFormat="(v) => accountMonthlyTrend[Math.round(v)]?.month || ''"
+												:tickValues="accountMonthlyTrend.map((d, i) => i)"
+												:tickLine="false"
+												:domainLine="false" />
+											<VisAxis
+												type="y"
+												:tickFormat="(v) => formatCurrency(v)"
+												:gridLine="true"
+												:tickLine="false"
+												:domainLine="false" />
+										</VisXYContainer>
+										<div v-else class="h-80 flex items-center justify-center text-muted-foreground">
+											No monthly data available
+										</div>
+										<template #fallback>
+											<div class="h-80 flex items-center justify-center text-muted-foreground">
+												Loading chart...
+											</div>
+										</template>
+									</ClientOnly>
 								</CardContent>
 							</Card>
 
@@ -837,13 +896,27 @@
 											</span>
 										</template>
 										<template #category_id-data="{row}">
-											<div class="flex items-center gap-2" v-if="row.category_id">
-												<div
-													class="w-3 h-3 rounded-full"
-													:style="{backgroundColor: getCategoryColor(row.category_id)}"></div>
-												<span class="text-xs">{{ getCategoryName(row.category_id) }}</span>
+											<div v-if="canReconcile" class="min-w-[140px]">
+												<select
+													:value="normalizeCategoryId(row.category_id)"
+													@change="updateTransactionCategory(row.id, $event.target.value)"
+													class="w-full text-xs border border-gray-200 rounded px-1.5 py-1 bg-white dark:bg-gray-800 dark:border-gray-600"
+													:class="normalizeCategoryId(row.category_id) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400'">
+													<option value="">Uncategorized</option>
+													<option v-for="cat in budgetCategories" :key="cat.id" :value="cat.id">
+														{{ cat.category_name }}
+													</option>
+												</select>
 											</div>
-											<span v-else class="text-xs text-gray-400">Uncategorized</span>
+											<div v-else>
+												<div class="flex items-center gap-2" v-if="row.category_id">
+													<div
+														class="w-3 h-3 rounded-full"
+														:style="{backgroundColor: getCategoryColor(row.category_id)}"></div>
+													<span class="text-xs">{{ getCategoryName(row.category_id) }}</span>
+												</div>
+												<span v-else class="text-xs text-gray-400">Uncategorized</span>
+											</div>
 										</template>
 										<template #is_violation-data="{row}">
 											<Badge v-if="row.is_violation" color="red" variant="solid" size="xs">VIOLATION</Badge>
@@ -1140,6 +1213,14 @@ import { VisXYContainer, VisLine, VisAxis, VisBulletLegend } from '@unovis/vue';
 import { CurveType } from '@unovis/ts';
 import { CardHeader, CardTitle, CardDescription, CardContent } from '~/components/ui/card';
 
+// Admin permissions and reconciliation
+const { canReconcile, canCreateNotes, fetchUserPermissions } = useReconciliationNotes();
+const transactionsCollection = useDirectusItems('transactions');
+
+onMounted(() => {
+	fetchUserPermissions();
+});
+
 const {
 	selectedYear,
 	selectedAccount,
@@ -1366,6 +1447,71 @@ const getFilteredRevenueTotal = () => {
 
 const getCategorySlotName = (categoryName) => {
 	return `transactions-${categoryName.toLowerCase().replace(/\s+/g, '-')}`;
+};
+
+// Admin action state
+const autoLinking = ref(false);
+const autoLinkResults = ref(null);
+const autoCategorizing = ref(false);
+const autoCategorizeResults = ref(null);
+
+// Normalize category_id (handles Directus expanded objects)
+const normalizeCategoryId = (categoryId) => {
+	if (!categoryId) return '';
+	if (typeof categoryId === 'object' && categoryId !== null) return categoryId.id;
+	return categoryId;
+};
+
+// Auto-link transfers
+const runAutoLinkTransfers = async () => {
+	autoLinking.value = true;
+	autoLinkResults.value = null;
+	try {
+		const result = await $fetch('/api/admin/auto-link-transfers', {
+			method: 'POST',
+			body: { fiscal_year: selectedYear.value },
+		});
+		autoLinkResults.value = result;
+		if (result.linked > 0) refreshAll();
+	} catch (err) {
+		console.error('Auto-link error:', err);
+	} finally {
+		autoLinking.value = false;
+	}
+};
+
+// Auto-categorize transactions
+const runAutoCategorize = async () => {
+	autoCategorizing.value = true;
+	autoCategorizeResults.value = null;
+	try {
+		const result = await $fetch('/api/admin/auto-categorize-transactions', {
+			method: 'POST',
+			body: {
+				fiscal_year: selectedYear.value,
+				account_id: selectedAccount.value !== 'info' ? selectedAccount.value : undefined,
+			},
+		});
+		autoCategorizeResults.value = result;
+		if (result.categorized > 0) refreshAll();
+	} catch (err) {
+		console.error('Auto-categorize error:', err);
+	} finally {
+		autoCategorizing.value = false;
+	}
+};
+
+// Update a transaction's category inline
+const updateTransactionCategory = async (transactionId, categoryId) => {
+	try {
+		await transactionsCollection.update(transactionId, {
+			category_id: categoryId || null,
+		});
+		// Refresh to update all computed values
+		refreshAll();
+	} catch (err) {
+		console.error('Failed to update transaction category:', err);
+	}
 };
 
 onMounted(() => {
