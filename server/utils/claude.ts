@@ -99,13 +99,28 @@ export async function callClaude(options: ClaudeRequestOptions): Promise<ClaudeR
     ...(options.system ? { system: options.system } : {}),
   };
 
+  // Check if any message contains a document (PDF) content block
+  const hasPdfContent = options.messages.some((msg) => {
+    if (Array.isArray(msg.content)) {
+      return msg.content.some((block) => (block as any).type === 'document');
+    }
+    return false;
+  });
+
+  const headers: Record<string, string> = {
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01',
+    'content-type': 'application/json',
+  };
+
+  // PDF document support requires the pdfs beta header
+  if (hasPdfContent) {
+    headers['anthropic-beta'] = 'pdfs-2024-09-25';
+  }
+
   const response = await $fetch<ClaudeResponse>(ANTHROPIC_API_URL, {
     method: 'POST',
-    headers: {
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'content-type': 'application/json',
-    },
+    headers,
     body,
   });
 
