@@ -2358,7 +2358,10 @@ async function importTransactions() {
 			results.errors.push('Warning: duplicate detection unavailable — existing transactions could not be loaded.');
 		}
 
-		// Build a fingerprint set from existing transactions for O(1) lookups
+		// Build a fingerprint count map from existing transactions for O(1) lookups.
+		// Uses counts instead of a Set so that legitimate duplicate transactions
+		// (e.g., multiple identical check deposits on the same day) are imported
+		// correctly — only truly already-imported rows are skipped.
 		function txFingerprint(date, amount, description, type) {
 			const d = (date || '').substring(0, 10);
 			const a = Math.abs(parseFloat(amount) || 0).toFixed(2);
@@ -2367,11 +2370,11 @@ async function importTransactions() {
 			return `${d}|${a}|${desc}|${t}`;
 		}
 
-		const existingFingerprints = new Set(
-			existingTransactions.map((et) =>
-				txFingerprint(et.transaction_date, et.amount, et.description, et.transaction_type)
-			)
-		);
+		const existingFpCounts = new Map();
+		for (const et of existingTransactions) {
+			const fp = txFingerprint(et.transaction_date, et.amount, et.description, et.transaction_type);
+			existingFpCounts.set(fp, (existingFpCounts.get(fp) || 0) + 1);
+		}
 
 		// Import each transaction (only the displayed/filtered set)
 		for (let i = 0; i < txToImport.length; i++) {
@@ -2396,9 +2399,14 @@ async function importTransactions() {
 					categoryId = categoryNameMap[csvCategory.toLowerCase().trim()] || null;
 				}
 
-				// Duplicate check against existing DB records + already-imported in this batch
+				// Duplicate check: skip only if this fingerprint still has unmatched
+				// existing records. Decrement the count so that legitimate duplicates
+				// in the CSV (e.g., two $2,300 check deposits on the same day) are
+				// imported after the existing matches are consumed.
 				const fp = txFingerprint(txDate, txAmount, txDesc, txType);
-				if (existingFingerprints.has(fp)) {
+				const existingCount = existingFpCounts.get(fp) || 0;
+				if (existingCount > 0) {
+					existingFpCounts.set(fp, existingCount - 1);
 					results.skipped++;
 					stmtImportProgress.value++;
 					continue;
@@ -2446,8 +2454,9 @@ async function importTransactions() {
 
 				await transactionsCollection.create(txRecord);
 
-				// Add to fingerprint set so later rows in this batch are also deduplicated
-				existingFingerprints.add(fp);
+				// Track this newly created record so re-importing the same CSV
+				// won't create duplicates. Increment the count for this fingerprint.
+				existingFpCounts.set(fp, (existingFpCounts.get(fp) || 0) + 1);
 				results.created++;
 			} catch (err) {
 				results.errors.push(`Row ${i + 1}: ${err.message}`);
