@@ -24,9 +24,9 @@ import {
 } from '~/server/utils/directus';
 import { isClaudeConfigured, callClaude, extractClaudeText } from '~/server/utils/claude';
 
-// Extend Vercel timeout for AI endpoints
+// Extend Vercel timeout for AI endpoints (Hobby plan max: 60s)
 export const config = {
-	maxDuration: 120,
+	maxDuration: 60,
 }
 
 export default defineEventHandler(async (event) => {

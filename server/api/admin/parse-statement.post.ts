@@ -23,6 +23,12 @@ interface ParsedTransaction {
 	_source_line?: number;
 }
 
+interface MonthBalances {
+	beginning_balance: number;
+	ending_balance: number;
+	transaction_count: number;
+}
+
 interface StatementParseResult {
 	success: boolean;
 	file_type: 'pdf' | 'json' | 'csv';
@@ -32,6 +38,8 @@ interface StatementParseResult {
 	beginning_balance?: number;
 	ending_balance?: number;
 	statement_period?: string;
+	/** Per-month balances from Chase Balance column (key = MM, e.g. "01") */
+	month_balances?: Record<string, MonthBalances>;
 	error?: string;
 	message?: string;
 }
@@ -325,32 +333,71 @@ function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResul
 		};
 	}).filter(tx => tx.date);
 
-	// Calculate beginning and ending balances from Chase's running Balance column.
-	// Chase CSVs list newest transactions first, so the FIRST row has the latest balance
-	// and the LAST row has the earliest balance.
+	// Chase CSVs list newest transactions first. Sort chronologically for balance calculation.
+	const chronological = [...transactions].sort((a, b) => {
+		// Parse MM/DD/YYYY dates for comparison
+		const parseDate = (d: string) => {
+			const parts = d.split('/');
+			if (parts.length === 3) return `${parts[2]}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`;
+			return d;
+		};
+		return parseDate(a.date).localeCompare(parseDate(b.date));
+	});
+
+	// Compute the signed amount from a transaction's type and amount.
+	// Chase Balance = previous balance + signed amount, so:
+	// previous balance (beginning) = balance - signed amount
+	const signedAmount = (tx: ParsedTransaction): number => {
+		if (tx.type === 'deposit' || tx.type === 'transfer_in') return tx.amount;
+		return -tx.amount; // withdrawal, fee, transfer_out
+	};
+
+	// Calculate overall beginning and ending balances from Chase's running Balance column.
 	let beginningBalance: number | undefined;
 	let endingBalance: number | undefined;
 
-	if (transactions.length > 0) {
-		// Last row in file = earliest transaction → balance before that tx is the beginning balance
-		const earliest = transactions[transactions.length - 1];
-		const earliestAmount = parseFloat(rows[rows.length - 1]?.['Amount'] || '0');
-		beginningBalance = Math.round((earliest.balance! - earliestAmount) * 100) / 100;
+	if (chronological.length > 0) {
+		const first = chronological[0];
+		beginningBalance = Math.round((first.balance! - signedAmount(first)) * 100) / 100;
+		endingBalance = chronological[chronological.length - 1].balance;
+	}
 
-		// First row in file = latest transaction → its balance is the ending balance
-		endingBalance = transactions[0].balance;
+	// Calculate per-month beginning/ending balances from Chase's Balance column.
+	// This anchors each month to actual bank data rather than recalculating from sums.
+	const monthBalances: Record<string, MonthBalances> = {};
+	const monthGroups = new Map<string, ParsedTransaction[]>();
+
+	for (const tx of chronological) {
+		const parts = tx.date.split('/');
+		if (parts.length < 2) continue;
+		const mm = parts[0].padStart(2, '0');
+		if (!monthGroups.has(mm)) monthGroups.set(mm, []);
+		monthGroups.get(mm)!.push(tx);
+	}
+
+	for (const [mm, monthTxs] of monthGroups) {
+		if (monthTxs.length === 0) continue;
+		const firstTx = monthTxs[0];
+		const lastTx = monthTxs[monthTxs.length - 1];
+		monthBalances[mm] = {
+			beginning_balance: Math.round((firstTx.balance! - signedAmount(firstTx)) * 100) / 100,
+			ending_balance: Math.round(lastTx.balance! * 100) / 100,
+			transaction_count: monthTxs.length,
+		};
 	}
 
 	// Detect statement period from date range
 	let statementPeriod: string | undefined;
-	if (transactions.length > 0) {
-		const dates = transactions
-			.map(tx => tx.date)
-			.filter(d => d);
-		if (dates.length > 0) {
-			statementPeriod = `${dates[dates.length - 1]} – ${dates[0]}`;
-		}
+	const monthCount = monthGroups.size;
+	if (chronological.length > 0) {
+		const first = chronological[0].date;
+		const last = chronological[chronological.length - 1].date;
+		statementPeriod = first === last ? first : `${first} – ${last}`;
 	}
+
+	const monthWarning = monthCount > 1
+		? ` Spans ${monthCount} months — import one month at a time for accurate reconciliation.`
+		: '';
 
 	return {
 		success: true,
@@ -359,7 +406,8 @@ function handleChaseCsvRows(rows: Record<string, string>[]): StatementParseResul
 		beginning_balance: beginningBalance,
 		ending_balance: endingBalance,
 		statement_period: statementPeriod,
-		message: `Successfully parsed ${transactions.length} Chase transactions from CSV.`,
+		month_balances: Object.keys(monthBalances).length > 0 ? monthBalances : undefined,
+		message: `Successfully parsed ${transactions.length} Chase transactions from CSV.${monthWarning}`,
 	};
 }
 

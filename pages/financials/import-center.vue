@@ -747,11 +747,43 @@
 						<!-- Transaction Preview      -->
 						<!-- ======================== -->
 						<div v-if="stmtTransactions.length > 0" class="space-y-4">
+							<!-- Multi-Month Warning & Month Selector -->
+							<div v-if="isMultiMonthChase" class="p-4 bg-amber-50 rounded-lg border border-amber-200 space-y-3">
+								<div class="flex items-start gap-2">
+									<Icon name="i-heroicons-exclamation-triangle" class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+									<div>
+										<h3 class="font-semibold text-amber-800">Multi-Month CSV Detected</h3>
+										<p class="text-sm text-amber-700 mt-1">
+											This CSV spans {{ chaseAvailableMonths.length }} months ({{ stmtTransactions.length }} total transactions).
+											Import one month at a time to ensure balances match your bank statements.
+										</p>
+									</div>
+								</div>
+								<div class="flex flex-wrap gap-2">
+									<button
+										v-for="m in chaseAvailableMonths"
+										:key="m.value"
+										@click="chaseSelectedMonth = m.value"
+										:class="[
+											'px-4 py-2 rounded-lg text-sm font-medium border transition-all',
+											chaseSelectedMonth === m.value
+												? 'bg-blue-600 text-white border-blue-600'
+												: 'bg-white text-gray-700 border-gray-300 hover:border-blue-400 hover:bg-blue-50',
+										]">
+										{{ m.label }}
+										<span class="ml-1 text-xs opacity-75">({{ m.transaction_count }})</span>
+									</button>
+								</div>
+							</div>
+
 							<!-- Summary -->
 							<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
 								<div class="bg-gray-50 p-4 rounded-lg text-center">
 									<p class="text-xs text-gray-500 uppercase">Transactions</p>
-									<p class="text-2xl font-bold text-gray-900">{{ stmtTransactions.length }}</p>
+									<p class="text-2xl font-bold text-gray-900">{{ displayedTransactions.length }}</p>
+									<p v-if="isMultiMonthChase && chaseSelectedMonth" class="text-xs text-gray-400">
+										of {{ stmtTransactions.length }} total
+									</p>
 								</div>
 								<div class="bg-green-50 p-4 rounded-lg text-center">
 									<p class="text-xs text-green-600 uppercase">Deposits</p>
@@ -772,11 +804,11 @@
 								</div>
 								<div class="bg-purple-50 p-4 rounded-lg text-center">
 									<p class="text-xs text-purple-600 uppercase">Balance</p>
-									<p class="text-sm font-bold text-purple-700" v-if="stmtBeginningBalance != null">
-										Begin: ${{ stmtBeginningBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									<p class="text-sm font-bold text-purple-700" v-if="displayedBeginningBalance != null">
+										Begin: ${{ displayedBeginningBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
 									</p>
-									<p class="text-sm font-bold text-purple-700" v-if="stmtEndingBalance != null">
-										End: ${{ stmtEndingBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
+									<p class="text-sm font-bold text-purple-700" v-if="displayedEndingBalance != null">
+										End: ${{ displayedEndingBalance.toLocaleString(undefined, {minimumFractionDigits: 2}) }}
 									</p>
 								</div>
 							</div>
@@ -795,7 +827,7 @@
 										</tr>
 									</thead>
 									<tbody class="divide-y divide-gray-200">
-										<tr v-for="(tx, idx) in stmtTransactions.slice(0, 30)" :key="idx">
+										<tr v-for="(tx, idx) in displayedTransactions.slice(0, 30)" :key="idx">
 											<td class="px-4 py-2 text-gray-900 whitespace-nowrap">{{ formatTransactionDate(tx.date) }}</td>
 											<td class="px-4 py-2 whitespace-nowrap">
 												<span
@@ -817,13 +849,16 @@
 										</tr>
 									</tbody>
 								</table>
-								<p v-if="stmtTransactions.length > 30" class="text-sm text-gray-500 text-center mt-2">
-									Showing 30 of {{ stmtTransactions.length }} transactions
+								<p v-if="displayedTransactions.length > 30" class="text-sm text-gray-500 text-center mt-2">
+									Showing 30 of {{ displayedTransactions.length }} transactions
 								</p>
 							</div>
 
 							<!-- Import Button -->
 							<div class="text-center space-y-3">
+								<div v-if="isMultiMonthChase && !chaseSelectedMonth" class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+									Please select a month above to import.
+								</div>
 								<div v-if="!stmtAccountId" class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
 									Please select a target account above before importing.
 								</div>
@@ -833,12 +868,12 @@
 								<button
 									v-if="canCreateFinancials"
 									@click="importTransactions"
-									:disabled="stmtImporting || !stmtAccountId || !resolvedStmtFiscalYearId"
+									:disabled="stmtImporting || !stmtAccountId || !resolvedStmtFiscalYearId || (isMultiMonthChase && !chaseSelectedMonth)"
 									class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
 									<span v-if="stmtImporting">
-										Importing... ({{ stmtImportProgress }}/{{ stmtTransactions.length }})
+										Importing... ({{ stmtImportProgress }}/{{ displayedTransactions.length }})
 									</span>
-									<span v-else>Import {{ stmtTransactions.length }} Transactions to {{ selectedAccountName }}</span>
+									<span v-else>Import {{ displayedTransactions.length }} Transactions to {{ selectedAccountName }}</span>
 								</button>
 							</div>
 						</div>
@@ -1833,19 +1868,71 @@ const pdfToCsvExtracting = ref(false);
 const pdfToCsvResult = ref(null);
 const resolvedStmtFiscalYearId = ref(null);
 
+// Chase CSV multi-month support: per-month balances from Chase Balance column
+const chaseMonthBalances = ref(null); // Record<string, { beginning_balance, ending_balance, transaction_count }>
+const chaseSelectedMonth = ref(''); // '' = all months, 'MM' = specific month
+
 const selectedAccountName = computed(() => {
 	const acct = accounts.value.find((a) => a.id === stmtAccountId.value);
 	return acct ? acct.account_name : 'Selected Account';
 });
 
+// Multi-month Chase CSV support
+const isMultiMonthChase = computed(() => {
+	const mb = chaseMonthBalances.value;
+	return mb && Object.keys(mb).length > 1;
+});
+
+const chaseAvailableMonths = computed(() => {
+	const mb = chaseMonthBalances.value;
+	if (!mb) return [];
+	const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June',
+		'July', 'August', 'September', 'October', 'November', 'December'];
+	return Object.keys(mb).sort().map(mm => ({
+		value: mm,
+		label: MONTH_NAMES[parseInt(mm, 10) - 1] || mm,
+		...mb[mm],
+	}));
+});
+
+// Derive month from a transaction's date (handles MM/DD/YYYY and YYYY-MM-DD)
+function txMonth(tx) {
+	const d = tx.date || '';
+	if (/^\d{4}-\d{2}/.test(d)) return d.substring(5, 7);
+	const parts = d.split('/');
+	if (parts.length >= 2) return parts[0].padStart(2, '0');
+	return '';
+}
+
+// When a month is selected in a multi-month Chase CSV, filter transactions
+const displayedTransactions = computed(() => {
+	if (!isMultiMonthChase.value || !chaseSelectedMonth.value) return stmtTransactions.value;
+	return stmtTransactions.value.filter(tx => txMonth(tx) === chaseSelectedMonth.value);
+});
+
+// Effective balances: use Chase per-month data when a specific month is selected
+const displayedBeginningBalance = computed(() => {
+	if (isMultiMonthChase.value && chaseSelectedMonth.value) {
+		return chaseMonthBalances.value?.[chaseSelectedMonth.value]?.beginning_balance ?? null;
+	}
+	return stmtBeginningBalance.value;
+});
+
+const displayedEndingBalance = computed(() => {
+	if (isMultiMonthChase.value && chaseSelectedMonth.value) {
+		return chaseMonthBalances.value?.[chaseSelectedMonth.value]?.ending_balance ?? null;
+	}
+	return stmtEndingBalance.value;
+});
+
 const stmtTotalDeposits = computed(() =>
-	stmtTransactions.value
+	displayedTransactions.value
 		.filter((tx) => tx.type === 'deposit' || tx.type === 'transfer_in')
 		.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
 );
 
 const stmtTotalWithdrawals = computed(() =>
-	stmtTransactions.value
+	displayedTransactions.value
 		.filter((tx) => ['withdrawal', 'fee', 'transfer_out'].includes(tx.type))
 		.reduce((sum, tx) => sum + Math.abs(tx.amount), 0)
 );
@@ -1884,6 +1971,8 @@ function clearStmtFile() {
 	claudeExtractionError.value = '';
 	claudeTokenUsage.value = null;
 	pdfToCsvResult.value = null;
+	chaseMonthBalances.value = null;
+	chaseSelectedMonth.value = '';
 }
 
 async function uploadPdf() {
@@ -2181,6 +2270,17 @@ function applyParsedTransactions(result) {
 	stmtBeginningBalance.value = result.beginning_balance ?? null;
 	stmtEndingBalance.value = result.ending_balance ?? null;
 
+	// Store per-month balances from Chase CSV if present
+	chaseMonthBalances.value = result.month_balances || null;
+
+	// If multi-month Chase CSV, auto-select first month
+	if (result.month_balances && Object.keys(result.month_balances).length > 1) {
+		const firstMonth = Object.keys(result.month_balances).sort()[0];
+		chaseSelectedMonth.value = firstMonth;
+	} else {
+		chaseSelectedMonth.value = '';
+	}
+
 	// Auto-detect fiscal year from transaction dates
 	const detectedYear = detectFiscalYearFromDates(stmtTransactions.value);
 	if (detectedYear) {
@@ -2203,7 +2303,8 @@ function applyParsedTransactions(result) {
 }
 
 async function importTransactions() {
-	if (!stmtAccountId.value || !resolvedStmtFiscalYearId.value || stmtTransactions.value.length === 0) return;
+	const txToImport = displayedTransactions.value;
+	if (!stmtAccountId.value || !resolvedStmtFiscalYearId.value || txToImport.length === 0) return;
 
 	stmtImporting.value = true;
 	stmtImportProgress.value = 0;
@@ -2217,7 +2318,8 @@ async function importTransactions() {
 
 	try {
 		const fyId = resolvedStmtFiscalYearId.value;
-		const batchId = `import_${stmtFiscalYear.value}_${stmtMonth.value || 'all'}_${Date.now()}`;
+		const importMonth = chaseSelectedMonth.value || stmtMonth.value || 'all';
+		const batchId = `import_${stmtFiscalYear.value}_${importMonth}_${Date.now()}`;
 
 		// Load budget categories for mapping CSV Category names to category_ids
 		let categoryNameMap = {};
@@ -2271,9 +2373,9 @@ async function importTransactions() {
 			)
 		);
 
-		// Import each transaction
-		for (let i = 0; i < stmtTransactions.value.length; i++) {
-			const tx = stmtTransactions.value[i];
+		// Import each transaction (only the displayed/filtered set)
+		for (let i = 0; i < txToImport.length; i++) {
+			const tx = txToImport[i];
 
 			try {
 				const txDate = formatTransactionDate(tx.date);
@@ -2302,8 +2404,16 @@ async function importTransactions() {
 					continue;
 				}
 
-				// Derive statement_month from transaction date (not global stmtMonth)
-				const txStatementMonth = deriveStatementMonth(txDate, tx.date) || stmtMonth.value || null;
+				// Derive statement_month strictly from the transaction's own date.
+				// Never fall back to a global month — that causes boundary transactions
+				// (first/last day of month) to land in the wrong month.
+				const txStatementMonth = deriveStatementMonth(txDate, tx.date);
+				if (!txStatementMonth) {
+					console.warn(`Row ${i + 1}: Could not derive month from date "${tx.date}" (formatted: "${txDate}"). Skipping.`);
+					results.errors.push(`Row ${i + 1}: Could not determine month from date "${tx.date}"`);
+					stmtImportProgress.value++;
+					continue;
+				}
 
 				const txRecord = {
 					fiscal_year: fyId,
@@ -2350,9 +2460,26 @@ async function importTransactions() {
 			results.success = false;
 		}
 
-		// Create monthly_statements for all months that have transactions
+		// Create/update the monthly_statement with Chase balance data if available
 		if (results.success && results.created > 0 && stmtAccountId.value) {
-			await saveAllMonthlyStatements();
+			const selectedMM = chaseSelectedMonth.value;
+			const monthBal = selectedMM && chaseMonthBalances.value?.[selectedMM];
+
+			if (monthBal) {
+				// Save the monthly_statement with actual Chase bank balances
+				await saveMonthlyStatementWithBalances(selectedMM, monthBal.beginning_balance, monthBal.ending_balance);
+			} else {
+				// Non-Chase or single-month: use the overall balances or backfill
+				const beginBal = displayedBeginningBalance.value;
+				const endBal = displayedEndingBalance.value;
+				const month = chaseSelectedMonth.value || stmtMonth.value;
+
+				if (month && (beginBal != null || endBal != null)) {
+					await saveMonthlyStatementWithBalances(month, beginBal, endBal);
+				} else {
+					await saveAllMonthlyStatements();
+				}
+			}
 		}
 
 		// Auto-categorize after successful import
@@ -2583,14 +2710,15 @@ async function saveStatementBalances() {
 // ======================
 /**
  * Derive the statement month (MM) from a transaction date.
- * Handles both ISO (YYYY-MM-DD) and US (MM/DD/YYYY) formats.
+ * Handles ISO (YYYY-MM-DD), US (MM/DD/YYYY), and short (MM/DD) formats.
+ * Returns null only if the date cannot be parsed at all.
  */
 function deriveStatementMonth(isoDate, rawDate) {
-	// Try ISO format first: "2025-01-15"
+	// Try ISO format first: "2025-01-15" or "2025-01-15T00:00:00..."
 	if (isoDate && /^\d{4}-\d{2}-\d{2}/.test(isoDate)) {
 		return isoDate.substring(5, 7);
 	}
-	// Try US format: "01/15/2025" or "1/15/2025"
+	// Try US format: "01/15/2025", "1/15/2025", or "01/15"
 	if (rawDate) {
 		const parts = rawDate.split('/');
 		if (parts.length >= 2) {
@@ -2598,7 +2726,55 @@ function deriveStatementMonth(isoDate, rawDate) {
 			if (month >= 1 && month <= 12) return month.toString().padStart(2, '0');
 		}
 	}
+	// Try ISO from rawDate as well (in case only rawDate was provided)
+	if (rawDate && /^\d{4}-\d{2}-\d{2}/.test(rawDate)) {
+		return rawDate.substring(5, 7);
+	}
 	return null;
+}
+
+/**
+ * Save a monthly_statement with specific beginning/ending balances (from Chase Balance column).
+ * Creates or updates the record for the given month.
+ */
+async function saveMonthlyStatementWithBalances(month, beginBal, endBal) {
+	if (!month || !stmtAccountId.value || !resolvedStmtFiscalYearId.value) return;
+
+	try {
+		const fyId = resolvedStmtFiscalYearId.value;
+		const accountId = stmtAccountId.value;
+
+		// Check if a monthly_statements record already exists
+		const existing = await monthlyStatementsCollection.list({
+			filter: {
+				account_id: {_eq: accountId},
+				statement_month: {_eq: month},
+				fiscal_year: {_eq: fyId},
+			},
+			fields: ['id', 'beginning_balance', 'ending_balance'],
+			limit: 1,
+		});
+
+		const updates = {status: 'published'};
+		if (beginBal != null) updates.beginning_balance = beginBal;
+		if (endBal != null) updates.ending_balance = endBal;
+
+		if (existing && existing.length > 0) {
+			// Always update with Chase bank balances (they're the source of truth)
+			await monthlyStatementsCollection.update(existing[0].id, updates);
+			console.log(`Monthly statement ${month}: updated with Chase balances (begin: ${beginBal}, end: ${endBal})`);
+		} else {
+			await monthlyStatementsCollection.create({
+				account_id: accountId,
+				statement_month: month,
+				fiscal_year: fyId,
+				...updates,
+			});
+			console.log(`Monthly statement ${month}: created with Chase balances (begin: ${beginBal}, end: ${endBal})`);
+		}
+	} catch (err) {
+		console.warn(`Could not save monthly statement for ${month}:`, err.message);
+	}
 }
 
 /**
