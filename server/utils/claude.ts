@@ -99,32 +99,29 @@ export async function callClaude(options: ClaudeRequestOptions): Promise<ClaudeR
     ...(options.system ? { system: options.system } : {}),
   };
 
-  // Check if any message contains a document (PDF) content block
-  const hasPdfContent = options.messages.some((msg) => {
-    if (Array.isArray(msg.content)) {
-      return msg.content.some((block) => (block as any).type === 'document');
-    }
-    return false;
-  });
+  try {
+    const response = await $fetch<ClaudeResponse>(ANTHROPIC_API_URL, {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json',
+      },
+      body,
+    });
 
-  const headers: Record<string, string> = {
-    'x-api-key': apiKey,
-    'anthropic-version': '2023-06-01',
-    'content-type': 'application/json',
-  };
-
-  // PDF document support requires the pdfs beta header
-  if (hasPdfContent) {
-    headers['anthropic-beta'] = 'pdfs-2024-09-25';
+    return response;
+  } catch (error: any) {
+    // Log the actual Anthropic API error details (error.data contains the response body)
+    const apiError = error?.data?.error || error?.data;
+    console.error('Claude API error:', {
+      status: error?.status || error?.statusCode,
+      type: apiError?.type,
+      message: apiError?.message,
+      data: JSON.stringify(error?.data)?.substring(0, 1000),
+    });
+    throw error;
   }
-
-  const response = await $fetch<ClaudeResponse>(ANTHROPIC_API_URL, {
-    method: 'POST',
-    headers,
-    body,
-  });
-
-  return response;
 }
 
 /**
@@ -140,13 +137,15 @@ export function extractClaudeText(response: ClaudeResponse): string {
 /**
  * Helper to build a document content block from a PDF buffer.
  */
-export function pdfToContentBlock(pdfBuffer: Buffer): ClaudeDocumentContent {
+export function pdfToContentBlock(pdfBuffer: Buffer | Uint8Array): ClaudeDocumentContent {
+  // Ensure proper Buffer for base64 encoding (Uint8Array.toString('base64') doesn't work)
+  const buf = Buffer.isBuffer(pdfBuffer) ? pdfBuffer : Buffer.from(pdfBuffer);
   return {
     type: 'document',
     source: {
       type: 'base64',
       media_type: 'application/pdf',
-      data: pdfBuffer.toString('base64'),
+      data: buf.toString('base64'),
     },
   };
 }
