@@ -337,9 +337,15 @@ export function groupByMonth(transactions) {
 		}
 	}
 
-	// Sort transactions within each month by date (chronological) then calculate balances
+	// Sort transactions within each month chronologically.
+	// Chase CSV lists newest transactions first (both across dates and within the same date),
+	// so within the same date we reverse by csvIndex to get true chronological order.
 	for (const [, group] of months) {
-		group.transactions.sort((a, b) => a.date.localeCompare(b.date));
+		group.transactions.sort((a, b) => {
+			const dateCompare = a.date.localeCompare(b.date);
+			if (dateCompare !== 0) return dateCompare;
+			return b.csvIndex - a.csvIndex;
+		});
 
 		if (group.transactions.length > 0) {
 			const first = group.transactions[0];
