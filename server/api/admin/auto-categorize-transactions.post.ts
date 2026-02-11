@@ -448,7 +448,10 @@ function matchTransaction(
 
 	const description = (transaction.description || '').toLowerCase().trim();
 	const vendorField = (transaction.vendor || '').toLowerCase().trim();
-	const searchText = `${description} ${vendorField}`;
+	// Normalize hyphens to spaces so "Jani King" matches "JANI-KING", etc.
+	const descriptionNorm = description.replace(/-/g, ' ');
+	const vendorFieldNorm = vendorField.replace(/-/g, ' ');
+	const searchText = `${descriptionNorm} ${vendorFieldNorm}`;
 	const amount = Math.abs(parseFloat(transaction.amount) || 0);
 
 	// --- Pass 1: Match to a specific budget item ---
@@ -461,8 +464,8 @@ function matchTransaction(
 		// Check vendor patterns (highest priority)
 		const vendorPatterns: string[] = item.vendor_patterns || [];
 		for (const pattern of vendorPatterns) {
-			const p = pattern.toLowerCase().trim();
-			if (p && (vendorField.includes(p) || description.includes(p))) {
+			const p = pattern.toLowerCase().trim().replace(/-/g, ' ');
+			if (p && (vendorFieldNorm.includes(p) || descriptionNorm.includes(p))) {
 				score += 100;
 				break;
 			}
@@ -472,7 +475,7 @@ function matchTransaction(
 		const keywords: string[] = item.keywords || [];
 		for (const keyword of keywords) {
 			const kw = keyword.toLowerCase().trim();
-			if (kw && (description.includes(kw) || vendorField.includes(kw))) {
+			if (kw && (descriptionNorm.includes(kw) || vendorFieldNorm.includes(kw))) {
 				score += 50;
 			}
 		}
@@ -622,7 +625,7 @@ function matchTransaction(
 		for (const pattern of toPatterns) {
 			const match = description.match(pattern);
 			if (match) {
-				const extractedVendor = match[1].trim().toLowerCase();
+				const extractedVendor = match[1].trim().toLowerCase().replace(/-/g, ' ');
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
