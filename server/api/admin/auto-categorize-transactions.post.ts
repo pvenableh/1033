@@ -275,6 +275,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'tree trimming', 'handyman', 'contractor',
 		'engineering', 'engineer', 'structural',
 		'gutter', 'rain gutter',
+		'garage door',
 	],
 	Regulatory: [
 		'permit', 'license', 'inspection', 'certificate', 'compliance',
@@ -340,6 +341,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'jani king': 'Contract Services',
 	'amax tax pro': 'Administrative',
 	'amax tax': 'Administrative',
+	'florida garage door': 'Maintenance',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
