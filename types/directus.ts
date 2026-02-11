@@ -689,6 +689,28 @@ export interface Notice {
 	visibility?: 'public' | 'residents' | 'board' | 'staff' | null;
 }
 
+export interface PaymentAllocation {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	/** @description The original deposit */
+	source_transaction_id?: Transaction | string | null;
+	fund_type?: 'operating' | 'special_assessment' | 'reserve' | null;
+	amount?: number | null;
+	target_account_id?: Account | string | null;
+	/** @description The transfer that moved fund */
+	linked_transfer_id?: Transaction | string | null;
+	allocation_status?: 'pending_transfer' | 'transferred' | 'reconciled' | null;
+	/** @description Optional notes */
+	notes?: string | null;
+	fiscal_year?: FiscalYear | string | null;
+}
+
 export interface People {
 	/** @primaryKey */
 	id: number;
@@ -1135,36 +1157,6 @@ export interface Transaction {
 	invoice_number?: string | null;
 	reviewed_by?: DirectusUser | string | null;
 	reconciliation_notes?: ReconciliationNote[] | string[];
-}
-
-/**
- * Tracks how a single deposit (e.g. Zelle payment containing both
- * HOA dues and 40-year special assessment) is allocated across funds.
- */
-export interface PaymentAllocation {
-	/** @primaryKey */
-	id: number;
-	user_created?: string | null;
-	user_updated?: string | null;
-	date_created?: string | null;
-	date_updated?: string | null;
-	status?: 'published' | 'draft' | 'archived' | null;
-	/** @description The original deposit transaction @required */
-	source_transaction_id: Transaction | number;
-	/** @description Which fund this portion belongs to @required */
-	fund_type: 'operating' | 'special_assessment' | 'reserve';
-	/** @description The dollar amount allocated to this fund @required */
-	amount: number;
-	/** @description Target account for this allocation (e.g. special assessment account) */
-	target_account_id?: Account | number | null;
-	/** @description The transfer_out transaction that moved this portion to the target account */
-	linked_transfer_id?: Transaction | number | null;
-	/** @description Tracking status */
-	allocation_status: 'pending_transfer' | 'transferred' | 'reconciled';
-	/** @description Optional notes */
-	notes?: string | null;
-	/** @required */
-	fiscal_year: FiscalYear | string;
 }
 
 export interface Unit {
@@ -1876,6 +1868,7 @@ export interface Schema {
 	monthly_statements: MonthlyStatement[];
 	newsletters: Newsletter[];
 	notices: Notice[];
+	payment_allocations: PaymentAllocation[];
 	people: People[];
 	people_units: PeopleUnit[];
 	pets: Pet[];
@@ -1983,6 +1976,7 @@ export enum CollectionNames {
 	monthly_statements = 'monthly_statements',
 	newsletters = 'newsletters',
 	notices = 'notices',
+	payment_allocations = 'payment_allocations',
 	people = 'people',
 	people_units = 'people_units',
 	pets = 'pets',
