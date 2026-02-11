@@ -53,15 +53,15 @@ interface PdfToCsvResult {
 	message?: string;
 }
 
-// Extend Vercel timeout for AI endpoints — Nitro compile-time metadata
-// (more reliable than export const config for Nitro-bundled Vercel functions)
+// Extend Vercel timeout for AI endpoints (Hobby plan max: 60s, Pro: 300s).
+// Nitro compile-time metadata for Vercel function config.
 defineRouteMeta({
-	maxDuration: 120,
+	maxDuration: 60,
 });
 
-// Keep export const config as fallback for direct Vercel detection
+// Fallback for direct Vercel detection
 export const config = {
-	maxDuration: 120,
+	maxDuration: 60,
 };
 
 export default defineEventHandler(async (event): Promise<PdfToCsvResult> => {

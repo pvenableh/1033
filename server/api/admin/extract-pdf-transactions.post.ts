@@ -79,9 +79,9 @@ interface ExtractionResult {
   message?: string;
 }
 
-// Extend Vercel timeout for AI endpoints
+// Extend Vercel timeout for AI endpoints (Hobby plan max: 60s)
 export const config = {
-  maxDuration: 120,
+  maxDuration: 60,
 }
 
 export default defineEventHandler(async (event): Promise<ExtractionResult> => {

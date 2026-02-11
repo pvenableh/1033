@@ -10,20 +10,13 @@ export default defineNuxtConfig({
 		externals: {
 			inline: ['unhead'],
 		},
-		// Set Vercel serverless function max duration globally.
+		// Set Vercel serverless function max duration globally (Hobby plan max: 60s).
 		// Individual routes can override via defineRouteMeta({ maxDuration: ... }).
 		vercel: {
 			config: {
 				maxDuration: 60,
 			},
 		},
-	},
-
-	// Route-specific overrides for endpoints that need longer timeouts (AI processing)
-	routeRules: {
-		'/api/admin/pdf-to-csv': { headers: { 'x-vercel-max-duration': '120' } },
-		'/api/admin/extract-pdf-transactions': { headers: { 'x-vercel-max-duration': '120' } },
-		'/api/admin/auto-categorize-transactions': { headers: { 'x-vercel-max-duration': '120' } },
 	},
 
 	app: {
