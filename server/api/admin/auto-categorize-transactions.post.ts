@@ -788,7 +788,7 @@ function matchTransaction(
 			let matchCount = 0;
 
 			for (const keyword of catInfo.keywords) {
-				if (searchText.includes(keyword)) {
+				if (searchText.includes(keyword) || searchTextExpanded.includes(keyword)) {
 					score += 50;
 					matchCount++;
 					if (matchCount >= 2) break; // cap at 2 keyword matches per category

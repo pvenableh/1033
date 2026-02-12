@@ -198,33 +198,78 @@ export const useTransactionMatching = () => {
 	const matchTransactionToCategory = (transaction) => {
 		const description = (transaction.description || '').toLowerCase().trim();
 		const vendor = (transaction.vendor || '').toLowerCase().trim();
+		const descriptionNorm = description.replace(/-/g, ' ');
+		const vendorNorm = vendor.replace(/-/g, ' ');
+		const searchText = `${descriptionNorm} ${vendorNorm}`;
+		const searchTextExpanded = `${normalizeForMatching(transaction.description || '')} ${normalizeForMatching(transaction.vendor || '')}`;
 
-		// Common category keywords
+		// Category keywords — keys must match actual DB category_name values
 		const categoryPatterns = {
-			Insurance: ['insurance', 'premium', 'coverage', 'policy'],
-			Professional: ['management', 'legal', 'attorney', 'cpa', 'accountant', 'audit', 'boir'],
-			Utilities: ['electric', 'water', 'gas', 'internet', 'cable', 'fpl', 'att', 'comcast', 'utility'],
-			Maintenance: ['repair', 'maintenance', 'cleaning', 'janitorial', 'landscaping', 'pool', 'elevator', 'hvac'],
-			Regulatory: ['permit', 'license', 'inspection', 'certificate', 'compliance', 'fire marshal'],
-			Banking: ['bank', 'fee', 'charge', 'wire', 'ach'],
+			Insurance: [
+				'insurance', 'premium', 'coverage', 'policy', 'insur',
+				'citizens', 'fednat', 'heritage', 'flood insurance',
+			],
+			Administrative: [
+				'management', 'legal', 'attorney', 'cpa', 'accountant', 'audit',
+				'boir', 'consulting', 'vte', 'law office', 'law firm',
+				'accounting', 'bookkeeping', 'tax prep', 'admin',
+				'bank fee', 'service charge', 'wire fee', 'ach fee',
+				'monthly maintenance fee', 'account fee', 'overdraft',
+				'office', 'supply', 'supplies', 'printing', 'postage',
+				'fedex', 'ups', 'shipping', 'miscellaneous', 'misc',
+				'phone line', 'telephone', 'bank', 'fee', 'charge', 'wire', 'ach',
+			],
+			'Contract Services': [
+				'waste', 'trash', 'garbage', 'betterwaste', 'waste management',
+				'laundry', 'wash multifamily', 'landscaping', 'lawn', 'garden',
+				'elevator', '1-touch', '1 touch', 'pool', 'pest', 'exterminator',
+				'cleaning', 'janitorial', 'pressure wash', 'security', 'camera',
+				'gate', 'access control', 'fire equip', 'fire alarm',
+				'maverick', 'gutierrez', 'contract', 'service agreement',
+			],
+			Utilities: [
+				'electric', 'water', 'gas', 'internet', 'cable', 'fpl',
+				'att', 'comcast', 'utility', 'sewer', 'teco', 'people gas',
+				'breezeline', 'power', 'florida power', 'miami beach water',
+			],
+			Maintenance: [
+				'repair', 'maintenance', 'hvac', 'plumbing', 'a/c',
+				'air condition', 'roofing', 'painting', 'electrical repair',
+				'tree trimming', 'handyman', 'contractor', 'garage door',
+			],
+			Regulatory: [
+				'permit', 'license', 'inspection', 'certificate', 'compliance',
+				'fire marshal', 'code enforcement', 'sunbiz', 'dbpr',
+				'department of', 'validation permit', 'annual inspection',
+			],
 		};
+
+		let bestScore = 0;
+		let bestMatch = null;
 
 		for (const category of budgetCategories.value) {
 			const categoryName = category.category_name;
 			const patterns = categoryPatterns[categoryName] || [];
+			let score = 0;
 
 			for (const pattern of patterns) {
-				if (description.includes(pattern) || vendor.includes(pattern)) {
-					return {
-						category_id: category.id,
-						confidence: 75,
-						matched_by: 'category_keyword',
-					};
+				if (searchText.includes(pattern) || searchTextExpanded.includes(pattern)) {
+					score += 50;
+					if (score >= 100) break;
 				}
+			}
+
+			if (score > bestScore) {
+				bestScore = score;
+				bestMatch = {
+					category_id: category.id,
+					confidence: Math.min(score, 100),
+					matched_by: 'category_keyword',
+				};
 			}
 		}
 
-		return null;
+		return bestMatch;
 	};
 
 	// Match vendor from transaction description (with fuzzy matching)
