@@ -1315,90 +1315,102 @@ export const useHOAFinancialsEnhanced = () => {
 		return 'Other';
 	};
 
-	// Budget comparison analysis
+	// Whether budget data exists for the selected fiscal year
+	const hasBudgetData = computed(() => {
+		const cats = budgetCategories.value || [];
+		// Only count categories that have a fiscal_year matching selectedYear
+		return cats.some((cat) => {
+			if (!cat.fiscal_year) return false;
+			const catYear = typeof cat.fiscal_year === 'object' ? cat.fiscal_year.year : cat.fiscal_year;
+			return catYear === unref(selectedYear);
+		});
+	});
+
+	// Dynamic budget totals from Directus categories (replaces hardcoded budget2025.totals)
+	const dynamicBudgetTotals = computed(() => {
+		const cats = budgetCategories.value || [];
+		const expenseCats = cats.filter((cat) => {
+			const name = (cat.category_name || '').toLowerCase();
+			return !name.includes('revenue') && !name.includes('special assessment');
+		});
+		const yearly = expenseCats.reduce((sum, cat) => sum + safeParseFloat(cat.yearly_budget), 0);
+		const monthly = yearly > 0 ? yearly / 12 : 0;
+		return { monthly, yearly };
+	});
+
+	// Budget comparison analysis (dynamic - uses Directus budget_categories for selected year)
 	const budgetComparison = computed(() => {
 		try {
 			const transactions = allAccountTransactions.value || [];
 			const monthsInRange = getMonthsInRange();
 			const selectedMonthCount = monthsInRange.length;
-			const isYearToDate = unref(selectedStartMonth) === 'all' && unref(selectedEndMonth) === 'all';
 
-			// Initialize budget and actual totals
-			const comparison = {};
-
-			// Set up each budget category
-			Object.keys(budget2025.categories).forEach((budgetCat) => {
-				const monthlyBudget = budget2025.categories[budgetCat].monthly;
-				const proRatedBudget = calculateProRatedBudget(monthlyBudget);
-
-				comparison[budgetCat] = {
-					category: budgetCat,
-					monthlyBudget: monthlyBudget,
-					proRatedBudget: proRatedBudget,
-					actualAmount: 0,
-					variance: 0,
-					percentVariance: 0,
-					status: 'On Track',
-					transactionCount: 0,
-					monthsSelected: selectedMonthCount,
-				};
+			// Use dynamic budget categories from Directus (already filtered by selectedYear)
+			const expenseCategories = (budgetCategories.value || []).filter((cat) => {
+				const name = (cat.category_name || '').toLowerCase();
+				return !name.includes('revenue') && !name.includes('special assessment');
 			});
 
-			// Calculate actual expenses by category
-			transactions.forEach((transaction) => {
-				if (
-					!transaction ||
-					transaction.transaction_type !== 'withdrawal' ||
-					transaction.is_violation ||
-					isTransferTransaction(transaction)
-				) {
-					return;
-				}
+			if (expenseCategories.length === 0) {
+				return [];
+			}
 
-				const amount = safeParseFloat(transaction.amount);
-				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const budgetCategory = mapToBudgetCategory(transactionCategory, transaction.vendor, transaction.description);
+			return expenseCategories
+				.map((category) => {
+					const categoryTransactions = transactions.filter((t) => {
+						return (
+							normalizeCategoryId(t.category_id) === category.id &&
+							t.transaction_type === 'withdrawal' &&
+							!t.is_violation &&
+							!isTransferTransaction(t)
+						);
+					});
 
-				if (comparison[budgetCategory]) {
-					comparison[budgetCategory].actualAmount += amount;
-					comparison[budgetCategory].transactionCount++;
-				}
-			});
+					const actualAmount = categoryTransactions.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+					const annualBudgetAmount = safeParseFloat(category.yearly_budget) || 0;
+					const monthlyBudget = annualBudgetAmount / 12;
+					const proRatedBudget = monthlyBudget * selectedMonthCount;
+					const variance = actualAmount - proRatedBudget;
+					const percentVariance = proRatedBudget > 0 ? Math.round((variance / proRatedBudget) * 100) : 0;
 
-			// Calculate variances
-			Object.keys(comparison).forEach((budgetCat) => {
-				const data = comparison[budgetCat];
-				data.variance = data.actualAmount - data.proRatedBudget;
-
-				if (data.proRatedBudget > 0) {
-					data.percentVariance = Math.round((data.variance / data.proRatedBudget) * 100);
-				}
-
-				// Determine status
-				if (data.variance > 0) {
-					if (data.percentVariance > 20) {
-						data.status = 'Significantly Over Budget';
-						data.statusColor = 'red';
-					} else if (data.percentVariance > 10) {
-						data.status = 'Over Budget';
-						data.statusColor = 'orange';
+					// Determine status
+					let status = 'On Track';
+					let statusColor = 'green';
+					if (variance > 0) {
+						if (percentVariance > 20) {
+							status = 'Significantly Over Budget';
+							statusColor = 'red';
+						} else if (percentVariance > 10) {
+							status = 'Over Budget';
+							statusColor = 'orange';
+						} else {
+							status = 'Slightly Over Budget';
+							statusColor = 'yellow';
+						}
 					} else {
-						data.status = 'Slightly Over Budget';
-						data.statusColor = 'yellow';
+						if (percentVariance < -20) {
+							status = 'Significantly Under Budget';
+							statusColor = 'blue';
+						} else {
+							status = 'On Track';
+							statusColor = 'green';
+						}
 					}
-				} else {
-					if (data.percentVariance < -20) {
-						data.status = 'Significantly Under Budget';
-						data.statusColor = 'blue';
-					} else {
-						data.status = 'On Track';
-						data.statusColor = 'green';
-					}
-				}
-			});
 
-			// Convert to array and sort by variance (most over budget first)
-			return Object.values(comparison)
+					return {
+						category: category.category_name,
+						categoryId: category.id,
+						monthlyBudget,
+						proRatedBudget,
+						actualAmount,
+						variance,
+						percentVariance,
+						status,
+						statusColor,
+						transactionCount: categoryTransactions.length,
+						monthsSelected: selectedMonthCount,
+					};
+				})
 				.filter((cat) => cat.actualAmount > 0 || cat.proRatedBudget > 0)
 				.sort((a, b) => b.variance - a.variance);
 		} catch (error) {
@@ -1407,15 +1419,16 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
-	// Overall budget summary
+	// Overall budget summary (dynamic - uses Directus budget_categories for selected year)
 	const budgetSummary = computed(() => {
 		try {
 			const transactions = allAccountTransactions.value || [];
 			const monthsInRange = getMonthsInRange();
 			const selectedMonthCount = monthsInRange.length;
 
-			// Total budgeted amount for selected period
-			const totalBudgeted = budget2025.totals.monthly * selectedMonthCount;
+			// Total budgeted amount for selected period (from dynamic categories)
+			const monthlyBudgetRate = dynamicBudgetTotals.value.monthly;
+			const totalBudgeted = monthlyBudgetRate * selectedMonthCount;
 
 			// Total actual expenses (excluding transfers and violations)
 			const totalActual = transactions
@@ -1453,7 +1466,7 @@ export const useHOAFinancialsEnhanced = () => {
 				overallStatus,
 				statusColor,
 				monthsSelected: selectedMonthCount,
-				monthlyBudgetRate: budget2025.totals.monthly,
+				monthlyBudgetRate,
 				isYearToDate: selectedMonthCount === 12,
 				averageMonthlyActual: selectedMonthCount > 0 ? totalActual / selectedMonthCount : 0,
 			};
@@ -1480,8 +1493,9 @@ export const useHOAFinancialsEnhanced = () => {
 			const summary = budgetSummary.value;
 			const monthsInRange = getMonthsInRange();
 			const selectedMonthCount = monthsInRange.length;
+			const yearlyBudget = dynamicBudgetTotals.value.yearly;
 
-			if (selectedMonthCount === 0 || summary.averageMonthlyActual === 0) {
+			if (selectedMonthCount === 0 || summary.averageMonthlyActual === 0 || yearlyBudget === 0) {
 				return {
 					projectedYearEnd: 0,
 					projectedVariance: 0,
@@ -1492,8 +1506,8 @@ export const useHOAFinancialsEnhanced = () => {
 
 			// Project full year spending based on average monthly actual
 			const projectedYearEnd = summary.averageMonthlyActual * 12;
-			const projectedVariance = projectedYearEnd - budget2025.totals.yearly;
-			const projectedPercentVariance = Math.round((projectedVariance / budget2025.totals.yearly) * 100);
+			const projectedVariance = projectedYearEnd - yearlyBudget;
+			const projectedPercentVariance = Math.round((projectedVariance / yearlyBudget) * 100);
 
 			let recommendation = '';
 			if (projectedVariance > 10000) {
@@ -1523,21 +1537,11 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
-	// In your composable - add this debugging version
-	const getCategoryTransactions = (budgetCategory) => {
+	// Get transactions for a budget category by category ID
+	const getCategoryTransactions = (categoryId) => {
 		try {
 			const transactions = allAccountTransactions.value || [];
 
-			// Debug: Log all unique database categories
-			const allCategories = new Set();
-			transactions.forEach((t) => {
-				if (t && t.category_id) {
-					const dbCategoryName = getCategoryName(t.category_id);
-					allCategories.add(dbCategoryName);
-				}
-			});
-
-			// Filter transactions that belong to this budget category
 			const filteredTransactions = transactions.filter((transaction) => {
 				if (
 					!transaction ||
@@ -1548,10 +1552,7 @@ export const useHOAFinancialsEnhanced = () => {
 					return false;
 				}
 
-				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const mappedCategory = mapToBudgetCategory(transactionCategory, transaction.vendor, transaction.description);
-
-				return mappedCategory === budgetCategory;
+				return normalizeCategoryId(transaction.category_id) === categoryId;
 			});
 
 			return filteredTransactions.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date));
@@ -1561,9 +1562,9 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	};
 
-	const getLargestTransaction = (budgetCategory) => {
+	const getLargestTransaction = (categoryId) => {
 		try {
-			const transactions = getCategoryTransactions(budgetCategory);
+			const transactions = getCategoryTransactions(categoryId);
 			if (transactions.length === 0) return 0;
 
 			return Math.max(...transactions.map((t) => safeParseFloat(t.amount)));
@@ -1573,9 +1574,9 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	};
 
-	const getCategoryMonthSpread = (budgetCategory) => {
+	const getCategoryMonthSpread = (categoryId) => {
 		try {
-			const transactions = getCategoryTransactions(budgetCategory);
+			const transactions = getCategoryTransactions(categoryId);
 			const months = new Set(transactions.map((t) => getTransactionMonth(t)).filter((m) => m));
 
 			if (months.size === 0) return 'No data';
@@ -1736,6 +1737,8 @@ export const useHOAFinancialsEnhanced = () => {
 		budgetComparison,
 		budgetSummary,
 		budgetProjection,
+		hasBudgetData,
+		dynamicBudgetTotals,
 		budget2025,
 		getMonthsInRange,
 		calculateProRatedBudget,
