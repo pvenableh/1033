@@ -631,272 +631,96 @@ async function main() {
 		process.exit(1);
 	}
 
-	// ---- DIAGNOSTIC: Test what category_id format works ----
-	console.log('🔍 Diagnosing category_id field...\n');
-
-	// Check if there are ANY existing budget items with a category_id set
-	try {
-		const existingWithCat = await client.request(
-			readItems('budget_items', {
-				filter: {category_id: {_nnull: true}},
-				fields: ['id', 'item_code', 'category_id'],
-				limit: 3,
-			})
-		);
-		if (existingWithCat.length > 0) {
-			console.log('   Existing budget_items with category_id:');
-			for (const item of existingWithCat) {
-				console.log(
-					`      id=${item.id}, item_code=${item.item_code}, category_id=${JSON.stringify(item.category_id)} (type: ${typeof item.category_id})`
-				);
-			}
-		} else {
-			console.log('   No existing budget_items with category_id set.');
-		}
-	} catch (e) {
-		console.log('   Could not query existing items:', e.message);
-	}
-
-	// Check existing budget_categories to see their ID format
-	try {
-		const existingCats = await client.request(
-			readItems('budget_categories', {
-				fields: ['id', 'category_name'],
-				limit: 5,
-			})
-		);
-		console.log('   Existing budget_categories:');
-		for (const cat of existingCats) {
-			console.log(`      id=${JSON.stringify(cat.id)} (type: ${typeof cat.id}), name=${cat.category_name}`);
-		}
-	} catch (e) {
-		console.log('   Could not query categories:', e.message);
-	}
-
-	// Try to read the field info via Directus schema endpoint
-	try {
-		const token = client.getToken ? await client.getToken() : null;
-		const authHeader = token || '';
-
-		// Try multiple auth approaches
-		for (const authVal of [authHeader, `Bearer ${authHeader}`]) {
-			if (!authVal) continue;
-			const resp = await fetch(`${directusUrl}/fields/budget_items/category_id`, {
-				headers: {Authorization: authVal.startsWith('Bearer') ? authVal : `Bearer ${authVal}`},
-			});
-			if (resp.ok) {
-				const fieldData = await resp.json();
-				const schema = fieldData.data?.schema || {};
-				console.log(`\n   📋 Field schema from API:`);
-				console.log(`      data_type: ${schema.data_type}`);
-				console.log(`      numeric_precision: ${schema.numeric_precision}`);
-				console.log(`      is_nullable: ${schema.is_nullable}`);
-				console.log(`      foreign_key_table: ${schema.foreign_key_table}`);
-				break;
-			}
-		}
-	} catch (e) {
-		// silent
-	}
-
-	console.log('\n   🧪 TEST: Creating test items with increasing field complexity...');
-
-	// Test A: minimal
-	try {
-		const a = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_a',
-				description: 'test minimal',
-				monthly_budget: 0,
-				yearly_budget: 0,
-				status: 'draft',
-			})
-		);
-		console.log(`   ✅ A (minimal): OK (ID: ${a.id})`);
-		await client.request(deleteItems('budget_items', [a.id]));
-	} catch (e) {
-		console.log(`   ❌ A (minimal): ${e?.errors?.[0]?.message}`);
-	}
-
-	// Test B: with fiscal_year
-	try {
-		const b = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_b',
-				description: 'test + fiscal_year',
-				monthly_budget: 0,
-				yearly_budget: 0,
-				status: 'draft',
-				fiscal_year: 3,
-			})
-		);
-		console.log(`   ✅ B (+fiscal_year): OK (ID: ${b.id})`);
-		await client.request(deleteItems('budget_items', [b.id]));
-	} catch (e) {
-		console.log(`   ❌ B (+fiscal_year): ${e?.errors?.[0]?.message}`);
-	}
-
-	// Test C: with fiscal_year_budget_id (UUID)
-	const anyFYB = await client.request(readItems('fiscal_year_budgets', {limit: 1, fields: ['id']}));
-	const testFybId = anyFYB.length > 0 ? anyFYB[0].id : null;
-	if (testFybId) {
-		try {
-			const c = await client.request(
-				createItem('budget_items', {
-					item_code: '_test_c',
-					description: 'test + fyb_id',
-					monthly_budget: 0,
-					yearly_budget: 0,
-					status: 'draft',
-					fiscal_year: 3,
-					fiscal_year_budget_id: testFybId,
-				})
-			);
-			console.log(`   ✅ C (+fiscal_year_budget_id): OK (ID: ${c.id})`);
-			await client.request(deleteItems('budget_items', [c.id]));
-		} catch (e) {
-			console.log(`   ❌ C (+fiscal_year_budget_id): ${e?.errors?.[0]?.message}`);
-		}
-	}
-
-	// Test D: with vendor_patterns array
-	try {
-		const d = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_d',
-				description: 'test + vendor_patterns',
-				monthly_budget: 0,
-				yearly_budget: 0,
-				status: 'draft',
-				vendor_patterns: ['Test1', 'Test2'],
-			})
-		);
-		console.log(`   ✅ D (+vendor_patterns): OK (ID: ${d.id})`);
-		await client.request(deleteItems('budget_items', [d.id]));
-	} catch (e) {
-		console.log(`   ❌ D (+vendor_patterns): ${e?.errors?.[0]?.message}`);
-	}
-
-	// Test E: with keywords array
-	try {
-		const e2 = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_e',
-				description: 'test + keywords',
-				monthly_budget: 0,
-				yearly_budget: 0,
-				status: 'draft',
-				keywords: ['test', 'keyword'],
-			})
-		);
-		console.log(`   ✅ E (+keywords): OK (ID: ${e2.id})`);
-		await client.request(deleteItems('budget_items', [e2.id]));
-	} catch (e) {
-		console.log(`   ❌ E (+keywords): ${e?.errors?.[0]?.message}`);
-	}
-
-	// Test F: with real amounts
-	try {
-		const f = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_f',
-				description: 'test + real amounts',
-				monthly_budget: 9700,
-				yearly_budget: 116400,
-				status: 'draft',
-			})
-		);
-		console.log(`   ✅ F (+real amounts 9700/116400): OK (ID: ${f.id})`);
-		await client.request(deleteItems('budget_items', [f.id]));
-	} catch (e) {
-		console.log(`   ❌ F (+real amounts): ${e?.errors?.[0]?.message}`);
-	}
-
-	// Test G: everything except category_id
-	try {
-		const g = await client.request(
-			createItem('budget_items', {
-				item_code: '_test_g',
-				description: 'test full minus cat',
-				monthly_budget: 9700,
-				yearly_budget: 116400,
-				status: 'draft',
-				fiscal_year: 3,
-				fiscal_year_budget_id: testFybId,
-				vendor_patterns: ['Citizens', 'CITIZENS'],
-				keywords: ['insurance', 'premium'],
-			})
-		);
-		console.log(`   ✅ G (full minus category_id): OK (ID: ${g.id})`);
-		await client.request(deleteItems('budget_items', [g.id]));
-	} catch (e) {
-		console.log(`   ❌ G (full minus category_id): ${e?.errors?.[0]?.message}`);
-	}
-
-	console.log('');
-
-	// ---- GLOBAL CLEAN: Delete ALL budget data to reset auto-increment IDs ----
+	// ---- CLEAN: Delete budget data for the years being processed ----
 	if (doClean) {
-		console.log('🧹 GLOBAL CLEAN: Removing ALL budget data to reset IDs...\n');
+		const yearsToClean = budgets.map((b) => b.year);
+		console.log(`🧹 CLEAN: Removing budget data for years: ${yearsToClean.join(', ')}...\n`);
 
-		// Delete all budget items first (they reference categories)
-		const allItems = await client.request(readItems('budget_items', {fields: ['id'], limit: -1}));
-		if (allItems.length) {
-			await client.request(
-				deleteItems(
-					'budget_items',
-					allItems.map((i) => i.id)
-				)
+		// Resolve fiscal_year IDs for the years being cleaned
+		const fyIdsToClean = [];
+		for (const yr of yearsToClean) {
+			const fyMatch = await client.request(
+				readItems('fiscal_years', {filter: {year: {_eq: yr}}, fields: ['id'], limit: 1})
 			);
-			console.log(`   🗑️  Deleted ${allItems.length} budget items`);
+			if (fyMatch.length > 0) fyIdsToClean.push(fyMatch[0].id);
 		}
 
-		// Nullify category_id on transactions before deleting categories (FK constraint)
-		const allCats = await client.request(readItems('budget_categories', {fields: ['id'], limit: -1}));
-		if (allCats.length) {
-			const catIds = allCats.map((c) => c.id);
-			const referencingTxns = await client.request(
-				readItems('transactions', {
-					filter: {category_id: {_in: catIds}},
+		if (fyIdsToClean.length > 0) {
+			// Delete budget items for these fiscal years
+			const itemsToDelete = await client.request(
+				readItems('budget_items', {
+					filter: {fiscal_year: {_in: fyIdsToClean}},
 					fields: ['id'],
 					limit: -1,
 				})
 			);
-			if (referencingTxns.length > 0) {
-				console.log(`   🔗 Nullifying category_id on ${referencingTxns.length} transactions...`);
-				const token = await client.getToken();
-				// Batch update via raw API — update all transactions with category_id in the set
-				for (const txn of referencingTxns) {
-					await fetch(`${directusUrl}/items/transactions/${txn.id}`, {
-						method: 'PATCH',
-						headers: {
-							Authorization: `Bearer ${token}`,
-							'Content-Type': 'application/json',
-						},
-						body: JSON.stringify({category_id: null}),
-					});
-				}
-				console.log(`   ✅ Cleared category_id on ${referencingTxns.length} transactions`);
+			if (itemsToDelete.length) {
+				await client.request(
+					deleteItems(
+						'budget_items',
+						itemsToDelete.map((i) => i.id)
+					)
+				);
+				console.log(`   🗑️  Deleted ${itemsToDelete.length} budget items`);
 			}
 
-			// Now safe to delete categories
-			await client.request(deleteItems('budget_categories', catIds));
-			console.log(`   🗑️  Deleted ${allCats.length} budget categories`);
-		}
-
-		// Delete all fiscal year budgets
-		const allFYB = await client.request(readItems('fiscal_year_budgets', {fields: ['id'], limit: -1}));
-		if (allFYB.length) {
-			await client.request(
-				deleteItems(
-					'fiscal_year_budgets',
-					allFYB.map((b) => b.id)
-				)
+			// Nullify category_id on transactions before deleting categories (FK constraint)
+			const catsToDelete = await client.request(
+				readItems('budget_categories', {
+					filter: {fiscal_year: {_in: fyIdsToClean}},
+					fields: ['id'],
+					limit: -1,
+				})
 			);
-			console.log(`   🗑️  Deleted ${allFYB.length} fiscal year budgets`);
+			if (catsToDelete.length) {
+				const catIds = catsToDelete.map((c) => c.id);
+				const referencingTxns = await client.request(
+					readItems('transactions', {
+						filter: {category_id: {_in: catIds}},
+						fields: ['id'],
+						limit: -1,
+					})
+				);
+				if (referencingTxns.length > 0) {
+					console.log(`   🔗 Nullifying category_id on ${referencingTxns.length} transactions...`);
+					const token = await client.getToken();
+					for (const txn of referencingTxns) {
+						await fetch(`${directusUrl}/items/transactions/${txn.id}`, {
+							method: 'PATCH',
+							headers: {
+								Authorization: `Bearer ${token}`,
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({category_id: null}),
+						});
+					}
+					console.log(`   ✅ Cleared category_id on ${referencingTxns.length} transactions`);
+				}
+
+				await client.request(deleteItems('budget_categories', catIds));
+				console.log(`   🗑️  Deleted ${catsToDelete.length} budget categories`);
+			}
+
+			// Delete fiscal year budgets for these fiscal years
+			const fybToDelete = await client.request(
+				readItems('fiscal_year_budgets', {
+					filter: {fiscal_year: {_in: fyIdsToClean}},
+					fields: ['id'],
+					limit: -1,
+				})
+			);
+			if (fybToDelete.length) {
+				await client.request(
+					deleteItems(
+						'fiscal_year_budgets',
+						fybToDelete.map((b) => b.id)
+					)
+				);
+				console.log(`   🗑️  Deleted ${fybToDelete.length} fiscal year budgets`);
+			}
 		}
 
-		console.log('   ✅ All budget data cleaned.\n');
+		console.log(`   ✅ Budget data cleaned for years: ${yearsToClean.join(', ')}.\n`);
 		await delay(500);
 	}
 
@@ -960,9 +784,10 @@ async function main() {
 			const catMonthly = cat.items.reduce((s, i) => s + i.monthly_budget, 0);
 			const catYearly = cat.items.reduce((s, i) => s + i.yearly_budget, 0);
 
+			// Filter by fiscal_year_budget_id (UUID) for reliable year-scoping
 			const existCat = await client.request(
 				readItems('budget_categories', {
-					filter: {fiscal_year: {_eq: fyId}, category_name: {_eq: cat.category_name}},
+					filter: {fiscal_year_budget_id: {_eq: fybId}, category_name: {_eq: cat.category_name}},
 					limit: 1,
 				})
 			);
@@ -972,11 +797,12 @@ async function main() {
 				catId = existCat[0].id;
 				await client.request(
 					updateItem('budget_categories', catId, {
+						fiscal_year: fyId,
+						fiscal_year_budget_id: fybId,
 						monthly_budget: catMonthly,
 						yearly_budget: catYearly,
 						color: cat.color,
 						description: cat.description,
-						fiscal_year_budget_id: fybId,
 					})
 				);
 			} else {
@@ -994,29 +820,14 @@ async function main() {
 				);
 				catId = nc.id;
 				catCount++;
-
-				// Verify the category actually exists and is readable
-				await delay(500);
-				const verify = await client.request(
-					readItems('budget_categories', {
-						filter: {id: {_eq: catId}},
-						fields: ['id', 'category_name'],
-						limit: 1,
-					})
-				);
-				if (verify.length === 0) {
-					console.error(`   ❌ Category ${catId} created but NOT found on read-back!`);
-				} else {
-					console.log(`      ✓ Verified category ${catId} exists in DB`);
-				}
 			}
 			console.log(`   📁 ${cat.category_name}: $${catYearly.toLocaleString()}/yr (${cat.items.length} items)`);
-			console.log(`      🔍 DEBUG: catId = ${catId} (type: ${typeof catId})`);
 
 			for (const itm of cat.items) {
+				// Filter by fiscal_year_budget_id (UUID) for reliable year-scoping
 				const existItm = await client.request(
 					readItems('budget_items', {
-						filter: {fiscal_year: {_eq: fyId}, item_code: {_eq: itm.item_code}},
+						filter: {fiscal_year_budget_id: {_eq: fybId}, item_code: {_eq: itm.item_code}},
 						limit: 1,
 					})
 				);
@@ -1038,13 +849,14 @@ async function main() {
 					try {
 						await client.request(
 							updateItem('budget_items', existItm[0].id, {
+								fiscal_year: fyId,
+								fiscal_year_budget_id: fybId,
 								description: itm.description,
 								monthly_budget: itm.monthly_budget,
 								yearly_budget: itm.yearly_budget,
 								vendor_patterns: itm.vendor_patterns,
 								keywords: itm.keywords,
 								category_id: catId,
-								fiscal_year_budget_id: fybId,
 							})
 						);
 					} catch (updateErr) {
