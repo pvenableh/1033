@@ -48,7 +48,11 @@ const normalizedOptions = computed(() => {
 
 const selectedValue = computed({
   get: () => props.modelValue?.toString() ?? '',
-  set: (val) => emit('update:modelValue', val)
+  set: (val) => {
+    // Preserve original option value type (number vs string)
+    const option = normalizedOptions.value.find(o => o.value?.toString() === val)
+    emit('update:modelValue', option ? option.value : val)
+  }
 })
 
 const displayValue = computed(() => {

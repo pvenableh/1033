@@ -1318,11 +1318,12 @@ export const useHOAFinancialsEnhanced = () => {
 	// Whether budget data exists for the selected fiscal year
 	const hasBudgetData = computed(() => {
 		const cats = budgetCategories.value || [];
+		const year = Number(unref(selectedYear));
 		// Only count categories that have a fiscal_year matching selectedYear
 		return cats.some((cat) => {
 			if (!cat.fiscal_year) return false;
 			const catYear = typeof cat.fiscal_year === 'object' ? cat.fiscal_year.year : cat.fiscal_year;
-			return catYear === unref(selectedYear);
+			return Number(catYear) === year;
 		});
 	});
 
