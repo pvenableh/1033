@@ -293,8 +293,6 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'repair', 'maintenance', 'hvac', 'plumbing', 'a/c',
 		'air condition', 'roofing', 'painting', 'electrical repair',
 		'tree trimming', 'handyman', 'contractor',
-		'engineering', 'engineer', 'structural',
-		'gutter', 'rain gutter',
 		'garage door',
 	],
 	Regulatory: [
@@ -314,6 +312,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 	'40-Year Project': [
 		'40 year', '40yr', '40-year', 'recertification',
 		'general contractor', 'ryder',
+		'del toro', 'acg engineering',
 	],
 };
 
@@ -349,11 +348,11 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'diana wyatt': 'Maintenance',
 	'harry tompkins': 'Administrative',
 	'harry tempki': 'Administrative',
-	'acg engineering': 'Maintenance',
+	'acg engineering': '40-Year Project',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
-	'del toro rain gutters': 'Maintenance',
-	'del toro': 'Maintenance',
+	'del toro rain gutters': '40-Year Project',
+	'del toro': '40-Year Project',
 	'yurian castro': 'Maintenance',
 	'services jbl': 'Maintenance',
 	'jbl corp': 'Maintenance',
@@ -388,7 +387,17 @@ const ACCOUNT_IDS = {
 // If these vendors appear in the Operating account, flag as fund_mixing.
 const SPECIAL_ASSESSMENT_VENDORS: string[] = [
 	'ryder',
+	'del toro',
+	'acg engineering',
 ];
+
+// Dual-purpose vendors: category depends on which account the payment comes from.
+// When paid from the Special Assessment account (5872) → '40-Year Project',
+// otherwise use their default mapping from VENDOR_CATEGORY_MAP.
+const SPECIAL_ASSESSMENT_VENDOR_OVERRIDES: Record<string, string> = {
+	'maverick': '40-Year Project',
+	'maverick elevator': '40-Year Project',
+};
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
 const VENDOR_DEPOSIT_REVENUE: string[] = [
@@ -640,10 +649,19 @@ function matchTransaction(
 				}
 
 				// Standard vendor-to-category lookup for non-deposit or non-revenue vendors
+				// For dual-purpose vendors, override category when paid from special assessment account
+				const txAcctId = typeof transaction.account_id === 'object'
+					? transaction.account_id?.id
+					: transaction.account_id;
+				const override = (txAcctId === ACCOUNT_IDS.SPECIAL_ASSESSMENT)
+					? SPECIAL_ASSESSMENT_VENDOR_OVERRIDES[vendorKey]
+					: undefined;
+				const effectiveGroup = override || groupName;
+
 				// Try the primary category first, then fall back if it doesn't exist in DB
-				const categoriesToTry = [groupName];
-				if (CATEGORY_FALLBACKS[groupName]) {
-					categoriesToTry.push(CATEGORY_FALLBACKS[groupName]);
+				const categoriesToTry = [effectiveGroup];
+				if (CATEGORY_FALLBACKS[effectiveGroup]) {
+					categoriesToTry.push(CATEGORY_FALLBACKS[effectiveGroup]);
 				}
 
 				for (const targetCategory of categoriesToTry) {
@@ -656,8 +674,10 @@ function matchTransaction(
 						) {
 							result.category_id = catId;
 							result.category_name = catInfo.name;
-							result.confidence = targetCategory === groupName ? 70 : 60;
-							result.matched_by = targetCategory === groupName ? 'vendor_lookup' : 'vendor_lookup_fallback';
+							result.confidence = targetCategory === effectiveGroup ? 70 : 60;
+							result.matched_by = override
+								? 'vendor_lookup_account_override'
+								: (targetCategory === effectiveGroup ? 'vendor_lookup' : 'vendor_lookup_fallback');
 							break;
 						}
 					}
@@ -685,11 +705,20 @@ function matchTransaction(
 			if (match) {
 				const extractedVendor = match[1].trim().toLowerCase().replace(/-/g, ' ');
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
+				const txAcctId3b = typeof transaction.account_id === 'object'
+					? transaction.account_id?.id
+					: transaction.account_id;
+
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
-						const categoriesToTry = [groupName];
-						if (CATEGORY_FALLBACKS[groupName]) {
-							categoriesToTry.push(CATEGORY_FALLBACKS[groupName]);
+						const override3b = (txAcctId3b === ACCOUNT_IDS.SPECIAL_ASSESSMENT)
+							? SPECIAL_ASSESSMENT_VENDOR_OVERRIDES[vendorKey]
+							: undefined;
+						const effectiveGroup3b = override3b || groupName;
+
+						const categoriesToTry = [effectiveGroup3b];
+						if (CATEGORY_FALLBACKS[effectiveGroup3b]) {
+							categoriesToTry.push(CATEGORY_FALLBACKS[effectiveGroup3b]);
 						}
 
 						for (const targetCategory of categoriesToTry) {
@@ -702,8 +731,10 @@ function matchTransaction(
 								) {
 									result.category_id = catId;
 									result.category_name = catInfo.name;
-									result.confidence = targetCategory === groupName ? 70 : 60;
-									result.matched_by = targetCategory === groupName ? 'vendor_lookup' : 'vendor_lookup_fallback';
+									result.confidence = targetCategory === effectiveGroup3b ? 70 : 60;
+									result.matched_by = override3b
+										? 'vendor_lookup_account_override'
+										: (targetCategory === effectiveGroup3b ? 'vendor_lookup' : 'vendor_lookup_fallback');
 									break;
 								}
 							}
