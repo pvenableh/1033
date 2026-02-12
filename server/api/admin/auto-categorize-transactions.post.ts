@@ -350,6 +350,13 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'ryder': '40-Year Project',
 };
 
+// Fallback categories: if the primary target from VENDOR_CATEGORY_MAP isn't found
+// in the DB, try the fallback category instead (e.g., when a budget hasn't been
+// set up for a specific project yet)
+const CATEGORY_FALLBACKS: Record<string, string> = {
+	'40-Year Project': 'Maintenance',
+};
+
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
 const VENDOR_DEPOSIT_REVENUE: string[] = [
 	'wash multifamily',
@@ -598,19 +605,28 @@ function matchTransaction(
 				}
 
 				// Standard vendor-to-category lookup for non-deposit or non-revenue vendors
-				for (const [catId, catInfo] of categoryKeywordMap) {
-					const catGroupLower = catInfo.name.toLowerCase();
-					if (
-						catGroupLower === groupName.toLowerCase() ||
-						catGroupLower.includes(groupName.toLowerCase()) ||
-						groupName.toLowerCase().includes(catGroupLower)
-					) {
-						result.category_id = catId;
-						result.category_name = catInfo.name;
-						result.confidence = 70;
-						result.matched_by = 'vendor_lookup';
-						break;
+				// Try the primary category first, then fall back if it doesn't exist in DB
+				const categoriesToTry = [groupName];
+				if (CATEGORY_FALLBACKS[groupName]) {
+					categoriesToTry.push(CATEGORY_FALLBACKS[groupName]);
+				}
+
+				for (const targetCategory of categoriesToTry) {
+					for (const [catId, catInfo] of categoryKeywordMap) {
+						const catGroupLower = catInfo.name.toLowerCase();
+						if (
+							catGroupLower === targetCategory.toLowerCase() ||
+							catGroupLower.includes(targetCategory.toLowerCase()) ||
+							targetCategory.toLowerCase().includes(catGroupLower)
+						) {
+							result.category_id = catId;
+							result.category_name = catInfo.name;
+							result.confidence = targetCategory === groupName ? 70 : 60;
+							result.matched_by = targetCategory === groupName ? 'vendor_lookup' : 'vendor_lookup_fallback';
+							break;
+						}
 					}
+					if (result.category_id) break;
 				}
 				if (result.category_id) break;
 			}
@@ -636,19 +652,27 @@ function matchTransaction(
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
-						for (const [catId, catInfo] of categoryKeywordMap) {
-							const catNameLower = catInfo.name.toLowerCase();
-							if (
-								catNameLower === groupName.toLowerCase() ||
-								catNameLower.includes(groupName.toLowerCase()) ||
-								groupName.toLowerCase().includes(catNameLower)
-							) {
-								result.category_id = catId;
-								result.category_name = catInfo.name;
-								result.confidence = 70;
-								result.matched_by = 'vendor_lookup';
-								break;
+						const categoriesToTry = [groupName];
+						if (CATEGORY_FALLBACKS[groupName]) {
+							categoriesToTry.push(CATEGORY_FALLBACKS[groupName]);
+						}
+
+						for (const targetCategory of categoriesToTry) {
+							for (const [catId, catInfo] of categoryKeywordMap) {
+								const catNameLower = catInfo.name.toLowerCase();
+								if (
+									catNameLower === targetCategory.toLowerCase() ||
+									catNameLower.includes(targetCategory.toLowerCase()) ||
+									targetCategory.toLowerCase().includes(catNameLower)
+								) {
+									result.category_id = catId;
+									result.category_name = catInfo.name;
+									result.confidence = targetCategory === groupName ? 70 : 60;
+									result.matched_by = targetCategory === groupName ? 'vendor_lookup' : 'vendor_lookup_fallback';
+									break;
+								}
 							}
+							if (result.category_id) break;
 						}
 						if (result.category_id) break;
 					}
