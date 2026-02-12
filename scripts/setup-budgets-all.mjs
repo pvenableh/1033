@@ -353,6 +353,7 @@ const BUDGET_2024 = {
 				item('bank-fees', 'Bank Fees', 10.0, 120.0, 'bankFees'),
 				item('postage-mail', 'Postage & Mail', 0.0, 0.0, 'postage'),
 				item('office-supplies', 'Office Supplies', 0.0, 0.0, 'office'),
+				item('cpa-bookkeeping', 'CPA Accounting and Bookkeeping Fees', 0.0, 0.0, 'cpaAudit'),
 				item('cpa-taxes', 'CPA Taxes & Review Fees', 400.0, 4800.0, 'cpaAudit'),
 				item('cpa-tax-filing', 'CPA Taxes Filing - Annual', 50.0, 600.0, 'cpaTax'),
 				item('misc-expenses', 'Misc Expenses', 100.0, 1200.0, 'misc'),

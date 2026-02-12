@@ -121,7 +121,8 @@ export const useHOAReconciliation = () => {
 				beginningBalance + totalDeposits + totalTransfersIn - totalWithdrawals - totalTransfersOut - totalFees;
 
 			const difference = endingBalance - calculatedEnding;
-			const isReconciled = Math.abs(difference) < 0.01;
+			// Only mark as reconciled if we have a statement AND the numbers match
+			const isReconciled = !!statement && Math.abs(difference) < 0.01;
 
 			return {
 				accountId,

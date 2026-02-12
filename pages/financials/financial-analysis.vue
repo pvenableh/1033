@@ -540,42 +540,7 @@
 				</template>
 			</Tabs>
 
-			<!-- Quick Actions -->
-			<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-				<NuxtLink to="/financials/reconciliation">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="text-center">
-							<UIcon name="i-heroicons-document-check" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
-							<div class="font-medium text-gray-900 dark:text-white">Reconciliation</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-				<NuxtLink to="/financials/budget-management">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="text-center">
-							<UIcon name="i-heroicons-calculator" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
-							<div class="font-medium text-gray-900 dark:text-white">Budget Management</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-				<NuxtLink to="/financials/budget">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="text-center">
-							<UIcon name="i-heroicons-chart-pie" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
-							<div class="font-medium text-gray-900 dark:text-white">Budget Overview</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-				<NuxtLink to="/financials">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="text-center">
-							<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-primary-500 mx-auto mb-2" />
-							<div class="font-medium text-gray-900 dark:text-white">Dashboard</div>
-						</div>
-					</UCard>
-				</NuxtLink>
 			</div>
-		</div>
 	</div>
 </template>
 
@@ -590,7 +555,6 @@ useSeoMeta({
 });
 
 const currentYear = new Date().getFullYear();
-const selectedFiscalYear = ref(currentYear);
 
 const yearOptions = computed(() => {
 	const years = [];
@@ -603,6 +567,7 @@ const yearOptions = computed(() => {
 // Composables
 const {
 	loading: dashboardLoading,
+	selectedYear: selectedFiscalYear,
 	varianceAnalysis,
 	varianceSummary,
 	generateCashFlowProjections,
@@ -745,7 +710,7 @@ const getPercentFundedColor = (percent) => {
 // Refresh all data
 const refreshData = async () => {
 	await Promise.all([
-		fetchDashboardData(selectedFiscalYear.value),
+		fetchDashboardData(),
 		fetchAlerts({ unresolved: true }),
 		fetchUnits(),
 		fetchLedgerEntries(selectedFiscalYear.value),

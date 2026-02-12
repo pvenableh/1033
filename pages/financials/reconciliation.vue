@@ -505,7 +505,6 @@
 								CLAUDE RECONCILIATION ASSISTANT
 							</h2>
 							<UButton
-								v-if="canReconcile"
 								color="violet"
 								variant="soft"
 								size="sm"
@@ -527,7 +526,6 @@
 							and identify potential issues.
 						</p>
 						<UButton
-							v-if="canReconcile"
 							color="violet"
 							size="lg"
 							icon="i-heroicons-sparkles"
@@ -944,20 +942,20 @@
 						<div
 							v-for="note in transactionNotes"
 							:key="note.id"
-							class="rounded-xl p-3 transition-opacity"
+							class="rounded-xl p-4 transition-all duration-300"
 							:class="note.is_resolved
 								? 'bg-gray-50 dark:bg-gray-800/30 opacity-60'
-								: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'">
-							<div class="flex items-start justify-between gap-2">
+								: 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm'">
+							<div class="flex items-start justify-between gap-3">
 								<div class="flex-1 min-w-0">
-									<p class="text-sm text-gray-900 dark:text-white">{{ note.note }}</p>
-									<div class="flex items-center gap-2 mt-2 flex-wrap">
+									<p class="text-sm text-gray-900 dark:text-white leading-relaxed">{{ note.note }}</p>
+									<div class="flex items-center gap-2 mt-3 flex-wrap">
 										<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
 											{{ note.note_type }}
 										</UBadge>
 										<span class="text-[11px] text-gray-400">{{ formatDate(note.date_created) }}</span>
 										<span v-if="note.user_created?.first_name" class="text-[11px] text-gray-400">
-											{{ note.user_created.first_name }} {{ note.user_created.last_name }}
+											by {{ note.user_created.first_name }}
 										</span>
 									</div>
 								</div>
@@ -976,7 +974,7 @@
 		</Sheet>
 
 		<!-- Generate Report Modal -->
-		<UModal v-model="showGenerateReportModal">
+		<UModal v-model="showGenerateReportModal" :close-button="false">
 			<UCard>
 				<template #header>
 					<h3 class="text-lg font-semibold dark:text-white">Generate Reconciliation Report</h3>
@@ -1056,7 +1054,7 @@ const {
 	initialize: initializeNotes,
 } = useReconciliationNotes();
 
-const { budgetCategories, fetchBudgetData } = useBudgetManagement();
+const { budgetCategories, fetchBudgetData, selectedYear: budgetSelectedYear } = useBudgetManagement();
 
 // Local state
 const showNotesPanel = ref(false);
@@ -1625,6 +1623,7 @@ const loadReports = async () => {
 // Initialize
 onMounted(async () => {
 	await initializeNotes();
+	budgetSelectedYear.value = selectedYear.value;
 	await fetchData();
 	await fetchBudgetData();
 	await loadReports();
@@ -1632,6 +1631,8 @@ onMounted(async () => {
 
 // Watch for changes
 watch([selectedYear, selectedAccount, selectedMonth], async () => {
+	// Sync budget composable year with reconciliation year
+	budgetSelectedYear.value = selectedYear.value;
 	await loadReports();
 	// Reset assistant state when filters change
 	assistantAnalysis.value = null;

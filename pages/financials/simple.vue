@@ -291,47 +291,7 @@
 					</UCard>
 				</div>
 
-				<!-- Quick Actions -->
-				<div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-					<UCard
-						class="hover:shadow-lg transition-shadow cursor-pointer"
-						@click="navigateTo(`/financials/monthly-report/${selectedMonth.replace(' 2025', '').toLowerCase()}`)">
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-blue-100 rounded-lg">
-								<UIcon name="i-heroicons-document-text" class="w-6 h-6 text-blue-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">MONTHLY RECONCILIATION</p>
-								<p class="text-sm text-gray-600">View detailed transactions</p>
-							</div>
-						</div>
-					</UCard>
-
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-green-100 rounded-lg">
-								<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-green-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">BUDGET ANALYSIS</p>
-								<p class="text-sm text-gray-600">Compare budget vs actual</p>
-							</div>
-						</div>
-					</UCard>
-
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer">
-						<div class="flex items-center space-x-3">
-							<div class="p-3 bg-purple-100 rounded-lg">
-								<UIcon name="i-heroicons-shield-check" class="w-6 h-6 text-purple-600" />
-							</div>
-							<div>
-								<p class="font-semibold uppercase tracking-wide">COMPLIANCE CHECK</p>
-								<p class="text-sm text-gray-600">Fund segregation status</p>
-							</div>
-						</div>
-					</UCard>
-				</div>
-			</template>
+				</template>
 
 			<!-- Budget Analysis Tab -->
 			<template #budget>
