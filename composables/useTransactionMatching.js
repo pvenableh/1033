@@ -1,6 +1,40 @@
 // composables/useTransactionMatching.js
 // Automated transaction-to-budget item matching using vendor patterns and keywords
 
+// Helper: Normalize text for matching — splits camelCase, normalizes separators
+// e.g. "WASHLaundrySystems" → "wash laundry systems"
+function normalizeForMatching(text) {
+	return text
+		.replace(/([a-z])([A-Z])/g, '$1 $2')
+		.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+		.replace(/[-_/&]/g, ' ')
+		.toLowerCase()
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
+// Helper: Token-based fuzzy matching for vendor name variants
+function fuzzyTokenMatch(text1, text2, minOverlap = 1) {
+	const norm1 = normalizeForMatching(text1);
+	const norm2 = normalizeForMatching(text2);
+	if (norm1.includes(norm2) || norm2.includes(norm1)) return true;
+
+	const tokens1 = norm1.split(' ').filter((t) => t.length > 2);
+	const tokens2 = norm2.split(' ').filter((t) => t.length > 2);
+	if (tokens1.length === 0 || tokens2.length === 0) return false;
+
+	let overlapCount = 0;
+	for (const t1 of tokens1) {
+		for (const t2 of tokens2) {
+			if (t1 === t2 || (t1.length >= 4 && t2.length >= 4 && (t1.includes(t2) || t2.includes(t1)))) {
+				overlapCount++;
+				break;
+			}
+		}
+	}
+	return overlapCount >= minOverlap;
+}
+
 export const useTransactionMatching = () => {
 	const budgetItemsCollection = useDirectusItems('budget_items');
 	const budgetCategoriesCollection = useDirectusItems('budget_categories');
@@ -77,7 +111,10 @@ export const useTransactionMatching = () => {
 	const matchTransactionToBudgetItem = (transaction) => {
 		const description = (transaction.description || '').toLowerCase().trim();
 		const vendor = (transaction.vendor || '').toLowerCase().trim();
+		const vendorExpanded = normalizeForMatching(transaction.vendor || '');
+		const descriptionExpanded = normalizeForMatching(transaction.description || '');
 		const amount = Math.abs(parseFloat(transaction.amount) || 0);
+		const isIncomeType = ['deposit', 'transfer_in', 'interest'].includes(transaction.transaction_type);
 
 		let bestMatch = null;
 		let bestScore = 0;
@@ -85,12 +122,19 @@ export const useTransactionMatching = () => {
 		for (const item of budgetItems.value) {
 			let score = 0;
 
-			// Check vendor patterns (highest priority)
+			// Check vendor patterns (highest priority) with fuzzy matching
 			const vendorPatterns = item.vendor_patterns || [];
 			for (const pattern of vendorPatterns) {
 				const patternLower = pattern.toLowerCase().trim();
 				if (vendor.includes(patternLower) || description.includes(patternLower)) {
-					score += 100; // High score for vendor match
+					score += 100;
+					break;
+				}
+				// Fuzzy match for camelCase, concatenated words, etc.
+				const patternNorm = normalizeForMatching(pattern);
+				if (vendorExpanded.includes(patternNorm) || descriptionExpanded.includes(patternNorm) ||
+					fuzzyTokenMatch(vendor, pattern)) {
+					score += 80;
 					break;
 				}
 			}
@@ -99,8 +143,8 @@ export const useTransactionMatching = () => {
 			const keywords = item.keywords || [];
 			for (const keyword of keywords) {
 				const keywordLower = keyword.toLowerCase().trim();
-				if (description.includes(keywordLower)) {
-					score += 50; // Medium score for keyword match
+				if (description.includes(keywordLower) || vendor.includes(keywordLower)) {
+					score += 50;
 				}
 			}
 
@@ -115,7 +159,7 @@ export const useTransactionMatching = () => {
 			if (monthlyBudget > 0 && amount > 0) {
 				const variance = Math.abs(amount - monthlyBudget) / monthlyBudget;
 				if (variance < 0.2) {
-					score += 10; // Within 20% of expected amount
+					score += 10;
 				}
 			}
 
@@ -130,8 +174,24 @@ export const useTransactionMatching = () => {
 			}
 		}
 
-		// Only return match if confidence is above threshold
-		return bestScore >= 25 ? bestMatch : null;
+		if (bestScore < 25) return null;
+
+		// For income-type transactions, override category to Revenue if available
+		if (isIncomeType && bestMatch) {
+			const revenueCategory = budgetCategories.value.find((c) => {
+				const name = (c.category_name || '').toLowerCase();
+				const desc = (c.description || '').toLowerCase();
+				return name.includes('revenue') || name.includes('income')
+					|| name.includes('assessment') || name.includes('dues')
+					|| desc.includes('revenue') || desc.includes('income');
+			});
+			if (revenueCategory) {
+				bestMatch.category_id = revenueCategory.id;
+				bestMatch.matched_by = 'budget_item_deposit_override';
+			}
+		}
+
+		return bestMatch;
 	};
 
 	// Match a transaction to a budget category (fallback when no item match)
@@ -167,16 +227,21 @@ export const useTransactionMatching = () => {
 		return null;
 	};
 
-	// Match vendor from transaction description
+	// Match vendor from transaction description (with fuzzy matching)
 	const matchVendor = (transaction) => {
 		const description = (transaction.description || '').toLowerCase().trim();
+		const vendorField = (transaction.vendor || '').toLowerCase().trim();
+		const descExpanded = normalizeForMatching(transaction.description || '');
+		const vendorExpanded = normalizeForMatching(transaction.vendor || '');
+		const searchText = `${description} ${vendorField}`;
+		const searchExpanded = `${descExpanded} ${vendorExpanded}`;
 
 		for (const vendor of vendors.value) {
 			const vendorTitle = (vendor.title || '').toLowerCase();
 			const matchingKeywords = vendor.matching_keywords || [];
 
-			// Check vendor title
-			if (vendorTitle && description.includes(vendorTitle)) {
+			// Exact substring match on title
+			if (vendorTitle && (description.includes(vendorTitle) || vendorField.includes(vendorTitle))) {
 				return {
 					vendor_id: vendor.id,
 					vendor_name: vendor.title,
@@ -184,9 +249,20 @@ export const useTransactionMatching = () => {
 				};
 			}
 
-			// Check matching keywords
+			// Fuzzy token match on title
+			if (vendorTitle && vendorField && fuzzyTokenMatch(vendorField, vendorTitle)) {
+				return {
+					vendor_id: vendor.id,
+					vendor_name: vendor.title,
+					matched_by: 'vendor_title_fuzzy',
+				};
+			}
+
+			// Check matching keywords (with expanded/normalized matching)
 			for (const keyword of matchingKeywords) {
-				if (description.includes(keyword.toLowerCase())) {
+				if (!keyword) continue;
+				const kwLower = keyword.toLowerCase();
+				if (searchText.includes(kwLower) || searchExpanded.includes(normalizeForMatching(keyword))) {
 					return {
 						vendor_id: vendor.id,
 						vendor_name: vendor.title,
@@ -211,8 +287,11 @@ export const useTransactionMatching = () => {
 
 	// Auto-categorize a transaction
 	const autoCategorizeTransaction = (transaction) => {
+		const isIncomeType = ['deposit', 'transfer_in', 'interest'].includes(transaction.transaction_type);
+
 		// Check for board member / owner reimbursements first (highest priority)
-		if (isBoardMemberReimbursement(transaction)) {
+		// Only for withdrawal-type transactions (outgoing payments)
+		if (!isIncomeType && isBoardMemberReimbursement(transaction)) {
 			const maintenanceCategory = budgetCategories.value.find(
 				(c) => c.category_name === 'Maintenance' || c.category_name === 'Contract Services'
 			);
@@ -237,7 +316,35 @@ export const useTransactionMatching = () => {
 			};
 		}
 
-		// Fallback to category match
+		// For income-type transactions, try Revenue/Income category before expense keywords
+		if (isIncomeType) {
+			const revenueCategory = budgetCategories.value.find((c) => {
+				const name = (c.category_name || '').toLowerCase();
+				const desc = (c.description || '').toLowerCase();
+				return name.includes('revenue') || name.includes('income')
+					|| name.includes('assessment') || name.includes('dues')
+					|| desc.includes('revenue') || desc.includes('income');
+			});
+			if (revenueCategory) {
+				const description = (transaction.description || '').toLowerCase();
+				const highConfidenceKeywords = [
+					'zelle', 'venmo', 'assessment', 'dues', 'hoa',
+					'remote deposit', 'check deposit', 'online transfer',
+					'ach deposit', 'direct deposit', 'ach credit',
+					'payment from', 'deposit', 'credit', 'quickpay',
+				];
+				const isHighConfidence = highConfidenceKeywords.some((kw) => description.includes(kw));
+				return {
+					budget_item_id: null,
+					category_id: revenueCategory.id,
+					confidence: isHighConfidence ? 75 : 50,
+					matched_by: isHighConfidence ? 'deposit_heuristic' : 'deposit_type_fallback',
+					vendor_match: matchVendor(transaction),
+				};
+			}
+		}
+
+		// Fallback to category match (for expense transactions)
 		const categoryMatch = matchTransactionToCategory(transaction);
 
 		if (categoryMatch) {
