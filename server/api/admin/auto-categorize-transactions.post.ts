@@ -128,7 +128,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		const transactions = await client.request(
 			readItems('transactions', {
 				filter: txFilter,
-				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type'],
+				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id'],
 				sort: ['-transaction_date'],
 				limit: -1,
 			})
@@ -174,6 +174,13 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						}
 					}
 
+					// Flag fund-mixing: vendor should have been paid from 5872
+					if (match.fund_mixing) {
+						updates.is_violation = true;
+						updates.violation_type = 'fund_mixing';
+						updates.review_status = 'flagged';
+					}
+
 					pendingUpdates.push({ id: tx.id, updates });
 
 					result.categorized++;
@@ -185,14 +192,27 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						matched_vendor: match.vendor_name || undefined,
 						confidence: match.confidence,
 						matched_by: match.matched_by,
+						fund_mixing: match.fund_mixing || undefined,
 					});
 				} else {
+					// Even uncategorized transactions can be flagged for fund-mixing
+					if (match.fund_mixing) {
+						pendingUpdates.push({
+							id: tx.id,
+							updates: {
+								is_violation: true,
+								violation_type: 'fund_mixing',
+								review_status: 'flagged',
+							},
+						});
+					}
 					result.skipped++;
 					result.results.push({
 						transaction_id: tx.id,
 						description: tx.description,
 						confidence: match.confidence,
 						matched_by: match.matched_by || 'none',
+						fund_mixing: match.fund_mixing || undefined,
 					});
 				}
 			} catch (err: any) {
@@ -357,6 +377,19 @@ const CATEGORY_FALLBACKS: Record<string, string> = {
 	'40-Year Project': 'Maintenance',
 };
 
+// Account IDs — must match the accounts table (same as useComplianceAlerts)
+const ACCOUNT_IDS = {
+	OPERATING: 1, // Account 5129
+	RESERVE: 2, // Account 7011
+	SPECIAL_ASSESSMENT: 3, // Account 5872
+} as const;
+
+// Vendors whose payments should ONLY come from the Special Assessment account (5872).
+// If these vendors appear in the Operating account, flag as fund_mixing.
+const SPECIAL_ASSESSMENT_VENDORS: string[] = [
+	'ryder',
+];
+
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
 const VENDOR_DEPOSIT_REVENUE: string[] = [
 	'wash multifamily',
@@ -439,6 +472,7 @@ interface MatchResult {
 	vendor_name: string | null;
 	confidence: number;
 	matched_by: string;
+	fund_mixing: boolean;
 }
 
 function matchTransaction(
@@ -457,6 +491,7 @@ function matchTransaction(
 		vendor_name: null,
 		confidence: 0,
 		matched_by: 'none',
+		fund_mixing: false,
 	};
 
 	const description = (transaction.description || '').toLowerCase().trim();
@@ -787,6 +822,22 @@ function matchTransaction(
 			}
 		}
 		if (matched) break;
+	}
+
+	// --- Fund-mixing detection ---
+	// If this transaction matches a special assessment vendor but is in the
+	// operating account, flag it. The Treasurer should have paid from 5872.
+	const txAccountId = typeof transaction.account_id === 'object'
+		? transaction.account_id?.id
+		: transaction.account_id;
+
+	if (txAccountId && txAccountId !== ACCOUNT_IDS.SPECIAL_ASSESSMENT) {
+		const isSpecialAssessmentVendor = SPECIAL_ASSESSMENT_VENDORS.some(
+			(v) => searchText.includes(v)
+		);
+		if (isSpecialAssessmentVendor && transaction.transaction_type === 'withdrawal') {
+			result.fund_mixing = true;
+		}
 	}
 
 	return result;
