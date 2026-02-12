@@ -851,15 +851,36 @@ async function main() {
 			console.log(`   🗑️  Deleted ${allItems.length} budget items`);
 		}
 
-		// Delete all budget categories
+		// Nullify category_id on transactions before deleting categories (FK constraint)
 		const allCats = await client.request(readItems('budget_categories', {fields: ['id'], limit: -1}));
 		if (allCats.length) {
-			await client.request(
-				deleteItems(
-					'budget_categories',
-					allCats.map((c) => c.id)
-				)
+			const catIds = allCats.map((c) => c.id);
+			const referencingTxns = await client.request(
+				readItems('transactions', {
+					filter: {category_id: {_in: catIds}},
+					fields: ['id'],
+					limit: -1,
+				})
 			);
+			if (referencingTxns.length > 0) {
+				console.log(`   🔗 Nullifying category_id on ${referencingTxns.length} transactions...`);
+				const token = await client.getToken();
+				// Batch update via raw API — update all transactions with category_id in the set
+				for (const txn of referencingTxns) {
+					await fetch(`${directusUrl}/items/transactions/${txn.id}`, {
+						method: 'PATCH',
+						headers: {
+							Authorization: `Bearer ${token}`,
+							'Content-Type': 'application/json',
+						},
+						body: JSON.stringify({category_id: null}),
+					});
+				}
+				console.log(`   ✅ Cleared category_id on ${referencingTxns.length} transactions`);
+			}
+
+			// Now safe to delete categories
+			await client.request(deleteItems('budget_categories', catIds));
 			console.log(`   🗑️  Deleted ${allCats.length} budget categories`);
 		}
 
