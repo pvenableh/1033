@@ -32,6 +32,7 @@ const navLinks = [
 	{ to: '/financials/yearly-reconciliation', label: 'Year-End', icon: 'i-heroicons-calendar-days' },
 	{ to: '/financials/reconciliation', label: 'Reconciliation', icon: 'i-heroicons-document-check', adminOnly: true },
 	{ to: '/financials/budget-management', label: 'Budget Mgmt', icon: 'i-heroicons-calculator', adminOnly: true },
+	{ to: '/financials/vendor-management', label: 'Vendors', icon: 'i-heroicons-building-office', adminOnly: true },
 	{ to: '/financials/import-center', label: 'Import', icon: 'i-heroicons-arrow-up-tray', adminOnly: true },
 ];
 
