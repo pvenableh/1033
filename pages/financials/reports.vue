@@ -202,57 +202,7 @@
 				</div>
 			</UCard>
 
-			<!-- Quick Links -->
-			<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-				<NuxtLink to="/financials/budget">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer h-full">
-						<div class="flex items-center gap-4">
-							<div class="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-								<UIcon name="i-heroicons-chart-pie" class="w-8 h-8 text-blue-600 dark:text-blue-400" />
-							</div>
-							<div>
-								<h3 class="font-semibold dark:text-white">Budget Overview</h3>
-								<p class="text-sm text-gray-500 dark:text-gray-400">
-									View the full operating budget details
-								</p>
-							</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-
-				<NuxtLink to="/financials">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer h-full">
-						<div class="flex items-center gap-4">
-							<div class="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-								<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-green-600 dark:text-green-400" />
-							</div>
-							<div>
-								<h3 class="font-semibold dark:text-white">Dashboard</h3>
-								<p class="text-sm text-gray-500 dark:text-gray-400">
-									View transactions and account details
-								</p>
-							</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-
-				<NuxtLink to="/financials/yearly-reconciliation">
-					<UCard class="hover:shadow-lg transition-shadow cursor-pointer h-full">
-						<div class="flex items-center gap-4">
-							<div class="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-								<UIcon name="i-heroicons-calendar-days" class="w-8 h-8 text-purple-600 dark:text-purple-400" />
-							</div>
-							<div>
-								<h3 class="font-semibold dark:text-white">Year-End Summary</h3>
-								<p class="text-sm text-gray-500 dark:text-gray-400">
-									Annual reconciliation overview
-								</p>
-							</div>
-						</div>
-					</UCard>
-				</NuxtLink>
-			</div>
-		</template>
+			</template>
 	</div>
 </template>
 
@@ -290,12 +240,21 @@ const yearOptions = computed(() => {
 	return years;
 });
 
-// Month names
-const monthNames = {
-	'01': 'Jan', '02': 'Feb', '03': 'Mar', '04': 'Apr',
-	'05': 'May', '06': 'Jun', '07': 'Jul', '08': 'Aug',
-	'09': 'Sep', '10': 'Oct', '11': 'Nov', '12': 'Dec',
-};
+// Month names - explicit array for guaranteed Jan-Dec order
+const MONTHS_ORDERED = [
+	{ key: '01', name: 'Jan' },
+	{ key: '02', name: 'Feb' },
+	{ key: '03', name: 'Mar' },
+	{ key: '04', name: 'Apr' },
+	{ key: '05', name: 'May' },
+	{ key: '06', name: 'Jun' },
+	{ key: '07', name: 'Jul' },
+	{ key: '08', name: 'Aug' },
+	{ key: '09', name: 'Sep' },
+	{ key: '10', name: 'Oct' },
+	{ key: '11', name: 'Nov' },
+	{ key: '12', name: 'Dec' },
+];
 
 // Helper functions
 const safeParseFloat = (v) => {
@@ -353,7 +312,7 @@ const accountBalances = computed(() => {
 });
 
 const monthlyStatus = computed(() => {
-	return Object.entries(monthNames).map(([key, name]) => {
+	return MONTHS_ORDERED.map(({ key, name }) => {
 		const monthTx = transactions.value.filter((t) => t.statement_month === key);
 		const report = reconciliationReports.value.find((r) => r.report_month === key);
 

@@ -48,13 +48,14 @@
 					Monthly Cost Breakdown
 				</h3>
 				<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-					<div
-						v-for="(category, key) in budget.categories"
-						:key="key"
-						class="bg-white dark:bg-gray-800 rounded-lg p-3 text-center shadow-sm">
-						<p class="text-xs text-gray-500 uppercase tracking-wide">{{ key }}</p>
-						<p class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(category.monthly) }}</p>
-					</div>
+					<template v-for="(category, key) in budget.categories" :key="key">
+						<div
+							v-if="!isHiddenCategory(key)"
+							class="bg-white dark:bg-gray-800 rounded-lg p-3 text-center shadow-sm">
+							<p class="text-xs text-gray-500 uppercase tracking-wide">{{ key }}</p>
+							<p class="text-lg font-bold text-gray-900 dark:text-white">{{ formatCurrency(category.monthly) }}</p>
+						</div>
+					</template>
 				</div>
 				<div class="mt-4 pt-4 border-t border-indigo-200 dark:border-indigo-700 flex flex-wrap justify-between items-center gap-4">
 					<div>
@@ -180,7 +181,7 @@
 				<template #expenses>
 					<div class="space-y-6">
 						<!-- Expense Category Cards -->
-						<div v-for="(category, key) in budget.categories" :key="key">
+						<div v-for="(category, key) in budget.categories" :key="key" v-show="!isHiddenCategory(key)">
 							<UCard class="!rounded-[4px]">
 								<template #header>
 									<div class="flex justify-between items-center">
@@ -206,10 +207,7 @@
 													Vendor
 												</th>
 												<th class="text-right py-3 px-4 uppercase tracking-wider text-xs font-semibold text-gray-600">
-													Monthly
-												</th>
-												<th class="text-right py-3 px-4 uppercase tracking-wider text-xs font-semibold text-gray-600">
-													Annual
+													{{ showMonthly ? 'Monthly' : 'Annual' }}
 												</th>
 											</tr>
 										</thead>
@@ -220,22 +218,16 @@
 												class="border-b border-gray-200 hover:bg-gray-50">
 												<td class="py-3 px-4 font-medium">{{ item.name }}</td>
 												<td class="py-3 px-4 text-gray-600">{{ item.vendor }}</td>
-												<td :class="['py-3 px-4 text-right', showMonthly ? 'font-bold text-gray-900 dark:text-white' : 'font-semibold']">
-													{{ formatCurrency(item.monthly) }}
-												</td>
-												<td :class="['py-3 px-4 text-right', !showMonthly ? 'font-bold text-gray-900 dark:text-white' : 'font-semibold text-gray-500']">
-													{{ formatCurrency(item.yearly) }}
+												<td class="py-3 px-4 text-right font-bold text-gray-900 dark:text-white">
+													{{ formatCurrency(showMonthly ? item.monthly : item.yearly) }}
 												</td>
 											</tr>
 										</tbody>
 										<tfoot>
 											<tr class="bg-gray-50 font-bold">
 												<td colspan="2" class="py-3 px-4 uppercase tracking-wide text-sm">Subtotal</td>
-												<td :class="['py-3 px-4 text-right', showMonthly ? 'text-gray-900 dark:text-white' : '']">
-													{{ formatCurrency(category.monthly) }}
-												</td>
-												<td :class="['py-3 px-4 text-right', !showMonthly ? 'text-gray-900 dark:text-white' : 'text-gray-500']">
-													{{ formatCurrency(category.yearly) }}
+												<td class="py-3 px-4 text-right text-gray-900 dark:text-white">
+													{{ formatCurrency(showMonthly ? category.monthly : category.yearly) }}
 												</td>
 											</tr>
 										</tfoot>
@@ -389,7 +381,7 @@
 													{{ ((budget.totals.yearly / budget.revenue.total.yearly) * 100).toFixed(1) }}%
 												</td>
 											</tr>
-											<tr v-for="(category, key) in budget.categories" :key="key" class="border-b border-gray-200">
+											<tr v-for="(category, key) in budget.categories" :key="key" v-show="!isHiddenCategory(key)" class="border-b border-gray-200">
 												<td class="py-3 px-4 pl-8">{{ key }}</td>
 												<td class="py-3 px-4 text-right">
 													{{ showMonthly ? formatCurrency(category.monthly) : formatCurrency(category.yearly) }}
@@ -613,6 +605,12 @@ const formatCurrency = (amount: number) => {
 		minimumFractionDigits: 2,
 		maximumFractionDigits: 2,
 	}).format(amount || 0);
+};
+
+// Hide categories like "40-Year Project" from the budget display
+const HIDDEN_CATEGORIES = ['40-year project', '40 year project'];
+const isHiddenCategory = (categoryName: string) => {
+	return HIDDEN_CATEGORIES.includes(categoryName.toLowerCase());
 };
 
 // Fetch budget data on mount

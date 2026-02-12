@@ -362,11 +362,20 @@ const accountOptions = computed(() =>
 	}))
 );
 
-const monthNames = {
-	'01': 'January', '02': 'February', '03': 'March', '04': 'April',
-	'05': 'May', '06': 'June', '07': 'July', '08': 'August',
-	'09': 'September', '10': 'October', '11': 'November', '12': 'December',
-};
+const MONTHS_ORDERED = [
+	{ key: '01', name: 'January' },
+	{ key: '02', name: 'February' },
+	{ key: '03', name: 'March' },
+	{ key: '04', name: 'April' },
+	{ key: '05', name: 'May' },
+	{ key: '06', name: 'June' },
+	{ key: '07', name: 'July' },
+	{ key: '08', name: 'August' },
+	{ key: '09', name: 'September' },
+	{ key: '10', name: 'October' },
+	{ key: '11', name: 'November' },
+	{ key: '12', name: 'December' },
+];
 
 const safeParseFloat = (v) => {
 	const p = parseFloat(v);
@@ -378,7 +387,7 @@ const monthRows = computed(() => {
 	const accountId = selectedAccount.value;
 	const year = selectedYear.value;
 
-	return Object.entries(monthNames).map(([monthKey, monthName]) => {
+	return MONTHS_ORDERED.map(({ key: monthKey, name: monthName }) => {
 		const stmt = monthlyStatements.value.find(
 			(s) => s.account_id === accountId && s.statement_month === monthKey
 		);
