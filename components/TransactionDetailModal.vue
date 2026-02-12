@@ -34,15 +34,22 @@ const { formatFileSize } = useDirectusFiles();
 
 const {
 	canCreateNotes,
+	canDeleteNotes,
 	transactionNotes,
 	fetchTransactionNotes,
 	createNote,
 	resolveNote,
+	deleteNote,
 	noteTypeOptions,
 } = useReconciliationNotes();
 
+const { user } = useDirectusAuth();
+
+const { budgetCategories, budgetItems, fetchBudgetData } = useBudgetManagement();
+
 // Local state
 const transactionFiles = ref<TransactionFile[]>([]);
+const description = ref('');
 const paymentMethod = ref<string>('');
 const checkNumber = ref('');
 const invoiceNumber = ref('');
@@ -50,6 +57,7 @@ const reviewNotes = ref('');
 const boardNotes = ref('');
 const vendorName = ref('');
 const reviewStatus = ref<string>('pending');
+const selectedCategoryId = ref<number | null>(null);
 
 // File upload state
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -84,10 +92,19 @@ const amountClass = computed(() => {
 	return 'text-red-600 dark:text-red-400';
 });
 
+// Category options for dropdown
+const categoryOptions = computed(() => {
+	return (budgetCategories.value || []).map((cat: any) => ({
+		label: cat.category_name,
+		value: cat.id,
+	}));
+});
+
 // Load data when transaction changes
 watch(() => props.transaction, async (txn) => {
 	if (txn) {
 		// Populate local form from transaction
+		description.value = txn.description || '';
 		paymentMethod.value = txn.payment_method || '';
 		checkNumber.value = txn.check_number || '';
 		invoiceNumber.value = txn.invoice_number || '';
@@ -95,10 +112,14 @@ watch(() => props.transaction, async (txn) => {
 		boardNotes.value = txn.board_notes || '';
 		vendorName.value = txn.vendor || '';
 		reviewStatus.value = txn.review_status || 'pending';
+		selectedCategoryId.value = typeof txn.category_id === 'object' ? txn.category_id?.id : txn.category_id;
 
-		// Fetch files and notes
+		// Fetch files, notes, and budget categories
 		transactionFiles.value = await fetchTransactionFiles(txn.id);
 		await fetchTransactionNotes(txn.id);
+		if (budgetCategories.value.length === 0) {
+			await fetchBudgetData();
+		}
 	}
 }, { immediate: true });
 
@@ -145,12 +166,14 @@ const setReviewStatus = async (status: string) => {
 const saveDetails = async () => {
 	if (!props.transaction) return;
 	await updateTransactionReview(props.transaction.id, {
+		description: description.value || undefined,
 		payment_method: (paymentMethod.value || null) as Transaction['payment_method'],
 		check_number: checkNumber.value || undefined,
 		invoice_number: invoiceNumber.value || undefined,
 		review_notes: reviewNotes.value || undefined,
 		board_notes: boardNotes.value || undefined,
 		vendor: vendorName.value || undefined,
+		category_id: selectedCategoryId.value || undefined,
 	});
 	emit('saved');
 };
@@ -174,6 +197,13 @@ const addNote = async () => {
 
 const resolveNoteHandler = async (noteId: number) => {
 	await resolveNote(noteId);
+	if (props.transaction) {
+		await fetchTransactionNotes(props.transaction.id);
+	}
+};
+
+const deleteNoteHandler = async (noteId: number) => {
+	await deleteNote(noteId);
 	if (props.transaction) {
 		await fetchTransactionNotes(props.transaction.id);
 	}
@@ -209,8 +239,8 @@ const getNoteTypeColor = (type: string) => {
 </script>
 
 <template>
-	<UModal v-model="isOpen" :ui="{ width: 'sm:max-w-3xl' }">
-		<UCard v-if="transaction" class="max-h-[90vh] flex flex-col">
+	<UModal v-model="isOpen" :ui="{ width: 'sm:max-w-3xl' }" :close-button="false">
+		<UCard v-if="transaction" class="max-h-[90vh] flex flex-col" :ui="{ header: { padding: 'px-6 py-4' } }">
 			<!-- Header -->
 			<template #header>
 				<div class="flex items-start justify-between">
@@ -238,6 +268,16 @@ const getNoteTypeColor = (type: string) => {
 				<div>
 					<h4 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Details</h4>
 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div class="sm:col-span-2">
+							<label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Description</label>
+							<UInput
+								v-if="canEdit"
+								v-model="description"
+								placeholder="Transaction description"
+								size="sm"
+							/>
+							<p v-else class="text-sm font-medium dark:text-white">{{ transaction.description || 'N/A' }}</p>
+						</div>
 						<div>
 							<label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Vendor</label>
 							<UInput
@@ -247,6 +287,22 @@ const getNoteTypeColor = (type: string) => {
 								size="sm"
 							/>
 							<p v-else class="text-sm font-medium dark:text-white">{{ transaction.vendor || 'N/A' }}</p>
+						</div>
+						<div>
+							<label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Budget Category</label>
+							<select
+								v-if="canEdit"
+								v-model="selectedCategoryId"
+								class="w-full h-9 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 px-3 text-sm dark:text-white"
+							>
+								<option :value="null">Unassigned</option>
+								<option v-for="opt in categoryOptions" :key="opt.value" :value="opt.value">
+									{{ opt.label }}
+								</option>
+							</select>
+							<p v-else class="text-sm font-medium dark:text-white">
+								{{ categoryOptions.find(c => c.value === selectedCategoryId)?.label || 'Unassigned' }}
+							</p>
 						</div>
 						<div>
 							<label class="text-xs text-gray-500 dark:text-gray-400">Transaction Type</label>
@@ -442,41 +498,15 @@ const getNoteTypeColor = (type: string) => {
 						Reconciliation Notes ({{ transactionNotes?.length || 0 }})
 					</h4>
 
-					<div v-if="transactionNotes && transactionNotes.length > 0" class="space-y-2 mb-4">
-						<div
-							v-for="note in transactionNotes"
-							:key="note.id"
-							class="p-3 bg-gray-50 dark:bg-gray-800 rounded-lg border dark:border-gray-700"
-						>
-							<div class="flex items-center gap-2 mb-1">
-								<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
-									{{ note.note_type }}
-								</UBadge>
-								<span class="text-xs text-gray-500 dark:text-gray-400">
-									{{ formatDate(note.date_created) }}
-								</span>
-								<UBadge v-if="note.is_resolved" color="green" variant="soft" size="xs">Resolved</UBadge>
-							</div>
-							<p class="text-sm dark:text-gray-200">{{ note.note }}</p>
-							<div v-if="canEdit && !note.is_resolved" class="mt-2">
-								<UButton size="xs" color="green" variant="soft" @click="resolveNoteHandler(note.id)">
-									Resolve
-								</UButton>
-							</div>
-						</div>
-					</div>
-
-					<!-- Add note form -->
-					<div v-if="canCreateNotes" class="space-y-2">
-						<div class="flex gap-2">
-							<UTextarea
-								v-model="newNoteContent"
-								placeholder="Add a note..."
-								:rows="2"
-								class="flex-1"
-								size="sm"
-							/>
-						</div>
+					<!-- Add note form (moved to top for visibility) -->
+					<div v-if="canCreateNotes" class="mb-5 p-4 bg-gray-50 dark:bg-gray-800/60 rounded-xl border border-gray-200 dark:border-gray-700">
+						<UTextarea
+							v-model="newNoteContent"
+							placeholder="Add a note..."
+							:rows="2"
+							class="mb-3"
+							size="sm"
+						/>
 						<div class="flex items-center gap-2">
 							<select
 								v-model="newNoteType"
@@ -498,6 +528,57 @@ const getNoteTypeColor = (type: string) => {
 							</UButton>
 						</div>
 					</div>
+
+					<div v-if="transactionNotes && transactionNotes.length > 0" class="space-y-3">
+						<TransitionGroup name="note-list">
+							<div
+								v-for="note in transactionNotes"
+								:key="note.id"
+								class="p-4 rounded-xl border transition-all duration-300"
+								:class="note.is_resolved
+									? 'bg-gray-50 dark:bg-gray-800/30 border-gray-100 dark:border-gray-800 opacity-60'
+									: 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 shadow-sm'"
+							>
+								<p class="text-sm text-gray-900 dark:text-gray-100 leading-relaxed mb-3">{{ note.note }}</p>
+								<div class="flex items-center justify-between">
+									<div class="flex items-center gap-2 flex-wrap">
+										<UBadge :color="getNoteTypeColor(note.note_type)" variant="soft" size="xs">
+											{{ note.note_type }}
+										</UBadge>
+										<span class="text-[11px] text-gray-400 dark:text-gray-500">
+											{{ formatDate(note.date_created) }}
+										</span>
+										<span v-if="note.user_created?.first_name" class="text-[11px] text-gray-400 dark:text-gray-500">
+											by {{ note.user_created.first_name }}
+										</span>
+										<UBadge v-if="note.is_resolved" color="green" variant="soft" size="xs">Resolved</UBadge>
+									</div>
+									<div class="flex items-center gap-1">
+										<UButton
+											v-if="canEdit && !note.is_resolved"
+											size="xs"
+											color="green"
+											variant="ghost"
+											icon="i-heroicons-check"
+											@click="resolveNoteHandler(note.id)"
+										/>
+										<UButton
+											v-if="canDeleteNotes && note.user_created?.id === user?.id"
+											size="xs"
+											color="red"
+											variant="ghost"
+											icon="i-heroicons-trash"
+											@click="deleteNoteHandler(note.id)"
+										/>
+									</div>
+								</div>
+							</div>
+						</TransitionGroup>
+					</div>
+					<div v-else class="text-center py-6">
+						<UIcon name="i-heroicons-chat-bubble-bottom-center-text" class="w-8 h-8 mx-auto mb-2 text-gray-300 dark:text-gray-600" />
+						<p class="text-sm text-gray-400 dark:text-gray-500">No notes yet</p>
+					</div>
 				</div>
 			</div>
 
@@ -513,3 +594,23 @@ const getNoteTypeColor = (type: string) => {
 		</UCard>
 	</UModal>
 </template>
+
+<style scoped>
+.note-list-enter-active {
+	transition: all 0.3s ease-out;
+}
+.note-list-leave-active {
+	transition: all 0.2s ease-in;
+}
+.note-list-enter-from {
+	opacity: 0;
+	transform: translateY(-8px);
+}
+.note-list-leave-to {
+	opacity: 0;
+	transform: translateX(16px);
+}
+.note-list-move {
+	transition: transform 0.3s ease;
+}
+</style>
