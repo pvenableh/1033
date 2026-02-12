@@ -10,6 +10,9 @@
  *   - account_id: string — optional, limit to specific account
  *   - import_batch_id: string — optional, limit to specific import batch
  *   - min_confidence: number — minimum confidence score to apply (default 25)
+ *   - recategorize: boolean — re-run on ALL transactions (not just uncategorized).
+ *     Overwrites existing auto-categorized assignments with updated rules.
+ *     Manually categorized transactions (auto_categorized !== true) are skipped.
  *
  * Requires admin/board member access.
  */
@@ -24,17 +27,22 @@ import {
 interface CategorizationResult {
 	success: boolean;
 	total_uncategorized: number;
+	total_processed?: number;
+	recategorized?: number;
 	categorized: number;
 	skipped: number;
 	failed: number;
+	fund_mixing_flagged?: number;
 	results: Array<{
 		transaction_id: number;
 		description: string;
 		matched_category?: string;
+		previous_category?: string;
 		matched_budget_item?: string;
 		matched_vendor?: string;
 		confidence: number;
 		matched_by: string;
+		fund_mixing?: boolean;
 	}>;
 	errors: string[];
 }
@@ -63,6 +71,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const accountId = body?.account_id || null;
 	const importBatchId = body?.import_batch_id || null;
 	const minConfidence = body?.min_confidence ?? 25;
+	const recategorize = body?.recategorize === true;
 
 	if (!fiscalYear) {
 		throw createError({
@@ -111,11 +120,22 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			})
 		);
 
-		// 4. Fetch uncategorized transactions
+		// 4. Fetch transactions to process
+		// Default: only uncategorized. With recategorize: also include auto-categorized
+		// (but not manually categorized, to preserve human decisions).
 		const txFilter: any = {
 			fiscal_year: { year: { _eq: fiscalYear } },
-			category_id: { _null: true },
 		};
+
+		if (recategorize) {
+			// Include uncategorized + previously auto-categorized (skip manual)
+			txFilter._or = [
+				{ category_id: { _null: true } },
+				{ auto_categorized: { _eq: true } },
+			];
+		} else {
+			txFilter.category_id = { _null: true };
+		}
 
 		if (accountId) {
 			txFilter.account_id = { _eq: accountId };
@@ -128,7 +148,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		const transactions = await client.request(
 			readItems('transactions', {
 				filter: txFilter,
-				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id'],
+				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id', 'category_id', 'auto_categorized'],
 				sort: ['-transaction_date'],
 				limit: -1,
 			})
@@ -139,15 +159,27 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		const categoryKeywordMap = buildCategoryKeywordMap(budgetCategories);
 
 		// 6. Run matching algorithm (collect results first, then batch-write)
+		// Build a quick lookup from category ID → name for recategorize reporting
+		const catNameById = new Map<number, string>();
+		for (const cat of budgetCategories) {
+			catNameById.set(cat.id, cat.category_name);
+		}
+
 		const result: CategorizationResult = {
 			success: true,
 			total_uncategorized: transactions.length,
 			categorized: 0,
+			recategorized: 0,
 			skipped: 0,
 			failed: 0,
+			fund_mixing_flagged: 0,
 			results: [],
 			errors: [],
 		};
+
+		if (recategorize) {
+			result.total_processed = transactions.length;
+		}
 
 		// Phase 1: Match all transactions (CPU only, no DB writes)
 		const pendingUpdates: Array<{ id: number; updates: Record<string, any> }> = [];
@@ -156,7 +188,15 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			try {
 				const match = matchTransaction(tx, budgetItems, budgetCategories, vendors, categoryKeywordMap);
 
-				if (match.confidence >= minConfidence) {
+				// Resolve the previous category name for recategorize reporting
+				const prevCatId = typeof tx.category_id === 'object' ? tx.category_id?.id : tx.category_id;
+				const previousCategory = prevCatId ? catNameById.get(prevCatId) : undefined;
+
+				// In recategorize mode, skip if the new match is the same category
+				// (no point updating to the same value)
+				const isSameCategory = recategorize && prevCatId && match.category_id === prevCatId;
+
+				if (match.confidence >= minConfidence && !isSameCategory) {
 					const updates: Record<string, any> = {
 						auto_categorized: true,
 					};
@@ -179,15 +219,20 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						updates.is_violation = true;
 						updates.violation_type = 'fund_mixing';
 						updates.review_status = 'flagged';
+						result.fund_mixing_flagged!++;
 					}
 
 					pendingUpdates.push({ id: tx.id, updates });
 
+					if (prevCatId && match.category_id !== prevCatId) {
+						result.recategorized!++;
+					}
 					result.categorized++;
 					result.results.push({
 						transaction_id: tx.id,
 						description: tx.description,
 						matched_category: match.category_name || undefined,
+						previous_category: previousCategory || undefined,
 						matched_budget_item: match.budget_item_desc || undefined,
 						matched_vendor: match.vendor_name || undefined,
 						confidence: match.confidence,
@@ -205,6 +250,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 								review_status: 'flagged',
 							},
 						});
+						result.fund_mixing_flagged!++;
 					}
 					result.skipped++;
 					result.results.push({

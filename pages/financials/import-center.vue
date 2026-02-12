@@ -983,11 +983,19 @@
 											:name="autoCategorizeResults.categorized > 0 ? 'i-heroicons-tag' : 'i-heroicons-question-mark-circle'"
 											class="w-4 h-4"
 											:class="autoCategorizeResults.categorized > 0 ? 'text-blue-600' : 'text-gray-400'" />
+										<div>
 										<p class="text-sm font-medium"
 											:class="autoCategorizeResults.categorized > 0 ? 'text-blue-800' : 'text-gray-700'">
 											Auto-Categorization: {{ autoCategorizeResults.categorized }} of
-											{{ autoCategorizeResults.total_uncategorized }} matched to budget categories
+											{{ autoCategorizeResults.total_processed || autoCategorizeResults.total_uncategorized }} matched to budget categories
 										</p>
+										<p v-if="autoCategorizeResults.recategorized" class="text-xs text-amber-700 mt-0.5">
+											{{ autoCategorizeResults.recategorized }} re-categorized with updated rules
+										</p>
+										<p v-if="autoCategorizeResults.fund_mixing_flagged" class="text-xs text-red-700 mt-0.5">
+											{{ autoCategorizeResults.fund_mixing_flagged }} flagged for fund mixing
+										</p>
+									</div>
 									</div>
 
 									<!-- Categorized Transactions (expandable) -->
@@ -1083,7 +1091,7 @@
 							</div>
 							<button
 								v-if="canCreateFinancials"
-								@click="runAutoCategorize(autoCatFiscalYear)"
+								@click="runAutoCategorize(autoCatFiscalYear, null, false)"
 								:disabled="autoCategorizing || !autoCatFiscalYear"
 								class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 text-sm">
 								<span v-if="autoCategorizing" class="flex items-center gap-2">
@@ -1091,6 +1099,17 @@
 									Categorizing...
 								</span>
 								<span v-else>Run Auto-Categorize</span>
+							</button>
+							<button
+								v-if="canCreateFinancials"
+								@click="runAutoCategorize(autoCatFiscalYear, null, true)"
+								:disabled="autoCategorizing || !autoCatFiscalYear"
+								class="bg-amber-600 text-white px-6 py-2 rounded-lg hover:bg-amber-700 transition-colors disabled:opacity-50 text-sm">
+								<span v-if="autoCategorizing" class="flex items-center gap-2">
+									<Icon name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+									Re-Categorizing...
+								</span>
+								<span v-else>Re-Categorize All</span>
 							</button>
 						</div>
 
@@ -1109,8 +1128,14 @@
 							<ul
 								class="text-sm mt-2 space-y-1"
 								:class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
-								<li>Total uncategorized: {{ autoCategorizeResults.total_uncategorized }}</li>
+								<li>Total processed: {{ autoCategorizeResults.total_processed || autoCategorizeResults.total_uncategorized }}</li>
 								<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
+								<li v-if="autoCategorizeResults.recategorized > 0" class="text-amber-700">
+									Re-categorized with updated rules: {{ autoCategorizeResults.recategorized }}
+								</li>
+								<li v-if="autoCategorizeResults.fund_mixing_flagged > 0" class="text-red-600">
+									Flagged for fund mixing: {{ autoCategorizeResults.fund_mixing_flagged }}
+								</li>
 								<li v-if="autoCategorizeResults.skipped > 0">
 									Skipped (low confidence): {{ autoCategorizeResults.skipped }}
 								</li>
@@ -2699,13 +2724,14 @@ async function importTransactions() {
 	}
 }
 
-async function runAutoCategorize(fiscalYear = null, accountId = null) {
+async function runAutoCategorize(fiscalYear = null, accountId = null, recategorize = false) {
 	autoCategorizing.value = true;
 	autoCategorizeResults.value = null;
 
 	try {
 		const body = {
 			fiscal_year: fiscalYear || stmtFiscalYear.value,
+			recategorize,
 		};
 
 		if (accountId) {

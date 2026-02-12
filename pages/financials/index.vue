@@ -53,11 +53,18 @@
 						{{ autoLinking ? 'Linking...' : 'Auto-Link Transfers' }}
 					</button>
 					<button
-						@click="runAutoCategorize"
+						@click="runAutoCategorize(false)"
 						:disabled="autoCategorizing"
 						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium disabled:opacity-50">
 						<Icon :name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-tag'" :class="{'animate-spin': autoCategorizing}" class="w-4 h-4" />
 						{{ autoCategorizing ? 'Categorizing...' : 'Auto-Categorize' }}
+					</button>
+					<button
+						@click="runAutoCategorize(true)"
+						:disabled="autoCategorizing"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-amber-300 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors text-sm font-medium disabled:opacity-50">
+						<Icon :name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-arrow-path-rounded-square'" :class="{'animate-spin': autoCategorizing}" class="w-4 h-4" />
+						{{ autoCategorizing ? 'Re-Categorizing...' : 'Re-Categorize All' }}
 					</button>
 					<NuxtLink
 						to="/financials/import-center"
@@ -72,7 +79,13 @@
 				Transfer linking complete: {{ autoLinkResults.linked }} linked, {{ autoLinkResults.categorized || 0 }} categorized
 			</div>
 			<div v-if="autoCategorizeResults" class="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
-				Auto-categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} matched to budget categories
+				<div>Auto-Categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_processed || autoCategorizeResults.total_uncategorized }} matched to budget categories</div>
+				<div v-if="autoCategorizeResults.recategorized" class="mt-1 text-amber-700 dark:text-amber-300">
+					{{ autoCategorizeResults.recategorized }} transactions re-categorized with updated rules
+				</div>
+				<div v-if="autoCategorizeResults.fund_mixing_flagged" class="mt-1 text-red-700 dark:text-red-300">
+					{{ autoCategorizeResults.fund_mixing_flagged }} transactions flagged for fund mixing
+				</div>
 			</div>
 		</div>
 
@@ -1782,7 +1795,7 @@ const runAutoLinkTransfers = async () => {
 };
 
 // Auto-categorize transactions
-const runAutoCategorize = async () => {
+const runAutoCategorize = async (recategorize = false) => {
 	autoCategorizing.value = true;
 	autoCategorizeResults.value = null;
 	try {
@@ -1791,10 +1804,11 @@ const runAutoCategorize = async () => {
 			body: {
 				fiscal_year: selectedYear.value,
 				account_id: selectedAccount.value !== 'info' ? selectedAccount.value : undefined,
+				recategorize,
 			},
 		});
 		autoCategorizeResults.value = result;
-		if (result.categorized > 0) refreshAll();
+		if (result.categorized > 0 || result.recategorized > 0) refreshAll();
 	} catch (err) {
 		console.error('Auto-categorize error:', err);
 	} finally {
