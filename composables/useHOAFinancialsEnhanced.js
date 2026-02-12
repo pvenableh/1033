@@ -267,7 +267,9 @@ export const useHOAFinancialsEnhanced = () => {
 	const normalizeCategoryId = (categoryId) => {
 		if (!categoryId) return null;
 		if (typeof categoryId === 'object' && categoryId !== null) return categoryId.id;
-		return categoryId;
+		// Coerce to number to prevent string/number mismatch in lookups
+		const num = Number(categoryId);
+		return isNaN(num) ? categoryId : num;
 	};
 
 	// Helper functions
@@ -279,7 +281,8 @@ export const useHOAFinancialsEnhanced = () => {
 				return categoryId.category_name || 'Unknown Category';
 			}
 			if (!budgetCategories.value || !Array.isArray(budgetCategories.value)) return 'Unknown Category';
-			const category = budgetCategories.value.find((c) => c && c.id === categoryId);
+			const normalizedId = normalizeCategoryId(categoryId);
+			const category = budgetCategories.value.find((c) => c && normalizeCategoryId(c.id) === normalizedId);
 			return category ? category.category_name : 'Unknown Category';
 		} catch (error) {
 			console.error('Error in getCategoryName:', error);
@@ -295,7 +298,8 @@ export const useHOAFinancialsEnhanced = () => {
 				return categoryId.color || '#6B7280';
 			}
 			if (!budgetCategories.value || !Array.isArray(budgetCategories.value)) return '#6B7280';
-			const category = budgetCategories.value.find((c) => c && c.id === categoryId);
+			const normalizedId = normalizeCategoryId(categoryId);
+			const category = budgetCategories.value.find((c) => c && normalizeCategoryId(c.id) === normalizedId);
 			return category ? category.color || '#6B7280' : '#6B7280';
 		} catch (error) {
 			console.error('Error in getCategoryColor:', error);
@@ -416,7 +420,8 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			if (categoryId === 'uncategorized' || !categoryId) return 0;
 			if (!budgetCategories.value || !Array.isArray(budgetCategories.value)) return 0;
-			const category = budgetCategories.value.find((c) => c && c.id === categoryId);
+			const normalizedId = normalizeCategoryId(categoryId);
+			const category = budgetCategories.value.find((c) => c && normalizeCategoryId(c.id) === normalizedId);
 			return category ? safeParseFloat(category.yearly_budget) : 0;
 		} catch (error) {
 			console.error('Error in getBudgetForCategory:', error);
@@ -1180,10 +1185,15 @@ export const useHOAFinancialsEnhanced = () => {
 		// Professional services
 		Professional: 'Professional',
 		Management: 'Professional', // This is important - Management maps to Professional
+		Administrative: 'Professional', // Admin costs: management fees, tax prep, legal, misc admin
 		Legal: 'Professional',
 		CPA: 'Professional',
 		Accounting: 'Professional',
 		Attorney: 'Professional',
+
+		// Contract Services — split across Maintenance and Professional based on vendor type
+		// Most contract services are maintenance-related (cleaning, elevator, waste, fire, laundry)
+		'Contract Services': 'Maintenance',
 
 		// Utilities
 		Utilities: 'Utilities',
@@ -1193,7 +1203,7 @@ export const useHOAFinancialsEnhanced = () => {
 		Gas: 'Utilities',
 		Internet: 'Utilities',
 		Cable: 'Utilities',
-		Laundry: 'Utilities', // Add this
+		Laundry: 'Utilities',
 		'Wash Multifamily': 'Utilities',
 
 		// Maintenance
@@ -1253,10 +1263,25 @@ export const useHOAFinancialsEnhanced = () => {
 		return monthlyAmount * selectedMonthCount;
 	};
 
+	// Vendor-level overrides for categories that span multiple budget buckets
+	// (e.g., "Contract Services" contains both maintenance and professional vendors)
+	const vendorBudgetOverrides = {
+		'vte consulting': 'Professional', // Property management company
+	};
+
 	// Map transaction category to budget category
-	// Update mapToBudgetCategory function in your composable
-	const mapToBudgetCategory = (transactionCategory) => {
+	const mapToBudgetCategory = (transactionCategory, vendorName) => {
 		if (!transactionCategory) return 'Other';
+
+		// Check vendor-level override first
+		if (vendorName) {
+			const vendor = vendorName.toLowerCase().trim();
+			for (const [key, value] of Object.entries(vendorBudgetOverrides)) {
+				if (vendor.includes(key)) {
+					return value;
+				}
+			}
+		}
 
 		const category = transactionCategory.toLowerCase().trim();
 
@@ -1319,7 +1344,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 				const amount = safeParseFloat(transaction.amount);
 				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const budgetCategory = mapToBudgetCategory(transactionCategory);
+				const budgetCategory = mapToBudgetCategory(transactionCategory, transaction.vendor);
 
 				if (comparison[budgetCategory]) {
 					comparison[budgetCategory].actualAmount += amount;
@@ -1511,7 +1536,7 @@ export const useHOAFinancialsEnhanced = () => {
 				}
 
 				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const mappedCategory = mapToBudgetCategory(transactionCategory);
+				const mappedCategory = mapToBudgetCategory(transactionCategory, transaction.vendor);
 
 				return mappedCategory === budgetCategory;
 			});
