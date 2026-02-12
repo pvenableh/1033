@@ -20,9 +20,16 @@ import {
 	hasAdminAccess,
 	useDirectusAdmin,
 	readItems,
-	updateItem,
 	updateItems,
 } from '~/server/utils/directus';
+
+// Extend Vercel timeout (Hobby plan max: 60s)
+defineRouteMeta({
+	maxDuration: 60,
+});
+export const config = {
+	maxDuration: 60,
+};
 
 interface CategorizationResult {
 	success: boolean;
@@ -84,45 +91,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const client = useDirectusAdmin();
 
 	try {
-		// 1. Fetch budget items with category info for this fiscal year OR with no fiscal year
-		const budgetItems = await client.request(
-			readItems('budget_items', {
-				filter: {
-					_or: [
-						{ fiscal_year: { year: { _eq: fiscalYear } } },
-						{ fiscal_year: { _null: true } },
-					],
-				},
-				fields: ['*', 'category_id.id', 'category_id.category_name'],
-				limit: -1,
-			})
-		);
-
-		// 2. Fetch budget categories for this fiscal year OR with no fiscal year (global categories)
-		const budgetCategories = await client.request(
-			readItems('budget_categories', {
-				filter: {
-					_or: [
-						{ fiscal_year: { year: { _eq: fiscalYear } } },
-						{ fiscal_year: { _null: true } },
-					],
-				},
-				fields: ['*'],
-				limit: -1,
-			})
-		);
-
-		// 3. Fetch vendors
-		const vendors = await client.request(
-			readItems('vendors', {
-				fields: ['*'],
-				limit: -1,
-			})
-		);
-
-		// 4. Fetch transactions to process
-		// Default: only uncategorized. With recategorize: also include auto-categorized
-		// (but not manually categorized, to preserve human decisions).
+		// Build transaction filter before parallel fetch
 		const txFilter: any = {
 			fiscal_year: { year: { _eq: fiscalYear } },
 		};
@@ -145,14 +114,51 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			txFilter.import_batch_id = { _eq: importBatchId };
 		}
 
-		const transactions = await client.request(
-			readItems('transactions', {
-				filter: txFilter,
-				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id', 'category_id', 'auto_categorized'],
-				sort: ['-transaction_date'],
-				limit: -1,
-			})
-		);
+		// Fetch all data in parallel — these queries are independent
+		const [budgetItems, budgetCategories, vendors, transactions] = await Promise.all([
+			// 1. Budget items with category info
+			client.request(
+				readItems('budget_items', {
+					filter: {
+						_or: [
+							{ fiscal_year: { year: { _eq: fiscalYear } } },
+							{ fiscal_year: { _null: true } },
+						],
+					},
+					fields: ['*', 'category_id.id', 'category_id.category_name'],
+					limit: -1,
+				})
+			),
+			// 2. Budget categories
+			client.request(
+				readItems('budget_categories', {
+					filter: {
+						_or: [
+							{ fiscal_year: { year: { _eq: fiscalYear } } },
+							{ fiscal_year: { _null: true } },
+						],
+					},
+					fields: ['*'],
+					limit: -1,
+				})
+			),
+			// 3. Vendors
+			client.request(
+				readItems('vendors', {
+					fields: ['*'],
+					limit: -1,
+				})
+			),
+			// 4. Transactions to process
+			client.request(
+				readItems('transactions', {
+					filter: txFilter,
+					fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id', 'category_id', 'auto_categorized'],
+					sort: ['-transaction_date'],
+					limit: -1,
+				})
+			),
+		]);
 
 		// 5. Build the category lookup by resolving DB category names
 		//    to our keyword dictionary using fuzzy name matching
@@ -267,22 +273,38 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			}
 		}
 
-		// Phase 2: Batch-write updates in parallel chunks to avoid timeout
-		const BATCH_SIZE = 25;
-		for (let i = 0; i < pendingUpdates.length; i += BATCH_SIZE) {
-			const batch = pendingUpdates.slice(i, i + BATCH_SIZE);
-			try {
-				await Promise.all(
-					batch.map(({ id, updates }) =>
-						client.request(updateItem('transactions', id, updates))
-					)
-				);
-			} catch (err: any) {
-				// If a batch fails, count the failures
-				const failCount = batch.length;
-				result.categorized -= failCount;
-				result.failed += failCount;
-				result.errors.push(`Batch update failed (items ${i}-${i + batch.length - 1}): ${err.message}`);
+		// Phase 2: Bulk-write using grouped updates for efficiency.
+		// Group transactions that share identical update payloads so we can
+		// use a single updateItems() call per group instead of per-transaction.
+		const updateGroups = new Map<string, { ids: number[]; updates: Record<string, any> }>();
+
+		for (const { id, updates } of pendingUpdates) {
+			const key = JSON.stringify(updates);
+			if (!updateGroups.has(key)) {
+				updateGroups.set(key, { ids: [], updates });
+			}
+			updateGroups.get(key)!.ids.push(id);
+		}
+
+		// Execute bulk updates — run groups concurrently in small batches
+		const groupEntries = Array.from(updateGroups.values());
+		const CONCURRENT_GROUPS = 5;
+
+		for (let i = 0; i < groupEntries.length; i += CONCURRENT_GROUPS) {
+			const chunk = groupEntries.slice(i, i + CONCURRENT_GROUPS);
+			const settled = await Promise.allSettled(
+				chunk.map(({ ids, updates }) =>
+					client.request(updateItems('transactions', ids, updates))
+				)
+			);
+
+			for (let j = 0; j < settled.length; j++) {
+				if (settled[j].status === 'rejected') {
+					const failCount = chunk[j].ids.length;
+					result.categorized -= failCount;
+					result.failed += failCount;
+					result.errors.push(`Bulk update failed (${failCount} items): ${(settled[j] as PromiseRejectedResult).reason?.message}`);
+				}
 			}
 		}
 
