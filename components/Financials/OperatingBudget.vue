@@ -119,8 +119,8 @@
 												v-for="item in catData.items"
 												:key="item.id"
 												class="border-b border-gray-200 hover:bg-gray-50">
-												<td class="py-3 px-4 font-medium">{{ item.item_name }}</td>
-												<td class="py-3 px-4 text-gray-600">{{ item.vendor || '—' }}</td>
+												<td class="py-3 px-4 font-medium">{{ item.description || '—' }}</td>
+												<td class="py-3 px-4 text-gray-600">{{ item.vendor_patterns?.[0] || (typeof item.vendor_id === 'object' ? item.vendor_id?.name : '') || '—' }}</td>
 												<td class="py-3 px-4 text-right font-semibold">{{ formatCurrency(item.monthly_budget) }}</td>
 												<td class="py-3 px-4 text-right font-semibold">{{ formatCurrency(item.yearly_budget) }}</td>
 											</tr>
