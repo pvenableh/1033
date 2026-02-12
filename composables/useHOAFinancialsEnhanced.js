@@ -1269,9 +1269,22 @@ export const useHOAFinancialsEnhanced = () => {
 		'vte consulting': 'Professional', // Property management company
 	};
 
+	// Detect Zelle reimbursements to board members / owners at units 201-214, 301-314
+	const isBoardMemberReimbursement = (description) => {
+		if (!description) return false;
+		const desc = description.toLowerCase();
+		if (!desc.includes('zelle')) return false;
+		return /\b(2(?:0[1-9]|1[0-4])|3(?:0[1-9]|1[0-4]))\b/.test(desc);
+	};
+
 	// Map transaction category to budget category
-	const mapToBudgetCategory = (transactionCategory, vendorName) => {
+	const mapToBudgetCategory = (transactionCategory, vendorName, description) => {
 		if (!transactionCategory) return 'Other';
+
+		// Board member reimbursements are maintenance regardless of stored category
+		if (isBoardMemberReimbursement(description)) {
+			return 'Maintenance';
+		}
 
 		// Check vendor-level override first
 		if (vendorName) {
@@ -1344,7 +1357,7 @@ export const useHOAFinancialsEnhanced = () => {
 
 				const amount = safeParseFloat(transaction.amount);
 				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const budgetCategory = mapToBudgetCategory(transactionCategory, transaction.vendor);
+				const budgetCategory = mapToBudgetCategory(transactionCategory, transaction.vendor, transaction.description);
 
 				if (comparison[budgetCategory]) {
 					comparison[budgetCategory].actualAmount += amount;
@@ -1536,7 +1549,7 @@ export const useHOAFinancialsEnhanced = () => {
 				}
 
 				const transactionCategory = transaction.category_id ? getCategoryName(transaction.category_id) : 'Other';
-				const mappedCategory = mapToBudgetCategory(transactionCategory, transaction.vendor);
+				const mappedCategory = mapToBudgetCategory(transactionCategory, transaction.vendor, transaction.description);
 
 				return mappedCategory === budgetCategory;
 			});

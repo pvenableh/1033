@@ -199,8 +199,34 @@ export const useTransactionMatching = () => {
 		return null;
 	};
 
+	// Detect Zelle reimbursements to board members / owners helping with property work.
+	// Payments to residents at units 201-214 and 301-314 are maintenance reimbursements.
+	const isBoardMemberReimbursement = (transaction) => {
+		const description = (transaction.description || '').toLowerCase();
+		if (!description.includes('zelle')) return false;
+		// Match unit numbers like "312 diana", "201 john", etc.
+		const unitMatch = description.match(/\b(2(?:0[1-9]|1[0-4])|3(?:0[1-9]|1[0-4]))\b/);
+		return !!unitMatch;
+	};
+
 	// Auto-categorize a transaction
 	const autoCategorizeTransaction = (transaction) => {
+		// Check for board member / owner reimbursements first (highest priority)
+		if (isBoardMemberReimbursement(transaction)) {
+			const maintenanceCategory = budgetCategories.value.find(
+				(c) => c.category_name === 'Maintenance' || c.category_name === 'Contract Services'
+			);
+			if (maintenanceCategory) {
+				return {
+					budget_item_id: null,
+					category_id: maintenanceCategory.id,
+					confidence: 90,
+					matched_by: 'board_member_reimbursement',
+					vendor_match: matchVendor(transaction),
+				};
+			}
+		}
+
 		// Try to match to a specific budget item first
 		const itemMatch = matchTransactionToBudgetItem(transaction);
 
