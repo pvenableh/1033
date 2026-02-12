@@ -389,18 +389,25 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 // Administrative, Regulatory, Maintenance) or fuzzy-matchable group names
 const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'fpl': 'Utilities',
+	'fpl direct': 'Utilities',
 	'florida power': 'Utilities',
 	'teco': 'Utilities',
 	'people gas': 'Utilities',
 	'breezeline': 'Utilities',
+	'breezeline fl': 'Utilities',
 	'comcast': 'Utilities',
 	'att': 'Utilities',
 	'miami beach water': 'Utilities',
 	'miami-dade water': 'Utilities',
 	'betterwaste': 'Contract Services',
+	'better waste': 'Contract Services',
 	'waste management': 'Contract Services',
 	'wash multifamily': 'Contract Services',
+	'washlaundrysystems': 'Contract Services',
+	'wash laundry': 'Contract Services',
 	'maverick': 'Contract Services',
+	'maverick united': 'Contract Services',
+	'maverick elevator': 'Contract Services',
 	'gutierrez': 'Contract Services',
 	'a plus fire': 'Contract Services',
 	'1 touch elevator': 'Contract Services',
@@ -412,6 +419,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'dbpr': 'Regulatory',
 	'first insurance': 'Insurance',
 	'citizens': 'Insurance',
+	'flood insurance': 'Insurance',
 	'buildium': 'Administrative',
 	'diana wyatt': 'Maintenance',
 	'harry tompkins': 'Administrative',
@@ -419,6 +427,7 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'acg engineering': '40-Year Project',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
+	'mdc buildings': 'Maintenance',
 	'del toro rain gutters': '40-Year Project',
 	'del toro': '40-Year Project',
 	'yurian castro': 'Maintenance',
@@ -470,8 +479,88 @@ const SPECIAL_ASSESSMENT_VENDOR_OVERRIDES: Record<string, string> = {
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
 const VENDOR_DEPOSIT_REVENUE: string[] = [
 	'wash multifamily',
+	'washlaundrysystems',
+	'wash laundry',
 	'buildium',
 ];
+
+// ============================================================
+// Helper: Normalize text for matching — splits camelCase,
+// normalizes separators, and collapses whitespace.
+// e.g. "WASHLaundrySystems" → "wash laundry systems"
+// e.g. "BREEZELINE FL" → "breezeline fl"
+// e.g. "BETTERWASTE MANA" → "betterwaste mana"
+// ============================================================
+function normalizeForMatching(text: string): string {
+	return text
+		.replace(/([a-z])([A-Z])/g, '$1 $2') // Split camelCase: "WASHLaundry" → "WASH Laundry"
+		.replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2') // Split ALLCAPS followed by mixed: "WASHLaundry" → "WASH Laundry"
+		.replace(/[-_/&]/g, ' ') // Replace separators with spaces
+		.toLowerCase()
+		.replace(/\s+/g, ' ') // Collapse multiple spaces
+		.trim();
+}
+
+// ============================================================
+// Helper: Token-based fuzzy matching.
+// Splits both strings into tokens and checks for significant
+// token overlap. Handles cases like:
+//  - "Maverick Elevators" vs "Maverick United Elevators" (overlap on "maverick", "elevators")
+//  - "WASHLaundrySystems" vs "Laundry Systems" (after normalization: "wash laundry systems" contains "laundry", "systems")
+//  - "BREEZELINE FL" vs "BREEZELINE" (overlap on "breezeline")
+// ============================================================
+function fuzzyTokenMatch(text1: string, text2: string, minOverlap: number = 1): boolean {
+	const norm1 = normalizeForMatching(text1);
+	const norm2 = normalizeForMatching(text2);
+
+	// Quick substring check first
+	if (norm1.includes(norm2) || norm2.includes(norm1)) return true;
+
+	const tokens1 = norm1.split(' ').filter((t) => t.length > 2);
+	const tokens2 = norm2.split(' ').filter((t) => t.length > 2);
+	if (tokens1.length === 0 || tokens2.length === 0) return false;
+
+	let overlapCount = 0;
+	for (const t1 of tokens1) {
+		for (const t2 of tokens2) {
+			if (t1 === t2 || (t1.length >= 4 && t2.length >= 4 && (t1.includes(t2) || t2.includes(t1)))) {
+				overlapCount++;
+				break;
+			}
+		}
+	}
+	return overlapCount >= minOverlap;
+}
+
+// ============================================================
+// Helper: Find the Revenue/Income category from budget categories.
+// Searches by name first, then by description, with progressively
+// broader terms.
+// ============================================================
+function findRevenueCategory(budgetCategories: any[]): any | null {
+	// First try: name contains "revenue" or "income"
+	let cat = budgetCategories.find((c: any) => {
+		const name = (c.category_name || '').toLowerCase();
+		return name.includes('revenue') || name.includes('income');
+	});
+	if (cat) return cat;
+
+	// Second try: name contains "assessment" or "dues"
+	cat = budgetCategories.find((c: any) => {
+		const name = (c.category_name || '').toLowerCase();
+		return name.includes('assessment') || name.includes('dues') || name.includes('owner');
+	});
+	if (cat) return cat;
+
+	// Third try: description contains revenue/income keywords
+	cat = budgetCategories.find((c: any) => {
+		const desc = (c.description || '').toLowerCase();
+		return desc.includes('revenue') || desc.includes('income')
+			|| desc.includes('assessment') || desc.includes('dues')
+			|| desc.includes('owner payment');
+	});
+	return cat || null;
+}
 
 // ============================================================
 // Build a map from DB category IDs to keyword lists
@@ -577,7 +666,13 @@ function matchTransaction(
 	const descriptionNorm = description.replace(/-/g, ' ');
 	const vendorFieldNorm = vendorField.replace(/-/g, ' ');
 	const searchText = `${descriptionNorm} ${vendorFieldNorm}`;
+	// Expanded versions that split camelCase and normalize separators
+	// e.g. "WASHLaundrySystems" → "wash laundry systems"
+	const vendorFieldExpanded = normalizeForMatching(transaction.vendor || '');
+	const descriptionExpanded = normalizeForMatching(transaction.description || '');
+	const searchTextExpanded = `${descriptionExpanded} ${vendorFieldExpanded}`;
 	const amount = Math.abs(parseFloat(transaction.amount) || 0);
+	const isIncomeType = ['deposit', 'transfer_in', 'interest'].includes(transaction.transaction_type);
 
 	// --- Pass 1: Match to a specific budget item ---
 	let bestItemScore = 0;
@@ -592,6 +687,16 @@ function matchTransaction(
 			const p = pattern.toLowerCase().trim().replace(/-/g, ' ');
 			if (p && (vendorFieldNorm.includes(p) || descriptionNorm.includes(p))) {
 				score += 100;
+				break;
+			}
+			// Fuzzy match: handles camelCase concatenation and token overlap
+			// e.g. "WASHLaundrySystems" vs "Laundry Systems", "Maverick United Elevators" vs "Maverick"
+			if (p && (
+				searchTextExpanded.includes(normalizeForMatching(pattern)) ||
+				fuzzyTokenMatch(vendorField, pattern) ||
+				fuzzyTokenMatch(vendorField, pattern, 2)
+			)) {
+				score += 80; // Slightly lower than exact substring match
 				break;
 			}
 		}
@@ -655,6 +760,20 @@ function matchTransaction(
 		result.category_name = catName || null;
 		result.confidence = Math.min(bestItemScore, 100);
 		result.matched_by = bestItemScore >= 100 ? 'vendor_pattern' : bestItemScore >= 50 ? 'keyword' : 'similarity';
+
+		// For income-type transactions (deposits, transfers in), override the
+		// category to Revenue/Income. The budget_item link is kept for tracking
+		// (e.g., laundry revenue still links to the laundry lease budget item)
+		// but the category should reflect that this is incoming money.
+		if (isIncomeType) {
+			const revenueCategory = findRevenueCategory(budgetCategories);
+			if (revenueCategory) {
+				result.category_id = revenueCategory.id;
+				result.category_name = revenueCategory.category_name;
+				result.matched_by = 'budget_item_deposit_override';
+			}
+			// If no revenue category exists, keep the expense category (better than null)
+		}
 	}
 
 	// --- Pass 2: Keyword-based category matching ---
@@ -693,27 +812,30 @@ function matchTransaction(
 
 	// --- Pass 3: Vendor name → category mapping ---
 	// Use known HOA vendor-to-category associations
-	// Some vendors map to Revenue when they appear as deposits (e.g., laundry income from Wash Multifamily)
+	// For deposit-type transactions: only match VENDOR_DEPOSIT_REVENUE vendors to Revenue,
+	// skip all expense-vendor mappings (deposits should fall through to Pass 4 for Revenue).
+	// This prevents a condo owner who is also a maintenance vendor from having their
+	// assessment payment miscategorized as a maintenance expense.
 	if (!result.category_id) {
 		for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
-			if (searchText.includes(vendorKey)) {
-				// Check if this vendor should be Revenue when it's a deposit
-				const isDeposit = transaction.transaction_type === 'deposit';
-				const isDepositRevenueVendor = VENDOR_DEPOSIT_REVENUE.some((v) => vendorKey.includes(v) || v.includes(vendorKey));
-
-				if (isDeposit && isDepositRevenueVendor) {
-					// Map to Revenue instead of the default vendor category
-					const revenueCategory = budgetCategories.find((cat: any) => {
-						const name = (cat.category_name || '').toLowerCase();
-						return name.includes('revenue') || name.includes('income') || name.includes('assessment');
-					});
-					if (revenueCategory) {
-						result.category_id = revenueCategory.id;
-						result.category_name = revenueCategory.category_name;
-						result.confidence = 75;
-						result.matched_by = 'vendor_deposit_revenue';
-						break;
+			// Use both original and expanded search text for matching
+			const vendorKeyNorm = normalizeForMatching(vendorKey);
+			if (searchText.includes(vendorKey) || searchTextExpanded.includes(vendorKeyNorm)) {
+				// For income-type transactions, only match deposit-revenue vendors
+				if (isIncomeType) {
+					const isDepositRevenueVendor = VENDOR_DEPOSIT_REVENUE.some((v) => vendorKey.includes(v) || v.includes(vendorKey));
+					if (isDepositRevenueVendor) {
+						const revenueCategory = findRevenueCategory(budgetCategories);
+						if (revenueCategory) {
+							result.category_id = revenueCategory.id;
+							result.category_name = revenueCategory.category_name;
+							result.confidence = 75;
+							result.matched_by = 'vendor_deposit_revenue';
+							break;
+						}
 					}
+					// Skip expense-vendor mapping for deposits — let Pass 4 handle as Revenue
+					continue;
 				}
 
 				// Standard vendor-to-category lookup for non-deposit or non-revenue vendors
@@ -758,7 +880,7 @@ function matchTransaction(
 
 	// --- Pass 3b: Extract embedded vendor from bill-pay / Zelle descriptions ---
 	// Chase descriptions like "Online Payment 12345 To Acme Corp 01/08" or
-	// "Zelle payment to Jane Doe" embed the payee name after " to ".
+	// "Zelle payment to Jane Doe" embed the payee name after " to " / " from ".
 	// Extract it and re-run the vendor map lookup.
 	if (!result.category_id) {
 		const toPatterns = [
@@ -766,19 +888,30 @@ function matchTransaction(
 			/\bzelle\s+(?:payment\s+)?to\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i,
 			/\bbill\s*pay(?:ment)?\s+(?:\d+\s+)?to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
 			/\b(?:ach|online)\s+(?:\w+\s+)*?payment\s+\d*\s*to\s+(.+?)(?:\s+\d{2}\/\d{2})?$/i,
+			// Also extract sender from "Zelle payment from NAME" (for deposit categorization)
+			/\bzelle\s+payment\s+from\s+(.+?)(?:\s+[A-Z0-9]{8,}|\s+\d{10,}|$)/i,
 		];
 
 		for (const pattern of toPatterns) {
 			const match = description.match(pattern);
 			if (match) {
 				const extractedVendor = match[1].trim().toLowerCase().replace(/-/g, ' ');
+
+				// For deposit-type transactions with extracted sender, skip expense
+				// vendor mapping — these are owner payments (revenue), not expenses.
+				// Let Pass 4 handle categorization as Revenue.
+				if (isIncomeType) {
+					break;
+				}
+
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
 				const txAcctId3b = typeof transaction.account_id === 'object'
 					? transaction.account_id?.id
 					: transaction.account_id;
 
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
-					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
+					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor) ||
+						fuzzyTokenMatch(extractedVendor, vendorKey)) {
 						const override3b = (txAcctId3b === ACCOUNT_IDS.SPECIAL_ASSESSMENT)
 							? SPECIAL_ASSESSMENT_VENDOR_OVERRIDES[vendorKey]
 							: undefined;
@@ -836,13 +969,10 @@ function matchTransaction(
 	// --- Pass 4: Transaction type heuristics ---
 	// In an HOA context, nearly all deposits are assessment/dues revenue.
 	// Handles deposits, transfer_in, and interest as income.
-	const incomeTypes = ['deposit', 'transfer_in', 'interest'];
-	if (!result.category_id && incomeTypes.includes(transaction.transaction_type)) {
-		// Find the revenue/income category
-		const revenueCategory = budgetCategories.find((cat: any) => {
-			const name = (cat.category_name || '').toLowerCase();
-			return name.includes('revenue') || name.includes('income') || name.includes('assessment');
-		});
+	if (!result.category_id && isIncomeType) {
+		// Find the revenue/income category using the resilient helper
+		// (searches by name, then description, with progressively broader terms)
+		const revenueCategory = findRevenueCategory(budgetCategories);
 
 		if (revenueCategory) {
 			// High-confidence deposit keywords (owner payments)
@@ -901,11 +1031,22 @@ function matchTransaction(
 	}
 
 	// --- Pass 5: Vendor record matching (adds vendor info to any match) ---
+	// Uses both exact substring and fuzzy token matching to handle vendor name
+	// variations like "Maverick Elevators" vs "Maverick United Elevators",
+	// "WASHLaundrySystems" vs "Wash Multifamily", "BREEZELINE FL" vs "BREEZELINE".
 	for (const vendor of vendors) {
 		const vendorTitle = (vendor.title || '').toLowerCase();
 		const matchingKeywords: string[] = vendor.matching_keywords || [];
 
+		// Exact substring match on title
 		if (vendorTitle && (description.includes(vendorTitle) || vendorField.includes(vendorTitle))) {
+			result.vendor_id = vendor.id;
+			result.vendor_name = vendor.title;
+			break;
+		}
+
+		// Fuzzy token match on title (handles camelCase, word reordering, extra words)
+		if (vendorTitle && vendorField && fuzzyTokenMatch(vendorField, vendorTitle)) {
 			result.vendor_id = vendor.id;
 			result.vendor_name = vendor.title;
 			break;
@@ -913,7 +1054,17 @@ function matchTransaction(
 
 		let matched = false;
 		for (const keyword of matchingKeywords) {
-			if (keyword && searchText.includes(keyword.toLowerCase())) {
+			if (!keyword) continue;
+			const kwLower = keyword.toLowerCase();
+			// Exact substring match on keyword
+			if (searchText.includes(kwLower)) {
+				result.vendor_id = vendor.id;
+				result.vendor_name = vendor.title;
+				matched = true;
+				break;
+			}
+			// Fuzzy match on keyword (expanded search text includes camelCase-split versions)
+			if (searchTextExpanded.includes(normalizeForMatching(keyword))) {
 				result.vendor_id = vendor.id;
 				result.vendor_name = vendor.title;
 				matched = true;
