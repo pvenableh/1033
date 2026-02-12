@@ -47,6 +47,8 @@ const paymentMethod = ref<string>('');
 const checkNumber = ref('');
 const invoiceNumber = ref('');
 const reviewNotes = ref('');
+const boardNotes = ref('');
+const vendorName = ref('');
 const reviewStatus = ref<string>('pending');
 
 // File upload state
@@ -90,6 +92,8 @@ watch(() => props.transaction, async (txn) => {
 		checkNumber.value = txn.check_number || '';
 		invoiceNumber.value = txn.invoice_number || '';
 		reviewNotes.value = txn.review_notes || '';
+		boardNotes.value = txn.board_notes || '';
+		vendorName.value = txn.vendor || '';
 		reviewStatus.value = txn.review_status || 'pending';
 
 		// Fetch files and notes
@@ -145,6 +149,8 @@ const saveDetails = async () => {
 		check_number: checkNumber.value || undefined,
 		invoice_number: invoiceNumber.value || undefined,
 		review_notes: reviewNotes.value || undefined,
+		board_notes: boardNotes.value || undefined,
+		vendor: vendorName.value || undefined,
 	});
 	emit('saved');
 };
@@ -233,8 +239,14 @@ const getNoteTypeColor = (type: string) => {
 					<h4 class="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Details</h4>
 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<div>
-							<label class="text-xs text-gray-500 dark:text-gray-400">Vendor</label>
-							<p class="text-sm font-medium dark:text-white">{{ transaction.vendor || 'N/A' }}</p>
+							<label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Vendor</label>
+							<UInput
+								v-if="canEdit"
+								v-model="vendorName"
+								placeholder="Enter vendor name"
+								size="sm"
+							/>
+							<p v-else class="text-sm font-medium dark:text-white">{{ transaction.vendor || 'N/A' }}</p>
 						</div>
 						<div>
 							<label class="text-xs text-gray-500 dark:text-gray-400">Transaction Type</label>
@@ -306,6 +318,16 @@ const getNoteTypeColor = (type: string) => {
 							:disabled="!canEdit"
 							placeholder="Add review notes..."
 							:rows="2"
+							size="sm"
+						/>
+					</div>
+					<div class="mt-3">
+						<label class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Board Notes</label>
+						<UTextarea
+							v-model="boardNotes"
+							:disabled="!canEdit"
+							placeholder="Notes for the board (e.g., why this transaction was recategorized, context for unusual charges)..."
+							:rows="3"
 							size="sm"
 						/>
 					</div>
