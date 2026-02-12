@@ -388,7 +388,12 @@
 				<Tabs v-model="activeTab" :items="contentTabs" class="space-y-6">
 					<!-- Budget & Categories Tab -->
 					<template #budget-categories>
-						<div v-if="selectedAccount === 1" class="space-y-6">
+						<div v-if="selectedAccount === 1 && !hasBudgetData" class="text-center py-20">
+							<Icon name="i-heroicons-calculator" class="w-16 h-16 mx-auto text-gray-300 mb-4" />
+							<h3 class="text-xl font-semibold text-gray-500 uppercase tracking-wide mb-2">No Budget Available</h3>
+							<p class="text-gray-400">No budget has been set up for fiscal year {{ selectedYear }}.</p>
+						</div>
+						<div v-else-if="selectedAccount === 1" class="space-y-6">
 							<!-- Budget Summary Cards -->
 							<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 								<Card class="text-center">
@@ -530,7 +535,7 @@
 											:margin="{ left: 60, right: 20, top: 10, bottom: 30 }">
 											<VisLine
 												:x="(d, i) => i"
-												:y="(d) => budget2025.totals.monthly"
+												:y="(d) => dynamicBudgetTotals.monthly"
 												color="rgb(59, 130, 246)"
 												:lineWidth="2"
 												:lineDashArray="[5, 5]" />
@@ -628,7 +633,7 @@
 																<div>
 																	<span class="text-gray-600">Total Transactions:</span>
 																	<span class="font-semibold ml-2">
-																		{{ getCategoryTransactions(category.category).length }}
+																		{{ getCategoryTransactions(category.categoryId).length }}
 																	</span>
 																</div>
 																<div>
@@ -640,12 +645,12 @@
 																<div>
 																	<span class="text-gray-600">Largest Transaction:</span>
 																	<span class="font-semibold ml-2 text-red-600">
-																		{{ formatCurrency(getLargestTransaction(category.category)) }}
+																		{{ formatCurrency(getLargestTransaction(category.categoryId)) }}
 																	</span>
 																</div>
 																<div>
 																	<span class="text-gray-600">Month Spread:</span>
-																	<span class="font-semibold ml-2">{{ getCategoryMonthSpread(category.category) }}</span>
+																	<span class="font-semibold ml-2">{{ getCategoryMonthSpread(category.categoryId) }}</span>
 																</div>
 															</div>
 														</div>
@@ -653,7 +658,7 @@
 														<div class="max-h-80 overflow-y-auto">
 															<div class="space-y-2">
 																<div
-																	v-for="transaction in getCategoryTransactions(category.category)"
+																	v-for="transaction in getCategoryTransactions(category.categoryId)"
 																	:key="transaction.id"
 																	class="flex items-center justify-between py-3 px-4 bg-white border rounded hover:bg-gray-50 transition-colors">
 																	<div class="flex items-center gap-4 flex-1">
@@ -1421,7 +1426,24 @@
 
 			<!-- Budget Info View -->
 			<div v-else-if="selectedAccount === 'info'" class="space-y-6">
-				<FinancialsOperatingBudget />
+				<!-- Year selector for budget info view -->
+				<Card>
+					<CardContent class="pt-6">
+						<div class="flex items-center gap-4">
+							<label class="text-sm font-medium text-gray-700 uppercase">Fiscal Year:</label>
+							<Select v-model="selectedYear" :options="yearOptions" class="w-24" />
+						</div>
+					</CardContent>
+				</Card>
+
+				<div v-if="hasBudgetData">
+					<FinancialsOperatingBudget :year="selectedYear" />
+				</div>
+				<div v-else class="text-center py-20">
+					<Icon name="i-heroicons-calculator" class="w-16 h-16 mx-auto text-gray-300 mb-4" />
+					<h3 class="text-xl font-semibold text-gray-500 uppercase tracking-wide mb-2">No Budget Available</h3>
+					<p class="text-gray-400">No budget has been set up for fiscal year {{ selectedYear }}.</p>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -1470,7 +1492,8 @@ const {
 	budgetComparison,
 	budgetSummary,
 	budgetProjection,
-	budget2025,
+	hasBudgetData,
+	dynamicBudgetTotals,
 	accountTransferTransactions,
 	transferActivity,
 	transferPairs,
