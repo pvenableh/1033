@@ -125,6 +125,8 @@ export const useTransactionFiles = () => {
 		data: {
 			review_status?: Transaction['review_status'];
 			review_notes?: string;
+			board_notes?: string;
+			vendor?: string;
 			payment_method?: Transaction['payment_method'];
 			check_number?: string;
 			invoice_number?: string;

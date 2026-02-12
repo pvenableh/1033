@@ -10,6 +10,9 @@
  *   - account_id: string — optional, limit to specific account
  *   - import_batch_id: string — optional, limit to specific import batch
  *   - min_confidence: number — minimum confidence score to apply (default 25)
+ *   - recategorize: boolean — re-run on ALL transactions (not just uncategorized).
+ *     Overwrites existing auto-categorized assignments with updated rules.
+ *     Manually categorized transactions (auto_categorized !== true) are skipped.
  *
  * Requires admin/board member access.
  */
@@ -24,17 +27,22 @@ import {
 interface CategorizationResult {
 	success: boolean;
 	total_uncategorized: number;
+	total_processed?: number;
+	recategorized?: number;
 	categorized: number;
 	skipped: number;
 	failed: number;
+	fund_mixing_flagged?: number;
 	results: Array<{
 		transaction_id: number;
 		description: string;
 		matched_category?: string;
+		previous_category?: string;
 		matched_budget_item?: string;
 		matched_vendor?: string;
 		confidence: number;
 		matched_by: string;
+		fund_mixing?: boolean;
 	}>;
 	errors: string[];
 }
@@ -63,6 +71,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const accountId = body?.account_id || null;
 	const importBatchId = body?.import_batch_id || null;
 	const minConfidence = body?.min_confidence ?? 25;
+	const recategorize = body?.recategorize === true;
 
 	if (!fiscalYear) {
 		throw createError({
@@ -111,11 +120,22 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			})
 		);
 
-		// 4. Fetch uncategorized transactions
+		// 4. Fetch transactions to process
+		// Default: only uncategorized. With recategorize: also include auto-categorized
+		// (but not manually categorized, to preserve human decisions).
 		const txFilter: any = {
 			fiscal_year: { year: { _eq: fiscalYear } },
-			category_id: { _null: true },
 		};
+
+		if (recategorize) {
+			// Include uncategorized + previously auto-categorized (skip manual)
+			txFilter._or = [
+				{ category_id: { _null: true } },
+				{ auto_categorized: { _eq: true } },
+			];
+		} else {
+			txFilter.category_id = { _null: true };
+		}
 
 		if (accountId) {
 			txFilter.account_id = { _eq: accountId };
@@ -128,7 +148,7 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		const transactions = await client.request(
 			readItems('transactions', {
 				filter: txFilter,
-				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type'],
+				fields: ['id', 'description', 'vendor', 'amount', 'transaction_type', 'account_id', 'category_id', 'auto_categorized'],
 				sort: ['-transaction_date'],
 				limit: -1,
 			})
@@ -139,15 +159,27 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 		const categoryKeywordMap = buildCategoryKeywordMap(budgetCategories);
 
 		// 6. Run matching algorithm (collect results first, then batch-write)
+		// Build a quick lookup from category ID → name for recategorize reporting
+		const catNameById = new Map<number, string>();
+		for (const cat of budgetCategories) {
+			catNameById.set(cat.id, cat.category_name);
+		}
+
 		const result: CategorizationResult = {
 			success: true,
 			total_uncategorized: transactions.length,
 			categorized: 0,
+			recategorized: 0,
 			skipped: 0,
 			failed: 0,
+			fund_mixing_flagged: 0,
 			results: [],
 			errors: [],
 		};
+
+		if (recategorize) {
+			result.total_processed = transactions.length;
+		}
 
 		// Phase 1: Match all transactions (CPU only, no DB writes)
 		const pendingUpdates: Array<{ id: number; updates: Record<string, any> }> = [];
@@ -156,7 +188,15 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 			try {
 				const match = matchTransaction(tx, budgetItems, budgetCategories, vendors, categoryKeywordMap);
 
-				if (match.confidence >= minConfidence) {
+				// Resolve the previous category name for recategorize reporting
+				const prevCatId = typeof tx.category_id === 'object' ? tx.category_id?.id : tx.category_id;
+				const previousCategory = prevCatId ? catNameById.get(prevCatId) : undefined;
+
+				// In recategorize mode, skip if the new match is the same category
+				// (no point updating to the same value)
+				const isSameCategory = recategorize && prevCatId && match.category_id === prevCatId;
+
+				if (match.confidence >= minConfidence && !isSameCategory) {
 					const updates: Record<string, any> = {
 						auto_categorized: true,
 					};
@@ -174,25 +214,51 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						}
 					}
 
+					// Flag fund-mixing: vendor should have been paid from 5872
+					if (match.fund_mixing) {
+						updates.is_violation = true;
+						updates.violation_type = 'fund_mixing';
+						updates.review_status = 'flagged';
+						result.fund_mixing_flagged!++;
+					}
+
 					pendingUpdates.push({ id: tx.id, updates });
 
+					if (prevCatId && match.category_id !== prevCatId) {
+						result.recategorized!++;
+					}
 					result.categorized++;
 					result.results.push({
 						transaction_id: tx.id,
 						description: tx.description,
 						matched_category: match.category_name || undefined,
+						previous_category: previousCategory || undefined,
 						matched_budget_item: match.budget_item_desc || undefined,
 						matched_vendor: match.vendor_name || undefined,
 						confidence: match.confidence,
 						matched_by: match.matched_by,
+						fund_mixing: match.fund_mixing || undefined,
 					});
 				} else {
+					// Even uncategorized transactions can be flagged for fund-mixing
+					if (match.fund_mixing) {
+						pendingUpdates.push({
+							id: tx.id,
+							updates: {
+								is_violation: true,
+								violation_type: 'fund_mixing',
+								review_status: 'flagged',
+							},
+						});
+						result.fund_mixing_flagged!++;
+					}
 					result.skipped++;
 					result.results.push({
 						transaction_id: tx.id,
 						description: tx.description,
 						confidence: match.confidence,
 						matched_by: match.matched_by || 'none',
+						fund_mixing: match.fund_mixing || undefined,
 					});
 				}
 			} catch (err: any) {
@@ -273,8 +339,6 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 		'repair', 'maintenance', 'hvac', 'plumbing', 'a/c',
 		'air condition', 'roofing', 'painting', 'electrical repair',
 		'tree trimming', 'handyman', 'contractor',
-		'engineering', 'engineer', 'structural',
-		'gutter', 'rain gutter',
 		'garage door',
 	],
 	Regulatory: [
@@ -294,6 +358,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 	'40-Year Project': [
 		'40 year', '40yr', '40-year', 'recertification',
 		'general contractor', 'ryder',
+		'del toro', 'acg engineering',
 	],
 };
 
@@ -329,11 +394,11 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'diana wyatt': 'Maintenance',
 	'harry tompkins': 'Administrative',
 	'harry tempki': 'Administrative',
-	'acg engineering': 'Maintenance',
+	'acg engineering': '40-Year Project',
 	'general deposit ub': 'Utilities',
 	'mdcbuildings': 'Maintenance',
-	'del toro rain gutters': 'Maintenance',
-	'del toro': 'Maintenance',
+	'del toro rain gutters': '40-Year Project',
+	'del toro': '40-Year Project',
 	'yurian castro': 'Maintenance',
 	'services jbl': 'Maintenance',
 	'jbl corp': 'Maintenance',
@@ -348,6 +413,36 @@ const VENDOR_CATEGORY_MAP: Record<string, string> = {
 	'amax tax': 'Administrative',
 	'florida garage door': 'Maintenance',
 	'ryder': '40-Year Project',
+};
+
+// Fallback categories: if the primary target from VENDOR_CATEGORY_MAP isn't found
+// in the DB, try the fallback category instead (e.g., when a budget hasn't been
+// set up for a specific project yet)
+const CATEGORY_FALLBACKS: Record<string, string> = {
+	'40-Year Project': 'Maintenance',
+};
+
+// Account IDs — must match the accounts table (same as useComplianceAlerts)
+const ACCOUNT_IDS = {
+	OPERATING: 1, // Account 5129
+	RESERVE: 2, // Account 7011
+	SPECIAL_ASSESSMENT: 3, // Account 5872
+} as const;
+
+// Vendors whose payments should ONLY come from the Special Assessment account (5872).
+// If these vendors appear in the Operating account, flag as fund_mixing.
+const SPECIAL_ASSESSMENT_VENDORS: string[] = [
+	'ryder',
+	'del toro',
+	'acg engineering',
+];
+
+// Dual-purpose vendors: category depends on which account the payment comes from.
+// When paid from the Special Assessment account (5872) → '40-Year Project',
+// otherwise use their default mapping from VENDOR_CATEGORY_MAP.
+const SPECIAL_ASSESSMENT_VENDOR_OVERRIDES: Record<string, string> = {
+	'maverick': '40-Year Project',
+	'maverick elevator': '40-Year Project',
 };
 
 // Vendors that map to Revenue when they appear as deposits (e.g., laundry income, tenant payments)
@@ -432,6 +527,7 @@ interface MatchResult {
 	vendor_name: string | null;
 	confidence: number;
 	matched_by: string;
+	fund_mixing: boolean;
 }
 
 function matchTransaction(
@@ -450,6 +546,7 @@ function matchTransaction(
 		vendor_name: null,
 		confidence: 0,
 		matched_by: 'none',
+		fund_mixing: false,
 	};
 
 	const description = (transaction.description || '').toLowerCase().trim();
@@ -598,19 +695,39 @@ function matchTransaction(
 				}
 
 				// Standard vendor-to-category lookup for non-deposit or non-revenue vendors
-				for (const [catId, catInfo] of categoryKeywordMap) {
-					const catGroupLower = catInfo.name.toLowerCase();
-					if (
-						catGroupLower === groupName.toLowerCase() ||
-						catGroupLower.includes(groupName.toLowerCase()) ||
-						groupName.toLowerCase().includes(catGroupLower)
-					) {
-						result.category_id = catId;
-						result.category_name = catInfo.name;
-						result.confidence = 70;
-						result.matched_by = 'vendor_lookup';
-						break;
+				// For dual-purpose vendors, override category when paid from special assessment account
+				const txAcctId = typeof transaction.account_id === 'object'
+					? transaction.account_id?.id
+					: transaction.account_id;
+				const override = (txAcctId === ACCOUNT_IDS.SPECIAL_ASSESSMENT)
+					? SPECIAL_ASSESSMENT_VENDOR_OVERRIDES[vendorKey]
+					: undefined;
+				const effectiveGroup = override || groupName;
+
+				// Try the primary category first, then fall back if it doesn't exist in DB
+				const categoriesToTry = [effectiveGroup];
+				if (CATEGORY_FALLBACKS[effectiveGroup]) {
+					categoriesToTry.push(CATEGORY_FALLBACKS[effectiveGroup]);
+				}
+
+				for (const targetCategory of categoriesToTry) {
+					for (const [catId, catInfo] of categoryKeywordMap) {
+						const catGroupLower = catInfo.name.toLowerCase();
+						if (
+							catGroupLower === targetCategory.toLowerCase() ||
+							catGroupLower.includes(targetCategory.toLowerCase()) ||
+							targetCategory.toLowerCase().includes(catGroupLower)
+						) {
+							result.category_id = catId;
+							result.category_name = catInfo.name;
+							result.confidence = targetCategory === effectiveGroup ? 70 : 60;
+							result.matched_by = override
+								? 'vendor_lookup_account_override'
+								: (targetCategory === effectiveGroup ? 'vendor_lookup' : 'vendor_lookup_fallback');
+							break;
+						}
 					}
+					if (result.category_id) break;
 				}
 				if (result.category_id) break;
 			}
@@ -634,21 +751,40 @@ function matchTransaction(
 			if (match) {
 				const extractedVendor = match[1].trim().toLowerCase().replace(/-/g, ' ');
 				// Check against VENDOR_CATEGORY_MAP using the extracted vendor
+				const txAcctId3b = typeof transaction.account_id === 'object'
+					? transaction.account_id?.id
+					: transaction.account_id;
+
 				for (const [vendorKey, groupName] of Object.entries(VENDOR_CATEGORY_MAP)) {
 					if (extractedVendor.includes(vendorKey) || vendorKey.includes(extractedVendor)) {
-						for (const [catId, catInfo] of categoryKeywordMap) {
-							const catNameLower = catInfo.name.toLowerCase();
-							if (
-								catNameLower === groupName.toLowerCase() ||
-								catNameLower.includes(groupName.toLowerCase()) ||
-								groupName.toLowerCase().includes(catNameLower)
-							) {
-								result.category_id = catId;
-								result.category_name = catInfo.name;
-								result.confidence = 70;
-								result.matched_by = 'vendor_lookup';
-								break;
+						const override3b = (txAcctId3b === ACCOUNT_IDS.SPECIAL_ASSESSMENT)
+							? SPECIAL_ASSESSMENT_VENDOR_OVERRIDES[vendorKey]
+							: undefined;
+						const effectiveGroup3b = override3b || groupName;
+
+						const categoriesToTry = [effectiveGroup3b];
+						if (CATEGORY_FALLBACKS[effectiveGroup3b]) {
+							categoriesToTry.push(CATEGORY_FALLBACKS[effectiveGroup3b]);
+						}
+
+						for (const targetCategory of categoriesToTry) {
+							for (const [catId, catInfo] of categoryKeywordMap) {
+								const catNameLower = catInfo.name.toLowerCase();
+								if (
+									catNameLower === targetCategory.toLowerCase() ||
+									catNameLower.includes(targetCategory.toLowerCase()) ||
+									targetCategory.toLowerCase().includes(catNameLower)
+								) {
+									result.category_id = catId;
+									result.category_name = catInfo.name;
+									result.confidence = targetCategory === effectiveGroup3b ? 70 : 60;
+									result.matched_by = override3b
+										? 'vendor_lookup_account_override'
+										: (targetCategory === effectiveGroup3b ? 'vendor_lookup' : 'vendor_lookup_fallback');
+									break;
+								}
 							}
+							if (result.category_id) break;
 						}
 						if (result.category_id) break;
 					}
@@ -763,6 +899,22 @@ function matchTransaction(
 			}
 		}
 		if (matched) break;
+	}
+
+	// --- Fund-mixing detection ---
+	// If this transaction matches a special assessment vendor but is in the
+	// operating account, flag it. The Treasurer should have paid from 5872.
+	const txAccountId = typeof transaction.account_id === 'object'
+		? transaction.account_id?.id
+		: transaction.account_id;
+
+	if (txAccountId && txAccountId !== ACCOUNT_IDS.SPECIAL_ASSESSMENT) {
+		const isSpecialAssessmentVendor = SPECIAL_ASSESSMENT_VENDORS.some(
+			(v) => searchText.includes(v)
+		);
+		if (isSpecialAssessmentVendor && transaction.transaction_type === 'withdrawal') {
+			result.fund_mixing = true;
+		}
 	}
 
 	return result;

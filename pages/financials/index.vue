@@ -53,11 +53,18 @@
 						{{ autoLinking ? 'Linking...' : 'Auto-Link Transfers' }}
 					</button>
 					<button
-						@click="runAutoCategorize"
+						@click="runAutoCategorize(false)"
 						:disabled="autoCategorizing"
 						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-300 text-blue-700 dark:text-blue-300 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors text-sm font-medium disabled:opacity-50">
 						<Icon :name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-tag'" :class="{'animate-spin': autoCategorizing}" class="w-4 h-4" />
 						{{ autoCategorizing ? 'Categorizing...' : 'Auto-Categorize' }}
+					</button>
+					<button
+						@click="runAutoCategorize(true)"
+						:disabled="autoCategorizing"
+						class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-gray-800 border border-amber-300 text-amber-700 dark:text-amber-300 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors text-sm font-medium disabled:opacity-50">
+						<Icon :name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-arrow-path-rounded-square'" :class="{'animate-spin': autoCategorizing}" class="w-4 h-4" />
+						{{ autoCategorizing ? 'Re-Categorizing...' : 'Re-Categorize All' }}
 					</button>
 					<NuxtLink
 						to="/financials/import-center"
@@ -72,7 +79,13 @@
 				Transfer linking complete: {{ autoLinkResults.linked }} linked, {{ autoLinkResults.categorized || 0 }} categorized
 			</div>
 			<div v-if="autoCategorizeResults" class="mt-3 p-3 bg-green-50 dark:bg-green-950/30 rounded border border-green-200 dark:border-green-800 text-sm text-green-800 dark:text-green-200">
-				Auto-categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_uncategorized }} matched to budget categories
+				<div>Auto-Categorization: {{ autoCategorizeResults.categorized }} of {{ autoCategorizeResults.total_processed || autoCategorizeResults.total_uncategorized }} matched to budget categories</div>
+				<div v-if="autoCategorizeResults.recategorized" class="mt-1 text-amber-700 dark:text-amber-300">
+					{{ autoCategorizeResults.recategorized }} transactions re-categorized with updated rules
+				</div>
+				<div v-if="autoCategorizeResults.fund_mixing_flagged" class="mt-1 text-red-700 dark:text-red-300">
+					{{ autoCategorizeResults.fund_mixing_flagged }} transactions flagged for fund mixing
+				</div>
 			</div>
 		</div>
 
@@ -1011,16 +1024,28 @@
 										</template>
 										<template #category_id-data="{row}">
 											<div v-if="canReconcile" class="min-w-[140px]">
-												<select
-													:value="normalizeCategoryId(row.category_id)"
-													@change="updateTransactionCategory(row.id, $event.target.value)"
-													class="w-full text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 dark:border-gray-600 transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-													:class="normalizeCategoryId(row.category_id) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400'">
-													<option value="">Uncategorized</option>
-													<option v-for="cat in budgetCategories" :key="cat.id" :value="cat.id">
-														{{ cat.category_name }}
-													</option>
-												</select>
+												<div class="flex items-center gap-1.5">
+													<select
+														:value="normalizeCategoryId(row.category_id)"
+														@change="updateTransactionCategory(row.id, $event.target.value)"
+														class="flex-1 text-xs border rounded-lg px-2 py-1.5 bg-white dark:bg-gray-800 transition-colors focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+														:class="[
+															normalizeCategoryId(row.category_id) ? 'text-gray-900 dark:text-gray-100' : 'text-gray-400',
+															row.auto_categorized === false && normalizeCategoryId(row.category_id)
+																? 'border-amber-300 dark:border-amber-600'
+																: 'border-gray-200 dark:border-gray-600',
+														]">
+														<option value="">Uncategorized</option>
+														<option v-for="cat in budgetCategories" :key="cat.id" :value="cat.id">
+															{{ cat.category_name }}
+														</option>
+													</select>
+													<Icon
+														v-if="row.auto_categorized === false && normalizeCategoryId(row.category_id)"
+														name="i-heroicons-lock-closed"
+														class="w-3.5 h-3.5 text-amber-500 flex-shrink-0"
+														title="Manually categorized — protected from Re-Categorize All" />
+												</div>
 											</div>
 											<div v-else>
 												<div class="flex items-center gap-2" v-if="row.category_id">
@@ -1028,6 +1053,11 @@
 														class="w-2.5 h-2.5 rounded-full"
 														:style="{backgroundColor: getCategoryColor(row.category_id)}"></div>
 													<span class="text-xs">{{ getCategoryName(row.category_id) }}</span>
+													<Icon
+														v-if="row.auto_categorized === false"
+														name="i-heroicons-lock-closed"
+														class="w-3 h-3 text-amber-500"
+														title="Manually categorized" />
 												</div>
 												<span v-else class="text-xs text-gray-400 italic">Uncategorized</span>
 											</div>
@@ -1782,7 +1812,7 @@ const runAutoLinkTransfers = async () => {
 };
 
 // Auto-categorize transactions
-const runAutoCategorize = async () => {
+const runAutoCategorize = async (recategorize = false) => {
 	autoCategorizing.value = true;
 	autoCategorizeResults.value = null;
 	try {
@@ -1791,10 +1821,11 @@ const runAutoCategorize = async () => {
 			body: {
 				fiscal_year: selectedYear.value,
 				account_id: selectedAccount.value !== 'info' ? selectedAccount.value : undefined,
+				recategorize,
 			},
 		});
 		autoCategorizeResults.value = result;
-		if (result.categorized > 0) refreshAll();
+		if (result.categorized > 0 || result.recategorized > 0) refreshAll();
 	} catch (err) {
 		console.error('Auto-categorize error:', err);
 	} finally {
@@ -1807,6 +1838,8 @@ const updateTransactionCategory = async (transactionId, categoryId) => {
 	try {
 		await transactionsCollection.update(transactionId, {
 			category_id: categoryId || null,
+			// Mark as manually categorized — Re-Categorize All will skip this transaction
+			auto_categorized: false,
 		});
 		// Refresh to update all computed values
 		refreshAll();
