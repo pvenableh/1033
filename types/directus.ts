@@ -64,6 +64,8 @@ export interface Announcement {
 	template?: 'Generic' | 'Parking' | 'Welcome' | null;
 	private?: 'Private' | null;
 	sendgrid_template_id?: string | null;
+	cc_board?: boolean | null;
+	cc_management?: boolean | null;
 	attachments?: AnnouncementsFile[] | string[];
 	recipients?: AnnouncementsPeople[] | string[];
 	activity?: EmailActivity[] | string[];
