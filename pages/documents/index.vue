@@ -167,13 +167,17 @@
 								</div>
 								<div class="flex-1 min-w-0">
 									<h3
-										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300">
+										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
 										{{ report.title }}
 									</h3>
-									<p class="text-xs text-gray-500 mt-1">{{ report.period }}</p>
+									<p class="text-xs text-gray-500 mt-1">
+										<span v-if="report.categoryLabel" class="text-gold-dark">{{ report.categoryLabel }}</span>
+										<span v-if="report.categoryLabel && report.year"> · </span>
+										<span v-if="report.year">{{ report.year }}</span>
+									</p>
 								</div>
 								<span class="text-[10px] tracking-[0.15em] uppercase text-gold-dark flex-shrink-0">
-									PDF
+									{{ report.fileType ? report.fileType.split('/').pop() : 'PDF' }}
 								</span>
 							</div>
 						</a>
@@ -282,36 +286,62 @@ const meetingDocuments = computed(() => {
 });
 
 // ---- Fetch Financial Reports ----
-const reconciliationCollection = useDirectusItems('monthly_reconciliation_reports');
-let rawReports = [];
+const financialDocsCollection = useDirectusItems('financial_documents');
+let rawFinancialDocs = [];
 try {
-	rawReports = await reconciliationCollection.list({
-		fields: ['id', 'report_month', 'fiscal_year.year', 'pdf_report.id', 'pdf_report.title', 'reconciliation_status'],
+	rawFinancialDocs = await financialDocsCollection.list({
+		fields: [
+			'id',
+			'title',
+			'category',
+			'period',
+			'report_date',
+			'description',
+			'fiscal_year.year',
+			'file.id',
+			'file.title',
+			'file.type',
+		],
 		filter: {
-			_and: [
-				{reconciliation_status: {_eq: 'reconciled'}},
-				{pdf_report: {_nnull: true}},
-			],
+			status: { _eq: 'published' },
+			file: { _nnull: true },
 		},
-		sort: ['-fiscal_year.year', '-report_month'],
+		sort: ['-fiscal_year.year', '-period', '-report_date'],
 	});
 } catch (e) {
-	rawReports = [];
+	rawFinancialDocs = [];
 }
 
-const financialReports = computed(() => {
-	if (!rawReports || !rawReports.length) return [];
-	return rawReports
-		.filter((r) => r.pdf_report?.id)
-		.map((report) => {
-			const monthIndex = parseInt(report.report_month, 10) - 1;
-			const monthName = monthNames[monthIndex] || report.report_month;
-			const year = report.fiscal_year?.year || '';
+const categoryLabels = {
+	monthly_report: 'Monthly Report',
+	annual_report: 'Annual Report',
+	budget: 'Budget',
+	reserve_study: 'Reserve Study',
+	compliance: 'Compliance',
+	assessment: 'Assessment',
+	tax_filing: 'Tax Filing',
+	audit: 'Audit',
+	other: 'Other',
+};
 
+const financialReports = computed(() => {
+	if (!rawFinancialDocs || !rawFinancialDocs.length) return [];
+	return rawFinancialDocs
+		.filter((doc) => doc.file?.id)
+		.map((doc) => {
+			const year = doc.fiscal_year?.year || '';
+			const catLabel = categoryLabels[doc.category] || doc.category || '';
 			return {
-				title: `Reconciliation Report - ${monthName} ${year}`,
-				period: `${monthName} ${year}`,
-				fileId: report.pdf_report.id,
+				id: doc.id,
+				title: doc.title || `${catLabel} - ${year}`,
+				category: doc.category,
+				categoryLabel: catLabel,
+				period: doc.period,
+				year,
+				description: doc.description,
+				fileId: doc.file.id,
+				fileType: doc.file.type,
+				reportDate: doc.report_date,
 			};
 		});
 });

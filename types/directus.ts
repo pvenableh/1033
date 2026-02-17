@@ -486,6 +486,25 @@ export interface FeaturesFile {
 	sort_new?: number | null;
 }
 
+export interface FinancialDocument {
+	/** @primaryKey */
+	id: string;
+	status?: 'published' | 'draft' | 'archived';
+	sort?: number | null;
+	user_created?: DirectusUser | string | null;
+	date_created?: string | null;
+	user_updated?: DirectusUser | string | null;
+	date_updated?: string | null;
+	title?: string | null;
+	category?: 'monthly_report' | 'annual_report' | 'budget' | 'reserve_study' | 'compliance' | 'assessment' | 'tax_filing' | 'audit' | 'other' | null;
+	period?: string | null;
+	fiscal_year?: FiscalYear | string | null;
+	file?: DirectusFile | string | null;
+	description?: string | null;
+	report_date?: string | null;
+	uploaded_by?: DirectusUser | string | null;
+}
+
 export interface FiscalYearBudget {
 	/** @primaryKey */
 	id: string;
@@ -1859,6 +1878,7 @@ export interface Schema {
 	email_activity: EmailActivity[];
 	features: Features;
 	features_files: FeaturesFile[];
+	financial_documents: FinancialDocument[];
 	fiscal_year_budgets: FiscalYearBudget[];
 	fiscal_years: FiscalYear[];
 	junction_directus_users_units: JunctionDirectusUsersUnit[];
@@ -1967,6 +1987,7 @@ export enum CollectionNames {
 	email_activity = 'email_activity',
 	features = 'features',
 	features_files = 'features_files',
+	financial_documents = 'financial_documents',
 	fiscal_year_budgets = 'fiscal_year_budgets',
 	fiscal_years = 'fiscal_years',
 	junction_directus_users_units = 'junction_directus_users_units',
