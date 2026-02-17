@@ -27,6 +27,13 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
  *   - pets array (filtered to published)
  *
  * ============================================================================
+ * CC OPTIONS
+ * ============================================================================
+ *
+ * cc_board (boolean)      — CCs lenoxplazaboard@gmail.com
+ * cc_management (boolean) — CCs valentin@vteconsultingllc.com, office@vteconsultingllc.com
+ *
+ * ============================================================================
  * DIRECTUS FLOW SETUP
  * ============================================================================
  *
@@ -59,7 +66,9 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
  *       "sendgrid_template_id": "d-b2bb8a47af7045a7a79f32761affda05",
  *       "urgent": false,
  *       "closing": "...",
- *       "url": "welcome-to-1033-lenox"
+ *       "url": "welcome-to-1033-lenox",
+ *       "cc_board": true,
+ *       "cc_management": false
  *     },
  *     "recipients": [
  *       {
@@ -182,6 +191,21 @@ function buildTemplateData(template, announcementData, person, unitData) {
 	}
 }
 
+/**
+ * Build CC list based on announcement flags.
+ */
+function buildCcList(announcementData) {
+	const cc = [];
+	if (announcementData.cc_board) {
+		cc.push({email: 'petervhoffman@gmail.com'});
+	}
+	if (announcementData.cc_management) {
+		cc.push({email: 'contact@huestudios.com'});
+		cc.push({email: 'info@huestudios.com'});
+	}
+	return cc;
+}
+
 export default defineEventHandler(async (event) => {
 	const body = await readBody(event);
 	const recipients = body.data.recipients;
@@ -193,6 +217,9 @@ export default defineEventHandler(async (event) => {
 	// 2. Known template ID mapping by template name
 	// 3. Default generic template
 	const templateId = announcementData.sendgrid_template_id || TEMPLATE_IDS[template] || DEFAULT_TEMPLATE_ID;
+
+	// Build CC list once (same for all recipients)
+	const cc = buildCcList(announcementData);
 
 	const messages = recipients
 		.map((element) => {
@@ -212,13 +239,17 @@ export default defineEventHandler(async (event) => {
 			// Build template-specific dynamic data
 			const dynamicTemplateData = buildTemplateData(template, announcementData, person, unitData);
 
+			// Build personalizations with optional CC
+			const personalizations = {
+				to: [{email: person.email}],
+				bcc: [{email: 'huestudios.com@gmail.com'}],
+			};
+			if (cc.length > 0) {
+				personalizations.cc = cc;
+			}
+
 			return {
-				personalizations: [
-					{
-						to: [{email: person.email}],
-						bcc: [{email: 'huestudios.com@gmail.com'}],
-					},
-				],
+				personalizations: [personalizations],
 				from: {
 					email: 'mail@1033lenox.com',
 					name: '1033 Lenox',
