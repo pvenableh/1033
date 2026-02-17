@@ -1,54 +1,43 @@
 <template>
 	<div class="documents-page bg-cream min-h-screen">
-		<!-- Hero Section -->
-		<section class="py-16 lg:py-24 px-6 lg:px-16 bg-cream-alt">
+		<!-- Page Header -->
+		<section class="pt-8 pb-4 px-6 lg:px-16">
 			<div class="max-w-5xl mx-auto">
-				<div class="page-header text-center opacity-0">
-					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resource Center</p>
-					<h1
-						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
-						Documents
-					</h1>
-					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
-					<p class="font-serif text-lg italic text-gray-500 max-w-xl mx-auto">
-						Meeting minutes, financial reports, and important association documents
-					</p>
+				<div class="page-header flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 opacity-0">
+					<div>
+						<h1 class="font-serif text-2xl font-light tracking-tight text-gray-800">
+							Documents
+						</h1>
+						<p class="text-sm text-gray-500 mt-1">
+							Meeting minutes, financial reports, and association documents
+						</p>
+					</div>
+					<nav class="flex flex-wrap gap-2">
+						<button
+							v-for="cat in categories"
+							:key="cat.id"
+							@click="activeCategory = cat.id"
+							class="category-btn px-3 py-1.5 text-[11px] tracking-[0.1em] uppercase transition-all duration-300 border rounded"
+							:class="activeCategory === cat.id
+								? 'border-gold bg-gold text-white'
+								: 'border-divider text-gray-500 hover:border-gold-dark hover:text-gold-dark'">
+							{{ cat.label }}
+							<span v-if="cat.count > 0" class="ml-1 opacity-70">({{ cat.count }})</span>
+						</button>
+					</nav>
 				</div>
 			</div>
 		</section>
 
-		<!-- Category Navigation -->
-		<section class="py-8 px-6 lg:px-16 border-b border-divider">
-			<div class="max-w-5xl mx-auto">
-				<nav class="flex flex-wrap gap-4 justify-center">
-					<button
-						v-for="cat in categories"
-						:key="cat.id"
-						@click="activeCategory = cat.id"
-						class="category-btn px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-300 border"
-						:class="activeCategory === cat.id
-							? 'border-gold bg-gold text-white'
-							: 'border-divider text-gray-500 hover:border-gold-dark hover:text-gold-dark'">
-						{{ cat.label }}
-						<span v-if="cat.count > 0" class="ml-1 opacity-70">({{ cat.count }})</span>
-					</button>
-				</nav>
-			</div>
-		</section>
-
 		<!-- Documents Content -->
-		<section class="py-16 lg:py-24 px-6 lg:px-16">
+		<section class="py-8 px-6 lg:px-16">
 			<div class="max-w-5xl mx-auto">
 
 				<!-- General Documents Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'general'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-document-text" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">General</p>
-						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Association Documents</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
+				<div v-if="activeCategory === 'all' || activeCategory === 'general'" class="document-section mb-10">
+					<div class="section-header flex items-center gap-2 mb-4 opacity-0">
+						<UIcon name="i-heroicons-document-text" class="w-4 h-4 text-gold-dark" />
+						<h2 class="text-sm font-medium tracking-wide uppercase text-gray-700">Association Documents</h2>
 					</div>
 
 					<div v-if="generalDocuments.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -57,17 +46,17 @@
 							:key="'doc-' + index"
 							:href="'https://admin.1033lenox.com/assets/' + doc.fileId"
 							target="_blank"
-							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
+							class="document-card group block bg-white p-4 border border-divider hover:border-gold rounded transition-all duration-300 opacity-0">
 							<div class="flex items-center gap-4">
 								<div
-									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
+									class="flex-shrink-0 w-8 h-8 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
 									<UIcon
 										name="i-heroicons-document-arrow-down"
-										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+										class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
 								</div>
 								<div class="flex-1 min-w-0">
 									<h3
-										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
+										class="text-sm font-medium text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
 										{{ doc.title }}
 									</h3>
 									<p v-if="doc.description" class="text-xs text-gray-500 mt-1 truncate">{{ doc.description }}</p>
@@ -79,32 +68,27 @@
 						</a>
 					</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-document" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No general documents available yet</p>
-						<p class="text-xs text-gray-400 mt-1">Documents will appear here as they are added</p>
+					<div v-else class="text-center py-8 bg-white border border-divider rounded">
+						<UIcon name="i-heroicons-document" class="w-6 h-6 text-gray-300 mx-auto mb-2" />
+						<p class="text-sm text-gray-500">No documents available yet</p>
 					</div>
 				</div>
 
 				<!-- Meeting Minutes & Agendas Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'meetings'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Meetings</p>
-						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Meeting Minutes & Agendas</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
+				<div v-if="activeCategory === 'all' || activeCategory === 'meetings'" class="document-section mb-10">
+					<div class="section-header flex items-center gap-2 mb-4 opacity-0">
+						<UIcon name="i-heroicons-calendar" class="w-4 h-4 text-gold-dark" />
+						<h2 class="text-sm font-medium tracking-wide uppercase text-gray-700">Meeting Minutes & Agendas</h2>
 					</div>
 
 					<div v-if="meetingDocuments.length" class="space-y-3">
 						<div
 							v-for="(meeting, index) in meetingDocuments"
 							:key="'meeting-' + index"
-							class="document-card bg-white border border-divider p-5 opacity-0">
+							class="document-card bg-white border border-divider rounded p-4 opacity-0">
 							<div class="flex flex-col sm:flex-row sm:items-center gap-3">
 								<div class="flex-1 min-w-0">
-									<h3 class="font-serif text-base font-normal text-gray-800">
+									<h3 class="text-sm font-medium text-gray-800">
 										{{ meeting.title || 'Board Meeting' }}
 									</h3>
 									<p class="text-xs text-gray-500 mt-1">
@@ -134,21 +118,17 @@
 						</div>
 					</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-calendar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No meeting documents available</p>
+					<div v-else class="text-center py-8 bg-white border border-divider rounded">
+						<UIcon name="i-heroicons-calendar" class="w-6 h-6 text-gray-300 mx-auto mb-2" />
+						<p class="text-sm text-gray-500">No meeting documents available</p>
 					</div>
 				</div>
 
 				<!-- Financial Reports Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'financial'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Financial</p>
-						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Financial Reports</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
+				<div v-if="activeCategory === 'all' || activeCategory === 'financial'" class="document-section mb-10">
+					<div class="section-header flex items-center gap-2 mb-4 opacity-0">
+						<UIcon name="i-heroicons-chart-bar" class="w-4 h-4 text-gold-dark" />
+						<h2 class="text-sm font-medium tracking-wide uppercase text-gray-700">Financial Reports</h2>
 					</div>
 
 					<div v-if="financialReports.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,17 +137,17 @@
 							:key="'report-' + index"
 							:href="'https://admin.1033lenox.com/assets/' + report.fileId"
 							target="_blank"
-							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
+							class="document-card group block bg-white p-4 border border-divider hover:border-gold rounded transition-all duration-300 opacity-0">
 							<div class="flex items-center gap-4">
 								<div
-									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
+									class="flex-shrink-0 w-8 h-8 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
 									<UIcon
 										name="i-heroicons-chart-bar"
-										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+										class="w-4 h-4 text-gray-400 group-hover:text-white transition-colors duration-300" />
 								</div>
 								<div class="flex-1 min-w-0">
 									<h3
-										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
+										class="text-sm font-medium text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
 										{{ report.title }}
 									</h3>
 									<p class="text-xs text-gray-500 mt-1">
@@ -183,9 +163,9 @@
 						</a>
 					</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No financial reports available</p>
+					<div v-else class="text-center py-8 bg-white border border-divider rounded">
+						<UIcon name="i-heroicons-chart-bar" class="w-6 h-6 text-gray-300 mx-auto mb-2" />
+						<p class="text-sm text-gray-500">No financial reports available</p>
 					</div>
 				</div>
 
@@ -375,9 +355,9 @@ let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
+		gsap.fromTo('.page-header', {opacity: 0, y: 10}, {opacity: 1, y: 0, duration: 0.5, ease: 'power3.out', delay: 0.1});
 
-		gsap.fromTo('.section-header', {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.3, stagger: 0.15});
+		gsap.fromTo('.section-header', {opacity: 0, y: 8}, {opacity: 1, y: 0, duration: 0.4, ease: 'power3.out', delay: 0.2, stagger: 0.1});
 
 		const cards = document.querySelectorAll('.document-card');
 		cards.forEach((card, index) => {

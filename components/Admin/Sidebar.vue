@@ -85,6 +85,11 @@ const managementLinks = [
   { title: 'Invite User', icon: 'i-heroicons-envelope-open', to: '/admin/invite' },
 ]
 
+const contentLinks = [
+  { title: 'Documents', icon: 'i-heroicons-document-text', to: '/admin/documents' },
+  { title: 'Financial Docs', icon: 'i-heroicons-chart-bar', to: '/admin/financial-documents' },
+]
+
 const operationsLinks = [
   { title: 'Projects', icon: 'i-heroicons-folder', to: '/admin/projects' },
   { title: 'Tasks', icon: 'i-heroicons-clipboard-document-check', to: '/tasks' },
@@ -212,6 +217,30 @@ function openDirectionsPopup() {
         <SidebarGroupContent>
           <SidebarMenu>
             <SidebarMenuItem v-for="item in managementLinks" :key="item.to">
+              <SidebarMenuButton
+                as-child
+                :is-active="isActive(item.to)"
+                :tooltip="item.title"
+              >
+                <nuxt-link :to="item.to">
+                  <Icon :name="item.icon" class="size-4 shrink-0" />
+                  <span>{{ item.title }}</span>
+                </nuxt-link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroupContent>
+      </SidebarGroup>
+
+      <!-- Content -->
+      <SidebarGroup v-if="isBoardMember">
+        <SidebarGroupLabel>
+          <Icon name="i-heroicons-document-duplicate" class="size-4 shrink-0 mr-1" />
+          Content
+        </SidebarGroupLabel>
+        <SidebarGroupContent>
+          <SidebarMenu>
+            <SidebarMenuItem v-for="item in contentLinks" :key="item.to">
               <SidebarMenuButton
                 as-child
                 :is-active="isActive(item.to)"
