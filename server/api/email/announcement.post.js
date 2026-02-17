@@ -197,11 +197,11 @@ function buildTemplateData(template, announcementData, person, unitData) {
 function buildCcList(announcementData) {
 	const cc = [];
 	if (announcementData.cc_board) {
-		cc.push({email: 'petervhoffman@gmail.com'});
+		cc.push({email: 'lenoxplazaboard@gmail.com'});
 	}
 	if (announcementData.cc_management) {
-		cc.push({email: 'contact@huestudios.com'});
-		cc.push({email: 'info@huestudios.com'});
+		cc.push({email: 'valentin@vteconsultingllc.com'});
+		cc.push({email: 'office@vteconsultingllc.com'});
 	}
 	return cc;
 }
