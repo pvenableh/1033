@@ -61,7 +61,7 @@ export interface Announcement {
 	sections?: 'json' | null;
 	greeting?: string | null;
 	closing?: string | null;
-	template?: 'Generic' | 'Parking' | null;
+	template?: 'Generic' | 'Parking' | 'Welcome' | null;
 	private?: 'Private' | null;
 	sendgrid_template_id?: string | null;
 	attachments?: AnnouncementsFile[] | string[];
@@ -1171,6 +1171,7 @@ export interface Unit {
 	number?: string | null;
 	occupant?: 'Owner' | 'Tenant' | null;
 	parking_spot?: string | null;
+	mailbox?: string | null;
 	people?: UnitsPeople[] | string[];
 	vehicles?: Vehicle[] | string[];
 	pets?: Pet[] | string[];
