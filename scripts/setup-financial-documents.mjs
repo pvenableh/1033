@@ -494,12 +494,14 @@ async function main() {
   // ========================================
   console.log('\n📋 Step 2: Creating financial_documents collection...');
 
+  let collectionFreshlyCreated = false;
   if (existingNames.includes('financial_documents')) {
     console.log('   ⏭️  financial_documents already exists');
   } else {
     try {
       await client.request(createCollection(COLLECTION));
       console.log('   ✅ Created financial_documents collection');
+      collectionFreshlyCreated = true;
       await delay(500);
     } catch (error) {
       console.log('   ❌ Error:', error?.errors?.[0]?.message || error?.message);
@@ -507,21 +509,24 @@ async function main() {
   }
 
   // ========================================
-  // Step 3: Create non-relation fields
+  // Step 3: Create ALL fields (including relation FK columns)
   // ========================================
-  console.log('\n📋 Step 3: Creating fields (non-relation)...');
+  console.log('\n📋 Step 3: Creating fields...');
 
-  const SKIP_SPECIALS = ['m2o', 'file', 'user-created', 'user-updated'];
-
+  // When the collection was freshly created, readFields may return stale metadata
+  // from a previous run (directus_fields entries that survived collection deletion).
+  // In that case we must ignore the "exists" check and always attempt creation.
   let existingFields = [];
   try {
     existingFields = await client.request(readFields('financial_documents'));
   } catch (error) {
     // Collection might have just been created
   }
-  const existingFieldColumns = existingFields
-    .filter((f) => f.schema !== null && f.schema !== undefined)
-    .map((f) => f.field);
+  const existingFieldColumns = collectionFreshlyCreated
+    ? [] // Don't trust stale metadata — force-create everything
+    : existingFields
+        .filter((f) => f.schema !== null && f.schema !== undefined)
+        .map((f) => f.field);
 
   for (const field of FIELDS) {
     if (field.type === 'alias') {
@@ -532,19 +537,18 @@ async function main() {
       console.log(`   ⏭️  ${field.field} (exists)`);
       continue;
     }
-    const fieldSpecials = field.meta?.special || [];
-    const isRelationField = fieldSpecials.some((s) => SKIP_SPECIALS.includes(s));
-    if (isRelationField) {
-      console.log(`   ⏭️  ${field.field} (deferred to relation step)`);
-      continue;
-    }
 
     try {
       await client.request(createField('financial_documents', field));
       console.log(`   ✅ ${field.field}`);
       await delay(200);
     } catch (error) {
-      console.log(`   ❌ ${field.field}:`, error?.errors?.[0]?.message || error?.message);
+      const msg = error?.errors?.[0]?.message || error?.message || '';
+      if (msg.toLowerCase().includes('already exists')) {
+        console.log(`   ⏭️  ${field.field} (already exists)`);
+      } else {
+        console.log(`   ❌ ${field.field}: ${msg}`);
+      }
     }
   }
 
@@ -559,7 +563,8 @@ async function main() {
   for (const relation of RELATIONS) {
     const { collection, field: fieldName, related_collection } = relation;
 
-    // Ensure FK field exists as a DB column
+    // Safety fallback: if the FK column still doesn't exist (e.g., createField
+    // failed silently in Step 3), try one more time with a minimal definition.
     let currentFields = [];
     try {
       currentFields = await client.request(readFields(collection));
@@ -567,16 +572,18 @@ async function main() {
       // ok
     }
 
+    // After Step 3, fields should exist. But verify by trying to create if missing.
+    // Use a fresh readFields call (not the potentially stale one from Step 3).
     const currentDbColumns = currentFields
       .filter((f) => f.schema !== null && f.schema !== undefined)
       .map((f) => f.field);
 
     if (!currentDbColumns.includes(fieldName)) {
-      // Find the field definition from FIELDS array
+      // Field wasn't created in Step 3 — try creating with a minimal definition
       const fieldDef = FIELDS.find((f) => f.field === fieldName);
       const fieldToCreate = fieldDef || {
         field: fieldName,
-        type: related_collection === 'directus_users' || related_collection === 'directus_files' ? 'uuid' : 'uuid',
+        type: 'uuid',
         schema: { is_nullable: true },
         meta: {
           hidden: false,
