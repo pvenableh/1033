@@ -519,7 +519,7 @@
 		</div>
 
 		<!-- Photo Modal -->
-		<Modal v-model="isPhotoModalOpen" :ui="{background: 'bg-zinc-900/95'}">
+		<Modal v-model="isPhotoModalOpen">
 			<div class="p-6 bg-zinc-950">
 				<!-- Modal Header -->
 				<div class="flex items-center justify-between mb-4">
