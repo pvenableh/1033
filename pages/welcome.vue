@@ -9,7 +9,7 @@ useSeoMeta({
 		'Welcome to 1033 Lenox — Your guide to boutique living in Miami Beach. Building amenities, rules, parking, and everything you need to know as a new resident.',
 });
 
-const { user, loggedIn } = useDirectusAuth();
+const {user, loggedIn} = useDirectusAuth();
 
 // Fetch personalized data if logged in
 const personData = ref<any>(null);
@@ -18,8 +18,8 @@ const vehiclesData = ref<any[]>([]);
 const petsData = ref<any[]>([]);
 const loading = ref(false);
 
-const peopleCollection = useDirectusItems('people', { requireAuth: false });
-const unitsCollection = useDirectusItems('units', { requireAuth: false });
+const peopleCollection = useDirectusItems('people', {requireAuth: false});
+const unitsCollection = useDirectusItems('units', {requireAuth: false});
 
 async function fetchPersonalData() {
 	if (!loggedIn.value || !user.value?.person_id) return;
@@ -100,39 +100,39 @@ function sectionNum(base: number) {
 					background-image: url('https://admin.1033lenox.com/assets/48693e40-9f54-45e7-83cb-3c537b7effda?key=large-png');
 				">
 				<div class="absolute inset-0 bg-black/40"></div>
-				<div class="relative z-10 text-center px-6">
-					<NuxtImg
-						src="4e24ac6b-dcae-458e-9b26-e41e0502f3e8"
-						alt="1033 Lenox"
-						class="mx-auto mb-6 w-40 md:w-48"
-						format="png" />
+				<div class="max-w-2xl mx-auto text-center z-10">
+					<p class="text-xs tracking-[0.3em] uppercase t-text-accent mb-4">Miami Beach · Flamingo Park</p>
+					<h1 class="t-heading text-4xl md:text-5xl font-normal leading-tight text-white mb-4">Welcome Home</h1>
+					<div class="w-16 h-px t-bg-accent mx-auto mb-6"></div>
+					<p class="t-heading text-lg italic t-text-accent">The Smart Life in South Beach</p>
 				</div>
 			</div>
 		</section>
 
 		<!-- Welcome Header -->
-		<section class="t-section py-12 md:py-16 px-6">
+		<!-- <section class="t-section py-12 md:py-16 px-6">
 			<div class="max-w-2xl mx-auto text-center">
 				<p class="text-xs tracking-[0.3em] uppercase t-text-accent mb-4">Miami Beach · Flamingo Park</p>
 				<h1 class="t-heading text-4xl md:text-5xl font-normal leading-tight t-text mb-4">Welcome Home</h1>
 				<div class="w-16 h-px t-bg-accent mx-auto mb-6"></div>
 				<p class="t-heading text-lg italic t-text-tertiary">The Smart Life in South Beach</p>
 			</div>
-		</section>
+		</section> -->
 
 		<!-- Personalized Welcome Message -->
-		<section class="t-section px-6 pb-12 md:pb-16">
-			<div class="max-w-2xl mx-auto">
-				<p class="t-body text-base leading-relaxed t-text-secondary" v-if="displayName">
-					Dear {{ displayName }},
+		<section class="t-section px-6 py-12 md:py-16">
+			<div class="max-w-2xl mx-auto text-center">
+				<p class="t-body text-base leading-relaxed t-text-secondary">
+					<span v-if="displayName">Hello {{ displayName }},</span>
+					Welcome to 1033 Lenox
 				</p>
 				<p class="t-body text-base leading-relaxed t-text-secondary mt-3">
-					Welcome to 1033 Lenox — a 28-unit boutique residence in the heart of Miami Beach's Flamingo Park
-					neighborhood. We're glad to have you as part of our community.
+					We are a 28-unit boutique residence in the heart of Miami Beach's Flamingo Park neighborhood. We're glad to
+					have you as part of our community.
 				</p>
 				<p class="t-body text-base leading-relaxed t-text-secondary mt-3">
-					This page contains important information about your unit, building rules, and community resources.
-					Please review it carefully and keep it for your records.
+					This page contains important information about your unit, building rules, and community resources. Please
+					review it carefully and keep it for your records.
 				</p>
 			</div>
 		</section>
@@ -145,14 +145,16 @@ function sectionNum(base: number) {
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2">
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">01</span>
-						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Your Information</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">
+							Your Information
+						</span>
 					</div>
 					<div class="content-main min-w-0 overflow-x-clip">
 						<h2 class="t-heading text-2xl md:text-3xl font-normal t-text mb-2">Directory Listing</h2>
 						<div class="w-10 h-px t-bg-accent mb-4"></div>
 						<p class="t-body text-sm leading-relaxed t-text-secondary mb-8">
-							Below is your registered information on file. Please verify that everything is accurate. If you
-							need to make any updates, contact management.
+							Below is your registered information on file. Please verify that everything is accurate. If you need to
+							make any updates, contact management.
 						</p>
 
 						<!-- Person Info Card -->
@@ -171,9 +173,7 @@ function sectionNum(base: number) {
 
 							<!-- Parking Spot -->
 							<div class="mb-4" v-if="unitData?.parking_spot">
-								<p class="text-[10px] tracking-[0.15em] uppercase t-text-tertiary mb-1">
-									Assigned Parking Spot
-								</p>
+								<p class="text-[10px] tracking-[0.15em] uppercase t-text-tertiary mb-1">Assigned Parking Spot</p>
 								<p class="text-lg font-bold t-text">#{{ unitData.parking_spot }}</p>
 							</div>
 
@@ -199,13 +199,10 @@ function sectionNum(base: number) {
 						<!-- Vehicles Card -->
 						<div v-if="vehiclesData.length > 0" class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<p class="text-[10px] tracking-[0.15em] uppercase t-text-tertiary mb-3">Registered Vehicles</p>
-							<div
-								v-for="vehicle in vehiclesData"
-								:key="vehicle.id"
-								class="t-bg-alt p-3 px-4 mb-2 last:mb-0">
+							<div v-for="vehicle in vehiclesData" :key="vehicle.id" class="t-bg-alt p-3 px-4 mb-2 last:mb-0">
 								<p class="text-base font-semibold t-text">{{ vehicle.make }} {{ vehicle.model }}</p>
 								<p class="text-sm t-text-tertiary mt-1">
-									<span v-if="vehicle.color">Color: {{ vehicle.color }} · </span>
+									<span v-if="vehicle.color">Color: {{ vehicle.color }} ·</span>
 									Plate: {{ vehicle.license_plate }}
 								</p>
 							</div>
@@ -218,7 +215,7 @@ function sectionNum(base: number) {
 								<p class="text-base font-semibold t-text">{{ pet.name }}</p>
 								<p class="text-sm t-text-tertiary mt-1">
 									{{ pet.category }}
-									<span v-if="pet.breed"> · {{ pet.breed }}</span>
+									<span v-if="pet.breed">· {{ pet.breed }}</span>
 								</p>
 							</div>
 						</div>
@@ -257,16 +254,12 @@ function sectionNum(base: number) {
 								<p>
 									<span class="font-bold t-text-accent">Room 102</span>
 									<span class="t-text">&ensp;Storage</span>
-									<span class="text-xs italic t-text-tertiary">
-										(not currently open — stay tuned)
-									</span>
+									<span class="text-xs italic t-text-tertiary">(not currently open — stay tuned)</span>
 								</p>
 								<p>
 									<span class="font-bold t-text-accent">Room 101</span>
 									<span class="t-text">&ensp;Clubhouse</span>
-									<span class="text-xs italic t-text-tertiary">
-										(board meetings — under development)
-									</span>
+									<span class="text-xs italic t-text-tertiary">(board meetings — under development)</span>
 								</p>
 							</div>
 						</div>
@@ -297,13 +290,12 @@ function sectionNum(base: number) {
 
 						<!-- Wash Connect -->
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
-							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">
-								Wash Connect App
-							</p>
+							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">Wash Connect App</p>
 							<p class="t-body text-sm leading-relaxed t-text-secondary mb-3">
-								Our laundry machines operate through the <strong>Wash Connect</strong> app. Download it from
-								the App Store or Google Play, create an account, and add a payment method. You'll be able to
-								start and pay for machines directly from your phone.
+								Our laundry machines operate through the
+								<strong>Wash Connect</strong>
+								app. Download it from the App Store or Google Play, create an account, and add a payment method. You'll
+								be able to start and pay for machines directly from your phone.
 							</p>
 							<p class="t-body text-sm t-text-secondary mb-4">
 								We ask that you please wipe down the machines after each use.
@@ -333,8 +325,9 @@ function sectionNum(base: number) {
 						<!-- Usage Guidelines -->
 						<div class="mt-4">
 							<p class="t-body text-sm leading-relaxed t-text-secondary mb-2">
-								The laundromat is for <strong>Lenox Plaza residents only</strong>. Please do not share the
-								access code with anyone who does not live at the property.
+								The laundromat is for
+								<strong>Lenox Plaza residents only</strong>
+								. Please do not share the access code with anyone who does not live at the property.
 							</p>
 							<p class="t-body text-sm t-text-secondary mb-2"><strong>Additional Guidelines:</strong></p>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
@@ -359,7 +352,9 @@ function sectionNum(base: number) {
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2">
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">{{ sectionNum(3) }}</span>
-						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Building Operations</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">
+							Building Operations
+						</span>
 					</div>
 					<div class="content-main min-w-0 overflow-x-clip">
 						<h2 class="t-heading text-2xl md:text-3xl font-normal t-text mb-2">Trash & Recycling</h2>
@@ -378,8 +373,14 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">Trash</p>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
-								<li>· All trash must be placed in the large dumpster — <strong>lids must remain down at all times</strong></li>
-								<li>· Pickup schedule: <strong>Monday, Wednesday, and Friday</strong></li>
+								<li>
+									· All trash must be placed in the large dumpster —
+									<strong>lids must remain down at all times</strong>
+								</li>
+								<li>
+									· Pickup schedule:
+									<strong>Monday, Wednesday, and Friday</strong>
+								</li>
 								<li>· At no time should trash be placed outside the bin in the trash room</li>
 							</ul>
 						</div>
@@ -388,7 +389,11 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">Recycling</p>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
-								<li>· All recycling boxes must be <strong>broken down</strong> and placed in the recycling bin</li>
+								<li>
+									· All recycling boxes must be
+									<strong>broken down</strong>
+									and placed in the recycling bin
+								</li>
 								<li>· If the recycle bin is full, place items in the trash bin</li>
 								<li>· At no time should recycled items be left outside of the bins</li>
 							</ul>
@@ -396,9 +401,7 @@ function sectionNum(base: number) {
 
 						<!-- Large Item Disposal -->
 						<div class="t-card-flat rounded-none p-6 md:p-7">
-							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">
-								Large Item Disposal
-							</p>
+							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">Large Item Disposal</p>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
 								<li>
 									· Large items (furniture, appliances, etc.) are
@@ -406,8 +409,9 @@ function sectionNum(base: number) {
 								</li>
 								<li>· Residents are responsible for disposing of large items at the city dump</li>
 								<li>
-									· <strong>Every 1st weekend of each month:</strong> drop off large items at the city
-									dumpster at 140 MacArthur Causeway
+									·
+									<strong>Every 1st weekend of each month:</strong>
+									drop off large items at the city dumpster at 140 MacArthur Causeway
 								</li>
 							</ul>
 							<a
@@ -437,9 +441,7 @@ function sectionNum(base: number) {
 						<div class="w-10 h-px t-bg-accent mb-8"></div>
 
 						<!-- Assigned Spot (personalized) -->
-						<div
-							v-if="unitData?.parking_spot"
-							class="t-bg-alt border-l-3 t-border-accent p-5 md:p-7 mb-3">
+						<div v-if="unitData?.parking_spot" class="t-bg-alt border-l-3 t-border-accent p-5 md:p-7 mb-3">
 							<p class="text-[10px] tracking-[0.15em] uppercase t-text-tertiary mb-1">Your Assigned Spot</p>
 							<p class="t-heading text-3xl font-bold t-text">Spot #{{ unitData.parking_spot }}</p>
 						</div>
@@ -447,11 +449,20 @@ function sectionNum(base: number) {
 						<!-- Parking Rules -->
 						<div class="mb-6">
 							<p class="t-body text-sm leading-relaxed t-text-secondary mb-2">
-								There is <strong>one parking space per unit</strong>. Please keep the following rules in mind:
+								There is
+								<strong>one parking space per unit</strong>
+								. Please keep the following rules in mind:
 							</p>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
-								<li>· All vehicles must be <strong>registered with the board</strong></li>
-								<li>· Work vans and motorcycles are <strong>not allowed</strong> in the garage</li>
+								<li>
+									· All vehicles must be
+									<strong>registered with the board</strong>
+								</li>
+								<li>
+									· Work vans and motorcycles are
+									<strong>not allowed</strong>
+									in the garage
+								</li>
 								<li>· No mechanical work on vehicles in the garage</li>
 								<li>· Parking spots must be kept clean</li>
 								<li>· No storage of objects or items in the garage</li>
@@ -493,16 +504,14 @@ function sectionNum(base: number) {
 						<div class="w-10 h-px t-bg-accent mb-8"></div>
 
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
-							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">
-								Neighborly Tip
+							<p class="text-[10px] font-bold tracking-[0.15em] uppercase t-text-accent mb-3">Neighborly Tip</p>
+							<p class="t-body text-sm leading-relaxed t-text-secondary mb-4">
+								ZONE 2 on the beach is the most extensive — so if you want to go to Lincoln Rd you can park pretty
+								close, or Ocean Drive. And when you pay for ParkMobile it is a fraction of the price.
 							</p>
 							<p class="t-body text-sm leading-relaxed t-text-secondary mb-4">
-								ZONE 2 on the beach is the most extensive — so if you want to go to Lincoln Rd you can park
-								pretty close, or Ocean Drive. And when you pay for ParkMobile it is a fraction of the price.
-							</p>
-							<p class="t-body text-sm leading-relaxed t-text-secondary mb-4">
-								As a Miami Beach resident, you can apply for a discounted resident parking permit that gives
-								you significant savings on metered street parking throughout Zone 2.
+								As a Miami Beach resident, you can apply for a discounted resident parking permit that gives you
+								significant savings on metered street parking throughout Zone 2.
 							</p>
 							<div class="space-y-2 text-sm">
 								<a
@@ -538,8 +547,8 @@ function sectionNum(base: number) {
 						<h2 class="t-heading text-2xl md:text-3xl font-normal t-text mb-2">Rules & Regulations</h2>
 						<div class="w-10 h-px t-bg-accent mb-4"></div>
 						<p class="t-body text-sm leading-relaxed t-text-secondary mb-8">
-							Below is a summary of key rules. A full copy of the rules and regulations was provided with
-							your welcome packet.
+							Below is a summary of key rules. A full copy of the rules and regulations was provided with your welcome
+							packet.
 						</p>
 
 						<!-- Unit Usage -->
@@ -568,7 +577,11 @@ function sectionNum(base: number) {
 								<li>· No decorations on walls or ceilings</li>
 								<li>· No storage containers on the balcony</li>
 								<li>· Furniture must not be taller than the railing</li>
-								<li>· <strong>No hanging items</strong> over the balcony railings — this is a violation</li>
+								<li>
+									·
+									<strong>No hanging items</strong>
+									over the balcony railings — this is a violation
+								</li>
 							</ul>
 						</div>
 
@@ -576,10 +589,11 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<h3 class="t-heading text-base t-text mb-2">Rentals & Short-Term</h3>
 							<ul class="t-body text-sm leading-relaxed t-text-secondary list-none space-y-1">
+								<li>· All tenants must go through the approval process with required documentation</li>
 								<li>
-									· All tenants must go through the approval process with required documentation
+									· Absolutely
+									<strong>no Airbnb or short-term rentals</strong>
 								</li>
-								<li>· Absolutely <strong>no Airbnb or short-term rentals</strong></li>
 							</ul>
 						</div>
 
@@ -611,15 +625,18 @@ function sectionNum(base: number) {
 
 						<!-- Swiftlane Image -->
 						<NuxtImg
-							src="f8aa337f-dbd7-4436-b487-b1f45e19f187"
+							src="6f5f0c1f-1b7f-45ea-9f79-f4c763a7bbbd"
 							alt="Swiftlane Access Control Setup"
 							class="w-full border t-border mb-4"
 							format="png" />
 
 						<p class="t-body text-sm leading-relaxed t-text-secondary mb-4">
-							1033 Lenox uses <strong>Swiftlane</strong> — a facial recognition and mobile access system — for
-							building entry. You will receive an email invitation from
-							<strong>verification@swiftlane.com</strong> to set up your account.
+							1033 Lenox uses
+							<strong>Swiftlane</strong>
+							— a facial recognition and mobile access system — for building entry. You will receive an email invitation
+							from
+							<strong>verification@swiftlane.com</strong>
+							to set up your account.
 						</p>
 
 						<!-- Quick Setup -->
@@ -629,7 +646,10 @@ function sectionNum(base: number) {
 							<p class="text-[10px] tracking-[0.15em] uppercase t-text-tertiary mb-2">Quick Setup</p>
 							<ol class="t-body text-sm leading-relaxed t-text-secondary list-decimal list-inside space-y-1">
 								<li>Download the Swiftlane app from the App Store or Google Play</li>
-								<li>Enter workspace: <strong>1033lenox</strong></li>
+								<li>
+									Enter workspace:
+									<strong>1033lenox</strong>
+								</li>
 								<li>Enter the email from your invite</li>
 								<li>Check your email for the verification code</li>
 								<li>Enter the code and accept terms</li>
@@ -638,8 +658,8 @@ function sectionNum(base: number) {
 						</div>
 
 						<p class="t-body text-sm italic t-text-tertiary mb-6">
-							Facial recognition and visitor passes include a free 30-day trial. After that, the optional
-							subscription is $21.99/year per user. PIN and mobile app access are always free.
+							Facial recognition and visitor passes include a free 30-day trial. After that, the optional subscription
+							is $21.99/year per user. PIN and mobile app access are always free.
 						</p>
 
 						<!-- CTA Button -->
@@ -663,7 +683,9 @@ function sectionNum(base: number) {
 				<div class="grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-8 lg:gap-16">
 					<div class="content-label flex flex-col gap-2">
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">{{ sectionNum(8) }}</span>
-						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Getting Started</span>
+						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">
+							Getting Started
+						</span>
 					</div>
 					<div class="content-main min-w-0 overflow-x-clip">
 						<h2 class="t-heading text-2xl md:text-3xl font-normal t-text mb-2">Getting Connected</h2>
@@ -673,8 +695,11 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<h3 class="t-heading text-base t-text mb-2">WiFi</h3>
 							<p class="t-body text-sm leading-relaxed t-text-secondary">
-								You can contact <strong>Verizon</strong> or <strong>Breezeline</strong> for your personal WiFi
-								connection.
+								You can contact
+								<strong>Verizon</strong>
+								or
+								<strong>Breezeline</strong>
+								for your personal WiFi connection.
 							</p>
 						</div>
 
@@ -682,8 +707,8 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<h3 class="t-heading text-base t-text mb-2">WhatsApp Group</h3>
 							<p class="t-body text-sm leading-relaxed t-text-secondary">
-								You will be added to our building's WhatsApp group, which we use for important updates,
-								announcements, and community communication. Please keep an eye out for your invitation.
+								You will be added to our building's WhatsApp group, which we use for important updates, announcements,
+								and community communication. Please keep an eye out for your invitation.
 							</p>
 						</div>
 
@@ -691,9 +716,8 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7 mb-3">
 							<h3 class="t-heading text-base t-text mb-2">You're in the System</h3>
 							<p class="t-body text-sm leading-relaxed t-text-secondary">
-								Your information has been entered into our building management system, so you're all set from
-								an administrative standpoint. You will receive emails with community updates, announcements,
-								and more.
+								Your information has been entered into our building management system, so you're all set from an
+								administrative standpoint. You will receive emails with community updates, announcements, and more.
 							</p>
 						</div>
 
@@ -701,8 +725,8 @@ function sectionNum(base: number) {
 						<div class="t-card-flat rounded-none p-6 md:p-7">
 							<h3 class="t-heading text-base t-text mb-2">Stay in Touch</h3>
 							<p class="t-body text-sm leading-relaxed t-text-secondary">
-								The Board is here to help. If you ever have questions, concerns, or need assistance with
-								anything related to the building, please don't hesitate to reach out to us directly.
+								The Board is here to help. If you ever have questions, concerns, or need assistance with anything
+								related to the building, please don't hesitate to reach out to us directly.
 							</p>
 						</div>
 					</div>
@@ -719,14 +743,13 @@ function sectionNum(base: number) {
 				<p class="t-body text-sm leading-relaxed t-text-secondary mb-2">
 					For any questions, concerns, or to update your information, please contact management:
 				</p>
-				<a href="mailto:lenoxplazaboard@gmail.com" class="t-link underline text-sm">
-					lenoxplazaboard@gmail.com
-				</a>
+				<a href="mailto:lenoxplazaboard@gmail.com" class="t-link underline text-sm">lenoxplazaboard@gmail.com</a>
 
 				<!-- Board Signature -->
 				<div class="w-full h-px t-divider-bg my-8"></div>
 				<p class="t-heading text-sm t-text text-left">
-					Sincerely,<br />
+					Sincerely,
+					<br />
 					Lenox Plaza Association Board of Directors
 				</p>
 
@@ -756,19 +779,15 @@ function sectionNum(base: number) {
 
 				<!-- Footer Links -->
 				<div class="w-full h-px t-divider-bg mt-8 mb-6"></div>
-				<div class="flex items-center justify-center gap-8 mb-4">
+				<!-- <div class="flex items-center justify-center gap-8 mb-4">
 					<a href="https://1033lenox.com" class="text-[10px] font-bold tracking-[0.3em] t-text no-underline">
 						1033LENOX.COM
 					</a>
-					<a href="tel:786-395-3049" class="text-[10px] font-bold tracking-[0.3em] t-text no-underline">
-						786.395.3049
-					</a>
+					<a href="tel:786-395-3049" class="text-[10px] font-bold tracking-[0.3em] t-text no-underline">786.395.3049</a>
 				</div>
-				<p class="text-[8px] font-bold tracking-[0.3em] t-text-muted">
-					&copy; 2026 LENOX PLAZA ASSOCIATION INC.
-				</p>
+				<p class="text-[8px] font-bold tracking-[0.3em] t-text-muted">&copy; 2026 LENOX PLAZA ASSOCIATION INC.</p>
 
-				<!-- Building Image -->
+				
 				<div class="mt-8">
 					<a href="https://1033lenox.com" target="_blank">
 						<NuxtImg
@@ -777,7 +796,7 @@ function sectionNum(base: number) {
 							class="mx-auto w-48 md:w-56"
 							format="png" />
 					</a>
-				</div>
+				</div> -->
 			</div>
 		</section>
 	</div>
