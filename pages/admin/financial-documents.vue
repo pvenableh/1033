@@ -76,7 +76,7 @@ const categoryLabels: Record<string, string> = {
 };
 
 const periodOptions = [
-  { label: 'None', value: '' },
+  { label: 'Annual (Full Year)', value: 'annual' },
   { label: 'January', value: '01' },
   { label: 'February', value: '02' },
   { label: 'March', value: '03' },
@@ -100,7 +100,7 @@ const documentForm = ref({
   title: '',
   description: '',
   category: 'monthly_report',
-  period: '',
+  period: 'annual',
   fiscal_year: '' as string,
   report_date: '',
   status: 'draft' as 'published' | 'draft' | 'archived',
@@ -199,7 +199,7 @@ function openCreateModal() {
     title: '',
     description: '',
     category: 'monthly_report',
-    period: '',
+    period: 'annual',
     fiscal_year: '',
     report_date: '',
     status: 'draft',

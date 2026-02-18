@@ -497,6 +497,7 @@ export interface FinancialDocument {
 	date_updated?: string | null;
 	title?: string | null;
 	category?: 'monthly_report' | 'annual_report' | 'budget' | 'reserve_study' | 'compliance' | 'assessment' | 'tax_filing' | 'audit' | 'other' | null;
+	/** Period: 'annual', month (01-12), or quarter (Q1-Q4). Defaults to 'annual'. */
 	period?: string | null;
 	fiscal_year?: FiscalYear | string | null;
 	file?: DirectusFile | string | null;

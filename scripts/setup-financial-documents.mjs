@@ -264,10 +264,11 @@ const FIELDS = [
       width: 'half',
       interface: 'select-dropdown',
       sort: 3,
-      note: 'Month or quarter this report covers. Leave blank for annual reports.',
+      note: 'Period this report covers. Defaults to Annual (full year).',
       options: {
         allowOther: true,
         choices: [
+          { text: 'Annual (Full Year)', value: 'annual' },
           { text: 'January', value: '01' },
           { text: 'February', value: '02' },
           { text: 'March', value: '03' },
