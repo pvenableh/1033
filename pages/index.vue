@@ -134,7 +134,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">01</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Philosophy</span>
 					</div>
-					<div class="content-main min-w-0 overflow-hidden">
+					<div class="content-main min-w-0 overflow-x-clip">
 						<div class="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
 							<div class="max-w-xl">
 								<h2
@@ -181,7 +181,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">02</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Location</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Coveted Location
@@ -296,7 +296,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">03</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Design</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Thoughtfully Designed
@@ -362,7 +362,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">04</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Investment</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-4 opacity-0">
 							All New
@@ -435,7 +435,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">05</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Security</span>
 					</div>
-					<div class="content-main min-w-0 overflow-hidden">
+					<div class="content-main min-w-0 overflow-x-clip">
 						<div class="grid grid-cols-1 md:grid-cols-[1fr_1fr] lg:grid-cols-[1fr_1fr] gap-8 lg:gap-12">
 							<div class="max-w-xl">
 								<h2
@@ -487,7 +487,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">06</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Value</span>
 					</div>
-					<div class="content-main max-w-2xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-2xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Smart Investment
@@ -519,7 +519,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">07</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Amenities</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Amenities With Intention
@@ -570,7 +570,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">08</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">Community</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Shape What's Next
@@ -623,7 +623,7 @@
 						<span class="t-heading text-sm t-text-accent">07</span>
 						<span class="text-xs tracking-wider uppercase t-text-tertiary">Fun Friends</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<div class="max-w-2xl mx-auto">
 							<div class="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-8 items-center">
 								<div class="text-center md:text-left">
@@ -660,7 +660,7 @@
 						<span class="t-heading text-sm lg:text-[26px] lg:leading-6 t-text-accent">09</span>
 						<span class="text-xs lg:text-sm lg:leading-3 tracking-wider uppercase t-text-tertiary">FAQ</span>
 					</div>
-					<div class="content-main max-w-4xl min-w-0 overflow-hidden">
+					<div class="content-main max-w-4xl min-w-0 overflow-x-clip">
 						<h2
 							class="section-title t-heading text-[clamp(2rem,5vw,3rem)] font-normal tracking-tight leading-tight mb-8 opacity-0">
 							Common Questions
