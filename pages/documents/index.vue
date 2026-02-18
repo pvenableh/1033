@@ -1,189 +1,165 @@
 <template>
-	<div class="documents-page bg-cream min-h-screen">
-		<!-- Hero Section -->
-		<section class="py-16 lg:py-24 px-6 lg:px-16 bg-cream-alt">
-			<div class="max-w-5xl mx-auto">
-				<div class="page-header text-center opacity-0">
-					<p class="text-xs tracking-[0.3em] uppercase mb-4 text-gold-dark">Resource Center</p>
-					<h1
-						class="font-serif text-[clamp(2.5rem,6vw,4rem)] font-light tracking-tight leading-tight mb-6 text-gray-800">
-						Documents
-					</h1>
-					<div class="w-16 h-px bg-gold mx-auto mb-6"></div>
-					<p class="font-serif text-lg italic text-gray-500 max-w-xl mx-auto">
-						Meeting minutes, financial reports, and important association documents
-					</p>
+	<div class="documents-page min-h-screen" :style="{ backgroundColor: 'var(--theme-bg-primary)' }">
+		<!-- Page Header — frosted glass bar -->
+		<header class="page-header-wrap sticky top-0 z-20">
+			<div class="page-header-glass">
+				<div class="max-w-5xl mx-auto px-6 lg:px-16 py-4">
+					<div class="page-header flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 opacity-0">
+						<div>
+							<h1 class="font-serif text-2xl font-light tracking-tight" style="color: var(--theme-text-primary)">
+								Documents
+							</h1>
+							<p class="text-[13px] mt-1" style="color: var(--theme-text-secondary)">
+								Meeting minutes, financial reports &amp; association documents
+							</p>
+						</div>
+						<nav class="flex flex-wrap gap-2">
+							<button
+								v-for="cat in categories"
+								:key="cat.id"
+								@click="switchCategory(cat.id)"
+								class="category-pill"
+								:class="activeCategory === cat.id ? 'is-active' : ''">
+								{{ cat.label }}
+								<span v-if="cat.count > 0" class="pill-count">{{ cat.count }}</span>
+							</button>
+						</nav>
+					</div>
 				</div>
 			</div>
-		</section>
-
-		<!-- Category Navigation -->
-		<section class="py-8 px-6 lg:px-16 border-b border-divider">
-			<div class="max-w-5xl mx-auto">
-				<nav class="flex flex-wrap gap-4 justify-center">
-					<button
-						v-for="cat in categories"
-						:key="cat.id"
-						@click="activeCategory = cat.id"
-						class="category-btn px-4 py-2 text-xs tracking-[0.15em] uppercase transition-all duration-300 border"
-						:class="activeCategory === cat.id
-							? 'border-gold bg-gold text-white'
-							: 'border-divider text-gray-500 hover:border-gold-dark hover:text-gold-dark'">
-						{{ cat.label }}
-						<span v-if="cat.count > 0" class="ml-1 opacity-70">({{ cat.count }})</span>
-					</button>
-				</nav>
-			</div>
-		</section>
+		</header>
 
 		<!-- Documents Content -->
-		<section class="py-16 lg:py-24 px-6 lg:px-16">
+		<section class="px-6 lg:px-16 pt-6 pb-16">
 			<div class="max-w-5xl mx-auto">
 
 				<!-- General Documents Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'general'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-document-text" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">General</p>
+				<Transition name="section" mode="out-in">
+					<div v-if="activeCategory === 'all' || activeCategory === 'general'" key="general" class="document-section mb-12">
+						<div class="section-label opacity-0">
+							<div class="label-dot"></div>
+							<span>Association Documents</span>
 						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Association Documents</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
-					</div>
 
-					<div v-if="generalDocuments.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<a
-							v-for="(doc, index) in generalDocuments"
-							:key="'doc-' + index"
-							:href="'https://admin.1033lenox.com/assets/' + doc.fileId"
-							target="_blank"
-							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
-							<div class="flex items-center gap-4">
-								<div
-									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
-									<UIcon
-										name="i-heroicons-document-arrow-down"
-										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+						<div v-if="generalDocuments.length" class="card-grid">
+							<a
+								v-for="(doc, index) in generalDocuments"
+								:key="'doc-' + index"
+								:href="'https://admin.1033lenox.com/assets/' + doc.fileId"
+								target="_blank"
+								class="doc-card group opacity-0">
+								<div class="card-inner">
+									<div class="card-icon">
+										<UIcon name="i-heroicons-document-arrow-down" class="w-4 h-4" />
+									</div>
+									<div class="card-body">
+										<h3 class="card-title">{{ doc.title }}</h3>
+										<p v-if="doc.description" class="card-subtitle">{{ doc.description }}</p>
+									</div>
+									<span v-if="doc.type" class="card-badge">{{ doc.type }}</span>
 								</div>
-								<div class="flex-1 min-w-0">
-									<h3
-										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300 truncate">
-										{{ doc.title }}
-									</h3>
-									<p v-if="doc.description" class="text-xs text-gray-500 mt-1 truncate">{{ doc.description }}</p>
-								</div>
-								<span v-if="doc.type" class="text-[10px] tracking-[0.15em] uppercase text-gold-dark flex-shrink-0">
-									{{ doc.type }}
-								</span>
-							</div>
-						</a>
-					</div>
+							</a>
+						</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-document" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No general documents available yet</p>
-						<p class="text-xs text-gray-400 mt-1">Documents will appear here as they are added</p>
+						<div v-else class="empty-state">
+							<UIcon name="i-heroicons-document" class="w-5 h-5 empty-icon" />
+							<p>No documents available yet</p>
+						</div>
 					</div>
-				</div>
+				</Transition>
 
 				<!-- Meeting Minutes & Agendas Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'meetings'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-calendar" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Meetings</p>
+				<Transition name="section" mode="out-in">
+					<div v-if="activeCategory === 'all' || activeCategory === 'meetings'" key="meetings" class="document-section mb-12">
+						<div class="section-label opacity-0">
+							<div class="label-dot"></div>
+							<span>Meeting Minutes &amp; Agendas</span>
 						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Meeting Minutes & Agendas</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
-					</div>
 
-					<div v-if="meetingDocuments.length" class="space-y-3">
-						<div
-							v-for="(meeting, index) in meetingDocuments"
-							:key="'meeting-' + index"
-							class="document-card bg-white border border-divider p-5 opacity-0">
-							<div class="flex flex-col sm:flex-row sm:items-center gap-3">
-								<div class="flex-1 min-w-0">
-									<h3 class="font-serif text-base font-normal text-gray-800">
-										{{ meeting.title || 'Board Meeting' }}
-									</h3>
-									<p class="text-xs text-gray-500 mt-1">
-										{{ formatMeetingDate(meeting.date) }}
-										<span v-if="meeting.category" class="ml-2 text-gold-dark">{{ meeting.category }}</span>
-									</p>
-								</div>
-								<div class="flex items-center gap-2 flex-shrink-0">
-									<a
-										v-if="meeting.agendaFileId"
-										:href="'https://admin.1033lenox.com/assets/' + meeting.agendaFileId"
-										target="_blank"
-										class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wider uppercase border border-divider hover:border-gold hover:text-gold-dark transition-all duration-300">
-										<UIcon name="i-heroicons-document-text" class="w-3.5 h-3.5" />
-										Agenda
-									</a>
-									<a
-										v-if="meeting.minutesFileId"
-										:href="'https://admin.1033lenox.com/assets/' + meeting.minutesFileId"
-										target="_blank"
-										class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs tracking-wider uppercase border border-divider hover:border-gold hover:text-gold-dark transition-all duration-300">
-										<UIcon name="i-heroicons-clipboard-document-list" class="w-3.5 h-3.5" />
-										Minutes
-									</a>
+						<div v-if="meetingDocuments.length" class="space-y-2">
+							<div
+								v-for="(meeting, index) in meetingDocuments"
+								:key="'meeting-' + index"
+								class="meeting-card opacity-0">
+								<div class="flex flex-col sm:flex-row sm:items-center gap-3">
+									<div class="flex-1 min-w-0">
+										<h3 class="card-title">
+											{{ meeting.title || 'Board Meeting' }}
+										</h3>
+										<p class="card-subtitle">
+											{{ formatMeetingDate(meeting.date) }}
+											<span v-if="meeting.category" class="meeting-tag">{{ meeting.category }}</span>
+										</p>
+									</div>
+									<div class="flex items-center gap-2 flex-shrink-0">
+										<a
+											v-if="meeting.agendaFileId"
+											:href="'https://admin.1033lenox.com/assets/' + meeting.agendaFileId"
+											target="_blank"
+											class="file-link">
+											<UIcon name="i-heroicons-document-text" class="w-3.5 h-3.5" />
+											Agenda
+										</a>
+										<a
+											v-if="meeting.minutesFileId"
+											:href="'https://admin.1033lenox.com/assets/' + meeting.minutesFileId"
+											target="_blank"
+											class="file-link">
+											<UIcon name="i-heroicons-clipboard-document-list" class="w-3.5 h-3.5" />
+											Minutes
+										</a>
+									</div>
 								</div>
 							</div>
 						</div>
-					</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-calendar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No meeting documents available</p>
+						<div v-else class="empty-state">
+							<UIcon name="i-heroicons-calendar" class="w-5 h-5 empty-icon" />
+							<p>No meeting documents available</p>
+						</div>
 					</div>
-				</div>
+				</Transition>
 
 				<!-- Financial Reports Section -->
-				<div v-if="activeCategory === 'all' || activeCategory === 'financial'" class="document-section mb-16">
-					<div class="section-header mb-8 opacity-0">
-						<div class="flex items-center gap-3 mb-2">
-							<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 text-gold-dark" />
-							<p class="text-xs tracking-[0.3em] uppercase text-gold-dark">Financial</p>
+				<Transition name="section" mode="out-in">
+					<div v-if="activeCategory === 'all' || activeCategory === 'financial'" key="financial" class="document-section mb-12">
+						<div class="section-label opacity-0">
+							<div class="label-dot"></div>
+							<span>Financial Reports</span>
 						</div>
-						<h2 class="font-serif text-2xl font-light text-gray-800">Financial Reports</h2>
-						<div class="w-12 h-px bg-gold mt-3"></div>
-					</div>
 
-					<div v-if="financialReports.length" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<a
-							v-for="(report, index) in financialReports"
-							:key="'report-' + index"
-							:href="'https://admin.1033lenox.com/assets/' + report.fileId"
-							target="_blank"
-							class="document-card group block bg-white p-5 border border-divider hover:border-gold transition-all duration-300 opacity-0">
-							<div class="flex items-center gap-4">
-								<div
-									class="flex-shrink-0 w-10 h-10 rounded-full border border-divider group-hover:border-gold group-hover:bg-gold flex items-center justify-center transition-all duration-300">
-									<UIcon
-										name="i-heroicons-chart-bar"
-										class="w-5 h-5 text-gray-400 group-hover:text-white transition-colors duration-300" />
+						<div v-if="financialReports.length" class="card-grid">
+							<a
+								v-for="(report, index) in financialReports"
+								:key="'report-' + index"
+								:href="'https://admin.1033lenox.com/assets/' + report.fileId"
+								target="_blank"
+								class="doc-card group opacity-0">
+								<div class="card-inner">
+									<div class="card-icon">
+										<UIcon name="i-heroicons-chart-bar" class="w-4 h-4" />
+									</div>
+									<div class="card-body">
+										<h3 class="card-title">{{ report.title }}</h3>
+										<p class="card-subtitle">
+											<span v-if="report.categoryLabel" class="cat-label">{{ report.categoryLabel }}</span>
+											<span v-if="report.categoryLabel && report.year"> · </span>
+											<span v-if="report.year">{{ report.year }}</span>
+										</p>
+									</div>
+									<span class="card-badge">
+										{{ report.fileType ? report.fileType.split('/').pop() : 'PDF' }}
+									</span>
 								</div>
-								<div class="flex-1 min-w-0">
-									<h3
-										class="font-serif text-base font-normal text-gray-800 leading-snug group-hover:text-gold-dark transition-colors duration-300">
-										{{ report.title }}
-									</h3>
-									<p class="text-xs text-gray-500 mt-1">{{ report.period }}</p>
-								</div>
-								<span class="text-[10px] tracking-[0.15em] uppercase text-gold-dark flex-shrink-0">
-									PDF
-								</span>
-							</div>
-						</a>
-					</div>
+							</a>
+						</div>
 
-					<div v-else class="text-center py-10 bg-white border border-divider">
-						<UIcon name="i-heroicons-chart-bar" class="w-8 h-8 text-gray-300 mx-auto mb-3" />
-						<p class="font-serif text-gray-500">No financial reports available</p>
+						<div v-else class="empty-state">
+							<UIcon name="i-heroicons-chart-bar" class="w-5 h-5 empty-icon" />
+							<p>No financial reports available</p>
+						</div>
 					</div>
-				</div>
+				</Transition>
 
 			</div>
 		</section>
@@ -191,7 +167,7 @@
 </template>
 
 <script setup>
-import {onMounted, onUnmounted} from 'vue';
+import {onMounted, onUnmounted, nextTick} from 'vue';
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger';
 
@@ -215,8 +191,6 @@ const activeCategory = ref('all');
 const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 // ---- Fetch General Documents ----
-// The 'documents' collection may not exist yet in Directus.
-// When created, it should have: title, description, file (M2O to directus_files), status, category, sort
 const documentsCollection = useDirectusItems('documents');
 let rawDocuments = [];
 try {
@@ -226,7 +200,6 @@ try {
 		sort: ['sort', '-date_created'],
 	});
 } catch (e) {
-	// Collection may not exist yet - that's OK
 	rawDocuments = [];
 }
 
@@ -282,46 +255,72 @@ const meetingDocuments = computed(() => {
 });
 
 // ---- Fetch Financial Reports ----
-const reconciliationCollection = useDirectusItems('monthly_reconciliation_reports');
-let rawReports = [];
+const financialDocsCollection = useDirectusItems('financial_documents');
+let rawFinancialDocs = [];
 try {
-	rawReports = await reconciliationCollection.list({
-		fields: ['id', 'report_month', 'fiscal_year.year', 'pdf_report.id', 'pdf_report.title', 'reconciliation_status'],
+	rawFinancialDocs = await financialDocsCollection.list({
+		fields: [
+			'id',
+			'title',
+			'category',
+			'period',
+			'report_date',
+			'description',
+			'fiscal_year.year',
+			'file.id',
+			'file.title',
+			'file.type',
+		],
 		filter: {
-			_and: [
-				{reconciliation_status: {_eq: 'reconciled'}},
-				{pdf_report: {_nnull: true}},
-			],
+			status: { _eq: 'published' },
+			file: { _nnull: true },
 		},
-		sort: ['-fiscal_year.year', '-report_month'],
+		sort: ['-fiscal_year.year', '-period', '-report_date'],
 	});
 } catch (e) {
-	rawReports = [];
+	rawFinancialDocs = [];
 }
 
-const financialReports = computed(() => {
-	if (!rawReports || !rawReports.length) return [];
-	return rawReports
-		.filter((r) => r.pdf_report?.id)
-		.map((report) => {
-			const monthIndex = parseInt(report.report_month, 10) - 1;
-			const monthName = monthNames[monthIndex] || report.report_month;
-			const year = report.fiscal_year?.year || '';
+const categoryLabels = {
+	monthly_report: 'Monthly Report',
+	annual_report: 'Annual Report',
+	budget: 'Budget',
+	reserve_study: 'Reserve Study',
+	compliance: 'Compliance',
+	assessment: 'Assessment',
+	tax_filing: 'Tax Filing',
+	audit: 'Audit',
+	other: 'Other',
+};
 
+const financialReports = computed(() => {
+	if (!rawFinancialDocs || !rawFinancialDocs.length) return [];
+	return rawFinancialDocs
+		.filter((doc) => doc.file?.id)
+		.map((doc) => {
+			const year = doc.fiscal_year?.year || '';
+			const catLabel = categoryLabels[doc.category] || doc.category || '';
 			return {
-				title: `Reconciliation Report - ${monthName} ${year}`,
-				period: `${monthName} ${year}`,
-				fileId: report.pdf_report.id,
+				id: doc.id,
+				title: doc.title || `${catLabel} - ${year}`,
+				category: doc.category,
+				categoryLabel: catLabel,
+				period: doc.period,
+				year,
+				description: doc.description,
+				fileId: doc.file.id,
+				fileType: doc.file.type,
+				reportDate: doc.report_date,
 			};
 		});
 });
 
 // ---- Category counts ----
 const categories = computed(() => [
-	{id: 'all', label: 'All Documents', count: generalDocuments.value.length + meetingDocuments.value.length + financialReports.value.length},
+	{id: 'all', label: 'All', count: generalDocuments.value.length + meetingDocuments.value.length + financialReports.value.length},
 	{id: 'general', label: 'General', count: generalDocuments.value.length},
-	{id: 'meetings', label: 'Meeting Documents', count: meetingDocuments.value.length},
-	{id: 'financial', label: 'Financial Reports', count: financialReports.value.length},
+	{id: 'meetings', label: 'Meetings', count: meetingDocuments.value.length},
+	{id: 'financial', label: 'Financial', count: financialReports.value.length},
 ]);
 
 function formatMeetingDate(dateStr) {
@@ -334,40 +333,53 @@ function formatMeetingDate(dateStr) {
 	});
 }
 
-// Track category changes
-watch(activeCategory, (newCat) => {
-	analytics.trackEvent('documents_category_filter', {
-		category: newCat,
+// Category switching with animated card re-entrance
+function switchCategory(id) {
+	if (id === activeCategory.value) return;
+	activeCategory.value = id;
+
+	analytics.trackEvent('documents_category_filter', { category: id });
+
+	// Re-animate cards after Vue re-renders the new section
+	nextTick(() => {
+		animateCards();
 	});
-});
+}
+
+function animateCards() {
+	// Section labels
+	gsap.fromTo('.section-label',
+		{opacity: 0, x: -8},
+		{opacity: 1, x: 0, duration: 0.5, ease: 'power2.out', stagger: 0.08}
+	);
+
+	// Document cards
+	const cards = document.querySelectorAll('.doc-card, .meeting-card');
+	gsap.fromTo(cards,
+		{opacity: 0, y: 12, scale: 0.98},
+		{
+			opacity: 1,
+			y: 0,
+			scale: 1,
+			duration: 0.45,
+			ease: 'power2.out',
+			stagger: 0.04,
+		}
+	);
+}
 
 let ctx;
 
 onMounted(() => {
 	ctx = gsap.context(() => {
-		gsap.fromTo('.page-header', {opacity: 0, y: 30}, {opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', delay: 0.2});
+		// Header entrance
+		gsap.fromTo('.page-header',
+			{opacity: 0, y: 6},
+			{opacity: 1, y: 0, duration: 0.6, ease: 'power2.out', delay: 0.05}
+		);
 
-		gsap.fromTo('.section-header', {opacity: 0, y: 20}, {opacity: 1, y: 0, duration: 0.6, ease: 'power3.out', delay: 0.3, stagger: 0.15});
-
-		const cards = document.querySelectorAll('.document-card');
-		cards.forEach((card, index) => {
-			gsap.fromTo(
-				card,
-				{opacity: 0, y: 15},
-				{
-					opacity: 1,
-					y: 0,
-					duration: 0.5,
-					ease: 'power3.out',
-					scrollTrigger: {
-						trigger: card,
-						start: 'top 92%',
-						toggleActions: 'play none none none',
-					},
-					delay: (index % 4) * 0.06,
-				}
-			);
-		});
+		// Initial card animations
+		animateCards();
 	});
 });
 
@@ -379,12 +391,340 @@ onUnmounted(() => {
 <style scoped>
 @reference "~/assets/css/tailwind.css";
 
+/* ============================================
+   Page Foundation
+   ============================================ */
+
 .documents-page {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
 
-.category-btn {
-	min-width: fit-content;
+/* ============================================
+   Frosted Glass Header
+   ============================================ */
+
+.page-header-glass {
+	background: rgba(253, 252, 250, 0.72);
+	backdrop-filter: blur(20px) saturate(1.8);
+	-webkit-backdrop-filter: blur(20px) saturate(1.8);
+	border-bottom: 1px solid rgba(229, 224, 216, 0.5);
+	box-shadow: 0 1px 3px rgba(139, 115, 85, 0.04);
+}
+
+@media (prefers-color-scheme: dark) {
+	.page-header-glass {
+		background: rgba(28, 25, 21, 0.72);
+		border-bottom-color: rgba(255, 255, 255, 0.06);
+	}
+}
+
+/* ============================================
+   Category Pills — iOS segmented control feel
+   ============================================ */
+
+.category-pill {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.375rem 0.75rem;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	border-radius: 100px;
+	border: 1px solid var(--theme-border-primary, #e5e0d8);
+	color: var(--theme-text-secondary, #6c6c6c);
+	background: transparent;
+	cursor: pointer;
+	transition:
+		all 0.35s cubic-bezier(0.23, 1, 0.32, 1),
+		transform 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+	-webkit-tap-highlight-color: transparent;
+}
+
+.category-pill:hover {
+	border-color: var(--theme-accent-tertiary, #8b7355);
+	color: var(--theme-accent-tertiary, #8b7355);
+	transform: translateY(-1px);
+}
+
+.category-pill:active {
+	transform: scale(0.97);
+}
+
+.category-pill.is-active {
+	background: var(--theme-accent-primary, #c9a96e);
+	border-color: var(--theme-accent-primary, #c9a96e);
+	color: #fff;
+	box-shadow:
+		0 2px 8px rgba(201, 169, 110, 0.3),
+		inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.pill-count {
+	font-size: 10px;
+	opacity: 0.7;
+}
+
+/* ============================================
+   Section Labels — minimal, refined
+   ============================================ */
+
+.section-label {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	margin-bottom: 1rem;
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--theme-accent-tertiary, #8b7355);
+}
+
+.label-dot {
+	width: 5px;
+	height: 5px;
+	border-radius: 50%;
+	background: var(--theme-accent-primary, #c9a96e);
+	flex-shrink: 0;
+}
+
+/* ============================================
+   Card Grid
+   ============================================ */
+
+.card-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+	.card-grid {
+		grid-template-columns: 1fr 1fr;
+		gap: 0.625rem;
+	}
+}
+
+/* ============================================
+   Document Cards — glass morphism
+   ============================================ */
+
+.doc-card {
+	display: block;
+	text-decoration: none;
+	border-radius: 0.625rem;
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(12px) saturate(1.4);
+	-webkit-backdrop-filter: blur(12px) saturate(1.4);
+	border: 1px solid rgba(229, 224, 216, 0.6);
+	box-shadow:
+		0 1px 3px rgba(139, 115, 85, 0.04),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
+	transition:
+		transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+		box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+		border-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+	will-change: transform;
+}
+
+.doc-card:hover {
+	transform: translateY(-2px) scale(1.005);
+	border-color: rgba(201, 169, 110, 0.45);
+	box-shadow:
+		0 8px 24px rgba(139, 115, 85, 0.1),
+		0 2px 6px rgba(139, 115, 85, 0.06),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.doc-card:active {
+	transform: translateY(0) scale(0.995);
+	transition-duration: 0.15s;
+}
+
+.card-inner {
+	display: flex;
+	align-items: center;
+	gap: 0.875rem;
+	padding: 0.875rem 1rem;
+}
+
+.card-icon {
+	flex-shrink: 0;
+	width: 2rem;
+	height: 2rem;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba(201, 169, 110, 0.08);
+	color: var(--theme-accent-tertiary, #8b7355);
+	transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.doc-card:hover .card-icon {
+	background: var(--theme-accent-primary, #c9a96e);
+	color: #fff;
+	box-shadow: 0 2px 8px rgba(201, 169, 110, 0.25);
+}
+
+.card-body {
+	flex: 1;
+	min-width: 0;
+}
+
+.card-title {
+	font-size: 0.8125rem;
+	font-weight: 500;
+	line-height: 1.35;
+	color: var(--theme-text-primary, #454545);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	transition: color 0.3s ease;
+}
+
+.doc-card:hover .card-title {
+	color: var(--theme-accent-tertiary, #8b7355);
+}
+
+.card-subtitle {
+	font-size: 0.6875rem;
+	color: var(--theme-text-secondary, #6c6c6c);
+	margin-top: 0.125rem;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cat-label {
+	color: var(--theme-accent-tertiary, #8b7355);
+}
+
+.card-badge {
+	flex-shrink: 0;
+	font-size: 9px;
+	font-weight: 600;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	color: var(--theme-accent-tertiary, #8b7355);
+	opacity: 0.7;
+}
+
+/* ============================================
+   Meeting Cards — glass variant
+   ============================================ */
+
+.meeting-card {
+	border-radius: 0.625rem;
+	padding: 0.875rem 1rem;
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(12px) saturate(1.4);
+	-webkit-backdrop-filter: blur(12px) saturate(1.4);
+	border: 1px solid rgba(229, 224, 216, 0.6);
+	box-shadow:
+		0 1px 3px rgba(139, 115, 85, 0.04),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
+	transition:
+		transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+		box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+		border-color 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.meeting-card:hover {
+	transform: translateY(-1px);
+	border-color: rgba(201, 169, 110, 0.35);
+	box-shadow:
+		0 6px 18px rgba(139, 115, 85, 0.08),
+		inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.meeting-tag {
+	margin-left: 0.5rem;
+	color: var(--theme-accent-tertiary, #8b7355);
+	font-weight: 500;
+}
+
+.file-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.375rem 0.625rem;
+	font-size: 11px;
+	font-weight: 500;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	text-decoration: none;
+	color: var(--theme-text-secondary, #6c6c6c);
+	border-radius: 6px;
+	border: 1px solid rgba(229, 224, 216, 0.7);
+	background: rgba(255, 255, 255, 0.4);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.file-link:hover {
+	border-color: var(--theme-accent-primary, #c9a96e);
+	color: var(--theme-accent-tertiary, #8b7355);
+	background: rgba(201, 169, 110, 0.06);
+	transform: translateY(-1px);
+}
+
+.file-link:active {
+	transform: scale(0.97);
+	transition-duration: 0.1s;
+}
+
+/* ============================================
+   Empty State
+   ============================================ */
+
+.empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 2.5rem 1rem;
+	border-radius: 0.625rem;
+	background: rgba(255, 255, 255, 0.35);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	border: 1px dashed rgba(229, 224, 216, 0.6);
+}
+
+.empty-icon {
+	color: var(--theme-border-primary, #e5e0d8);
+}
+
+.empty-state p {
+	font-size: 0.8125rem;
+	color: var(--theme-text-muted, #9a9a9a);
+}
+
+/* ============================================
+   Section Transitions
+   ============================================ */
+
+.section-enter-active {
+	transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.section-leave-active {
+	transition: all 0.2s cubic-bezier(0.65, 0, 0.45, 1);
+}
+
+.section-enter-from {
+	opacity: 0;
+	transform: translateY(8px);
+	filter: blur(4px);
+}
+
+.section-leave-to {
+	opacity: 0;
+	transform: translateY(-4px);
+	filter: blur(4px);
 }
 </style>
