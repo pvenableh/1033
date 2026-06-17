@@ -6,8 +6,28 @@ export const useHOAFinancialsEnhanced = () => {
 	const monthlyStatementsCollection = useDirectusItems('monthly_statements');
 
 	// Reactive state
+	// selectedFromYear / selectedToYear define the fiscal-year range that drives
+	// the transaction dataset (vendor analysis, transactions, metrics). selectedYear
+	// is the anchor (end of range) that per-year data — budget categories, monthly
+	// statements, budget comparison — stays bound to.
+	const selectedFromYear = ref(new Date().getFullYear());
+	const selectedToYear = ref(new Date().getFullYear());
 	const selectedYear = ref(new Date().getFullYear());
 	const selectedAccount = ref(1); // Default to Operating Account
+
+	// Inclusive list of years in the selected range
+	const yearsInRange = () => {
+		const years = [];
+		for (let y = unref(selectedFromYear); y <= unref(selectedToYear); y++) years.push(y);
+		return years;
+	};
+
+	// True when a transaction falls in the anchor (end) year — used to keep
+	// budget-vs-actual comparisons single-year even when a wider range is shown.
+	const isInAnchorYear = (transaction) => {
+		const anchor = unref(selectedYear);
+		return String(transaction?.transaction_date || '').startsWith(`${anchor}-`);
+	};
 	const selectedCategory = ref('all');
 	const selectedVendor = ref('all');
 	const selectedStartMonth = ref('01'); // 'all' for YTD, or '01' for January, etc.
@@ -476,7 +496,7 @@ export const useHOAFinancialsEnhanced = () => {
 		try {
 			const data = await transactionsCollection.list({
 				filter: {
-					fiscal_year: { year: { _eq: unref(selectedYear) } },
+					fiscal_year: { year: { _in: yearsInRange() } },
 				},
 				sort: ['-transaction_date'],
 				fields: ['*'],
@@ -1342,7 +1362,9 @@ export const useHOAFinancialsEnhanced = () => {
 	// Budget comparison analysis (dynamic - uses Directus budget_categories for selected year)
 	const budgetComparison = computed(() => {
 		try {
-			const transactions = allAccountTransactions.value || [];
+			// Budget categories are anchored to the end year, so compare against that
+			// year's actuals only (a no-op when from === to).
+			const transactions = (allAccountTransactions.value || []).filter(isInAnchorYear);
 			const monthsInRange = getMonthsInRange();
 			const selectedMonthCount = monthsInRange.length;
 
@@ -1423,7 +1445,8 @@ export const useHOAFinancialsEnhanced = () => {
 	// Overall budget summary (dynamic - uses Directus budget_categories for selected year)
 	const budgetSummary = computed(() => {
 		try {
-			const transactions = allAccountTransactions.value || [];
+			// Anchor-year actuals only — budget is single (end) year (no-op when from === to).
+			const transactions = (allAccountTransactions.value || []).filter(isInAnchorYear);
 			const monthsInRange = getMonthsInRange();
 			const selectedMonthCount = monthsInRange.length;
 
@@ -1690,14 +1713,18 @@ export const useHOAFinancialsEnhanced = () => {
 		}
 	});
 
-	// Watch for filter changes
-	watch([selectedYear], async () => {
+	// Watch for filter changes. Changing the range re-anchors selectedYear to the
+	// end of the range, then refetches across the whole span.
+	watch([selectedFromYear, selectedToYear], async () => {
+		selectedYear.value = unref(selectedToYear);
 		await refreshAll();
 	});
 
 	return {
 		// State
 		selectedYear,
+		selectedFromYear,
+		selectedToYear,
 		selectedAccount,
 		selectedCategory,
 		selectedVendor,

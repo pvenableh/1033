@@ -12,7 +12,7 @@
 					</p>
 				</div>
 				<div class="flex items-center gap-3">
-					<span class="text-sm uppercase tracking-wider text-gray-500">{{ getRangeDescription() }} {{ selectedYear }}</span>
+					<span class="text-sm uppercase tracking-wider text-gray-500">{{ getRangeDescription() }} {{ yearRangeLabel }}</span>
 				</div>
 			</div>
 		</div>
@@ -151,10 +151,11 @@
 					<Card>
 						<CardContent class="pt-6">
 							<div class="flex flex-wrap gap-4 items-center">
-								<div class="flex items-center gap-2">
-									<label class="text-sm font-medium text-gray-700 uppercase">Fiscal Year:</label>
-									<Select v-model="selectedYear" :options="yearOptions" class="w-24" />
-								</div>
+								<FinancialsYearRangeSelector
+									v-model:from-year="selectedFromYear"
+									v-model:to-year="selectedToYear"
+									:max-year="currentYear + 1"
+									label="Fiscal Year:" />
 								<div class="flex items-center gap-2">
 									<label class="text-sm font-medium text-gray-700 uppercase">From Month:</label>
 									<Select v-model="selectedStartMonth" :options="monthOptions" class="w-32" />
@@ -753,7 +754,7 @@
 								<CardContent>
 									<div class="space-y-6">
 										<div
-											v-for="vendorGroup in groupedVendorTransactions.slice(0, 15)"
+											v-for="vendorGroup in visibleVendorGroups"
 											:key="vendorGroup.vendor"
 											class="border rounded-lg p-4 bg-gray-50">
 											<div class="flex items-center justify-between mb-4 pb-3 border-b border-gray-200">
@@ -802,10 +803,15 @@
 											</div>
 										</div>
 
-										<div v-if="groupedVendorTransactions.length > 15" class="text-center py-4">
-											<p class="text-sm text-gray-500">
-												Showing top 15 vendors. Total of {{ groupedVendorTransactions.length }} vendors with transactions.
+										<div v-if="groupedVendorTransactions.length > VENDOR_PREVIEW_LIMIT" class="text-center py-4">
+											<p class="text-sm text-gray-500 mb-2">
+												Showing {{ visibleVendorGroups.length }} of {{ groupedVendorTransactions.length }} vendors with transactions.
 											</p>
+											<button
+												@click="showAllVendors = !showAllVendors"
+												class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-300 dark:border-gray-600 text-sm font-medium hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+												{{ showAllVendors ? `Show top ${VENDOR_PREVIEW_LIMIT}` : 'Show all vendors' }}
+											</button>
 										</div>
 									</div>
 								</CardContent>
@@ -1431,7 +1437,7 @@
 					<CardContent class="pt-6">
 						<div class="flex items-center gap-4">
 							<label class="text-sm font-medium text-gray-700 uppercase">Fiscal Year:</label>
-							<Select v-model="selectedYear" :options="yearOptions" class="w-24" />
+							<Select v-model="budgetInfoYear" :options="yearOptions" class="w-24" />
 						</div>
 					</CardContent>
 				</Card>
@@ -1471,6 +1477,8 @@ onMounted(() => {
 
 const {
 	selectedYear,
+	selectedFromYear,
+	selectedToYear,
 	selectedAccount,
 	selectedCategory,
 	selectedVendor,
@@ -1517,6 +1525,34 @@ const {
 
 const activeTab = ref(0);
 const complianceView = ref('transfers');
+
+const currentYear = new Date().getFullYear();
+
+// Label for the selected fiscal-year range ("2025" or "2023–2025")
+const yearRangeLabel = computed(() =>
+	selectedFromYear.value === selectedToYear.value
+		? `${selectedToYear.value}`
+		: `${selectedFromYear.value}–${selectedToYear.value}`
+);
+
+// Single-year control for the Budget Info view (budget is inherently per-year);
+// writing it collapses the range to that year and triggers a refetch.
+const budgetInfoYear = computed({
+	get: () => selectedToYear.value,
+	set: (value) => {
+		selectedFromYear.value = value;
+		selectedToYear.value = value;
+	},
+});
+
+// Vendor analysis "show all" toggle (default shows the top groups only)
+const VENDOR_PREVIEW_LIMIT = 15;
+const showAllVendors = ref(false);
+const visibleVendorGroups = computed(() =>
+	showAllVendors.value
+		? groupedVendorTransactions.value
+		: groupedVendorTransactions.value.slice(0, VENDOR_PREVIEW_LIMIT)
+);
 
 // Enhanced All Transactions filters
 const txTypeFilter = ref('all');
