@@ -522,6 +522,22 @@
 								</div>
 							</div>
 
+							<!-- AI Model Selector -->
+							<div v-if="stmtFile" class="flex items-center justify-center gap-3 flex-wrap">
+								<label class="text-sm font-medium text-gray-700">AI model:</label>
+								<select
+									v-model="stmtModel"
+									:disabled="claudeExtracting || pdfToCsvExtracting"
+									class="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:opacity-50">
+									<option v-for="opt in STMT_MODEL_OPTIONS" :key="opt.id" :value="opt.id">
+										{{ opt.label }}
+									</option>
+								</select>
+								<span class="text-xs text-gray-500">
+									{{ STMT_MODEL_OPTIONS.find((o) => o.id === stmtModel)?.hint }}
+								</span>
+							</div>
+
 							<!-- PDF Action Buttons -->
 							<div v-if="stmtFile" class="flex flex-col sm:flex-row gap-3 justify-center">
 								<button
@@ -607,7 +623,8 @@
 
 							<!-- Claude Token Usage -->
 							<div v-if="claudeTokenUsage" class="text-xs text-gray-400 text-center">
-								Claude API usage: {{ claudeTokenUsage.input.toLocaleString() }} input +
+								<span v-if="claudeModelUsed">{{ claudeModelUsed }} · </span>Claude API usage:
+								{{ claudeTokenUsage.input.toLocaleString() }} input +
 								{{ claudeTokenUsage.output.toLocaleString() }} output tokens
 							</div>
 
@@ -1113,6 +1130,28 @@
 							</button>
 						</div>
 
+						<!-- AI fallback: categorize whatever the rules engine misses -->
+						<div v-if="canCreateFinancials" class="flex items-center gap-3 flex-wrap border-t pt-4">
+							<button
+								@click="runAutoCategorize(autoCatFiscalYear, null, false, { useAiFallback: true })"
+								:disabled="autoCategorizing || !autoCatFiscalYear"
+								class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 text-sm inline-flex items-center gap-2">
+								<Icon
+									:name="autoCategorizing ? 'i-heroicons-arrow-path' : 'i-heroicons-sparkles'"
+									:class="['w-4 h-4', autoCategorizing && 'animate-spin']" />
+								{{ autoCategorizing ? 'Working...' : 'Rules + AI for Unmatched' }}
+							</button>
+							<select
+								v-model="autoCatModel"
+								:disabled="autoCategorizing"
+								class="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:opacity-50">
+								<option v-for="opt in STMT_MODEL_OPTIONS" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
+							</select>
+							<span class="text-xs text-gray-500">
+								Runs the rules engine, then asks Claude to classify only the leftovers (max 100 per run).
+							</span>
+						</div>
+
 						<!-- Results -->
 						<div
 							v-if="autoCategorizeResults"
@@ -1130,6 +1169,12 @@
 								:class="autoCategorizeResults.categorized > 0 ? 'text-purple-700' : 'text-gray-600'">
 								<li>Total processed: {{ autoCategorizeResults.total_processed || autoCategorizeResults.total_uncategorized }}</li>
 								<li>Successfully categorized: {{ autoCategorizeResults.categorized }}</li>
+								<li v-if="autoCategorizeResults.ai_categorized > 0" class="text-blue-700">
+									Categorized by AI fallback: {{ autoCategorizeResults.ai_categorized }}
+									<span v-if="autoCategorizeResults.ai_model_used" class="text-gray-400">
+										({{ autoCategorizeResults.ai_model_used }})
+									</span>
+								</li>
 								<li v-if="autoCategorizeResults.recategorized > 0" class="text-amber-700">
 									Re-categorized with updated rules: {{ autoCategorizeResults.recategorized }}
 								</li>
@@ -1486,6 +1531,252 @@
 								<p class="text-sm mt-1" :class="repairResults.success ? 'text-green-600' : 'text-red-600'">
 									{{ repairResults.message }}
 								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Learn From Corrections -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Learn From Corrections</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Mine manually-categorized transactions for reliable vendor &rarr; category patterns and teach them to
+							the auto-categorizer, so future runs match them automatically. Preview first, then apply.
+						</p>
+					</div>
+					<div class="p-6 space-y-4">
+						<div class="flex items-center gap-3 flex-wrap">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="learnFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option :value="null">All Years</option>
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+							<button
+								@click="scanLearnRules"
+								:disabled="learnScanning || learnApplying"
+								class="bg-gray-600 text-white px-5 py-2 rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 text-sm">
+								{{ learnScanning ? 'Scanning...' : 'Preview Learnable Rules' }}
+							</button>
+							<button
+								v-if="canCreateFinancials && learnResults && learnResults.candidates > 0"
+								@click="applyLearnRules"
+								:disabled="learnApplying || learnScanning"
+								class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-sm">
+								{{ learnApplying ? 'Applying...' : `Apply ${learnResults.rules.filter((r) => r.action === 'would_add').length} Rules` }}
+							</button>
+						</div>
+
+						<div v-if="learnResults" class="p-4 rounded-lg border bg-gray-50 border-gray-200">
+							<ul class="text-sm text-gray-700 space-y-1">
+								<li>Manually-categorized transactions scanned: {{ learnResults.scanned }}</li>
+								<li>Reliable patterns found: {{ learnResults.candidates }}</li>
+								<li v-if="learnResults.learned > 0" class="text-green-700">
+									Patterns taught to the engine: {{ learnResults.learned }}
+								</li>
+								<li v-if="!learnResults.dry_run && learnResults.learned > 0" class="text-gray-500">
+									Re-run Auto-Categorize to apply them to existing transactions.
+								</li>
+							</ul>
+							<div v-if="learnResults.rules?.length > 0" class="mt-3">
+								<details class="text-sm">
+									<summary class="cursor-pointer text-gray-700 font-medium">
+										View {{ learnResults.rules.length }} patterns
+									</summary>
+									<div class="mt-2 max-h-64 overflow-y-auto">
+										<table class="w-full text-xs">
+											<thead class="bg-gray-100 sticky top-0">
+												<tr>
+													<th class="text-left px-2 py-1">Pattern</th>
+													<th class="text-left px-2 py-1">Category</th>
+													<th class="text-right px-2 py-1">Seen</th>
+													<th class="text-right px-2 py-1">Agreement</th>
+													<th class="text-left px-2 py-1">Status</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr v-for="(r, i) in learnResults.rules" :key="i" class="border-t border-gray-200">
+													<td class="px-2 py-1 font-mono truncate max-w-[180px]">{{ r.token }}</td>
+													<td class="px-2 py-1">{{ r.category_name }}</td>
+													<td class="px-2 py-1 text-right">{{ r.occurrences }}&times;</td>
+													<td class="px-2 py-1 text-right">{{ Math.round(r.dominance * 100) }}%</td>
+													<td class="px-2 py-1">
+														<span :class="{
+															'text-green-600': r.action === 'added',
+															'text-blue-600': r.action === 'would_add',
+															'text-gray-400': r.action === 'already_present',
+															'text-amber-600': r.action === 'no_budget_item',
+														}">{{ r.action.replace(/_/g, ' ') }}</span>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</details>
+							</div>
+							<div v-if="learnResults.errors?.length > 0" class="mt-2 text-xs text-red-600">
+								<div v-for="(e, i) in learnResults.errors" :key="i">{{ e }}</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Vendor Consolidation -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Vendor Consolidation</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Find vendor-name variants that refer to the same real vendor and merge them into a canonical record.
+							Enable AI to catch messy variants rule-matching misses.
+						</p>
+					</div>
+					<div class="p-6 space-y-4">
+						<div class="flex items-center gap-3 flex-wrap">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="vcFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option :value="null">All Years</option>
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+							<label class="flex items-center gap-2 text-sm text-gray-700">
+								<input type="checkbox" v-model="vcUseAi" class="rounded border-gray-300" />
+								Use AI
+							</label>
+							<select
+								v-if="vcUseAi"
+								v-model="vcModel"
+								:disabled="vcAnalyzing"
+								class="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:opacity-50">
+								<option v-for="opt in STMT_MODEL_OPTIONS" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
+							</select>
+							<button
+								@click="analyzeVendorConsolidation"
+								:disabled="vcAnalyzing"
+								class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50 text-sm inline-flex items-center gap-2">
+								<Icon v-if="vcAnalyzing" name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								{{ vcAnalyzing ? 'Analyzing...' : 'Analyze Vendors' }}
+							</button>
+						</div>
+
+						<div v-if="vcResults" class="p-4 rounded-lg border bg-gray-50 border-gray-200 space-y-3">
+							<p class="text-sm text-gray-700">
+								{{ vcResults.groups_found }} consolidation group(s) across
+								{{ vcResults.total_unique_vendor_names }} distinct vendor names.
+								<span v-if="vcResults.ai_model_used" class="text-gray-400">(AI: {{ vcResults.ai_model_used }})</span>
+							</p>
+							<div v-for="(g, i) in vcResults.groups" :key="i" class="bg-white border rounded-lg p-3">
+								<div class="flex items-center justify-between gap-3">
+									<div class="min-w-0">
+										<p class="font-medium text-sm text-gray-900 truncate">{{ g.canonical }}</p>
+										<p class="text-xs text-gray-500">
+											{{ g.variants.length }} variants ·
+											{{ g.variants.reduce((s, v) => s + v.count, 0) }} transactions
+											<span v-if="!g.vendor_id" class="text-amber-600">· no vendor record (create one first)</span>
+										</p>
+									</div>
+									<button
+										v-if="canCreateFinancials && g.vendor_id"
+										@click="applyVendorGroup(g)"
+										:disabled="vcApplyingId === i"
+										class="shrink-0 bg-green-600 text-white px-4 py-1.5 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 text-xs">
+										{{ vcApplyingId === i ? 'Merging...' : 'Merge' }}
+									</button>
+								</div>
+								<div class="mt-2 flex flex-wrap gap-1">
+									<span
+										v-for="(v, vi) in g.variants"
+										:key="vi"
+										class="text-xs bg-gray-100 text-gray-700 px-2 py-0.5 rounded">
+										{{ v.name }} ({{ v.count }})
+									</span>
+								</div>
+							</div>
+							<p v-if="vcResults.groups?.length === 0" class="text-sm text-gray-500">No consolidation opportunities found.</p>
+						</div>
+					</div>
+				</div>
+
+				<!-- Duplicate & Anomaly Review -->
+				<div class="bg-white rounded-lg shadow-sm border">
+					<div class="border-b px-6 py-4">
+						<h2 class="text-xl font-semibold text-gray-900">Duplicate &amp; Anomaly Review</h2>
+						<p class="text-sm text-gray-500 mt-1">
+							Detect likely duplicate payments and unusual transactions, with an optional AI pass that explains
+							which are genuine concerns. Review-only unless you choose to flag them.
+						</p>
+					</div>
+					<div class="p-6 space-y-4">
+						<div class="flex items-center gap-3 flex-wrap">
+							<label class="text-sm font-medium text-gray-700">Fiscal Year:</label>
+							<select v-model="anomFiscalYear" class="border border-gray-300 rounded-lg px-3 py-2 text-sm">
+								<option v-for="fy in availableFiscalYears" :key="fy.id" :value="fy.year">{{ fy.year }}</option>
+							</select>
+							<label class="flex items-center gap-2 text-sm text-gray-700">
+								<input type="checkbox" v-model="anomUseAi" class="rounded border-gray-300" />
+								Use AI triage
+							</label>
+							<select
+								v-if="anomUseAi"
+								v-model="anomModel"
+								:disabled="anomReviewing"
+								class="border border-gray-300 rounded-lg px-3 py-2 text-sm disabled:opacity-50">
+								<option v-for="opt in STMT_MODEL_OPTIONS" :key="opt.id" :value="opt.id">{{ opt.label }}</option>
+							</select>
+							<label class="flex items-center gap-2 text-sm text-gray-700">
+								<input type="checkbox" v-model="anomFlag" class="rounded border-gray-300" />
+								Flag concerns for review
+							</label>
+							<button
+								@click="runAnomalyReview"
+								:disabled="anomReviewing || !anomFiscalYear"
+								class="bg-red-600 text-white px-5 py-2 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 text-sm inline-flex items-center gap-2">
+								<Icon v-if="anomReviewing" name="i-heroicons-arrow-path" class="w-4 h-4 animate-spin" />
+								{{ anomReviewing ? 'Reviewing...' : 'Run Review' }}
+							</button>
+						</div>
+
+						<div v-if="anomResults" class="p-4 rounded-lg border bg-gray-50 border-gray-200">
+							<ul class="text-sm text-gray-700 space-y-1">
+								<li>Transactions scanned: {{ anomResults.scanned }}</li>
+								<li>Candidates detected: {{ anomResults.candidates }}</li>
+								<li :class="anomResults.concerns > 0 ? 'text-red-700 font-medium' : 'text-green-700'">
+									Concerns: {{ anomResults.concerns }}
+									<span v-if="anomResults.ai_model_used" class="text-gray-400 font-normal">(AI: {{ anomResults.ai_model_used }})</span>
+								</li>
+								<li v-if="anomResults.flagged > 0" class="text-amber-700">Flagged for review: {{ anomResults.flagged }}</li>
+							</ul>
+							<div v-if="anomResults.findings?.length > 0" class="mt-3 max-h-72 overflow-y-auto">
+								<table class="w-full text-xs">
+									<thead class="bg-gray-100 sticky top-0">
+										<tr>
+											<th class="text-left px-2 py-1">Date</th>
+											<th class="text-left px-2 py-1">Description</th>
+											<th class="text-right px-2 py-1">Amount</th>
+											<th class="text-left px-2 py-1">Severity</th>
+											<th class="text-left px-2 py-1">Why</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr
+											v-for="f in anomResults.findings.filter((x) => x.concern)"
+											:key="f.transaction_id"
+											class="border-t border-gray-200">
+											<td class="px-2 py-1 whitespace-nowrap">{{ f.date }}</td>
+											<td class="px-2 py-1 truncate max-w-[180px]">{{ f.description }}</td>
+											<td class="px-2 py-1 text-right font-mono">${{ f.amount.toFixed(2) }}</td>
+											<td class="px-2 py-1">
+												<span :class="{
+													'text-red-600 font-medium': f.severity === 'high',
+													'text-amber-600': f.severity === 'medium',
+													'text-gray-500': f.severity === 'low',
+												}">{{ f.severity }}</span>
+											</td>
+											<td class="px-2 py-1 text-gray-600">{{ f.reason }}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div v-if="anomResults.errors?.length > 0" class="mt-2 text-xs text-red-600">
+								<div v-for="(e, i) in anomResults.errors" :key="i">{{ e }}</div>
 							</div>
 						</div>
 					</div>
@@ -2051,6 +2342,30 @@ const stmtEndingBalance = ref(null);
 const stmtImportResults = ref(null);
 const autoCategorizing = ref(false);
 const autoCategorizeResults = ref(null);
+// Claude model for the AI categorization fallback (reuses the same options/allowlist as PDF extraction)
+const autoCatModel = ref('sonnet');
+
+// --- Learn From Corrections ---
+const learnFiscalYear = ref(new Date().getFullYear());
+const learnScanning = ref(false);
+const learnApplying = ref(false);
+const learnResults = ref(null);
+
+// --- Vendor Consolidation ---
+const vcFiscalYear = ref(null);
+const vcModel = ref('sonnet');
+const vcUseAi = ref(true);
+const vcAnalyzing = ref(false);
+const vcResults = ref(null);
+const vcApplyingId = ref(null);
+
+// --- Duplicate & Anomaly Review ---
+const anomFiscalYear = ref(new Date().getFullYear());
+const anomModel = ref('sonnet');
+const anomUseAi = ref(true);
+const anomFlag = ref(false);
+const anomReviewing = ref(false);
+const anomResults = ref(null);
 
 // Expandable detail toggles for import results
 const showSkippedDetails = ref(false);
@@ -2074,9 +2389,20 @@ const extractedPdfFileId = ref(null);
 const claudeExtracting = ref(false);
 const claudeExtractionError = ref('');
 const claudeTokenUsage = ref(null);
+const claudeModelUsed = ref('');
 const pdfToCsvExtracting = ref(false);
 const pdfToCsvResult = ref(null);
 const resolvedStmtFiscalYearId = ref(null);
+
+// Claude model selector for PDF extraction. 'sonnet' is the balanced default;
+// 'opus' is more capable for dense/unusual statement layouts. Sent to the
+// extraction endpoints, which allowlist the value (see server/utils/claude.ts).
+const stmtModel = ref('sonnet');
+const STMT_MODEL_OPTIONS = [
+	{ id: 'sonnet', label: 'Sonnet (recommended)', hint: 'Balanced — best for most statements' },
+	{ id: 'opus', label: 'Opus (most capable)', hint: 'Slower/pricier — dense or unusual layouts' },
+	{ id: 'haiku', label: 'Haiku (fastest)', hint: 'Cheapest — simple, clean statements' },
+];
 
 // Chase CSV multi-month support: per-month balances from Chase Balance column
 const chaseMonthBalances = ref(null); // Record<string, { beginning_balance, ending_balance, transaction_count }>
@@ -2244,10 +2570,12 @@ async function extractPdfWithClaude() {
 	claudeExtracting.value = true;
 	claudeExtractionError.value = '';
 	claudeTokenUsage.value = null;
+	claudeModelUsed.value = '';
 
 	try {
 		const formData = new FormData();
 		formData.append('file', stmtFile.value);
+		formData.append('model', stmtModel.value);
 
 		const result = await $fetch('/api/admin/extract-pdf-transactions', {
 			method: 'POST',
@@ -2256,6 +2584,9 @@ async function extractPdfWithClaude() {
 
 		if (result.token_usage) {
 			claudeTokenUsage.value = result.token_usage;
+		}
+		if (result.model_used) {
+			claudeModelUsed.value = result.model_used;
 		}
 
 		if (result.success && result.transactions) {
@@ -2311,10 +2642,12 @@ async function extractPdfToCsv() {
 	pdfToCsvResult.value = null;
 	claudeExtractionError.value = '';
 	claudeTokenUsage.value = null;
+	claudeModelUsed.value = '';
 
 	try {
 		const formData = new FormData();
 		formData.append('file', stmtFile.value);
+		formData.append('model', stmtModel.value);
 
 		const result = await $fetch('/api/admin/pdf-to-csv', {
 			method: 'POST',
@@ -2323,6 +2656,9 @@ async function extractPdfToCsv() {
 
 		if (result.token_usage) {
 			claudeTokenUsage.value = result.token_usage;
+		}
+		if (result.model_used) {
+			claudeModelUsed.value = result.model_used;
 		}
 
 		if (result.success) {
@@ -2724,7 +3060,7 @@ async function importTransactions() {
 	}
 }
 
-async function runAutoCategorize(fiscalYear = null, accountId = null, recategorize = false) {
+async function runAutoCategorize(fiscalYear = null, accountId = null, recategorize = false, options = {}) {
 	autoCategorizing.value = true;
 	autoCategorizeResults.value = null;
 
@@ -2736,6 +3072,12 @@ async function runAutoCategorize(fiscalYear = null, accountId = null, recategori
 
 		if (accountId) {
 			body.account_id = accountId;
+		}
+
+		// AI fallback for transactions the rules engine can't match
+		if (options.useAiFallback) {
+			body.use_ai_fallback = true;
+			body.ai_model = options.aiModel || autoCatModel.value;
 		}
 
 		const result = await $fetch('/api/admin/auto-categorize-transactions', {
@@ -2755,6 +3097,122 @@ async function runAutoCategorize(fiscalYear = null, accountId = null, recategori
 		};
 	} finally {
 		autoCategorizing.value = false;
+	}
+}
+
+// --- Learn From Corrections ---
+async function runLearnRules(dryRun) {
+	const flag = dryRun ? learnScanning : learnApplying;
+	flag.value = true;
+	try {
+		const result = await $fetch('/api/admin/learn-categorization-rules', {
+			method: 'POST',
+			body: {
+				fiscal_year: learnFiscalYear.value,
+				dry_run: dryRun,
+			},
+		});
+		learnResults.value = result;
+	} catch (err) {
+		console.error('Learn rules error:', err);
+		learnResults.value = {
+			success: false,
+			dry_run: dryRun,
+			scanned: 0,
+			candidates: 0,
+			learned: 0,
+			rules: [],
+			errors: [err.data?.message || err.message || 'Failed to learn rules'],
+		};
+	} finally {
+		flag.value = false;
+	}
+}
+const scanLearnRules = () => runLearnRules(true);
+const applyLearnRules = () => runLearnRules(false);
+
+// --- Vendor Consolidation ---
+async function analyzeVendorConsolidation() {
+	vcAnalyzing.value = true;
+	vcResults.value = null;
+	try {
+		vcResults.value = await $fetch('/api/admin/vendor-consolidation', {
+			method: 'POST',
+			body: {
+				action: 'analyze',
+				fiscal_year: vcFiscalYear.value,
+				use_ai: vcUseAi.value,
+				model: vcModel.value,
+			},
+		});
+	} catch (err) {
+		console.error('Vendor consolidation error:', err);
+		vcResults.value = { success: false, groups: [], groups_found: 0, total_unique_vendor_names: 0, errors: [err.data?.message || err.message] };
+	} finally {
+		vcAnalyzing.value = false;
+	}
+}
+
+async function applyVendorGroup(group) {
+	const idx = vcResults.value?.groups?.indexOf(group);
+	vcApplyingId.value = idx;
+	try {
+		// Send every variant except the canonical name as alternate names
+		const canonicalLower = (group.canonical || '').toLowerCase().trim();
+		const alternateNames = group.variants
+			.map((v) => v.name)
+			.filter((n) => n.toLowerCase().trim() !== canonicalLower);
+
+		await $fetch('/api/admin/vendor-consolidation', {
+			method: 'POST',
+			body: {
+				action: 'apply',
+				vendor_id: group.vendor_id,
+				canonical_name: group.canonical,
+				alternate_names: alternateNames,
+				fiscal_year: vcFiscalYear.value,
+			},
+		});
+		// Remove the merged group from the list
+		if (idx != null && idx >= 0) {
+			vcResults.value.groups.splice(idx, 1);
+			vcResults.value.groups_found = vcResults.value.groups.length;
+		}
+	} catch (err) {
+		console.error('Vendor merge error:', err);
+		alert(`Merge failed: ${err.data?.message || err.message}`);
+	} finally {
+		vcApplyingId.value = null;
+	}
+}
+
+// --- Duplicate & Anomaly Review ---
+async function runAnomalyReview() {
+	anomReviewing.value = true;
+	anomResults.value = null;
+	try {
+		anomResults.value = await $fetch('/api/admin/anomaly-review', {
+			method: 'POST',
+			body: {
+				fiscal_year: anomFiscalYear.value,
+				use_ai: anomUseAi.value,
+				model: anomModel.value,
+				flag: anomFlag.value,
+			},
+		});
+	} catch (err) {
+		console.error('Anomaly review error:', err);
+		anomResults.value = {
+			success: false,
+			scanned: 0,
+			candidates: 0,
+			concerns: 0,
+			flagged: 0,
+			findings: [],
+			errors: [err.data?.message || err.message || 'Anomaly review failed'],
+		};
+	} finally {
+		anomReviewing.value = false;
 	}
 }
 

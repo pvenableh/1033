@@ -8,8 +8,45 @@
  */
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages';
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514';
+const DEFAULT_MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 8192;
+
+/**
+ * Models the admin extraction endpoints are allowed to use.
+ * Keys are the short selectors a client may send; values are the API model IDs.
+ * Restricting to an allowlist keeps a client from passing an arbitrary (or
+ * retired) model ID that would 404 at the API.
+ *
+ *   - sonnet: balanced default — good accuracy at lower cost/latency
+ *   - opus:   most capable — use for dense or unusual statement layouts
+ *   - haiku:  fastest/cheapest — simple, clean statements
+ */
+export const EXTRACTION_MODELS = {
+  sonnet: 'claude-sonnet-4-6',
+  opus: 'claude-opus-4-8',
+  haiku: 'claude-haiku-4-5',
+} as const;
+
+export type ExtractionModelKey = keyof typeof EXTRACTION_MODELS;
+
+/**
+ * Resolve a client-supplied model selector to a valid API model ID.
+ *
+ * Accepts either a short key ('sonnet' | 'opus' | 'haiku') or a full
+ * allowlisted model ID. Empty or unrecognized values fall back to the default
+ * (Sonnet), so a bad selector degrades gracefully instead of erroring.
+ */
+export function resolveExtractionModel(selector?: string | null): string {
+  if (!selector) return DEFAULT_MODEL;
+  const key = selector.trim().toLowerCase();
+  if (key in EXTRACTION_MODELS) {
+    return EXTRACTION_MODELS[key as ExtractionModelKey];
+  }
+  if ((Object.values(EXTRACTION_MODELS) as string[]).includes(key)) {
+    return key;
+  }
+  return DEFAULT_MODEL;
+}
 
 interface ClaudeTextContent {
   type: 'text';
@@ -46,7 +83,7 @@ interface ClaudeRequestOptions {
   messages: ClaudeMessage[];
   /** Optional system prompt */
   system?: string;
-  /** Model to use (defaults to claude-sonnet-4-20250514) */
+  /** Model to use (defaults to claude-sonnet-4-6) */
   model?: string;
   /** Max tokens to generate (defaults to 8192) */
   maxTokens?: number;

@@ -24,7 +24,13 @@ import {
 	readItems,
 	uploadFiles as sdkUploadFiles,
 } from '~/server/utils/directus';
-import { isClaudeConfigured, callClaude, pdfToContentBlock, extractClaudeText } from '~/server/utils/claude';
+import {
+	isClaudeConfigured,
+	callClaude,
+	pdfToContentBlock,
+	extractClaudeText,
+	resolveExtractionModel,
+} from '~/server/utils/claude';
 
 const STATEMENTS_FOLDER = 'b538fbe2-698d-4131-9160-f049949c8a0b';
 
@@ -49,6 +55,7 @@ interface PdfToCsvResult {
 	pdf_file_id?: string;
 	csv_text?: string;
 	token_usage?: { input: number; output: number };
+	model_used?: string;
 	error?: string;
 	message?: string;
 }
@@ -115,6 +122,11 @@ export default defineEventHandler(async (event): Promise<PdfToCsvResult> => {
 				error: 'Only PDF files are supported. Please upload a PDF bank statement.',
 			};
 		}
+
+		// Optional model selector (e.g. 'opus' for dense/unusual layouts).
+		// Unknown/empty values fall back to the default Sonnet model.
+		const modelField = formData.find((f) => f.name === 'model');
+		const model = resolveExtractionModel(modelField?.data?.toString());
 
 		// Fetch budget categories and accounts in parallel for context
 		const client = useDirectusAdmin();
@@ -238,6 +250,7 @@ Return ONLY the JSON object, no other text.`;
 					],
 				},
 			],
+			model,
 			maxTokens: 8192,
 		});
 
@@ -340,6 +353,7 @@ Return ONLY the JSON object, no other text.`;
 				input: response.usage.input_tokens,
 				output: response.usage.output_tokens,
 			},
+			model_used: response.model || model,
 			message: `Claude extracted ${transactions.length} transactions with categories from the PDF statement.`,
 		};
 	} catch (error: any) {

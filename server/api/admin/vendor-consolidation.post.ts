@@ -20,29 +20,44 @@ import {
 	updateItem,
 	updateItems,
 } from '~/server/utils/directus';
+import {
+	isClaudeConfigured,
+	callClaude,
+	extractClaudeText,
+	resolveExtractionModel,
+} from '~/server/utils/claude';
+
+defineRouteMeta({ maxDuration: 60 });
+export const config = { maxDuration: 60 };
 
 interface VendorGroup {
 	canonical: string;
 	vendor_id: number | null;
 	variants: { name: string; count: number }[];
 	existing_keywords: string[];
+	source?: 'rules' | 'ai';
 }
 
 export default defineEventHandler(async (event) => {
-	const client = useDirectusAdmin();
-
-	// Check admin access
-	const isAdmin = await hasAdminAccess(event);
-	if (!isAdmin) {
-		throw createError({ statusCode: 403, message: 'Admin access required' });
+	// Auth: hasAdminAccess takes the session (not the event) and is synchronous.
+	const session = await getUserSession(event);
+	if (!session?.user) {
+		throw createError({ statusCode: 401, statusMessage: 'Unauthorized', message: 'Authentication required' });
+	}
+	if (!hasAdminAccess(session)) {
+		throw createError({ statusCode: 403, statusMessage: 'Forbidden', message: 'Admin access required' });
 	}
 
+	const client = useDirectusAdmin();
 	const body = await readBody(event);
 	const action = body?.action || 'analyze';
 	const fiscalYear = body?.fiscal_year;
 
 	if (action === 'analyze') {
-		return await analyzeVendors(client, fiscalYear);
+		// Opt into Claude-assisted clustering for messy/non-obvious variants
+		return body?.use_ai
+			? await analyzeVendorsAi(client, fiscalYear, body?.model)
+			: await analyzeVendors(client, fiscalYear);
 	} else if (action === 'apply') {
 		return await applyConsolidation(client, body);
 	}
@@ -216,6 +231,165 @@ async function analyzeVendors(client: any, fiscalYear?: number) {
 		total_vendor_records: vendors.length,
 		groups_found: groups.length,
 		groups,
+	};
+}
+
+/**
+ * AI-assisted vendor analysis: cluster messy transaction vendor strings into
+ * canonical vendors using Claude, then map each cluster back to an existing
+ * vendor record and transaction counts. Falls back to the rules-based analyzer
+ * when Claude isn't configured.
+ */
+async function analyzeVendorsAi(client: any, fiscalYear?: number, model?: string) {
+	if (!isClaudeConfigured()) {
+		const rulesResult = await analyzeVendors(client, fiscalYear);
+		return { ...rulesResult, ai_used: false, ai_error: 'ANTHROPIC_API_KEY not configured; used rules-based analysis.' };
+	}
+
+	const vendors = await client.request(
+		readItems('vendors', {
+			fields: ['id', 'title', 'matching_keywords', 'status'],
+			filter: { status: { _eq: 'published' } },
+			limit: -1,
+		})
+	);
+
+	const txFilter: any = { vendor: { _nnull: true } };
+	if (fiscalYear) txFilter.fiscal_year = { year: { _eq: fiscalYear } };
+
+	const transactions = await client.request(
+		readItems('transactions', {
+			fields: ['vendor', 'vendor_id'],
+			filter: txFilter,
+			limit: -1,
+		})
+	);
+
+	// Count occurrences of each distinct vendor string
+	const vendorCounts: Record<string, { count: number; vendor_id: number | null }> = {};
+	for (const tx of transactions) {
+		const name = (tx.vendor || '').trim();
+		if (!name) continue;
+		if (!vendorCounts[name]) {
+			vendorCounts[name] = {
+				count: 0,
+				vendor_id: tx.vendor_id ? (typeof tx.vendor_id === 'object' ? tx.vendor_id.id : tx.vendor_id) : null,
+			};
+		}
+		vendorCounts[name].count++;
+	}
+
+	const vendorNames = Object.keys(vendorCounts).sort();
+	const CAP = 200; // bound prompt size / cost
+	const namesForAi = vendorNames.slice(0, CAP);
+
+	if (namesForAi.length === 0) {
+		return { success: true, total_unique_vendor_names: 0, total_vendor_records: vendors.length, groups_found: 0, groups: [], ai_used: true };
+	}
+
+	const systemPrompt = `You normalize messy bank-transaction vendor strings for a condominium HOA. The same real-world vendor often appears under many variants (abbreviations, ALL CAPS, concatenations, trailing IDs, typos). Group strings that refer to the same real vendor.
+
+Rules:
+- Only group strings you are confident are the SAME vendor.
+- Do not group different vendors just because names look alike.
+- canonical should be the cleanest human-readable name for the group.
+- Omit groups that contain only one string.
+- Return ONLY a JSON object, no markdown fences.`;
+
+	const userPrompt = `Vendor strings (name — transaction count):
+${namesForAi.map((n) => `- ${n} (${vendorCounts[n].count})`).join('\n')}
+
+Return JSON of this exact shape:
+{"groups": [{"canonical": "<clean name>", "variants": ["<exact string>", "..."]}]}
+
+Use the exact original strings (verbatim) in variants.`;
+
+	const response = await callClaude({
+		system: systemPrompt,
+		messages: [{ role: 'user', content: userPrompt }],
+		model: resolveExtractionModel(model),
+		maxTokens: 4096,
+	});
+
+	let text = extractClaudeText(response).trim();
+	if (text.startsWith('```')) {
+		text = text.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+	}
+	const jsonMatch = text.match(/\{[\s\S]*\}/);
+	let aiGroups: Array<{ canonical: string; variants: string[] }> = [];
+	if (jsonMatch) {
+		try {
+			const parsed = JSON.parse(jsonMatch[0]);
+			aiGroups = Array.isArray(parsed) ? parsed : parsed.groups || [];
+		} catch {
+			// fall through to empty groups
+		}
+	}
+
+	// Vendor lookup helpers
+	const vendorByTitle: Record<string, any> = {};
+	const vendorById: Record<number, any> = {};
+	for (const v of vendors) {
+		if (v.title) vendorByTitle[v.title.toLowerCase().trim()] = v;
+		vendorById[v.id] = v;
+	}
+	const findVendorRecord = (names: string[]): any => {
+		for (const s of names) {
+			const sLower = s.toLowerCase().trim();
+			if (vendorByTitle[sLower]) return vendorByTitle[sLower];
+			const vid = vendorCounts[s]?.vendor_id;
+			if (vid && vendorById[vid]) return vendorById[vid];
+		}
+		// keyword / partial title match
+		for (const v of vendors) {
+			const titleLower = (v.title || '').toLowerCase();
+			const keywords = (v.matching_keywords || []).map((k: string) => (k || '').toLowerCase());
+			for (const s of names) {
+				const sLower = s.toLowerCase();
+				if (titleLower && (sLower.includes(titleLower) || titleLower.includes(sLower))) return v;
+				if (keywords.some((kw: string) => kw && (sLower.includes(kw) || kw.includes(sLower)))) return v;
+			}
+		}
+		return null;
+	};
+
+	const groups: VendorGroup[] = [];
+	for (const g of aiGroups) {
+		// Keep only variants that actually exist in our transaction data
+		const validVariants = (g.variants || []).filter((n) => vendorCounts[n]);
+		if (validVariants.length < 2) continue;
+
+		const matchedVendor = findVendorRecord(validVariants);
+		const variants = validVariants
+			.map((name) => ({ name, count: vendorCounts[name]?.count || 0 }))
+			.sort((a, b) => b.count - a.count);
+
+		groups.push({
+			canonical: matchedVendor?.title || g.canonical || variants[0].name,
+			vendor_id: matchedVendor?.id || null,
+			variants,
+			existing_keywords: matchedVendor?.matching_keywords || [],
+			source: 'ai',
+		});
+	}
+
+	groups.sort((a, b) => {
+		const aTotal = a.variants.reduce((s, v) => s + v.count, 0);
+		const bTotal = b.variants.reduce((s, v) => s + v.count, 0);
+		return bTotal - aTotal;
+	});
+
+	return {
+		success: true,
+		total_unique_vendor_names: vendorNames.length,
+		total_vendor_records: vendors.length,
+		names_analyzed: namesForAi.length,
+		groups_found: groups.length,
+		groups,
+		ai_used: true,
+		ai_model_used: response.model || resolveExtractionModel(model),
+		ai_token_usage: { input: response.usage.input_tokens, output: response.usage.output_tokens },
+		ai_truncated: vendorNames.length > CAP,
 	};
 }
 

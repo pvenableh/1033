@@ -7,7 +7,13 @@
  * Requires admin/board member access and ANTHROPIC_API_KEY to be configured.
  */
 import { hasAdminAccess, useDirectusAdmin, uploadFiles as sdkUploadFiles } from '~/server/utils/directus';
-import { isClaudeConfigured, callClaude, pdfToContentBlock, extractClaudeText } from '~/server/utils/claude';
+import {
+  isClaudeConfigured,
+  callClaude,
+  pdfToContentBlock,
+  extractClaudeText,
+  resolveExtractionModel,
+} from '~/server/utils/claude';
 
 const STATEMENTS_FOLDER = 'b538fbe2-698d-4131-9160-f049949c8a0b';
 
@@ -75,6 +81,7 @@ interface ExtractionResult {
   account_number_last4?: string;
   pdf_file_id?: string;
   token_usage?: { input: number; output: number };
+  model_used?: string;
   error?: string;
   message?: string;
 }
@@ -136,6 +143,11 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
       };
     }
 
+    // Optional model selector (e.g. 'opus' for dense/unusual layouts).
+    // Unknown/empty values fall back to the default Sonnet model.
+    const modelField = formData.find((f) => f.name === 'model');
+    const model = resolveExtractionModel(modelField?.data?.toString());
+
     // Send PDF to Claude for extraction
     const pdfContent = pdfToContentBlock(fileField.data);
 
@@ -150,6 +162,7 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
           ],
         },
       ],
+      model,
     });
 
     const responseText = extractClaudeText(response);
@@ -215,6 +228,7 @@ export default defineEventHandler(async (event): Promise<ExtractionResult> => {
         input: response.usage.input_tokens,
         output: response.usage.output_tokens,
       },
+      model_used: response.model || model,
       message: `Claude extracted ${transactions.length} transactions from the PDF statement.`,
     };
   } catch (error: any) {

@@ -22,6 +22,12 @@ import {
 	readItems,
 	updateItems,
 } from '~/server/utils/directus';
+import {
+	isClaudeConfigured,
+	callClaude,
+	extractClaudeText,
+	resolveExtractionModel,
+} from '~/server/utils/claude';
 
 // Extend Vercel timeout (Hobby plan max: 60s)
 defineRouteMeta({
@@ -40,6 +46,12 @@ interface CategorizationResult {
 	skipped: number;
 	failed: number;
 	fund_mixing_flagged?: number;
+	/** Number of transactions categorized by the Claude AI fallback pass */
+	ai_categorized?: number;
+	/** Claude token usage for the AI fallback pass, if it ran */
+	ai_token_usage?: { input: number; output: number };
+	/** Model the AI fallback pass actually used */
+	ai_model_used?: string;
 	results: Array<{
 		transaction_id: number;
 		description: string;
@@ -79,6 +91,11 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 	const importBatchId = body?.import_batch_id || null;
 	const minConfidence = body?.min_confidence ?? 25;
 	const recategorize = body?.recategorize === true;
+	// AI fallback: after the rules engine runs, send still-uncategorized
+	// transactions to Claude. Opt-in and capped to keep cost/latency bounded.
+	const useAiFallback = body?.use_ai_fallback === true;
+	const aiModel = body?.ai_model || null;
+	const aiLimit = Math.min(Math.max(Number(body?.ai_limit) || 60, 1), 100);
 
 	if (!fiscalYear) {
 		throw createError({
@@ -189,6 +206,8 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 
 		// Phase 1: Match all transactions (CPU only, no DB writes)
 		const pendingUpdates: Array<{ id: number; updates: Record<string, any> }> = [];
+		// Transactions the rules engine left uncategorized — candidates for the AI pass
+		const unmatchedTxs: any[] = [];
 
 		for (const tx of transactions) {
 			try {
@@ -259,6 +278,10 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 						result.fund_mixing_flagged!++;
 					}
 					result.skipped++;
+					// Still-uncategorized (no existing category) → AI fallback candidate
+					if (!prevCatId) {
+						unmatchedTxs.push(tx);
+					}
 					result.results.push({
 						transaction_id: tx.id,
 						description: tx.description,
@@ -304,6 +327,32 @@ export default defineEventHandler(async (event): Promise<CategorizationResult> =
 					result.categorized -= failCount;
 					result.failed += failCount;
 					result.errors.push(`Bulk update failed (${failCount} items): ${(settled[j] as PromiseRejectedResult).reason?.message}`);
+				}
+			}
+		}
+
+		// Phase 3 (optional): Claude AI fallback for whatever the rules engine
+		// couldn't categorize. Runs only when opted in and only on the leftovers.
+		if (useAiFallback && unmatchedTxs.length > 0) {
+			if (!isClaudeConfigured()) {
+				result.errors.push('AI fallback requested but ANTHROPIC_API_KEY is not configured.');
+			} else {
+				try {
+					await runAiFallback({
+						transactions: unmatchedTxs.slice(0, aiLimit),
+						budgetCategories,
+						model: resolveExtractionModel(aiModel),
+						minConfidence,
+						client,
+						result,
+					});
+					if (unmatchedTxs.length > aiLimit) {
+						result.errors.push(
+							`AI fallback processed the first ${aiLimit} of ${unmatchedTxs.length} uncategorized transactions. Run again to continue.`
+						);
+					}
+				} catch (aiErr: any) {
+					result.errors.push(`AI fallback failed: ${aiErr.message}`);
 				}
 			}
 		}
@@ -1091,4 +1140,187 @@ function matchTransaction(
 	}
 
 	return result;
+}
+
+// ============================================================
+// Phase 3: Claude AI fallback
+// Sends the transactions the rules engine couldn't categorize to Claude,
+// constrained to the real DB category names, and applies confident picks.
+// Mutates `result` in place (counts, token usage, per-tx results).
+// ============================================================
+// Minimum AI-reported confidence (0–100) required to apply a category.
+// Kept conservative because this writes to financial records.
+const AI_APPLY_THRESHOLD = 60;
+
+async function runAiFallback(opts: {
+	transactions: any[];
+	budgetCategories: any[];
+	model: string;
+	minConfidence: number;
+	client: ReturnType<typeof useDirectusAdmin>;
+	result: CategorizationResult;
+}): Promise<void> {
+	const { transactions, budgetCategories, model, minConfidence, client, result } = opts;
+
+	// Build the allowed category list (name + optional description for context)
+	const categories = budgetCategories
+		.map((c: any) => ({ id: c.id, name: (c.category_name || '').trim(), description: (c.description || '').trim() }))
+		.filter((c) => c.name);
+	if (categories.length === 0) return;
+
+	// Resolve a category name back to its DB id (exact, then contains)
+	const idByName = new Map<string, number>();
+	for (const c of categories) idByName.set(c.name.toLowerCase(), c.id);
+	const resolveCategoryId = (name: string): { id: number; name: string } | null => {
+		const n = (name || '').trim().toLowerCase();
+		if (!n) return null;
+		if (idByName.has(n)) return { id: idByName.get(n)!, name: categories.find((c) => c.id === idByName.get(n))!.name };
+		const partial = categories.find(
+			(c) => c.name.toLowerCase().includes(n) || n.includes(c.name.toLowerCase())
+		);
+		return partial ? { id: partial.id, name: partial.name } : null;
+	};
+
+	const categoryList = categories
+		.map((c) => `- ${c.name}${c.description ? `: ${c.description}` : ''}`)
+		.join('\n');
+
+	const txLines = transactions
+		.map((tx) => {
+			const acctId = typeof tx.account_id === 'object' ? tx.account_id?.id : tx.account_id;
+			return JSON.stringify({
+				id: tx.id,
+				description: tx.description || '',
+				vendor: tx.vendor || '',
+				amount: Math.abs(parseFloat(tx.amount) || 0),
+				type: tx.transaction_type || '',
+				account_id: acctId ?? null,
+			});
+		})
+		.join('\n');
+
+	const systemPrompt = `You are a financial categorization assistant for 1033 Lenox Park, a condominium HOA in Miami Beach, FL. You assign bank transactions to the HOA's budget categories.
+
+RULES:
+- Choose the single best category for each transaction from the ALLOWED CATEGORIES list, using the exact category name.
+- Most deposits (Zelle, owner payments, Buildium ACH, laundry income) are revenue/income.
+- Bank fees and service charges are administrative.
+- If you are not reasonably sure, set category to "" (empty) and confidence to a low number — do not guess.
+- confidence is 0-100 reflecting how certain you are.
+- Return ONLY a JSON object, no markdown fences, no commentary.`;
+
+	const userPrompt = `ALLOWED CATEGORIES (use the exact name):
+${categoryList}
+
+TRANSACTIONS (one JSON object per line):
+${txLines}
+
+Return a JSON object of this exact shape:
+{"assignments": [{"id": <transaction id>, "category": "<exact category name or empty string>", "confidence": <0-100>}]}
+
+Include one entry for every transaction id above.`;
+
+	const response = await callClaude({
+		system: systemPrompt,
+		messages: [{ role: 'user', content: userPrompt }],
+		model,
+		maxTokens: 4096,
+	});
+
+	result.ai_model_used = response.model || model;
+	result.ai_token_usage = {
+		input: response.usage.input_tokens,
+		output: response.usage.output_tokens,
+	};
+
+	// Parse the JSON response (tolerate code fences / surrounding text)
+	let text = extractClaudeText(response).trim();
+	if (text.startsWith('```')) {
+		text = text.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+	}
+	const jsonMatch = text.match(/\{[\s\S]*\}/);
+	if (!jsonMatch) {
+		result.errors.push('AI fallback returned no parseable JSON.');
+		return;
+	}
+	let parsed: any;
+	try {
+		parsed = JSON.parse(jsonMatch[0]);
+	} catch {
+		result.errors.push('AI fallback returned invalid JSON.');
+		return;
+	}
+
+	const assignments: any[] = Array.isArray(parsed) ? parsed : parsed.assignments || [];
+	const txById = new Map<number, any>(transactions.map((tx) => [tx.id, tx]));
+	const applyThreshold = Math.max(AI_APPLY_THRESHOLD, minConfidence);
+
+	// Collect applicable updates
+	const aiUpdates: Array<{ id: number; updates: Record<string, any> }> = [];
+	result.ai_categorized = 0;
+
+	for (const a of assignments) {
+		const txId = Number(a?.id);
+		const tx = txById.get(txId);
+		if (!tx) continue;
+		const confidence = Math.round(Number(a?.confidence) || 0);
+		const resolved = a?.category ? resolveCategoryId(String(a.category)) : null;
+
+		if (resolved && confidence >= applyThreshold) {
+			aiUpdates.push({
+				id: txId,
+				updates: { category_id: resolved.id, auto_categorized: true },
+			});
+			result.ai_categorized++;
+			result.categorized++;
+			if (result.skipped > 0) result.skipped--;
+
+			// Update the transaction's existing (skipped) result row in place so it
+			// doesn't show as both matched and unmatched; append only if missing.
+			const existingRow = result.results.find((r) => r.transaction_id === txId);
+			if (existingRow) {
+				existingRow.matched_category = resolved.name;
+				existingRow.confidence = confidence;
+				existingRow.matched_by = 'claude_ai';
+			} else {
+				result.results.push({
+					transaction_id: txId,
+					description: tx.description,
+					matched_category: resolved.name,
+					confidence,
+					matched_by: 'claude_ai',
+				});
+			}
+		}
+	}
+
+	if (aiUpdates.length === 0) return;
+
+	// Bulk-write, grouped by identical payload (same as the rules-based phase)
+	const groups = new Map<string, { ids: number[]; updates: Record<string, any> }>();
+	for (const { id, updates } of aiUpdates) {
+		const key = JSON.stringify(updates);
+		if (!groups.has(key)) groups.set(key, { ids: [], updates });
+		groups.get(key)!.ids.push(id);
+	}
+
+	const groupEntries = Array.from(groups.values());
+	const CONCURRENT_GROUPS = 5;
+	for (let i = 0; i < groupEntries.length; i += CONCURRENT_GROUPS) {
+		const chunk = groupEntries.slice(i, i + CONCURRENT_GROUPS);
+		const settled = await Promise.allSettled(
+			chunk.map(({ ids, updates }) => client.request(updateItems('transactions', ids, updates)))
+		);
+		for (let j = 0; j < settled.length; j++) {
+			if (settled[j].status === 'rejected') {
+				const failCount = chunk[j].ids.length;
+				result.ai_categorized! -= failCount;
+				result.categorized -= failCount;
+				result.failed += failCount;
+				result.errors.push(
+					`AI bulk update failed (${failCount} items): ${(settled[j] as PromiseRejectedResult).reason?.message}`
+				);
+			}
+		}
+	}
 }
