@@ -564,6 +564,22 @@
 								</button>
 							</div>
 
+							<!-- Manual backup: copy a prompt to run in Claude by hand -->
+							<div class="text-center">
+								<button
+									@click="copyExtractionPrompt"
+									class="text-sm text-gray-500 hover:text-gray-700 underline inline-flex items-center gap-1.5">
+									<Icon
+										:name="extractionPromptCopied ? 'i-heroicons-check' : 'i-heroicons-clipboard-document'"
+										class="w-4 h-4"
+										:class="extractionPromptCopied ? 'text-green-600' : ''" />
+									{{ extractionPromptCopied ? 'Prompt copied!' : 'Copy manual extraction prompt (backup)' }}
+								</button>
+								<p class="text-xs text-gray-400 mt-1">
+									Paste into Claude with the PDF attached, then load the JSON via &ldquo;Upload PDF Only&rdquo; &rarr; Paste Transaction JSON.
+								</p>
+							</div>
+
 							<!-- PDF → CSV Success Banner -->
 							<div
 								v-if="pdfToCsvResult && pdfToCsvResult.success"
@@ -2404,6 +2420,60 @@ const STMT_MODEL_OPTIONS = [
 	{ id: 'haiku', label: 'Haiku (fastest)', hint: 'Cheapest — simple, clean statements' },
 ];
 
+// Manual backup prompt — mirrors the server-side PDF→CSV extraction. Account-agnostic
+// so the same prompt works for any statement; the model reads the account/month from
+// the PDF. Output matches the object shape parseJsonFromPaste accepts.
+const STATEMENT_EXTRACTION_PROMPT = `You are a financial data extraction assistant for 1033 Lenox Park, a condominium HOA in Miami Beach, FL. Extract every transaction from the attached bank statement PDF into structured JSON.
+
+RULES:
+- Return ONLY valid JSON — no markdown fences, no explanation.
+- Every amount must be a POSITIVE number.
+- Dates in MM/DD/YYYY format.
+- Use the exact description text from the statement.
+- For "vendor", extract the payee/merchant name when identifiable (for Zelle, the person's name; for transfers, leave empty).
+- Include "check_number" only when a check number is shown.
+- Read the statement month and the account's last 4 digits from the PDF.
+- Include beginning balance, ending balance, and the statement month.
+
+TRANSACTION TYPE:
+- "deposit" for credits, incoming money, Zelle received, ACH deposits, checks deposited
+- "withdrawal" for debits, checks written, outgoing payments, bill pay
+- "fee" for bank fees / service charges
+- For transfers between accounts, use "deposit" (incoming) or "withdrawal" (outgoing) with category "Transfer"
+
+CATEGORY — use one of these exact names, or "" if unsure:
+Revenue, Utilities, Maintenance, Contract Services, Administrative, Insurance, Regulatory, 40-Year Project, Transfer
+Guidance:
+- Deposits from owners/residents (Zelle, checks, Buildium ACH), laundry income → "Revenue"
+- FPL, water, gas, internet → "Utilities"
+- Elevator, pest, cleaning, landscaping, pool, waste/trash → "Contract Services"
+- Plumbing, HVAC, repairs, handyman → "Maintenance"
+- Management, legal, accounting, bank fees, Buildium → "Administrative"
+- Insurance premiums → "Insurance"
+- Permits, licenses, inspections, county/city → "Regulatory"
+- Recertification / general contractor (Ryder, Del Toro, ACG) → "40-Year Project"
+- Inter-account transfers ("Online Transfer To/From Mma ...XXXX") → "Transfer"
+
+Return JSON in EXACTLY this shape:
+{
+  "statement_period": "February",
+  "account_number_last4": "0000",
+  "beginning_balance": 0.00,
+  "ending_balance": 0.00,
+  "transactions": [
+    {
+      "date": "02/03/2026",
+      "type": "deposit",
+      "description": "Zelle Payment From Jane Doe",
+      "vendor": "Jane Doe",
+      "amount": 650.00,
+      "category": "Revenue",
+      "check_number": null
+    }
+  ]
+}`;
+const extractionPromptCopied = ref(false);
+
 // Chase CSV multi-month support: per-month balances from Chase Balance column
 const chaseMonthBalances = ref(null); // Record<string, { beginning_balance, ending_balance, transaction_count }>
 const chaseSelectedMonth = ref(''); // '' = all months, 'MM' = specific month
@@ -2634,6 +2704,31 @@ async function extractPdfWithClaude() {
 	} finally {
 		claudeExtracting.value = false;
 	}
+}
+
+async function copyExtractionPrompt() {
+	try {
+		await navigator.clipboard.writeText(STATEMENT_EXTRACTION_PROMPT);
+	} catch {
+		// Fallback for browsers/contexts without the async clipboard API
+		const ta = document.createElement('textarea');
+		ta.value = STATEMENT_EXTRACTION_PROMPT;
+		ta.style.position = 'fixed';
+		ta.style.opacity = '0';
+		document.body.appendChild(ta);
+		ta.select();
+		try {
+			document.execCommand('copy');
+		} catch (err) {
+			console.error('Copy failed:', err);
+			alert('Could not copy automatically. Please copy the prompt manually.');
+		}
+		document.body.removeChild(ta);
+	}
+	extractionPromptCopied.value = true;
+	setTimeout(() => {
+		extractionPromptCopied.value = false;
+	}, 2500);
 }
 
 async function extractPdfToCsv() {
