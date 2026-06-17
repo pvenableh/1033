@@ -51,24 +51,41 @@ export default defineEventHandler(async (event) => {
 	const client = useDirectusAdmin();
 	const body = await readBody(event);
 	const action = body?.action || 'analyze';
-	const fiscalYear = body?.fiscal_year;
+	const yearFilter = buildYearFilter(body);
 
 	if (action === 'analyze') {
 		// Opt into Claude-assisted clustering for messy/non-obvious variants
 		return body?.use_ai
-			? await analyzeVendorsAi(client, fiscalYear, body?.model)
-			: await analyzeVendors(client, fiscalYear);
+			? await analyzeVendorsAi(client, yearFilter, body?.model)
+			: await analyzeVendors(client, yearFilter);
 	} else if (action === 'apply') {
-		return await applyConsolidation(client, body);
+		return await applyConsolidation(client, body, yearFilter);
 	}
 
 	throw createError({ statusCode: 400, message: 'Invalid action. Use "analyze" or "apply".' });
 });
 
 /**
+ * Build a Directus filter fragment scoping transactions to a fiscal-year range.
+ * Accepts a from/to range (fiscal_year_from / fiscal_year_to) and falls back to
+ * a single fiscal_year for backward compatibility. Returns {} for "all years".
+ */
+function buildYearFilter(body: any): Record<string, any> {
+	const from = body?.fiscal_year_from;
+	const to = body?.fiscal_year_to;
+	const single = body?.fiscal_year;
+
+	if (from && to) return { fiscal_year: { year: { _gte: from, _lte: to } } };
+	if (from) return { fiscal_year: { year: { _gte: from } } };
+	if (to) return { fiscal_year: { year: { _lte: to } } };
+	if (single) return { fiscal_year: { year: { _eq: single } } };
+	return {};
+}
+
+/**
  * Analyze vendor names across transactions to find duplicates and variants.
  */
-async function analyzeVendors(client: any, fiscalYear?: number) {
+async function analyzeVendors(client: any, yearFilter: Record<string, any> = {}) {
 	// Fetch all vendor records
 	const vendors = await client.request(
 		readItems('vendors', {
@@ -79,11 +96,7 @@ async function analyzeVendors(client: any, fiscalYear?: number) {
 	);
 
 	// Fetch all unique vendor strings from transactions
-	const txFilter: any = {};
-	if (fiscalYear) {
-		txFilter.fiscal_year = { year: { _eq: fiscalYear } };
-	}
-	txFilter.vendor = { _nnull: true };
+	const txFilter: any = { vendor: { _nnull: true }, ...yearFilter };
 
 	const transactions = await client.request(
 		readItems('transactions', {
@@ -240,9 +253,9 @@ async function analyzeVendors(client: any, fiscalYear?: number) {
  * vendor record and transaction counts. Falls back to the rules-based analyzer
  * when Claude isn't configured.
  */
-async function analyzeVendorsAi(client: any, fiscalYear?: number, model?: string) {
+async function analyzeVendorsAi(client: any, yearFilter: Record<string, any> = {}, model?: string) {
 	if (!isClaudeConfigured()) {
-		const rulesResult = await analyzeVendors(client, fiscalYear);
+		const rulesResult = await analyzeVendors(client, yearFilter);
 		return { ...rulesResult, ai_used: false, ai_error: 'ANTHROPIC_API_KEY not configured; used rules-based analysis.' };
 	}
 
@@ -254,8 +267,7 @@ async function analyzeVendorsAi(client: any, fiscalYear?: number, model?: string
 		})
 	);
 
-	const txFilter: any = { vendor: { _nnull: true } };
-	if (fiscalYear) txFilter.fiscal_year = { year: { _eq: fiscalYear } };
+	const txFilter: any = { vendor: { _nnull: true }, ...yearFilter };
 
 	const transactions = await client.request(
 		readItems('transactions', {
@@ -424,11 +436,10 @@ function areSimilarVendors(a: string, b: string): boolean {
 /**
  * Apply vendor consolidation: add matching_keywords and update transactions.
  */
-async function applyConsolidation(client: any, body: any) {
+async function applyConsolidation(client: any, body: any, yearFilter: Record<string, any> = {}) {
 	const vendorId = body?.vendor_id;
 	const alternateNames: string[] = body?.alternate_names || [];
 	const canonicalName = body?.canonical_name;
-	const fiscalYear = body?.fiscal_year;
 
 	if (!vendorId) {
 		throw createError({ statusCode: 400, message: 'vendor_id is required' });
@@ -490,12 +501,7 @@ async function applyConsolidation(client: any, body: any) {
 		// Skip if it's already the canonical name
 		if (trimmed.toLowerCase() === (vendorTitle || '').toLowerCase()) continue;
 
-		const txFilter: any = {
-			vendor: { _eq: trimmed },
-		};
-		if (fiscalYear) {
-			txFilter.fiscal_year = { year: { _eq: fiscalYear } };
-		}
+		const txFilter: any = { vendor: { _eq: trimmed }, ...yearFilter };
 
 		// Find transactions with this vendor name
 		const txs = await client.request(

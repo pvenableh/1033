@@ -13,15 +13,12 @@
 		<!-- Controls -->
 		<div class="bg-card rounded-lg shadow-sm border p-6">
 			<div class="flex flex-wrap items-center gap-4">
-				<div class="flex items-center gap-2">
-					<label class="text-sm font-medium text-gray-700 uppercase">Fiscal Year:</label>
-					<select
-						v-model="selectedYear"
-						class="border rounded-lg px-3 py-2 text-sm">
-						<option :value="null">All Years</option>
-						<option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
-					</select>
-				</div>
+				<FinancialsYearRangeSelector
+					v-model:from-year="fromYear"
+					v-model:to-year="toYear"
+					:min-year="minYear"
+					:max-year="currentYear + 1"
+					label="Fiscal Year:" />
 				<button
 					@click="runAnalysis"
 					:disabled="analyzing"
@@ -140,12 +137,12 @@ definePageMeta({ layout: 'default' });
 useSeoMeta({ title: 'Vendor Management' });
 
 const currentYear = new Date().getFullYear();
-const yearOptions = [];
-for (let y = 2023; y <= currentYear + 1; y++) {
-	yearOptions.push(y);
-}
+const minYear = 2023;
 
-const selectedYear = ref(currentYear);
+// Default to spanning all available years so analysis covers the full history
+// out of the box (matches the previous "All Years" default behavior).
+const fromYear = ref(minYear);
+const toYear = ref(currentYear + 1);
 const analyzing = ref(false);
 const analysisResult = ref(null);
 const consolidating = ref(null);
@@ -163,7 +160,8 @@ const runAnalysis = async () => {
 			method: 'POST',
 			body: {
 				action: 'analyze',
-				fiscal_year: selectedYear.value || undefined,
+				fiscal_year_from: fromYear.value,
+				fiscal_year_to: toYear.value,
 			},
 		});
 		analysisResult.value = result;
@@ -188,7 +186,8 @@ const consolidateGroup = async (group) => {
 				vendor_id: group.vendor_id,
 				canonical_name: group.canonical,
 				alternate_names: alternateNames,
-				fiscal_year: selectedYear.value || undefined,
+				fiscal_year_from: fromYear.value,
+				fiscal_year_to: toYear.value,
 			},
 		});
 

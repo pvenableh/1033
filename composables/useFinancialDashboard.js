@@ -20,35 +20,51 @@ export const useFinancialDashboard = () => {
 	const fiscalYearBudgets = ref([]);
 
 	// Selected filters
+	// selectedYear is the "anchor" year (end of the range). Per-year analytics
+	// (budget, variance, cash flow, multi-year comparison) key off this, while
+	// the transaction dataset spans the full selectedFromYear–selectedToYear range.
+	const selectedFromYear = ref(new Date().getFullYear());
+	const selectedToYear = ref(new Date().getFullYear());
 	const selectedYear = ref(new Date().getFullYear());
 	const selectedAccount = ref(1); // Default to Operating
 
-	// Fetch data for a specific year
-	const fetchDataForYear = async (year) => {
+	// Keep the anchor year synced to the end of the selected range.
+	watch(selectedToYear, (year) => {
+		selectedYear.value = year;
+	});
+
+	// Fetch dashboard data. Transactions span the full [fromYear, toYear] range;
+	// budget/statement/projection data stays anchored to the end (anchor) year so
+	// the per-year analytics remain coherent.
+	const fetchDataForRange = async (fromYear, toYear) => {
+		const years = [];
+		for (let y = fromYear; y <= toYear; y++) years.push(y);
+		const anchorYear = toYear;
+
 		const [txData, catData, accData, stmtData, projData, budgetData] = await Promise.all([
 			transactionsCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _in: years } } },
 				sort: ['-transaction_date'],
 				fields: ['*'],
 				limit: -1,
 			}),
 			budgetCategoriesCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _eq: anchorYear } } },
 				fields: ['*', 'fiscal_year.*'],
 			}),
 			accountsCollection.list({ fields: ['*'] }),
 			monthlyStatementsCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _eq: anchorYear } } },
 				sort: ['account_id', 'statement_month'],
 				fields: ['*'],
 			}),
 			cashFlowProjectionsCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _eq: anchorYear } } },
 				sort: ['account_id', 'month'],
 				fields: ['*'],
 			}),
 			fiscalYearBudgetsCollection.list({
-				filter: { fiscal_year: { year: { _in: [year - 2, year - 1, year, year + 1] } } },
+				filter: { fiscal_year: { year: { _in: [anchorYear - 2, anchorYear - 1, anchorYear, anchorYear + 1] } } },
 				fields: ['*', 'fiscal_year.*'],
 			}),
 		]);
@@ -74,16 +90,18 @@ export const useFinancialDashboard = () => {
 		error.value = null;
 
 		try {
-			const year = unref(selectedYear);
-			let data = await fetchDataForYear(year);
+			const fromYear = unref(selectedFromYear);
+			const toYear = unref(selectedToYear);
+			let data = await fetchDataForRange(fromYear, toYear);
 
-			// If current year has no financial data, try the previous year as fallback
-			if (!hasFinancialData(data)) {
-				const prevYear = year - 1;
-				const prevData = await fetchDataForYear(prevYear);
+			// For a single-year selection with no data, fall back to the previous year.
+			if (fromYear === toYear && !hasFinancialData(data)) {
+				const prevYear = toYear - 1;
+				const prevData = await fetchDataForRange(prevYear, prevYear);
 				if (hasFinancialData(prevData)) {
 					data = prevData;
-					selectedYear.value = prevYear;
+					selectedFromYear.value = prevYear;
+					selectedToYear.value = prevYear;
 				}
 			}
 
@@ -157,7 +175,13 @@ export const useFinancialDashboard = () => {
 	// Variance analysis by category
 	const varianceAnalysis = computed(() => {
 		const accountId = unref(selectedAccount);
-		const accountTransactions = transactions.value.filter((t) => t.account_id === accountId);
+		// Budget categories are anchored to the end year, and their ids only match
+		// that year's transactions, so scope variance to the anchor year to keep
+		// budget vs actual apples-to-apples regardless of the wider range.
+		const anchorYear = unref(selectedYear);
+		const accountTransactions = transactions.value.filter(
+			(t) => t.account_id === accountId && (t.transaction_date || '').startsWith(`${anchorYear}-`)
+		);
 
 		// Determine months with data
 		const monthsWithData = new Set(
@@ -532,7 +556,7 @@ export const useFinancialDashboard = () => {
 	};
 
 	// Watch for filter changes
-	watch([selectedYear, selectedAccount], () => {
+	watch([selectedFromYear, selectedToYear, selectedAccount], () => {
 		fetchDashboardData();
 	});
 
@@ -541,6 +565,8 @@ export const useFinancialDashboard = () => {
 		loading,
 		error,
 		selectedYear,
+		selectedFromYear,
+		selectedToYear,
 		selectedAccount,
 
 		// Data

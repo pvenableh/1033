@@ -11,6 +11,8 @@ const { user } = useDirectusAuth()
 // Financial composables
 const {
 	selectedYear: dashYear,
+	selectedFromYear: dashFromYear,
+	selectedToYear: dashToYear,
 	selectedAccount,
 	loading: dashLoading,
 	error: dashError,
@@ -139,6 +141,13 @@ const auditCollectionFilter = ref(null)
 // Loading state
 const initializing = ref(true)
 
+// Label for the selected fiscal-year range
+const dashRangeLabel = computed(() =>
+	dashFromYear.value === dashToYear.value
+		? `Fiscal Year ${dashToYear.value}`
+		: `FY ${dashFromYear.value}–${dashToYear.value}`
+)
+
 // Tabs definition
 const tabs = [
 	{ value: 'overview', label: 'Overview' },
@@ -199,11 +208,20 @@ const healthScoreBg = computed(() => {
 })
 
 // Transaction list for reconciliation tab
+const TRANSACTION_PREVIEW_LIMIT = 100
+const showAllTransactions = ref(false)
 const accountTransactions = computed(() => {
 	return (transactions.value || [])
 		.filter((t) => t.account_id === selectedAccount.value)
 		.sort((a, b) => new Date(b.transaction_date) - new Date(a.transaction_date))
 })
+
+// Capped by default for performance; toggle lifts the cap.
+const displayedTransactions = computed(() =>
+	showAllTransactions.value
+		? accountTransactions.value
+		: accountTransactions.value.slice(0, TRANSACTION_PREVIEW_LIMIT)
+)
 
 // Reconciliation stats
 const reconciliationStats = computed(() => {
@@ -451,19 +469,15 @@ const monthOptions = [
 						<div>
 							<h1 class="text-xl sm:text-2xl font-semibold tracking-tight">Financial Dashboard</h1>
 							<p class="text-sm text-muted-foreground mt-1">
-								Fiscal Year {{ dashYear }} &middot; Financial management and reporting
+								{{ dashRangeLabel }} &middot; Financial management and reporting
 							</p>
 						</div>
 						<div class="flex items-center gap-3">
-							<!-- Year selector -->
-							<select
-								v-model="dashYear"
-								class="h-9 rounded-md border border-input bg-background px-3 text-sm ring-offset-background focus:outline-none focus:ring-2 focus:ring-ring"
-							>
-								<option v-for="y in [2023, 2024, 2025, 2026]" :key="y" :value="y">
-									FY {{ y }}
-								</option>
-							</select>
+							<!-- Fiscal year range selector -->
+							<FinancialsYearRangeSelector
+								v-model:from-year="dashFromYear"
+								v-model:to-year="dashToYear"
+								label="" />
 							<!-- Account selector -->
 							<select
 								v-model="selectedAccount"
@@ -905,10 +919,26 @@ const monthOptions = [
 					<!-- Transaction List -->
 					<Card class="border">
 						<CardHeader>
-							<CardTitle class="text-base">Transactions</CardTitle>
-							<CardDescription>
-								Select transactions to reconcile, add notes, or change status
-							</CardDescription>
+							<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+								<div>
+									<CardTitle class="text-base">Transactions</CardTitle>
+									<CardDescription>
+										Select transactions to reconcile, add notes, or change status
+									</CardDescription>
+								</div>
+								<div class="flex items-center gap-3 shrink-0">
+									<span class="text-xs text-muted-foreground">
+										Showing {{ displayedTransactions.length }} of {{ accountTransactions.length }}
+									</span>
+									<button
+										v-if="accountTransactions.length > TRANSACTION_PREVIEW_LIMIT"
+										class="inline-flex items-center h-8 px-3 rounded-md text-xs font-medium border border-input bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+										@click="showAllTransactions = !showAllTransactions"
+									>
+										{{ showAllTransactions ? `Show first ${TRANSACTION_PREVIEW_LIMIT}` : 'Show all' }}
+									</button>
+								</div>
+							</div>
 						</CardHeader>
 						<CardContent class="p-0">
 							<div class="overflow-x-auto">
@@ -928,7 +958,7 @@ const monthOptions = [
 									</TableHeader>
 									<TableBody>
 										<TableRow
-											v-for="txn in accountTransactions.slice(0, 100)"
+											v-for="txn in displayedTransactions"
 											:key="txn.id"
 											:class="{ 'bg-muted/30': isSelected(txn.id) }"
 										>
@@ -997,7 +1027,7 @@ const monthOptions = [
 										</TableRow>
 										<TableRow v-if="accountTransactions.length === 0">
 											<TableCell :colspan="canReconcile ? 7 : 6" class="text-center text-sm text-muted-foreground py-8">
-												No transactions found for this account and fiscal year.
+												No transactions found for this account and selected period.
 											</TableCell>
 										</TableRow>
 									</TableBody>

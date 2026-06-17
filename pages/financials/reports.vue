@@ -12,14 +12,10 @@
 					</p>
 				</div>
 				<div class="flex items-center gap-3">
-					<USelectMenu
-						v-model="selectedYear"
-						:options="yearOptions"
-						value-attribute="value"
-						option-attribute="label"
-						size="lg"
-						class="w-32"
-						placeholder="Year" />
+					<FinancialsYearRangeSelector
+						v-model:from-year="fromYear"
+						v-model:to-year="toYear"
+						:max-year="currentYear + 1" />
 				</div>
 			</div>
 		</div>
@@ -34,13 +30,13 @@
 			<!-- Year-to-Date Summary Cards -->
 			<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
 				<UCard class="text-center">
-					<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">YTD Revenue</p>
+					<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Total Revenue</p>
 					<p class="text-2xl font-bold text-green-600 dark:text-green-400">
 						{{ formatCurrency(ytdSummary.revenue) }}
 					</p>
 				</UCard>
 				<UCard class="text-center">
-					<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">YTD Expenses</p>
+					<p class="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1">Total Expenses</p>
 					<p class="text-2xl font-bold text-red-600 dark:text-red-400">
 						{{ formatCurrency(ytdSummary.expenses) }}
 					</p>
@@ -92,7 +88,7 @@
 				<template #header>
 					<div class="flex items-center justify-between">
 						<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
-							Monthly Reconciliation Status - {{ selectedYear }}
+							Monthly Reconciliation Status - {{ rangeLabel }}
 						</h2>
 						<UBadge v-if="allMonthsReconciled" color="green" variant="solid">
 							<UIcon name="i-heroicons-shield-check" class="w-4 h-4 mr-1" />
@@ -101,38 +97,47 @@
 					</div>
 				</template>
 
-				<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-					<div
-						v-for="month in monthlyStatus"
-						:key="month.key"
-						class="border dark:border-gray-700 rounded-lg p-3 text-center"
-						:class="{
-							'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': month.status === 'reconciled',
-							'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800': month.status === 'pending',
-							'bg-gray-50 dark:bg-gray-800': !month.hasData,
-						}">
-						<p class="text-sm font-medium dark:text-gray-200 mb-1">{{ month.name }}</p>
-						<template v-if="month.hasData">
-							<UIcon
-								v-if="month.status === 'reconciled'"
-								name="i-heroicons-check-circle"
-								class="w-6 h-6 mx-auto text-green-500" />
-							<UIcon
-								v-else-if="month.status === 'pending'"
-								name="i-heroicons-clock"
-								class="w-6 h-6 mx-auto text-yellow-500" />
-							<UIcon
-								v-else
-								name="i-heroicons-document"
-								class="w-6 h-6 mx-auto text-gray-400" />
-							<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-								{{ month.transactionCount }} txns
-							</p>
-						</template>
-						<template v-else>
-							<UIcon name="i-heroicons-minus" class="w-6 h-6 mx-auto text-gray-300 dark:text-gray-600" />
-							<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">No data</p>
-						</template>
+				<div class="space-y-6">
+					<div v-for="group in monthlyStatusByYear" :key="group.year">
+						<h3
+							v-if="monthlyStatusByYear.length > 1"
+							class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">
+							FY {{ group.year }}
+						</h3>
+						<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+							<div
+								v-for="month in group.months"
+								:key="month.key"
+								class="border dark:border-gray-700 rounded-lg p-3 text-center"
+								:class="{
+									'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': month.status === 'reconciled',
+									'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800': month.status === 'pending',
+									'bg-gray-50 dark:bg-gray-800': !month.hasData,
+								}">
+								<p class="text-sm font-medium dark:text-gray-200 mb-1">{{ month.name }}</p>
+								<template v-if="month.hasData">
+									<UIcon
+										v-if="month.status === 'reconciled'"
+										name="i-heroicons-check-circle"
+										class="w-6 h-6 mx-auto text-green-500" />
+									<UIcon
+										v-else-if="month.status === 'pending'"
+										name="i-heroicons-clock"
+										class="w-6 h-6 mx-auto text-yellow-500" />
+									<UIcon
+										v-else
+										name="i-heroicons-document"
+										class="w-6 h-6 mx-auto text-gray-400" />
+									<p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+										{{ month.transactionCount }} txns
+									</p>
+								</template>
+								<template v-else>
+									<UIcon name="i-heroicons-minus" class="w-6 h-6 mx-auto text-gray-300 dark:text-gray-600" />
+									<p class="text-xs text-gray-400 dark:text-gray-500 mt-1">No data</p>
+								</template>
+							</div>
+						</div>
 					</div>
 				</div>
 			</UCard>
@@ -141,7 +146,7 @@
 			<UCard v-if="budgetComparison.length > 0">
 				<template #header>
 					<h2 class="text-xl font-semibold uppercase tracking-wide dark:text-white">
-						Budget vs Actual - {{ selectedYear }}
+						Budget vs Actual - {{ rangeLabel }}
 					</h2>
 				</template>
 
@@ -221,7 +226,8 @@ const budgetCategoriesCollection = useDirectusItems('budget_categories');
 
 // State
 const currentYear = new Date().getFullYear();
-const selectedYear = ref(currentYear);
+const fromYear = ref(currentYear);
+const toYear = ref(currentYear);
 const loading = ref(true);
 
 // Data stores
@@ -231,14 +237,20 @@ const monthlyStatements = ref([]);
 const reconciliationReports = ref([]);
 const budgetCategories = ref([]);
 
-// Year options
-const yearOptions = computed(() => {
+// Inclusive list of years in the selected range
+const yearsInRange = computed(() => {
 	const years = [];
-	for (let y = 2023; y <= currentYear + 1; y++) {
-		years.push({ label: `${y}`, value: y });
-	}
+	for (let y = fromYear.value; y <= toYear.value; y++) years.push(y);
 	return years;
 });
+
+// Label for headings ("2025" or "2023–2025")
+const rangeLabel = computed(() =>
+	fromYear.value === toYear.value ? `${fromYear.value}` : `${fromYear.value}–${toYear.value}`
+);
+
+// Extract a year number from a fiscal_year field (M2O object or raw id)
+const getYearNum = (fy) => (fy && typeof fy === 'object' ? fy.year : fy);
 
 // Month names - explicit array for guaranteed Jan-Dec order
 const MONTHS_ORDERED = [
@@ -290,9 +302,10 @@ const ytdSummary = computed(() => {
 
 const accountBalances = computed(() => {
 	return accounts.value.map((account) => {
+		const stmtSortKey = (s) => `${getYearNum(s.fiscal_year) || 0}-${s.statement_month || ''}`;
 		const latestStatement = monthlyStatements.value
 			.filter((s) => s.account_id === account.id)
-			.sort((a, b) => b.statement_month.localeCompare(a.statement_month))[0];
+			.sort((a, b) => stmtSortKey(b).localeCompare(stmtSortKey(a)))[0];
 
 		const typeColors = {
 			operating: 'blue',
@@ -311,39 +324,71 @@ const accountBalances = computed(() => {
 	});
 });
 
-const monthlyStatus = computed(() => {
-	return MONTHS_ORDERED.map(({ key, name }) => {
-		const monthTx = transactions.value.filter((t) => t.statement_month === key);
-		const report = reconciliationReports.value.find((r) => r.report_month === key);
+// Reconciliation status grouped by year so months from different years
+// are not collapsed together when a multi-year range is selected.
+const monthlyStatusByYear = computed(() => {
+	return yearsInRange.value.map((year) => {
+		const yearPrefix = `${year}-`;
+		const months = MONTHS_ORDERED.map(({ key, name }) => {
+			const monthTx = transactions.value.filter(
+				(t) => (t.transaction_date || '').startsWith(yearPrefix) && t.statement_month === key
+			);
+			const report = reconciliationReports.value.find(
+				(r) => getYearNum(r.fiscal_year_id) === year && r.report_month === key
+			);
 
-		return {
-			key,
-			name,
-			hasData: monthTx.length > 0,
-			transactionCount: monthTx.length,
-			status: report?.reconciliation_status || null,
-		};
+			return {
+				key,
+				name,
+				hasData: monthTx.length > 0,
+				transactionCount: monthTx.length,
+				status: report?.reconciliation_status || null,
+			};
+		});
+		return { year, months };
 	});
 });
 
-const activeMonthCount = computed(() => monthlyStatus.value.filter((m) => m.hasData).length);
-const reconciledMonthCount = computed(() => monthlyStatus.value.filter((m) => m.status === 'reconciled').length);
+const allMonths = computed(() => monthlyStatusByYear.value.flatMap((g) => g.months));
+const activeMonthCount = computed(() => allMonths.value.filter((m) => m.hasData).length);
+const reconciledMonthCount = computed(() => allMonths.value.filter((m) => m.status === 'reconciled').length);
 const allMonthsReconciled = computed(() => activeMonthCount.value > 0 && reconciledMonthCount.value === activeMonthCount.value);
 
 const budgetComparison = computed(() => {
 	const currentMonth = new Date().getMonth() + 1;
 
-	return budgetCategories.value.map((category) => {
-		const categoryTx = transactions.value.filter((t) => t.category_id === category.id);
-		const ytdActual = categoryTx.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
-		const monthlyBudget = safeParseFloat(category.monthly_budget);
-		const ytdBudget = monthlyBudget * currentMonth;
+	// Months of budget elapsed for a given fiscal year within the range:
+	// full 12 for past years, months-to-date for the current year, 0 for future.
+	const monthsElapsed = (year) => {
+		if (year < currentYear) return 12;
+		if (year === currentYear) return currentMonth;
+		return 0;
+	};
+
+	// Group budget category records (one per fiscal year) by category name.
+	const groups = {};
+	for (const category of budgetCategories.value) {
+		const name = category.category_name;
+		if (!groups[name]) {
+			groups[name] = { category: name, color: category.color, ids: [], budget: 0 };
+		}
+		groups[name].ids.push(category.id);
+		if (!groups[name].color) groups[name].color = category.color;
+		const catYear = getYearNum(category.fiscal_year);
+		groups[name].budget += safeParseFloat(category.monthly_budget) * monthsElapsed(catYear);
+	}
+
+	return Object.values(groups).map((group) => {
+		const ytdActual = transactions.value
+			.filter((t) => group.ids.includes(t.category_id))
+			.reduce((sum, t) => sum + safeParseFloat(t.amount), 0);
+		const ytdBudget = group.budget;
 		const variance = ytdBudget - ytdActual;
 		const variancePercent = ytdBudget > 0 ? (variance / ytdBudget) * 100 : 0;
 
 		return {
-			category: category.category_name,
-			color: category.color,
+			category: group.category,
+			color: group.color,
 			ytdBudget,
 			ytdActual,
 			variance,
@@ -357,7 +402,9 @@ const fetchData = async () => {
 	loading.value = true;
 
 	try {
-		const year = unref(selectedYear);
+		const from = unref(fromYear);
+		const to = unref(toYear);
+		const years = unref(yearsInRange);
 
 		const [accountsData, transactionsData, statementsData, reportsData, categoriesData] = await Promise.all([
 			accountsCollection.list({
@@ -367,8 +414,8 @@ const fetchData = async () => {
 			transactionsCollection.list({
 				filter: {
 					transaction_date: {
-						_gte: `${year}-01-01`,
-						_lte: `${year}-12-31`,
+						_gte: `${from}-01-01`,
+						_lte: `${to}-12-31`,
 					},
 				},
 				sort: ['transaction_date'],
@@ -376,18 +423,18 @@ const fetchData = async () => {
 				limit: -1,
 			}),
 			monthlyStatementsCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _in: years } } },
 				sort: ['statement_month'],
-				fields: ['*'],
+				fields: ['*', 'fiscal_year.year'],
 			}),
 			reconciliationReportsCollection.list({
-				filter: { fiscal_year_id: { year: { _eq: year } } },
-				fields: ['*'],
+				filter: { fiscal_year_id: { year: { _in: years } } },
+				fields: ['*', 'fiscal_year_id.year'],
 			}),
 			budgetCategoriesCollection.list({
-				filter: { fiscal_year: { year: { _eq: year } } },
+				filter: { fiscal_year: { year: { _in: years } } },
 				sort: ['sort', 'category_name'],
-				fields: ['*'],
+				fields: ['*', 'fiscal_year.year'],
 			}),
 		]);
 
@@ -408,8 +455,8 @@ onMounted(() => {
 	fetchData();
 });
 
-// Watch for year changes
-watch(selectedYear, () => {
+// Watch for range changes
+watch([fromYear, toYear], () => {
 	fetchData();
 });
 </script>
