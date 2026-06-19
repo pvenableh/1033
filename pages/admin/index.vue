@@ -18,6 +18,18 @@ const adminLinks = [
     to: '/admin/requests',
   },
   {
+    title: 'Moderate Ideas',
+    description: 'Approve, reject, or archive resident-submitted community ideas',
+    icon: 'i-heroicons-light-bulb',
+    to: '/admin/ideas',
+  },
+  {
+    title: 'Manage Polls',
+    description: 'Create community polls, open or close voting, and view results',
+    icon: 'i-heroicons-chart-pie',
+    to: '/admin/polls',
+  },
+  {
     title: 'Site Analytics',
     description: 'View page views, user engagement, scroll depth, and event tracking',
     icon: 'i-heroicons-chart-bar-square',

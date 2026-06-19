@@ -175,8 +175,57 @@ export default defineEventHandler(async (event) => {
 
       case 'create': {
         // Collections that allow public (unauthenticated) submissions
-        const publicCollections = ['requests'];
+        const publicCollections = ['requests', 'ideas'];
         const isPublicSubmission = body.public === true && publicCollections.includes(body.collection);
+
+        // Harden public idea submissions: force moderation status and strip any
+        // client-supplied fields that must only be set server-side. A public
+        // submitter cannot self-publish or forge resident verification.
+        if (isPublicSubmission && body.collection === 'ideas' && body.data && !Array.isArray(body.data)) {
+          const incomingPerson = body.data.person_id;
+          const incomingUnit = body.data.unit;
+          const incomingVerified = body.data.verified_resident;
+          // Only trust verification/person/unit if the email actually matches a
+          // published resident — re-check here rather than trusting the client.
+          let verified = false;
+          let personId = null;
+          let unitId = null;
+          if (typeof body.data.email === 'string' && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(body.data.email)) {
+            try {
+              const adminClient = useDirectusAdmin();
+              const people = await adminClient.request(
+                readItems('people', {
+                  filter: {
+                    email: { _eq: body.data.email.trim().toLowerCase() },
+                    status: { _eq: 'published' },
+                    is_resident: { _eq: true },
+                  },
+                  fields: ['id', 'unit.units_id.id'],
+                  limit: 1,
+                } as any)
+              );
+              if (people?.[0]) {
+                verified = true;
+                personId = people[0].id;
+                const u = Array.isArray(people[0].unit) ? people[0].unit[0]?.units_id : null;
+                unitId = u?.id ?? null;
+              }
+            } catch {
+              // fall through as unverified
+            }
+          }
+          // Ignore client-supplied trust fields; use only server-verified values.
+          void incomingPerson;
+          void incomingUnit;
+          void incomingVerified;
+          body.data = {
+            ...body.data,
+            status: 'pending',
+            verified_resident: verified,
+            person_id: personId,
+            unit: unitId,
+          };
+        }
 
         if (!session?.user && !isPublicSubmission) {
           throw createError({

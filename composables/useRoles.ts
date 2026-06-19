@@ -52,12 +52,14 @@ export interface AccessRule {
 export const PAGE_ACCESS: Record<string, AccessRule> = {
   // Admin only
   '/admin': { requireAdmin: true },
+  '/admin/polls': { requireAdmin: true },
   '/admin/users': { requireAdmin: true },
   '/admin/invite': { requireAdmin: true },
   '/admin/permissions': { requireAdmin: true },
 
   // Board members and above
   '/admin/tasks': { requireBoardMember: true },
+  '/admin/ideas': { requireBoardMember: true },
   '/financials': { requireBoardMember: true },
   '/financials/dashboard': { requireBoardMember: true },
   '/financials/budget': { requireBoardMember: true },
