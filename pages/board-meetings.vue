@@ -660,6 +660,7 @@ useHead(() => ({
 									<span v-if="resource.meta" class="normal-case tracking-normal text-muted-foreground">
 										{{ resource.meta }}
 									</span>
+									<span v-if="resource.external" class="sr-only">(opens in a new tab)</span>
 								</a>
 
 								<!-- Unavailable: reads as a disabled control, with the reason in a
@@ -709,9 +710,12 @@ useHead(() => ({
 									v-for="presentation in meeting.presentations"
 									:key="presentation.id"
 									:to="presentation.url"
+									target="_blank"
+									rel="noopener"
 									class="glass-surface inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium uppercase tracking-wide">
 									<Icon name="lucide:presentation" class="h-4 w-4 text-primary-strong" />
 									<span class="max-w-[16rem] truncate">{{ presentation.title }}</span>
+									<span class="sr-only">(opens in a new tab)</span>
 								</NuxtLink>
 							</div>
 						</div>
@@ -724,6 +728,8 @@ useHead(() => ({
 								<li v-for="announcement in meeting.announcements" :key="announcement.id">
 									<NuxtLink
 										:to="announcement.url"
+										target="_blank"
+										rel="noopener"
 										class="group inline-flex items-baseline gap-2 text-sm hover:text-primary-strong">
 										<Icon
 											name="lucide:megaphone"
@@ -734,6 +740,7 @@ useHead(() => ({
 										<span v-if="announcement.date" class="text-xs text-muted-foreground">
 											{{ fmt(announcement.date.slice(0, 10), { month: 'short', day: 'numeric' }) }}
 										</span>
+										<span class="sr-only">(opens in a new tab)</span>
 									</NuxtLink>
 								</li>
 							</ul>
