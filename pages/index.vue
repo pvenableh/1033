@@ -1345,7 +1345,10 @@ onUnmounted(() => {
 });
 
 // SEO
-const siteUrl = 'https://1033lenox.com';
+// Read from runtime config, not a literal. Hardcoding the apex made the
+// canonical tag and og:url point at a URL that 308-redirects to www, while the
+// sitemap (which uses site.url) correctly emitted www — the two disagreed.
+const siteUrl = String(useRuntimeConfig().public.siteUrl).replace(/\/$/, '');
 // Same image as the site-wide default (runtimeConfig.public.defaultOgImage),
 // read from config so the two can't drift apart.
 const ogImage = useRuntimeConfig().public.defaultOgImage;
