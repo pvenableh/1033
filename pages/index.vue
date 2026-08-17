@@ -741,6 +741,8 @@
 						<FormVButton
 							type="submit"
 							variant="outline"
+							class="cta-glass"
+							:glow="false"
 							@click="
 								() => {
 									trackCTA('submit_inquiry', 'cta_section');
@@ -1344,10 +1346,12 @@ onUnmounted(() => {
 
 // SEO
 const siteUrl = 'https://1033lenox.com';
-const ogImage = 'https://admin.1033lenox.com/assets/7fef4bc4-9aad-4801-a430-670a2af7cbde';
-const pageTitle = '1033 Lenox | Boutique Condo & Apartment Building in Miami Beach';
+// Same image as the site-wide default (runtimeConfig.public.defaultOgImage),
+// read from config so the two can't drift apart.
+const ogImage = useRuntimeConfig().public.defaultOgImage;
+const pageTitle = '1033 Lenox Ave | Boutique Condo & Apartments, Miami Beach FL';
 const pageDescription =
-	"Boutique condo and apartment building in Miami Beach's Flamingo Park. 28-unit residence with oversized balconies, modern security, and walkable South Beach living. Fully renovated and turnkey ready.";
+	"Boutique condo and apartment building at 1033 Lenox Avenue, Miami Beach, FL 33139. A 28-unit residence in Flamingo Park with oversized balconies, modern security, and walkable South Beach living.";
 
 useHead({
 	title: pageTitle,
@@ -1470,56 +1474,9 @@ useHead({
 });
 </script>
 
-<style scoped>
-.sell-sheet {
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
-
-/* Weather widget in hero - styled for dark background */
-/* .hero-widgets {
-	transform: translateY(-10px);
-} */
-
-/* Hero section clips the fixed background */
-.hero {
-	clip-path: inset(0);
-}
-
-/* Fixed background contained within hero via clip-path */
-.hero-bg-container {
-	position: fixed;
-	inset: 0;
-}
-
-/* All sections after hero need proper stacking context */
-.section {
-	position: relative;
-	z-index: 10;
-}
-
-/* Smooth scroll behavior */
-:deep(html) {
-	scroll-behavior: smooth;
-}
-
-/* Sticky content labels on large screens */
-
-.content-label {
-	@media (min-width: theme('screens.lg')) {
-		position: sticky;
-		top: 8rem;
-		align-self: start;
-		height: fit-content;
-	}
-}
-
-/* Hide scrollbar while maintaining scroll functionality */
-.scrollbar-hide {
-	-ms-overflow-style: none; /* IE and Edge */
-	scrollbar-width: none; /* Firefox */
-}
-.scrollbar-hide::-webkit-scrollbar {
-	display: none; /* Chrome, Safari, Opera */
-}
+<style>
+/* This page's styling lives in its own stylesheet — see the header there for
+   why it is isolated from the app design system. Everything in it is nested
+   under .sell-sheet, so it neither leaks out nor inherits app-wide rules. */
+@import '~/assets/css/sell-sheet.css';
 </style>

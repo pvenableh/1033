@@ -5,7 +5,6 @@
 
 // const { gtag } = useGtag();
 import {useImage} from '@vueuse/core';
-const {readFiles} = useDirectusFiles();
 
 useHead({
 	title: '1033 Lenox | Before & After — Miami Beach Condo Renovation',
@@ -17,19 +16,10 @@ useHead({
 	],
 });
 
-const images = await readFiles({
-	filter: {
-		type: {
-			_contains: 'image',
-		},
-		type: {
-			_ncontains: 'heic',
-		},
-		folder: {
-			_eq: 'bb79dc04-20bc-444a-b790-ce74cfde9be4',
-		},
-	},
-});
+// directus_files is a system collection, so the generic items route rejects
+// anonymous reads — this page is public, hence a dedicated endpoint.
+const {data: images} = await useAsyncData('feed-images', () =>
+	$fetch('/api/public/before-after'), {default: () => []});
 </script>
 <template>
 	<div class="flex items-center justify-center flex-col w-full feed">

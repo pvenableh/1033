@@ -39,16 +39,12 @@
 					</a>
 				</li>
 
-				<!-- Meetings -->
+				<!-- Meetings — /board-meetings is public, so no access gate or lock
+				     icon here. The resident-only /meetings page is unchanged. -->
 				<li>
-					<a
-						href="/meetings"
-						class="flex items-center gap-2"
-						:class="{'restricted-link': !canAccessApproved}"
-						@click="(e) => handleNavClick(e, '/meetings', canAccessApproved, 'Meetings')">
+					<a href="/board-meetings" class="flex items-center gap-2">
 						<UIcon name="i-heroicons-calendar-days" class="w-4 h-4" />
 						Meetings
-						<UIcon v-if="!canAccessApproved" name="i-heroicons-lock-closed" class="w-3 h-3 ml-auto lock-icon" />
 					</a>
 				</li>
 

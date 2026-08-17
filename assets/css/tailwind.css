@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* tailwindcss-animate is a v3-style plugin; Tailwind v4 loads those via @plugin
+   rather than a config file. Supplies animate-in/animate-out, fade-*, zoom-*
+   and slide-* — used by every reka-ui overlay in components/ui. */
+@plugin "tailwindcss-animate";
+
 @custom-variant dark (&:is(.dark *));
 
 /* CSS Variables - must be outside @layer base for Tailwind v4 */

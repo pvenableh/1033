@@ -2,6 +2,66 @@
 // import { theme } from './theme';
 import tailwindcss from '@tailwindcss/vite';
 
+/*
+ * Resident-only and operational routes.
+ *
+ * These get BOTH treatments, because they do different jobs:
+ *   - robots noindex is what actually keeps a page out of search results
+ *   - sitemap exclusion only stops us advertising it; on its own a page still
+ *     gets indexed if anything links to it
+ *
+ * Anything not listed here is public and indexable: /, /intro, /feed,
+ * /board-meetings, /community-ideas.
+ */
+const PRIVATE_ROUTES = [
+	// Sections
+	'/account',
+	'/account/**',
+	'/admin',
+	'/admin/**',
+	'/announcements',
+	'/announcements/**',
+	'/auth/**',
+	'/channels',
+	'/channels/**',
+	'/documents',
+	'/documents/**',
+	'/financials',
+	'/financials/**',
+	'/meetings',
+	'/meetings/**',
+	'/my-finances',
+	'/my-finances/**',
+	'/parking-garage',
+	'/parking-garage/**',
+	'/presentations/**',
+	'/projects',
+	'/projects/**',
+	'/requests',
+	'/requests/**',
+	'/rules-regulations',
+	'/rules-regulations/**',
+	'/tasks',
+	'/tasks/**',
+	'/units/**',
+	// Single resident pages — project votes, onboarding, operational screens
+	'/2024-budget-surplus',
+	'/access-control',
+	'/corporation',
+	'/dashboard',
+	'/door-numbers',
+	'/doorbell-cameras',
+	'/elevator-interiors',
+	'/exterior-floor-colors',
+	'/index-landing',
+	'/paint-railings',
+	'/pending',
+	'/request',
+	'/security',
+	'/volunteer',
+	'/welcome',
+];
+
 export default defineNuxtConfig({
 	ssr: true,
 
@@ -142,6 +202,11 @@ export default defineNuxtConfig({
 		ga4PropertyId: process.env.GA4_PROPERTY_ID || '', // e.g., "properties/123456789"
 		googleAnalyticsCredentials: process.env.GOOGLE_ANALYTICS_CREDENTIALS || '', // JSON string of service account
 		public: {
+			// Site-wide social share image (1200x630). Applied as the default in
+			// app.vue; any page may override it with its own useSeoMeta({ ogImage }).
+			defaultOgImage:
+				process.env.NUXT_PUBLIC_DEFAULT_OG_IMAGE ||
+				'https://admin.1033lenox.com/assets/7fef4bc4-9aad-4801-a430-670a2af7cbde',
 			assetsUrl: process.env.DIRECTUS_ASSETS_URL || 'https://admin.1033lenox.com/assets/',
 			websocketUrl: process.env.DIRECTUS_WEBSOCKET_URL || 'wss://admin.1033lenox.com/websocket',
 			siteUrl: process.env.NUXT_PUBLIC_SITE_URL || 'http://localhost:3000',
@@ -169,7 +234,7 @@ export default defineNuxtConfig({
 		url: process.env.NUXT_PUBLIC_SITE_URL || 'https://1033lenox.com',
 		name: '1033 Lenox',
 		description:
-			'Boutique condo and apartment building in Miami Beach. 28-unit residence in Flamingo Park with oversized balconies and walkable South Beach living.',
+			"Boutique condo and apartment building at 1033 Lenox Avenue in Miami Beach's Flamingo Park, FL 33139. 28-unit residence with oversized balconies and walkable South Beach living.",
 		defaultLocale: 'en',
 	},
 
@@ -178,19 +243,19 @@ export default defineNuxtConfig({
 		fallbackTitle: false,
 	},
 
+	// noindex every private route. This is the part that actually keeps them out
+	// of search; the sitemap exclusion below just keeps the sitemap honest.
+	// The `robots` key is contributed by nuxt-robots' module augmentation, which
+	// vue-tsc doesn't pick up on NitroRouteConfig here — cast rather than widen
+	// the whole object. Verified at runtime: private routes emit both a noindex
+	// meta tag and an X-Robots-Tag header, public ones emit index, follow.
+	routeRules: Object.fromEntries(
+		PRIVATE_ROUTES.map((route) => [route, {robots: 'noindex, nofollow'}])
+	) as NonNullable<Parameters<typeof defineNuxtConfig>[0]>['routeRules'],
+
 	// Sitemap configuration - https://nuxtseo.com/sitemap
 	sitemap: {
-		exclude: [
-			'/admin/**',
-			'/account/**',
-			'/auth/**',
-			'/channels/**',
-			'/tasks/**',
-			'/meetings/**',
-			'/documents/**',
-			'/units/**',
-			'/announcements/**',
-		],
+		exclude: PRIVATE_ROUTES,
 	},
 
 	// PWA configuration - https://vite-pwa-org.netlify.app/frameworks/nuxt

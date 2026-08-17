@@ -40,7 +40,10 @@
 					<!-- Meetings - visible to all approved users -->
 					<li>
 						<Tooltip text="Meetings" :popper="{placement: 'bottom'}" class="uppercase">
-							<nuxt-link to="/meetings" class="secondary-nav__link flex" :class="{active: isActiveRoute('/meetings')}">
+							<nuxt-link
+								to="/board-meetings"
+								class="secondary-nav__link flex"
+								:class="{active: isActiveRoute('/board-meetings')}">
 								<Icon name="i-heroicons-calendar-days" class="w-6 h-6" />
 								<span class="hidden">Meetings</span>
 							</nuxt-link>

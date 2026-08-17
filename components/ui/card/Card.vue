@@ -11,7 +11,9 @@ const props = defineProps<{
   <div
     :class="
       cn(
-        'rounded-md border bg-card text-card-foreground px-4 py-4 glass-card',
+        // bg-card omitted on purpose: .glass-card supplies a translucent surface,
+        // and an opaque background behind it cancels the backdrop blur entirely.
+        'rounded-md text-card-foreground px-4 py-4 glass-card',
         props.class,
       )
     "

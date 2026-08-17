@@ -54,27 +54,23 @@ const meetingSummary = computed(() => {
 const locked = computed(() => data.value?.locked === true);
 const hint = computed(() => data.value?.hint ?? null);
 
-const passphrase = ref('');
-const unlocking = ref(false);
-const unlockError = ref<string | null>(null);
+const unlockOpen = ref(false);
 
-async function unlock() {
-	if (!passphrase.value.trim() || unlocking.value) return;
-	unlocking.value = true;
-	unlockError.value = null;
+/**
+ * Passed to the unlock panel. Resolves to an error message, or null on success.
+ * Lives here so the page can refresh() — the records were never sent to this
+ * browser, so they only arrive on a re-fetch.
+ */
+async function attemptUnlock(phrase: string): Promise<string | null> {
 	try {
 		await $fetch('/api/public/board-meetings/unlock', {
 			method: 'POST',
-			body: { passphrase: passphrase.value },
+			body: { passphrase: phrase },
 		});
-		passphrase.value = '';
-		// Re-fetch so the records arrive from the server; they were never sent
-		// to this browser before now.
 		await refresh();
+		return null;
 	} catch (err: any) {
-		unlockError.value = err?.data?.message || 'Something went wrong. Please try again.';
-	} finally {
-		unlocking.value = false;
+		return err?.data?.message || 'Something went wrong. Please try again.';
 	}
 }
 
@@ -97,6 +93,13 @@ const lockedSummary = computed(() => {
 		{ label: totals.recording === 1 ? 'recording' : 'recordings', count: totals.recording },
 		{ label: totals.announcements === 1 ? 'announcement' : 'announcements', count: totals.announcements },
 	].filter((t) => t.count > 0);
+});
+
+/** "5 agendas, 4 minutes and 2 recordings" — for the unlock panel copy. */
+const lockedSummaryText = computed(() => {
+	const parts = lockedSummary.value.map((t) => `${t.count} ${t.label}`);
+	if (parts.length <= 1) return parts[0] ?? '';
+	return `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1]}`;
 });
 
 /* ---------------------------------------------------------------- formatting */
@@ -179,6 +182,50 @@ const visibleMeetings = computed(() => {
 		return terms.every((term) => hay.includes(term));
 	});
 });
+
+/* ------------------------------------------------------------ card expansion */
+
+/**
+ * Phones collapse everything below the meta row. Desktop ignores this entirely
+ * (see .card-details) so nothing is hidden on a screen with room for it.
+ */
+const expanded = ref<Set<number>>(new Set());
+
+const isExpanded = (id: number) => expanded.value.has(id);
+
+function toggleExpanded(id: number) {
+	// Reassign so the Set change is reactive.
+	const next = new Set(expanded.value);
+	next.has(id) ? next.delete(id) : next.add(id);
+	expanded.value = next;
+}
+
+/**
+ * Label for the collapsed disclosure — names what's inside rather than a bare
+ * "Details", so a closed card still tells you what it holds.
+ */
+function cardSummary(meeting: PublicMeeting) {
+	const parts: string[] = [];
+	if (locked.value && meeting.lockedCounts) {
+		const c = meeting.lockedCounts;
+		if (c.agenda) parts.push('Agenda');
+		if (c.minutes) parts.push('Minutes');
+		if (c.recording) parts.push('Recording');
+		if (c.presentations) parts.push(`${c.presentations} Presentation${c.presentations === 1 ? '' : 's'}`);
+		if (c.announcements) parts.push(`${c.announcements} Announcement${c.announcements === 1 ? '' : 's'}`);
+	} else {
+		if (meeting.agenda) parts.push('Agenda');
+		if (meeting.minutes) parts.push('Minutes');
+		if (meeting.recording) parts.push('Recording');
+		if (meeting.presentations.length)
+			parts.push(`${meeting.presentations.length} Presentation${meeting.presentations.length === 1 ? '' : 's'}`);
+		if (meeting.announcements.length)
+			parts.push(`${meeting.announcements.length} Announcement${meeting.announcements.length === 1 ? '' : 's'}`);
+	}
+	if (!parts.length && meeting.description) return 'Details';
+	if (!parts.length) return '';
+	return parts.slice(0, 3).join(' · ');
+}
 
 /* ----------------------------------------------------------------- resources */
 
@@ -331,10 +378,11 @@ function addToCalendar(meeting: PublicMeeting) {
 
 /* ----------------------------------------------------------------------- seo */
 
+// og:image is inherited from the site-wide default set in app.vue.
 useSeoMeta({
-	title: `${YEAR} Board Meetings — 1033 Lenox`,
-	description: `Schedule, agendas, minutes, presentations, and recordings for the ${YEAR} board meetings of the 1033 Lenox Condominium Association.`,
-	ogTitle: `${YEAR} Board Meetings — 1033 Lenox`,
+	title: '1033 Lenox Board Meetings',
+	description: `Schedule, agendas, minutes, presentations, and recordings for the ${YEAR} board meetings of the 1033 Lenox Condominium Association at 1033 Lenox Avenue, Miami Beach, FL 33139.`,
+	ogTitle: '1033 Lenox Board Meetings',
 	ogDescription: `Agendas, minutes, presentations, and recordings for every ${YEAR} board meeting.`,
 	ogType: 'website',
 });
@@ -373,10 +421,25 @@ useHead(() => ({
 </script>
 
 <template>
-	<div class="mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+	<div class="relative mx-auto w-full max-w-4xl px-4 py-10 sm:py-14">
+		<!-- Gives the frosted surfaces something to refract; purely decorative. -->
+		<div class="ambient-wash" aria-hidden="true" />
+
+		<div class="relative z-10">
+
 		<!-- Hero -->
 		<header class="mb-10 sm:mb-14">
-			<h1 class="text-3xl tracking-tight sm:text-4xl">{{ YEAR }} Board Meetings</h1>
+			<div class="flex items-center gap-3">
+				<h1 class="text-3xl tracking-tight sm:text-4xl">{{ YEAR }} Board Meetings</h1>
+				<button
+					v-if="locked"
+					type="button"
+					class="glass-surface inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-primary-strong"
+					aria-label="Records are protected — enter the passphrase to unlock"
+					@click="unlockOpen = true">
+					<Icon name="lucide:lock" class="h-4 w-4" />
+				</button>
+			</div>
 			<p class="mt-3 max-w-2xl text-muted-foreground">
 				The year-to-date meeting schedule, with the agenda, minutes, presentation, and recording for
 				each meeting posted here as they become available. Open to all owners and residents.
@@ -406,60 +469,6 @@ useHead(() => ({
 				</div>
 			</div>
 		</header>
-
-		<!-- Records lock -->
-		<section
-			v-if="locked && meetings.length"
-			class="mb-10 rounded-xl border border-primary/25 bg-primary/5 p-5 sm:p-6">
-			<div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-				<div class="max-w-xl">
-					<p
-						class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-primary-strong">
-						<Icon name="lucide:lock" class="h-4 w-4" />
-						Records are protected
-					</p>
-					<p class="mt-2 text-sm leading-relaxed">
-						The schedule below is open to everyone. Enter the passphrase to open the
-						<template v-for="(item, i) in lockedSummary" :key="item.label">
-							<template v-if="i > 0">{{ i === lockedSummary.length - 1 ? ' and ' : ', ' }}</template>
-							<strong>{{ item.count }} {{ item.label }}</strong>
-						</template>
-						<template v-if="!lockedSummary.length">meeting records</template>.
-					</p>
-					<p v-if="hint" class="mt-1.5 text-sm text-muted-foreground">{{ hint }}</p>
-					<p class="mt-1.5 text-sm text-muted-foreground">
-						Need the passphrase or having trouble? Email
-						<a
-							href="mailto:lenoxplazaboard@gmail.com?subject=Board%20meeting%20records%20access"
-							class="text-primary-strong underline underline-offset-4">
-							lenoxplazaboard@gmail.com </a
-						>.
-					</p>
-				</div>
-
-				<form class="flex w-full max-w-sm shrink-0 items-end gap-2" @submit.prevent="unlock">
-					<div class="flex-1">
-						<label for="meeting-passphrase" class="sr-only">Passphrase</label>
-						<input
-							id="meeting-passphrase"
-							v-model="passphrase"
-							type="password"
-							autocomplete="current-password"
-							placeholder="Passphrase"
-							class="field-underline h-9 w-full px-1 text-sm text-foreground placeholder:text-muted-foreground" />
-					</div>
-					<Button type="submit" size="sm" :disabled="unlocking || !passphrase.trim()">
-						<Icon
-							:name="unlocking ? 'lucide:loader-circle' : 'lucide:unlock'"
-							class="h-4 w-4"
-							:class="unlocking ? 'animate-spin' : ''" />
-						{{ unlocking ? 'Checking' : 'Unlock' }}
-					</Button>
-				</form>
-			</div>
-
-			<p v-if="unlockError" class="mt-3 text-sm text-destructive">{{ unlockError }}</p>
-		</section>
 
 		<!-- Next meeting -->
 		<section
@@ -513,16 +522,20 @@ useHead(() => ({
 		</div>
 
 		<!-- Meetings -->
-		<section v-else-if="visibleMeetings.length" class="space-y-4">
-			<article
-				v-for="meeting in visibleMeetings"
-				:key="meeting.id"
-				class="rounded-xl border bg-card p-5 transition-colors hover:border-foreground/20 sm:p-6"
+		<TransitionGroup
+				v-else-if="visibleMeetings.length"
+				tag="section"
+				name="meeting-list"
+				class="relative space-y-4">
+				<article
+					v-for="meeting in visibleMeetings"
+					:key="meeting.id"
+				class="glass-card rounded-xl p-5 sm:p-6"
 				:class="meeting.isPast ? 'opacity-95' : ''">
-				<div class="flex flex-col gap-5 sm:flex-row">
+				<div class="flex gap-4 sm:gap-5">
 					<!-- Date chip -->
 					<div
-						class="flex h-16 w-16 shrink-0 flex-col items-center justify-center rounded-lg border text-center"
+						class="flex h-14 w-14 shrink-0 flex-col items-center justify-center rounded-full border text-center sm:h-16 sm:w-16"
 						:class="
 							meeting.canceled
 								? 'border-destructive/30 bg-destructive/5 text-muted-foreground'
@@ -579,7 +592,11 @@ useHead(() => ({
 							</span>
 						</div>
 
-						<p v-if="meeting.description" class="mt-3 text-sm leading-relaxed">
+						<!-- Everything below the meta row collapses on phones. Always open
+						     from sm up — see .card-details in the style block. -->
+						<div class="card-details" :class="{'is-open': isExpanded(meeting.id)}">
+							<div>
+								<p v-if="meeting.description" class="mt-3 text-sm leading-relaxed">
 							{{ meeting.description }}
 						</p>
 
@@ -628,11 +645,14 @@ useHead(() => ({
 									},
 								].filter((i) => i.show)"
 								:key="item.label">
-								<span
-									class="inline-flex cursor-not-allowed items-center gap-2 rounded-full border border-dashed px-3.5 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/70">
+								<button
+									type="button"
+									class="inline-flex items-center gap-2 rounded-full border border-dashed px-3.5 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground/70 transition-colors hover:border-primary/50 hover:text-foreground"
+									:aria-label="`${item.label} — locked. Enter the passphrase to unlock.`"
+									@click="unlockOpen = true">
 									<Icon name="lucide:lock" class="h-3.5 w-3.5" />
 									{{ item.label }}
-								</span>
+								</button>
 							</template>
 							<span
 								v-if="!Object.values(meeting.lockedCounts).some(Boolean)"
@@ -758,11 +778,30 @@ useHead(() => ({
 								<Icon name="lucide:calendar-plus" class="h-4 w-4" />
 								Add to calendar
 							</Button>
+								</div>
+							</div>
 						</div>
+
+						<!-- Phone-only disclosure. Names what's inside so a collapsed card
+						     still says what it holds, rather than a bare "Details". -->
+						<button
+							v-if="cardSummary(meeting)"
+							type="button"
+							class="mt-3 flex w-full items-center gap-1.5 text-left text-xs font-medium uppercase tracking-wide text-primary-strong sm:hidden"
+							:aria-expanded="isExpanded(meeting.id)"
+							@click="toggleExpanded(meeting.id)">
+							<Icon
+								name="lucide:chevron-down"
+								class="h-3.5 w-3.5 shrink-0 transition-transform duration-300"
+								:class="isExpanded(meeting.id) ? 'rotate-180' : ''" />
+							<span class="min-w-0">
+								{{ isExpanded(meeting.id) ? 'Hide' : cardSummary(meeting) }}
+							</span>
+						</button>
 					</div>
 				</div>
 			</article>
-		</section>
+		</TransitionGroup>
 
 		<!-- No search results -->
 		<div v-else-if="meetings.length" class="rounded-xl border border-dashed p-12 text-center">
@@ -796,10 +835,87 @@ useHead(() => ({
 				>.
 			</p>
 		</footer>
+
+		<MeetingsUnlockPanel
+				v-model:open="unlockOpen"
+				:summary="lockedSummaryText"
+				:hint="hint"
+				:submit="attemptUnlock" />
+		</div>
 	</div>
 </template>
 
 <style scoped>
+/*
+ * Card disclosure.
+ *
+ * Height animates via grid-template-rows 0fr -> 1fr, which transitions cleanly
+ * without needing a measured pixel height. From sm up the row is always 1fr, so
+ * the content is simply always open and the toggle is hidden — no JS state has
+ * to know about the breakpoint.
+ */
+.card-details {
+	display: grid;
+	grid-template-rows: 0fr;
+	transition: grid-template-rows 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-details > * {
+	overflow: hidden;
+	min-height: 0;
+}
+
+.card-details.is-open {
+	grid-template-rows: 1fr;
+}
+
+@media (min-width: 640px) {
+	.card-details {
+		grid-template-rows: 1fr;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card-details {
+		transition: none;
+	}
+}
+
+/*
+ * Search filtering.
+ *
+ * TransitionGroup gives FLIP for free via .meeting-list-move — cards that stay
+ * on screen slide to their new position instead of jumping. Leaving cards are
+ * taken out of flow (position: absolute) so the survivors start moving
+ * immediately rather than waiting for the gap to collapse.
+ */
+.meeting-list-move,
+.meeting-list-enter-active,
+.meeting-list-leave-active {
+	transition:
+		opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+		transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.meeting-list-enter-from,
+.meeting-list-leave-to {
+	opacity: 0;
+	transform: translateY(10px) scale(0.985);
+}
+
+.meeting-list-leave-active {
+	position: absolute;
+	width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.meeting-list-move,
+	.meeting-list-enter-active,
+	.meeting-list-leave-active {
+		transition: none;
+	}
+}
+
 /*
  * Shared label for the groups inside a meeting card — Documents,
  * Presentations, Related announcements. One rule so the three can't drift

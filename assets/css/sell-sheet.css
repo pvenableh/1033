@@ -1,0 +1,149 @@
+/* =============================================================================
+   SELL SHEET — isolated stylesheet for pages/index.vue
+   =============================================================================
+
+   The public sell sheet has its own visual language: full-bleed photography,
+   a fixed hero, gold section numerals, serif display type. It deliberately does
+   NOT follow the app design system (glass surfaces, navy accent, pill buttons,
+   underline fields), and shouldn't drift as that system evolves.
+
+   Two rules keep it that way:
+
+   1. NOTHING LEAKS OUT — every selector here is nested under `.sell-sheet`, so
+      generic names like `.section` and `.content-label` can't collide with the
+      rest of the app.
+
+   2. NOTHING LEAKS IN — the guard block at the bottom neutralises the global
+      rules that would otherwise reach this page. Add to it when a new global
+      rule lands that this design shouldn't inherit.
+
+   Imported only by pages/index.vue.
+   ========================================================================== */
+
+.sell-sheet {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Hero clips its own fixed background */
+.sell-sheet .hero {
+	clip-path: inset(0);
+}
+
+.sell-sheet .hero-bg-container {
+	position: fixed;
+	inset: 0;
+}
+
+/* Sections after the hero need their own stacking context to sit above it */
+.sell-sheet .section {
+	position: relative;
+	z-index: 10;
+}
+
+/* Sticky content labels on large screens */
+@media (min-width: 1024px) {
+	.sell-sheet .content-label {
+		position: sticky;
+		top: 8rem;
+		align-self: start;
+		height: fit-content;
+	}
+}
+
+/* Scroll without a visible bar */
+.sell-sheet .scrollbar-hide {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
+
+.sell-sheet .scrollbar-hide::-webkit-scrollbar {
+	display: none;
+}
+
+/* ---------------------------------------------------------------------------
+   ISOLATION GUARD
+   Neutralises app-wide rules this page should not inherit. Each entry names the
+   global rule it defends against, so it's clear why it exists.
+   ------------------------------------------------------------------------ */
+
+/* main.css: `.page-content h1` forces uppercase + tracking + weight 300 on
+   interior page titles. The sell sheet sets its own display type. */
+.sell-sheet h1,
+.sell-sheet h2,
+.sell-sheet h3 {
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* main.css: `.glass-card` gives every ui/card a translucent frosted surface.
+   If a Card is ever dropped into this page it should stay opaque — the sell
+   sheet sits on photography, where a blurred panel reads as a mistake. */
+.sell-sheet .glass-card {
+	background: var(--card);
+	backdrop-filter: none;
+	-webkit-backdrop-filter: none;
+	border: 1px solid var(--border);
+	box-shadow: none;
+}
+
+/* main.css: `.field-underline` strips the box off every shared input. The sell
+   sheet's inquiry form is presented inside its own bottom sheet, so leave those
+   alone — this only covers inputs placed directly in the page. */
+.sell-sheet > form input:not([type='checkbox']):not([type='radio']),
+.sell-sheet > form textarea {
+	background-color: var(--background);
+	border: 1px solid var(--input);
+	border-radius: var(--radius);
+	background-image: none;
+}
+
+/* ---------------------------------------------------------------------------
+   CTA — liquid glass pill
+
+   A deliberate opt-in to the app's glass language, not inherited. It sits over
+   the building photography, where a frosted pill reads far better than the flat
+   outline variant. FormVButton paints its own surface on the inner .foreground
+   element, so both layers have to be cleared for the blur to show through.
+   ------------------------------------------------------------------------ */
+.sell-sheet .cta-glass {
+	background: rgba(255, 255, 255, 0.16);
+	backdrop-filter: blur(18px) saturate(1.6);
+	-webkit-backdrop-filter: blur(18px) saturate(1.6);
+	border: 1px solid rgba(255, 255, 255, 0.4);
+	border-radius: 999px;
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.08),
+		0 14px 34px -18px rgba(0, 0, 0, 0.5),
+		inset 0 1px 0 rgba(255, 255, 255, 0.5);
+	overflow: hidden;
+	transition:
+		background 0.3s ease,
+		box-shadow 0.3s ease,
+		border-color 0.3s ease;
+}
+
+.sell-sheet .cta-glass:hover {
+	background: rgba(255, 255, 255, 0.26);
+	border-color: rgba(255, 255, 255, 0.6);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.1),
+		0 18px 42px -18px rgba(0, 0, 0, 0.55),
+		inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* The variant fills this with a solid colour — clear it so the glass shows. */
+.sell-sheet .cta-glass .foreground {
+	background: transparent;
+	background-color: transparent;
+	border-radius: 999px;
+	color: #fff;
+	padding-inline: 2rem;
+	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sell-sheet .cta-glass {
+		transition: none;
+	}
+}

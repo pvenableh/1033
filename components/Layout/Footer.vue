@@ -7,7 +7,7 @@
 		}">
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link to="/">Home</nuxt-link>
-			<nuxt-link to="/meetings/">Meetings</nuxt-link>
+			<nuxt-link to="/board-meetings">Meetings</nuxt-link>
 		</div>
 		<div class="flex items-start justify-start flex-col footer__col">
 			<nuxt-link to="/announcements/">Announcements</nuxt-link>

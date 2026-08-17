@@ -131,11 +131,211 @@ a {
 }
 
 /*
- * Interior page titles: uppercase, tracked out, lighter weight.
- * Scoped to .page-content so it only affects page bodies — the sticky header,
- * sidebar, and any dialogs rendered in portals are untouched. Individual pages
- * can opt out with the .page-title-plain class.
+ * Liquid glass, elevated tier.
+ *
+ * .glass-surface (above) is tuned for small controls — pills and chips. These
+ * two are the overlay pair: a blurred scrim that keeps the page legible behind
+ * it, and a panel with deeper blur, higher saturation and a light-catching rim.
+ * Use them for dialogs, sheets and popovers.
  */
+.glass-scrim {
+	background: rgba(28, 25, 21, 0.3);
+	backdrop-filter: blur(10px) saturate(1.2);
+	-webkit-backdrop-filter: blur(10px) saturate(1.2);
+}
+
+.glass-panel {
+	background: rgba(255, 255, 255, 0.74);
+	backdrop-filter: blur(28px) saturate(1.9);
+	-webkit-backdrop-filter: blur(28px) saturate(1.9);
+	border: 1px solid rgba(255, 255, 255, 0.75);
+	border-radius: 20px;
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 30px 60px -25px rgba(20, 24, 40, 0.4),
+		inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark .glass-panel {
+	background: rgba(42, 38, 32, 0.72);
+	border-color: rgba(255, 255, 255, 0.13);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.4),
+		0 30px 60px -25px rgba(0, 0, 0, 0.75),
+		inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+/* Backdrop blur is expensive and can smear during transforms; drop it when the
+   viewer has asked for less motion and fall back to a solid-ish surface. */
+@media (prefers-reduced-motion: reduce) {
+	.glass-scrim,
+	.glass-panel {
+		backdrop-filter: none;
+		-webkit-backdrop-filter: none;
+	}
+	.glass-scrim {
+		background: rgba(28, 25, 21, 0.55);
+	}
+	.glass-panel {
+		background: var(--card);
+	}
+}
+
+/*
+ * Overlay motion.
+ *
+ * reka-ui sets data-state="open"/"closed" on overlays and content. The codebase
+ * styles those with `animate-in` / `zoom-in-95` utilities from
+ * tailwindcss-animate — a package that is NOT installed here, so those classes
+ * resolve to nothing and dialogs appear instantly. These keyframes do the job
+ * for real.
+ */
+@keyframes glass-scrim-in {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
+/* Scale only — no translate. Tailwind v4 centres the panel with the standalone
+   `translate` property, which COMPOSES with `transform` rather than being
+   replaced by it, so a translate here would offset the panel twice. */
+@keyframes glass-panel-in {
+	from {
+		opacity: 0;
+		transform: scale(0.94);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+[data-state='open'].glass-scrim {
+	animation: glass-scrim-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-state='closed'].glass-scrim {
+	animation: glass-scrim-in 0.22s ease-in reverse both;
+}
+
+[data-state='open'].glass-panel {
+	animation: glass-panel-in 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+[data-state='closed'].glass-panel {
+	animation: glass-panel-in 0.24s ease-in reverse both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	[data-state].glass-scrim,
+	[data-state].glass-panel {
+		animation-duration: 0.01ms;
+	}
+}
+
+/*
+ * Ambient wash — the thing that makes glass legible.
+ *
+ * Frosted glass only reads as glass when there's something behind it to refract.
+ * Over a flat cream ground it just looks like a paler box. These are soft,
+ * very low-alpha blobs in the building's own palette (gold, navy, warm neutral)
+ * that drift slowly behind the content, so the blur has colour to pick up.
+ *
+ * Fixed and pointer-events:none, so it never interferes with layout or input.
+ */
+.ambient-wash {
+	position: fixed;
+	inset: -20vmax;
+	/* 0, not -1: the layout's <main> paints an opaque background, and a negative
+	   z-index descendant would render behind it and never be seen. At 0 it sits
+	   above that background; page content is lifted to z-10 to stay on top. */
+	z-index: 0;
+	pointer-events: none;
+	background:
+		radial-gradient(38vmax 38vmax at 14% 16%, rgba(201, 169, 110, 0.3), transparent 62%),
+		radial-gradient(42vmax 42vmax at 86% 10%, rgba(30, 61, 103, 0.16), transparent 60%),
+		radial-gradient(46vmax 46vmax at 80% 86%, rgba(212, 186, 138, 0.26), transparent 64%),
+		radial-gradient(40vmax 40vmax at 18% 92%, rgba(139, 115, 85, 0.18), transparent 60%);
+	animation: ambient-drift 32s ease-in-out infinite alternate;
+}
+
+.dark .ambient-wash {
+	background:
+		radial-gradient(38vmax 38vmax at 14% 16%, rgba(201, 169, 110, 0.16), transparent 62%),
+		radial-gradient(42vmax 42vmax at 86% 10%, rgba(142, 181, 225, 0.12), transparent 60%),
+		radial-gradient(46vmax 46vmax at 80% 86%, rgba(212, 186, 138, 0.12), transparent 64%),
+		radial-gradient(40vmax 40vmax at 18% 92%, rgba(139, 115, 85, 0.2), transparent 60%);
+}
+
+@keyframes ambient-drift {
+	0% {
+		transform: translate3d(0, 0, 0) scale(1);
+	}
+	50% {
+		transform: translate3d(2%, -1.5%, 0) scale(1.06);
+	}
+	100% {
+		transform: translate3d(-1.5%, 1.5%, 0) scale(1.02);
+	}
+}
+
+/*
+ * Glass card — the middle tier, between .glass-surface (pills) and
+ * .glass-panel (dialogs). Lighter blur so long text stays crisp.
+ *
+ * This is the class components/ui/card/Card.vue applies, so it sets the look of
+ * every Card in the app. The old definition further down (blur 4px, no
+ * transition) has been folded into this one.
+ */
+.glass-card {
+	background: rgba(255, 255, 255, 0.5);
+	backdrop-filter: blur(14px) saturate(1.35);
+	-webkit-backdrop-filter: blur(14px) saturate(1.35);
+	border: 1px solid rgba(255, 255, 255, 0.6);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.03),
+		0 18px 40px -28px rgba(20, 24, 40, 0.35),
+		inset 0 1px 0 rgba(255, 255, 255, 0.85);
+	transition:
+		background 0.3s ease,
+		box-shadow 0.3s ease,
+		border-color 0.3s ease;
+}
+
+.glass-card:hover {
+	background: rgba(255, 255, 255, 0.62);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.04),
+		0 22px 48px -28px rgba(20, 24, 40, 0.42),
+		inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.dark .glass-card {
+	background: rgba(255, 255, 255, 0.055);
+	border-color: rgba(255, 255, 255, 0.1);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.3),
+		0 18px 40px -28px rgba(0, 0, 0, 0.7),
+		inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-card:hover {
+	background: rgba(255, 255, 255, 0.085);
+	border-color: rgba(255, 255, 255, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.ambient-wash {
+		animation: none;
+	}
+	.glass-card {
+		transition: none;
+	}
+}
+
 /*
  * Horizontal scroll with no visible scrollbar — for filter/tab rows that should
  * slide rather than wrap when the viewport is narrow. Scrolling still works by
@@ -284,13 +484,6 @@ a {
 	}
 }
 
-.glass-card {
-	backdrop-filter: blur(4px);
-	-webkit-backdrop-filter: blur(4px);
-	box-shadow:
-		0 2px 8px rgba(0, 0, 0, 0.03),
-		inset 0 1px 0 rgba(255, 255, 255, 0.08);
-}
 
 /* Hide scrollbar while maintaining scroll functionality */
 .scrollbar-hide {
