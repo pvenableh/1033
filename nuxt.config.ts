@@ -258,8 +258,28 @@ export default defineNuxtConfig({
 		exclude: PRIVATE_ROUTES,
 	},
 
-	// PWA configuration - https://vite-pwa-org.netlify.app/frameworks/nuxt
+	// PWA / service worker — DELIBERATELY DISABLED.
+	//
+	// The worker was causing unexplained page reloads in production:
+	//   - registerType 'autoUpdate' reloads the page whenever a new worker
+	//     activates, so every deploy refreshed anyone mid-session
+	//   - navigateFallback: '/' told the worker to answer ANY uncached
+	//     navigation with the cached home page. That is meant for SPAs; on an
+	//     SSR app it hands back the wrong document and the client router then
+	//     corrects itself, which reads as a random refresh
+	//   - the precache manifest ended up with two entries for the same URL at
+	//     different revisions, which makes install throw
+	//     (add-to-cache-list-conflicting-entries) and retry in a loop
+	//
+	// selfDestroying ships a worker whose only job is to unregister itself and
+	// delete every cache it owns. The module has to STAY for now: removing it
+	// would leave the old worker installed on every device that already has it,
+	// because a service worker persists until something replaces it. Once
+	// clients have cycled through this build it can be dropped entirely.
 	pwa: {
+		selfDestroying: true,
+		// Activate immediately rather than waiting for every tab to close, so the
+		// cleanup actually happens on the next visit.
 		registerType: 'autoUpdate',
 		manifest: {
 			name: '1033 Lenox',
@@ -318,33 +338,12 @@ export default defineNuxtConfig({
 				},
 			],
 		},
-		workbox: {
-			navigateFallback: '/',
-			globPatterns: ['**/*.{js,css,html,png,jpg,svg,ico,woff,woff2}'],
-			cleanupOutdatedCaches: true,
-			runtimeCaching: [
-				{
-					urlPattern: /^https:\/\/admin\.1033lenox\.com\/assets\/.*/i,
-					handler: 'CacheFirst',
-					options: {
-						cacheName: 'directus-assets',
-						expiration: {
-							maxEntries: 100,
-							maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
-						},
-						cacheableResponse: {
-							statuses: [0, 200],
-						},
-					},
-				},
-			],
-		},
+		// No installPrompt: there is no worker to back an installed app.
 		client: {
-			installPrompt: true,
+			installPrompt: false,
 		},
 		devOptions: {
 			enabled: false,
-			type: 'module',
 		},
 	},
 
