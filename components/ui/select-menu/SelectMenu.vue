@@ -101,7 +101,9 @@ const displayValue = computed(() => {
   >
     <ComboboxAnchor
       :class="cn(
-        'flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50',
+        // normal-case opts out of the global `button { uppercase }` rule that
+        // would otherwise shout the selected value back at the user.
+        'field-underline-select flex h-9 w-full items-center justify-between px-1 py-2 text-sm normal-case tracking-normal placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
         props.class
       )"
     >

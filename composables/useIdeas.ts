@@ -42,12 +42,11 @@ export interface ResidentMatch {
   unit_number?: string;
 }
 
-// Keep these in sync with IDEA_CATEGORIES in scripts/setup-ideas.mjs
+// Keep these in sync with IDEA_CATEGORIES in scripts/setup-ideas.mjs and the
+// category choices in Directus (see scripts/fix-community-ideas.mjs).
 export const IDEA_CATEGORIES = [
   'Lobby',
-  'Rooftop',
   'Gym / Fitness',
-  'Pool Deck',
   'Co-work Space',
   'Bike / Storage',
   'Lounge / Social',
@@ -55,7 +54,9 @@ export const IDEA_CATEGORIES = [
 ];
 
 export function useIdeas() {
-  // requireAuth: false → routed through the public (admin-token) path server-side
+  // requireAuth: false → routed through the UNAUTHENTICATED Directus client, so
+  // reads are governed by the public role's permission (published only, with an
+  // explicit field allow-list that excludes email/person_id/unit).
   const ideas = useDirectusItems<Idea>('ideas', { requireAuth: false });
 
   /** Look up an email against the resident roster (for autofill + verified badge). */

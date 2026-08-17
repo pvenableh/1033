@@ -65,7 +65,10 @@ const displayValue = computed(() => {
   <SelectRoot v-model="selectedValue" :disabled="disabled">
     <SelectTrigger
       :class="cn(
-        'flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-background text-foreground px-3 py-2 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
+        // normal-case/tracking-normal opt out of the global `button { uppercase }`
+        // rule in assets/css/tailwind.css — this trigger is a form control, so it
+        // must read like an Input, not like a button label.
+        'field-underline-select flex h-9 w-full items-center justify-between whitespace-nowrap px-1 py-2 text-sm text-foreground normal-case tracking-normal placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1',
         props.class
       )"
     >

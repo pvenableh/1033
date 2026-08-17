@@ -61,9 +61,7 @@ const UPLOAD_FOLDER_NAME = 'Community Ideas';
 // Category options for ideas (shared with the form dropdown).
 const IDEA_CATEGORIES = [
   'Lobby',
-  'Rooftop',
   'Gym / Fitness',
-  'Pool Deck',
   'Co-work Space',
   'Bike / Storage',
   'Lounge / Social',
@@ -616,8 +614,23 @@ async function main() {
       .map((f) => f.field);
 
     for (const field of fields) {
+      // Alias (o2m/m2m) fields have no DB column, so they never show up in
+      // existingDbColumns. They were previously skipped outright, which meant
+      // `ideas.images` and `polls.options` were declared but never created and
+      // the relations pointed at fields Directus refused to query.
       if (field.type === 'alias') {
-        console.log(`      ⏭️  ${field.field} (alias field)`);
+        try {
+          await client.request(createField(collectionName, field));
+          console.log(`      ✅ ${field.field} (alias)`);
+          await delay(200);
+        } catch (error) {
+          const msg = error?.errors?.[0]?.message || error?.message || '';
+          console.log(
+            /exist|duplicate/i.test(msg)
+              ? `      ⏭️  ${field.field} (alias, exists)`
+              : `      ❌ ${field.field}: ${msg}`
+          );
+        }
         continue;
       }
       if (existingDbColumns.includes(field.field)) {

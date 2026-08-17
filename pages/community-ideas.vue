@@ -84,32 +84,39 @@ const isEmpty = computed(() => !loadingFeed.value && ideas.value.length === 0 &&
 <template>
   <div class="max-w-6xl mx-auto px-4 py-10">
     <!-- Hero -->
-    <header class="text-center max-w-2xl mx-auto mb-8">
-      <h1 class="text-3xl font-bold tracking-tight">Community Ideas</h1>
+    <header class="max-w-2xl mb-8">
+      <h1 class="text-3xl tracking-tight">Community Ideas</h1>
       <p class="text-muted-foreground mt-2">
         Help shape the shared spaces at 1033 Lenox. Share an idea, browse what your neighbors are dreaming
         up, and weigh in on community polls.
       </p>
-      <Button class="mt-4" @click="scrollToForm">
-        <Icon name="lucide:plus" class="w-4 h-4 mr-1" /> Share your idea
-      </Button>
     </header>
 
-    <!-- Category filter -->
-    <div class="flex flex-wrap gap-2 justify-center mb-8">
-      <button
-        v-for="cat in categories"
-        :key="cat"
-        type="button"
-        class="px-3 py-1.5 rounded-full text-sm border transition"
-        :class="
-          (cat === 'All' && !activeCategory) || cat === activeCategory
-            ? 'bg-primary text-primary-foreground border-primary'
-            : 'hover:bg-muted'
-        "
-        @click="selectCategory(cat)">
-        {{ cat }}
-      </button>
+    <!-- Category filter + primary action.
+         The filter row scrolls horizontally on narrow screens rather than
+         wrapping, so the action button keeps its place on the right. -->
+    <div class="flex flex-col gap-3 mb-8 sm:flex-row-reverse sm:items-center sm:gap-4">
+      <Button class="self-start shrink-0" @click="scrollToForm">
+        <Icon name="lucide:plus" class="w-4 h-4 mr-1" /> Share your idea
+      </Button>
+
+      <div class="filter-scroll w-full sm:flex-1 sm:min-w-0 overflow-x-auto">
+        <div class="flex gap-2 w-max">
+          <button
+            v-for="cat in categories"
+            :key="cat"
+            type="button"
+            class="px-3 py-1.5 rounded-full text-sm border transition whitespace-nowrap"
+            :class="
+              (cat === 'All' && !activeCategory) || cat === activeCategory
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'hover:bg-muted'
+            "
+            @click="selectCategory(cat)">
+            {{ cat }}
+          </button>
+        </div>
+      </div>
     </div>
 
     <div class="grid lg:grid-cols-3 gap-8">

@@ -10,8 +10,14 @@
   --card-foreground: hsl(20 14.3% 4.1%);
   --popover: hsl(0 0% 100%);
   --popover-foreground: hsl(20 14.3% 4.1%);
-  --primary: hsl(166 100% 47%);
-  --primary-foreground: hsl(0 0% 0%);
+  /* Prussian navy — the accent, on the warm cream ground.
+     #1E3D67 clears 10.68:1 on --theme-bg-primary (#fdfcfa), so unlike the old
+     teal it works as BOTH the fill (behind cream text) and the ink. --ring is a
+     lighter step of the same hue so a focus ring stays visible against a navy
+     control (4.47:1 on cream). */
+  --primary: hsl(214 55% 26%);
+  --primary-foreground: hsl(40 30% 99%);
+  --primary-strong: hsl(214 55% 26%);
   --secondary: hsl(60 4.8% 95.9%);
   --secondary-foreground: hsl(24 9.8% 10%);
   --muted: hsl(60 4.8% 95.9%);
@@ -22,11 +28,11 @@
   --destructive-foreground: hsl(60 9.1% 97.8%);
   --border: hsl(20 5.9% 90%);
   --input: hsl(20 5.9% 90%);
-  --ring: hsl(166 100% 47%);
+  --ring: hsl(214 55% 50%);
   --radius: 0.5rem;
 
   /* Chart colors */
-  --chart-1: hsl(166 100% 47%);
+  --chart-1: hsl(214 55% 40%);
   --chart-2: hsl(173 58% 39%);
   --chart-3: hsl(197 37% 24%);
   --chart-4: hsl(43 74% 66%);
@@ -40,7 +46,7 @@
   --sidebar-accent: hsl(240 4.8% 95.9%);
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
-  --sidebar-ring: hsl(166 100% 47%);
+  --sidebar-ring: hsl(214 55% 40%);
 }
 
 .dark {
@@ -50,8 +56,12 @@
   --card-foreground: hsl(60 9.1% 97.8%);
   --popover: hsl(20 14.3% 4.1%);
   --popover-foreground: hsl(60 9.1% 97.8%);
-  --primary: hsl(166 100% 47%);
-  --primary-foreground: hsl(0 0% 0%);
+  /* Same hue, inverted lightness — navy cannot survive on a warm-black ground
+     (#1E3D67 measures 1.60:1 there), so dark mode lifts it to #8EB5E1: 8.21:1
+     on the page, 7.05:1 on cards. Ink on the fill is a deep navy, not black. */
+  --primary: hsl(212 58% 72%);
+  --primary-foreground: hsl(213 40% 13%);
+  --primary-strong: hsl(212 58% 72%);
   --secondary: hsl(12 6.5% 15.1%);
   --secondary-foreground: hsl(60 9.1% 97.8%);
   --muted: hsl(12 6.5% 15.1%);
@@ -62,7 +72,7 @@
   --destructive-foreground: hsl(60 9.1% 97.8%);
   --border: hsl(12 6.5% 15.1%);
   --input: hsl(12 6.5% 15.1%);
-  --ring: hsl(166 100% 47%);
+  --ring: hsl(212 58% 72%);
 
   /* Chart colors - dark */
   --chart-1: hsl(220 70% 50%);
@@ -74,12 +84,12 @@
   /* Sidebar colors - dark - use theme background */
   --sidebar-background: var(--theme-bg-primary, hsl(240 5.9% 10%));
   --sidebar-foreground: var(--theme-text-primary, hsl(240 4.8% 95.9%));
-  --sidebar-primary: hsl(166 100% 47%);
+  --sidebar-primary: hsl(212 58% 72%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
   --sidebar-accent: hsl(240 3.7% 15.9%);
   --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
   --sidebar-border: hsl(240 3.7% 15.9%);
-  --sidebar-ring: hsl(166 100% 47%);
+  --sidebar-ring: hsl(212 58% 72%);
 }
 
 @theme inline {
@@ -127,6 +137,7 @@
 
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  --color-primary-strong: var(--primary-strong);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

@@ -160,7 +160,7 @@ export default defineNuxtConfig({
 	image: {
 		provider: 'directus',
 		directus: {
-			baseURL: `${process.env.DIRECTUS_URL}/assets/`,
+			baseURL: `${process.env.DIRECTUS_URL || 'https://admin.1033lenox.com'}/assets/`,
 		},
 	},
 
@@ -200,7 +200,7 @@ export default defineNuxtConfig({
 			name: '1033 Lenox',
 			short_name: '1033 Lenox',
 			description: 'Luxury living in the heart of Miami Beach',
-			theme_color: '#00efd1',
+			theme_color: '#1e3d67',
 			background_color: '#FDFCFA',
 			display: 'standalone',
 			orientation: 'portrait',

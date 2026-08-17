@@ -32,6 +32,19 @@ const uploadingMinutes = ref(false);
 const agendaFile = ref<{ id: string; filename: string; type: string; filesize: number } | null>(null);
 const minutesFile = ref<{ id: string; filename: string; type: string; filesize: number } | null>(null);
 
+// Announcement picker state
+interface AnnouncementOption {
+  id: number;
+  title: string;
+  url: string | null;
+  status: string | null;
+  private: boolean | null;
+  date_sent: string | null;
+}
+const announcementOptions = ref<AnnouncementOption[]>([]);
+const selectedAnnouncements = ref<number[]>([]);
+const announcementSearch = ref('');
+
 // Filters
 const statusFilter = ref('all');
 const categoryFilter = ref('all');
@@ -49,13 +62,38 @@ const categoryOptions = [
   { label: 'Board Meeting', value: 'Board Meeting' },
 ];
 
-const locationOptions = [
-  { label: 'Community Room', value: 'Community Room' },
-  { label: 'Zoom', value: 'Zoom' },
+// Presets only — the field accepts any text, so a meeting held somewhere
+// unusual doesn't have to be mislabelled. Keep in sync with LOCATION_PRESETS in
+// scripts/setup-meeting-records.mjs.
+const LOCATION_PRESETS = [
+  'Community Room',
+  'Pool Deck',
+  'Lobby',
+  'Rooftop Terrace',
+  'Zoom',
+  'Hybrid — Community Room + Zoom',
+  'Offsite',
 ];
 
-// Meeting form state
-const meetingForm = ref<Partial<Meeting>>({
+// Meeting form state. Modelled with non-nullable fields (empty string rather
+// than null) so the inputs bind cleanly; nulls are restored in saveMeeting().
+interface MeetingFormState {
+  title: string;
+  description: string;
+  category: NonNullable<Meeting['category']>;
+  status: NonNullable<Meeting['status']>;
+  date: string;
+  time: string;
+  location: NonNullable<Meeting['location']>;
+  video_link: string;
+  url: string;
+  canceled: boolean;
+  cancellation_note: string;
+  recording_link: string;
+  recording_passcode: string;
+}
+
+const meetingForm = ref<MeetingFormState>({
   title: '',
   description: '',
   category: 'Board Meeting',
@@ -65,6 +103,10 @@ const meetingForm = ref<Partial<Meeting>>({
   location: 'Community Room',
   video_link: '',
   url: '',
+  canceled: false,
+  cancellation_note: '',
+  recording_link: '',
+  recording_passcode: '',
 });
 
 // Permission checks
@@ -124,6 +166,10 @@ async function fetchMeetings() {
             'location',
             'video_link',
             'url',
+            'canceled',
+            'cancellation_note',
+            'recording_link',
+            'recording_passcode',
             'sort',
             'date_created',
             'date_updated',
@@ -160,6 +206,119 @@ async function fetchMeetings() {
   }
 }
 
+async function fetchAnnouncements() {
+  try {
+    announcementOptions.value =
+      (await $fetch<AnnouncementOption[]>('/api/directus/items', {
+        method: 'POST',
+        body: {
+          collection: 'announcements',
+          operation: 'list',
+          query: {
+            fields: ['id', 'title', 'url', 'status', 'private', 'date_sent'],
+            sort: ['-date_sent', '-id'],
+            limit: -1,
+          },
+        },
+      })) || [];
+  } catch (error) {
+    console.error('Failed to fetch announcements:', error);
+  }
+}
+
+/**
+ * Only sent, non-private announcements with a slug reach the public page — the
+ * board-meetings endpoint filters the rest. Flag those here so attaching one
+ * doesn't look like it worked when nothing will show. Status casing is
+ * inconsistent in the data ("sent" and "Sent" both occur), hence the lowercasing.
+ */
+function announcementPublishable(a: AnnouncementOption) {
+  return Boolean(a.url) && String(a.status).toLowerCase() === 'sent' && !a.private;
+}
+
+const filteredAnnouncements = computed(() => {
+  const query = announcementSearch.value.trim().toLowerCase();
+  if (!query) return announcementOptions.value;
+  return announcementOptions.value.filter((a) => a.title?.toLowerCase().includes(query));
+});
+
+const selectedAnnouncementDetails = computed(() =>
+  selectedAnnouncements.value
+    .map((id) => announcementOptions.value.find((a) => a.id === id))
+    .filter((a): a is AnnouncementOption => Boolean(a))
+);
+
+const hiddenAnnouncementCount = computed(
+  () => selectedAnnouncementDetails.value.filter((a) => !announcementPublishable(a)).length
+);
+
+function toggleAnnouncement(id: number) {
+  const index = selectedAnnouncements.value.indexOf(id);
+  if (index === -1) selectedAnnouncements.value.push(id);
+  else selectedAnnouncements.value.splice(index, 1);
+}
+
+async function loadMeetingAnnouncements(meetingId: number) {
+  try {
+    const rows = await $fetch<{ announcements_id: number }[]>('/api/directus/items', {
+      method: 'POST',
+      body: {
+        collection: 'meetings_announcements',
+        operation: 'list',
+        query: {
+          fields: ['announcements_id'],
+          filter: { meetings_id: { _eq: meetingId } },
+          limit: -1,
+        },
+      },
+    });
+    selectedAnnouncements.value = (rows || []).map((r) => r.announcements_id).filter(Boolean);
+  } catch (error) {
+    console.error('Failed to load meeting announcements:', error);
+    selectedAnnouncements.value = [];
+  }
+}
+
+/**
+ * Diff the junction rows rather than replacing the whole M2M array, so an
+ * unrelated concurrent edit isn't clobbered and unchanged rows keep their ids.
+ */
+async function syncMeetingAnnouncements(meetingId: number) {
+  const existing = await $fetch<{ id: number; announcements_id: number }[]>('/api/directus/items', {
+    method: 'POST',
+    body: {
+      collection: 'meetings_announcements',
+      operation: 'list',
+      query: {
+        fields: ['id', 'announcements_id'],
+        filter: { meetings_id: { _eq: meetingId } },
+        limit: -1,
+      },
+    },
+  });
+
+  const wanted = new Set(selectedAnnouncements.value);
+  const present = new Set((existing || []).map((r) => r.announcements_id));
+
+  const toDelete = (existing || []).filter((r) => !wanted.has(r.announcements_id)).map((r) => r.id);
+  const toCreate = [...wanted]
+    .filter((id) => !present.has(id))
+    .map((id) => ({ meetings_id: meetingId, announcements_id: id }));
+
+  if (toDelete.length) {
+    await $fetch('/api/directus/items', {
+      method: 'POST',
+      body: { collection: 'meetings_announcements', operation: 'delete', id: toDelete },
+    });
+  }
+  if (toCreate.length) {
+    await $fetch('/api/directus/items', {
+      method: 'POST',
+      body: { collection: 'meetings_announcements', operation: 'create', data: toCreate },
+    });
+  }
+}
+
 function getDefaultDate() {
   const now = new Date();
   now.setDate(now.getDate() + 7);
@@ -171,6 +330,8 @@ function openCreateModal() {
   selectedMeeting.value = null;
   agendaFile.value = null;
   minutesFile.value = null;
+  selectedAnnouncements.value = [];
+  announcementSearch.value = '';
 
   meetingForm.value = {
     title: '',
@@ -182,6 +343,10 @@ function openCreateModal() {
     location: 'Community Room',
     video_link: '',
     url: '',
+    canceled: false,
+    cancellation_note: '',
+    recording_link: '',
+    recording_passcode: '',
   };
   showMeetingModal.value = true;
 }
@@ -189,6 +354,9 @@ function openCreateModal() {
 function openEditModal(meeting: Meeting) {
   isEditing.value = true;
   selectedMeeting.value = meeting;
+  announcementSearch.value = '';
+  selectedAnnouncements.value = [];
+  if (meeting.id) loadMeetingAnnouncements(meeting.id);
 
   // Set file state from existing meeting data
   const af = meeting.agenda_file;
@@ -225,6 +393,10 @@ function openEditModal(meeting: Meeting) {
     location: meeting.location || 'Community Room',
     video_link: meeting.video_link || '',
     url: meeting.url || '',
+    canceled: meeting.canceled === true,
+    cancellation_note: meeting.cancellation_note || '',
+    recording_link: meeting.recording_link || '',
+    recording_passcode: meeting.recording_passcode || '',
   };
   showMeetingModal.value = true;
 }
@@ -347,6 +519,12 @@ async function saveMeeting() {
       location: meetingForm.value.location || null,
       video_link: meetingForm.value.video_link || null,
       url: meetingForm.value.url || null,
+      canceled: meetingForm.value.canceled === true,
+      cancellation_note: meetingForm.value.canceled
+        ? meetingForm.value.cancellation_note || null
+        : null,
+      recording_link: meetingForm.value.recording_link || null,
+      recording_passcode: meetingForm.value.recording_passcode || null,
       agenda_file: agendaFile.value?.id || null,
       minutes_file: minutesFile.value?.id || null,
     };
@@ -361,13 +539,14 @@ async function saveMeeting() {
           data,
         },
       });
+      await syncMeetingAnnouncements(Number(selectedMeeting.value.id));
       toast.add({
         title: 'Meeting Updated',
         description: `${meetingForm.value.title} has been updated`,
         color: 'green',
       });
     } else {
-      await $fetch('/api/directus/items', {
+      const created = await $fetch<Meeting>('/api/directus/items', {
         method: 'POST',
         body: {
           collection: 'meetings',
@@ -375,6 +554,8 @@ async function saveMeeting() {
           data,
         },
       });
+      // Junction rows need the new meeting's id, so this runs after the create.
+      if (created?.id) await syncMeetingAnnouncements(Number(created.id));
       toast.add({
         title: 'Meeting Created',
         description: `${meetingForm.value.title} has been created`,
@@ -465,6 +646,7 @@ function isPastMeeting(dateStr: string) {
 // Initialize
 onMounted(() => {
   fetchMeetings();
+  fetchAnnouncements();
 });
 </script>
 
@@ -595,9 +777,12 @@ onMounted(() => {
             </template>
 
             <template #status-data="{ row }">
-              <Badge :color="getStatusColor(row.status)" variant="soft" size="sm">
-                {{ row.status }}
-              </Badge>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <Badge :color="getStatusColor(row.status)" variant="soft" size="sm">
+                  {{ row.status }}
+                </Badge>
+                <Badge v-if="row.canceled" color="red" variant="soft" size="sm">canceled</Badge>
+              </div>
             </template>
 
             <template #actions-data="{ row }">
@@ -673,18 +858,122 @@ onMounted(() => {
               </FormGroup>
             </div>
 
-            <!-- Location -->
-            <FormGroup label="Location">
-              <SelectMenu
-                v-model="meetingForm.location"
-                :options="locationOptions"
-              />
+            <!-- Location. Free text with presets — see LOCATION_PRESETS. -->
+            <FormGroup
+              label="Location"
+              hint="Pick a preset or type anywhere else. Set the Zoom link separately if it's also online."
+            >
+              <Input v-model="meetingForm.location" list="meeting-locations" placeholder="Community Room" />
+              <datalist id="meeting-locations">
+                <option v-for="preset in LOCATION_PRESETS" :key="preset" :value="preset" />
+              </datalist>
             </FormGroup>
 
-            <!-- Video Link -->
-            <FormGroup v-if="meetingForm.location === 'Zoom'" label="Video Link">
-              <Input v-model="meetingForm.video_link" placeholder="https://zoom.us/..." />
+            <!-- Live Zoom Link -->
+            <FormGroup
+              label="Live Zoom Link"
+              hint="Link to join the live meeting. Hidden on the public page once the meeting date passes."
+            >
+              <Input v-model="meetingForm.video_link" placeholder="https://zoom.us/j/..." />
             </FormGroup>
+
+            <!-- Recording -->
+            <div class="grid grid-cols-3 gap-4">
+              <FormGroup
+                label="Recording Link"
+                hint="Zoom 'Copy shareable link'. Shown publicly after the meeting."
+                class="col-span-2"
+              >
+                <Input
+                  v-model="meetingForm.recording_link"
+                  placeholder="https://us06web.zoom.us/rec/share/..."
+                />
+              </FormGroup>
+              <FormGroup label="Recording Passcode">
+                <Input v-model="meetingForm.recording_passcode" placeholder="7hVb*s68" />
+              </FormGroup>
+            </div>
+
+            <!-- Related announcements -->
+            <FormGroup
+              label="Related Announcements"
+              hint="Shown publicly on /board-meetings. Only sent, non-private announcements appear there."
+            >
+              <div class="rounded-lg border dark:border-gray-700">
+                <div class="border-b p-2 dark:border-gray-700">
+                  <Input
+                    v-model="announcementSearch"
+                    icon="i-heroicons-magnifying-glass"
+                    placeholder="Search announcements..."
+                    size="sm"
+                  />
+                </div>
+
+                <div class="max-h-56 overflow-y-auto p-1">
+                  <p
+                    v-if="!filteredAnnouncements.length"
+                    class="px-2 py-4 text-center text-sm text-gray-500"
+                  >
+                    No announcements match "{{ announcementSearch }}"
+                  </p>
+                  <label
+                    v-for="announcement in filteredAnnouncements"
+                    :key="announcement.id"
+                    class="flex cursor-pointer items-start gap-2 rounded px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  >
+                    <Checkbox
+                      :model-value="selectedAnnouncements.includes(announcement.id)"
+                      class="mt-0.5"
+                      @update:model-value="toggleAnnouncement(announcement.id)"
+                    />
+                    <span class="min-w-0 flex-1">
+                      <span class="block truncate text-sm">{{ announcement.title }}</span>
+                      <span class="flex items-center gap-2 text-xs text-gray-500">
+                        <span v-if="announcement.date_sent">{{ formatDate(announcement.date_sent.slice(0, 10)) }}</span>
+                        <Badge
+                          v-if="!announcementPublishable(announcement)"
+                          color="amber"
+                          variant="soft"
+                          size="xs"
+                        >
+                          {{ announcement.private ? 'private' : announcement.status }}
+                        </Badge>
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <div
+                  v-if="selectedAnnouncements.length"
+                  class="border-t px-3 py-2 text-xs text-gray-500 dark:border-gray-700"
+                >
+                  {{ selectedAnnouncements.length }} selected
+                  <span v-if="hiddenAnnouncementCount" class="text-amber-600">
+                    — {{ hiddenAnnouncementCount }} won't show publicly (not sent, or private)
+                  </span>
+                </div>
+              </div>
+            </FormGroup>
+
+            <!-- Cancellation -->
+            <div class="rounded-lg border p-3 dark:border-gray-700">
+              <label class="flex cursor-pointer items-center gap-2">
+                <Checkbox v-model="meetingForm.canceled" />
+                <span class="text-sm font-medium">This meeting was canceled</span>
+              </label>
+              <FormGroup
+                v-if="meetingForm.canceled"
+                label="Reason"
+                hint="Shown publicly beneath the canceled meeting"
+                class="mt-3"
+              >
+                <Textarea
+                  v-model="meetingForm.cancellation_note"
+                  placeholder="Canceled for lack of quorum. Rescheduled to March 4."
+                  rows="2"
+                />
+              </FormGroup>
+            </div>
 
             <!-- URL -->
             <FormGroup label="URL">

@@ -78,6 +78,164 @@ a {
 	min-height: 100vh;
 }
 
+/*
+ * Liquid glass surface.
+ *
+ * A translucent layer that samples what's behind it — blur for the frosting,
+ * saturate to keep colour alive through it, and a bright inset top edge that
+ * reads as light catching a bevel. Extends the existing .glass-widget language
+ * in glass-widget.css to interactive elements (buttons, chips, cards).
+ */
+.glass-surface {
+	background: rgba(255, 255, 255, 0.55);
+	backdrop-filter: blur(16px) saturate(1.8);
+	-webkit-backdrop-filter: blur(16px) saturate(1.8);
+	border: 1px solid rgba(255, 255, 255, 0.65);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.04),
+		0 8px 24px -12px rgba(0, 0, 0, 0.18),
+		inset 0 1px 0 rgba(255, 255, 255, 0.9);
+	transition:
+		background 0.25s ease,
+		box-shadow 0.25s ease,
+		transform 0.25s ease;
+}
+
+.glass-surface:hover {
+	background: rgba(255, 255, 255, 0.72);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.05),
+		0 12px 28px -12px rgba(0, 0, 0, 0.22),
+		inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+.dark .glass-surface {
+	background: rgba(255, 255, 255, 0.07);
+	border-color: rgba(255, 255, 255, 0.12);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.3),
+		0 8px 24px -12px rgba(0, 0, 0, 0.6),
+		inset 0 1px 0 rgba(255, 255, 255, 0.14);
+}
+
+.dark .glass-surface:hover {
+	background: rgba(255, 255, 255, 0.11);
+	border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* Motion is decorative here — respect the user's preference. */
+@media (prefers-reduced-motion: reduce) {
+	.glass-surface {
+		transition: none;
+	}
+}
+
+/*
+ * Interior page titles: uppercase, tracked out, lighter weight.
+ * Scoped to .page-content so it only affects page bodies — the sticky header,
+ * sidebar, and any dialogs rendered in portals are untouched. Individual pages
+ * can opt out with the .page-title-plain class.
+ */
+/*
+ * Horizontal scroll with no visible scrollbar — for filter/tab rows that should
+ * slide rather than wrap when the viewport is narrow. Scrolling still works by
+ * touch, trackpad, and keyboard; only the bar itself is hidden.
+ */
+.filter-scroll {
+	scrollbar-width: none; /* Firefox */
+	-ms-overflow-style: none; /* legacy Edge */
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-x: contain;
+}
+
+.filter-scroll::-webkit-scrollbar {
+	display: none;
+}
+
+/*
+ * Underline-only fields — no box, no outline, no shadow.
+ *
+ * The underline is drawn ENTIRELY with background gradients: a resting baseline
+ * plus an accent line that grows from the centre on focus. One mechanism, so a
+ * border-bottom and a gradient can never both paint and read as a double line
+ * (which is what happens on taller controls like textareas). Both anchor to the
+ * field's own bottom edge.
+ */
+.field-underline {
+	appearance: none;
+	background-color: transparent;
+	background-image:
+		linear-gradient(var(--primary-strong), var(--primary-strong)),
+		linear-gradient(var(--input), var(--input));
+	background-repeat: no-repeat;
+	background-position: 50% 100%;
+	background-size:
+		0% 2px,
+		100% 1px;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+	transition: background-size 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.field-underline:focus,
+.field-underline:focus-visible {
+	outline: none;
+	box-shadow: none;
+	background-size:
+		100% 2px,
+		100% 1px;
+}
+
+.field-underline:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+/* Selects can't carry the gradient cleanly under a closed control, so they use a
+   plain bottom border that recolours on focus — no gradient, no double line. */
+.field-underline-select {
+	appearance: none;
+	background-color: transparent;
+	background-image: none;
+	border: 0;
+	border-bottom: 1px solid var(--input);
+	border-radius: 0;
+	box-shadow: none;
+	transition: border-color 0.25s ease;
+}
+
+.field-underline-select:focus,
+.field-underline-select:focus-visible,
+.field-underline-select[data-state='open'] {
+	outline: none;
+	box-shadow: none;
+	border-bottom-color: var(--primary-strong);
+	border-bottom-width: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.field-underline,
+	.field-underline-select {
+		transition: none;
+	}
+}
+
+/*
+ * Interior page titles: uppercase, tracked out, light.
+ *
+ * Uppercase and tracking apply everywhere. The weight only lands on headings
+ * that DON'T carry an explicit font-bold/font-semibold utility — those win over
+ * this rule regardless of specificity or layer. Drop the weight utility from a
+ * page's h1 to opt it into the lighter treatment; add .page-title-plain to opt
+ * a heading out of the uppercase treatment entirely.
+ */
+.page-content h1:not(.page-title-plain) {
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	font-weight: 300;
+}
+
 /* Extra padding when secondary nav is visible (logged in & approved users) */
 .page-content.has-secondary-nav {
 	/* Secondary nav is positioned below the sticky header */

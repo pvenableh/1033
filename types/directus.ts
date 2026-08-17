@@ -496,13 +496,8 @@ export interface FinancialDocument {
 	user_updated?: DirectusUser | string | null;
 	date_updated?: string | null;
 	title?: string | null;
-	category?: 'monthly_report' | 'annual_report' | 'budget' | 'reserve_study' | 'compliance' | 'assessment' | 'tax_filing' | 'audit' | 'other' | null;
-	period?: string | null;
-	fiscal_year?: FiscalYear | string | null;
-	file?: DirectusFile | string | null;
-	description?: string | null;
-	report_date?: string | null;
-	uploaded_by?: DirectusUser | string | null;
+	/** @required */
+	category: 'monthly_report' | 'annual_report' | 'budget' | 'reserve_study' | 'compliance' | 'assessment' | 'tax_filing' | 'audit' | 'other';
 }
 
 export interface FiscalYearBudget {
@@ -542,6 +537,39 @@ export interface FiscalYear {
 	year?: number | null;
 	start_date?: string | null;
 	end_date?: string | null;
+}
+
+export interface Idea {
+	/** @primaryKey */
+	id: string;
+	status?: 'pending' | 'published' | 'rejected' | 'archived' | null;
+	sort?: number | null;
+	user_created?: string | null;
+	date_created?: string | null;
+	date_updated?: string | null;
+	/** @description Short headline for the idea @required */
+	title: string;
+	category?: 'Lobby' | 'Rooftop' | `Gym / Fitness` | `Pool Deck` | `Co-work Space` | `Bike / Storage` | `Lounge / Social` | 'Other' | null;
+	/** @required */
+	description: string;
+	/** @description Submitter name */
+	name?: string | null;
+	/** @description Submitter email (admin-only) */
+	email?: string | null;
+	/** @description Free-text unit (fallback when not matched) */
+	unit_number?: string | null;
+	/** @description Email matched a published resident in the people roster */
+	verified_resident?: boolean | null;
+	person_id?: People | string | null;
+	unit?: Unit | string | null;
+}
+
+export interface IdeasFile {
+	/** @primaryKey */
+	id: number;
+	sort?: number | null;
+	ideas_id?: Idea | string | null;
+	directus_files_id?: DirectusFile | string | null;
 }
 
 export interface JunctionDirectusUsersUnit {
@@ -591,9 +619,26 @@ export interface Meeting {
 	location?: `Community Room` | 'Zoom' | null;
 	agenda_file?: DirectusFile | string | null;
 	minutes_file?: DirectusFile | string | null;
+	/** @description Keeps the meeting on the public schedule, marked as canceled. */
+	canceled?: boolean | null;
+	/** @description Shown publicly when the meeting is marked canceled. */
+	cancellation_note?: string | null;
+	/** @description Zoom "Copy shareable link" URL. Shown publicly once the meeting has passed. */
+	recording_link?: string | null;
+	/** @description Passcode Zoom generates with the share link. Displayed next to the recording. */
+	recording_passcode?: string | null;
+	/** @description Announcements related to this meeting. Shown publicly on /board-meetings when sent and not private. */
+	announcements?: MeetingsAnnouncement[] | string[];
 	files?: MeetingsFile[] | string[];
 	presentations?: MeetingsPresentation[] | string[];
 	people?: MeetingsPeople[] | string[];
+}
+
+export interface MeetingsAnnouncement {
+	/** @primaryKey */
+	id: number;
+	meetings_id?: Meeting | string | null;
+	announcements_id?: Announcement | string | null;
 }
 
 export interface MeetingsFile {
@@ -792,6 +837,45 @@ export interface PetsFile {
 	directus_files_id?: DirectusFile | string | null;
 }
 
+export interface PollOption {
+	/** @primaryKey */
+	id: string;
+	sort?: number | null;
+	/** @required */
+	label: string;
+	poll?: Poll | string | null;
+}
+
+export interface Poll {
+	/** @primaryKey */
+	id: string;
+	status?: 'draft' | 'open' | 'closed' | null;
+	sort?: number | null;
+	user_created?: string | null;
+	date_created?: string | null;
+	date_updated?: string | null;
+	/** @required */
+	question: string;
+	description?: string | null;
+	/** @description Optional grouping (matches idea categories) */
+	category?: 'Lobby' | 'Rooftop' | `Gym / Fitness` | `Pool Deck` | `Co-work Space` | `Bike / Storage` | `Lounge / Social` | 'Other' | null;
+	/** @description Votes rejected after this time (optional) */
+	closes_at?: string | null;
+}
+
+export interface PollVote {
+	/** @primaryKey */
+	id: string;
+	date_created?: string | null;
+	/** @description Signed cookie UUID */
+	voter_id?: string | null;
+	/** @description Salted hash of voter IP (audit / rate-limit) */
+	ip_hash?: string | null;
+	poll?: Poll | string | null;
+	option?: PollOption | string | null;
+	person_id?: People | string | null;
+}
+
 export interface Presentation {
 	/** @primaryKey */
 	id: number;
@@ -812,6 +896,7 @@ export interface PresentationsFile {
 	id: number;
 	presentations_id?: Presentation | string | null;
 	directus_files_id?: DirectusFile | string | null;
+	sort?: number | null;
 }
 
 export interface ProjectCategory {
@@ -1881,9 +1966,12 @@ export interface Schema {
 	financial_documents: FinancialDocument[];
 	fiscal_year_budgets: FiscalYearBudget[];
 	fiscal_years: FiscalYear[];
+	ideas: Idea[];
+	ideas_files: IdeasFile[];
 	junction_directus_users_units: JunctionDirectusUsersUnit[];
 	leases: Lease[];
 	meetings: Meeting[];
+	meetings_announcements: MeetingsAnnouncement[];
 	meetings_files: MeetingsFile[];
 	meetings_people: MeetingsPeople[];
 	meetings_presentations: MeetingsPresentation[];
@@ -1896,6 +1984,9 @@ export interface Schema {
 	people_units: PeopleUnit[];
 	pets: Pet[];
 	pets_files: PetsFile[];
+	poll_options: PollOption[];
+	polls: Poll[];
+	poll_votes: PollVote[];
 	presentations: Presentation[];
 	presentations_files: PresentationsFile[];
 	project_categories: ProjectCategory[];
@@ -1990,9 +2081,12 @@ export enum CollectionNames {
 	financial_documents = 'financial_documents',
 	fiscal_year_budgets = 'fiscal_year_budgets',
 	fiscal_years = 'fiscal_years',
+	ideas = 'ideas',
+	ideas_files = 'ideas_files',
 	junction_directus_users_units = 'junction_directus_users_units',
 	leases = 'leases',
 	meetings = 'meetings',
+	meetings_announcements = 'meetings_announcements',
 	meetings_files = 'meetings_files',
 	meetings_people = 'meetings_people',
 	meetings_presentations = 'meetings_presentations',
@@ -2005,6 +2099,9 @@ export enum CollectionNames {
 	people_units = 'people_units',
 	pets = 'pets',
 	pets_files = 'pets_files',
+	poll_options = 'poll_options',
+	polls = 'polls',
+	poll_votes = 'poll_votes',
 	presentations = 'presentations',
 	presentations_files = 'presentations_files',
 	project_categories = 'project_categories',

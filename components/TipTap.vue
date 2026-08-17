@@ -2,10 +2,10 @@
 	<div v-if="editor" class="tiptap-wrapper relative">
 		<editor-content
 			:editor="editor"
-			class="border-input bg-background text-foreground border-t border-r border-l text-[14px] transition-all duration-200 overflow-y-scroll focus:border focus:border-cyan-200 relative tiptap-container"
+			class="border-input bg-background text-foreground border-t border-r border-l text-[14px] transition-all duration-200 overflow-y-scroll relative tiptap-container"
 			:class="[
 				{'px-0 pt-0 border-none': disabled},
-				{' !border-cyan-200': editor.isFocused},
+				{'tiptap-focused': editor.isFocused},
 				{'border-b ': !showToolbar},
 				height,
 				customClasses,
@@ -14,7 +14,7 @@
 		<div
 			v-if="showToolbar"
 			class="w-full flex flex-row justify-between border-input bg-background border-r border-l border-b toolbar"
-			:class="{' !border-cyan-200': editor.isFocused}">
+			:class="{'tiptap-focused': editor.isFocused}">
 			<div class="flex items-center flex-row">
 				<Button
 					v-for="(button, index) in toolbarButtons"
@@ -131,7 +131,7 @@ const props = defineProps({
 	},
 	focusRingClasses: {
 		type: String,
-		default: 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-900 border-cyan-200',
+		default: 'ring-2 ring-primary ring-offset-2 dark:ring-offset-gray-900 border-primary',
 	},
 	disabled: {
 		type: Boolean,
@@ -826,7 +826,7 @@ onBeforeUnmount(() => {
 
 	/* Optional: Add a subtle hover effect */
 	&:not(.ProseMirror-focused):hover {
-		border-color: var(--cyan-200);
+		border-color: var(--primary);
 	}
 	.toolbar {
 		button {
@@ -844,13 +844,21 @@ onBeforeUnmount(() => {
 	}
 }
 
-.tiptap-container:focus-within + div button {
-	@apply text-primary;
+/*
+ * Focused state — navy across the editor box and its attached toolbar.
+ * Plain CSS off the token on purpose: the previous `!border-cyan-200` binding
+ * relied on a Tailwind important-modifier that was never generated, so the
+ * focus border silently did nothing. Descendant selectors give (0,2,0), which
+ * beats the .border-input utility without needing !important.
+ */
+.tiptap-wrapper .tiptap-focused,
+.tiptap-wrapper:focus-within .tiptap-container,
+.tiptap-wrapper:focus-within .toolbar {
+	border-color: var(--primary);
 }
 
-/* Ensure proper contrast in dark mode */
-.dark .tiptap-container:focus-within {
-	@apply border-cyan-200;
+.tiptap-wrapper:focus-within .toolbar button {
+	color: var(--primary);
 }
 
 .is-active {

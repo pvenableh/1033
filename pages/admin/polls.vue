@@ -217,7 +217,7 @@ onMounted(loadPolls);
       </CardHeader>
       <CardContent class="space-y-4">
         <FormGroup label="Question" required>
-          <Input v-model="form.question" placeholder="e.g. What should we add to the rooftop?" />
+          <Input v-model="form.question" placeholder="e.g. What should we add to the lobby?" />
         </FormGroup>
         <FormGroup label="Description">
           <Textarea v-model="form.description" :rows="2" placeholder="Optional context for residents." />

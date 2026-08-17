@@ -57,7 +57,7 @@
 	--theme-accent-secondary: #d4ba8a;
 	--theme-accent-tertiary: #8b7355;
 	--theme-accent-hover: #b89a5f;
-	--theme-accent-active: var(--cyan2, #00d4aa);
+	--theme-accent-active: #1e3d67;
 
 	/* Border colors */
 	--theme-border-primary: #e5e0d8;
@@ -116,7 +116,7 @@
 	--theme-accent-secondary: #c9a96e;
 	--theme-accent-tertiary: #e5d4b3;
 	--theme-accent-hover: #e5d4b3;
-	--theme-accent-active: #00efd1;
+	--theme-accent-active: #8eb5e1;
 
 	/* Border colors */
 	--theme-border-primary: #3d372e;
@@ -175,7 +175,7 @@
 	--theme-accent-secondary: #00d4e8;
 	--theme-accent-tertiary: #0097a7;
 	--theme-accent-hover: #00a8c0;
-	--theme-accent-active: #00efd1;
+	--theme-accent-active: #1e3d67;
 
 	/* Border colors */
 	--theme-border-primary: #dee2e6;
@@ -234,7 +234,7 @@
 	--theme-accent-secondary: #00e5fa;
 	--theme-accent-tertiary: #00bfd8;
 	--theme-accent-hover: #00e5fa;
-	--theme-accent-active: #00efd1;
+	--theme-accent-active: #8eb5e1;
 
 	/* Border colors */
 	--theme-border-primary: #2d3239;

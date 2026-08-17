@@ -198,10 +198,29 @@ const PERMISSIONS = {
       permissions: { status: { _eq: 'published' } },
     },
 
-    // Meetings - read all
+    // Meetings - full management (the board maintains the meeting schedule and
+    // its records via /admin/meetings)
     {
       collection: 'meetings',
       action: 'read',
+      fields: ['*'],
+      permissions: {},
+    },
+    {
+      collection: 'meetings',
+      action: 'create',
+      fields: ['*'],
+      permissions: {},
+    },
+    {
+      collection: 'meetings',
+      action: 'update',
+      fields: ['*'],
+      permissions: {},
+    },
+    {
+      collection: 'meetings',
+      action: 'delete',
       fields: ['*'],
       permissions: {},
     },

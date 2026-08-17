@@ -36,7 +36,10 @@ const {isBoardMember, isOwner, isAdmin} = useRoles();
 
 <style>
 @reference "~/assets/css/tailwind.css";
-header {
+/* Scoped to .header on purpose. This <style> block is global, so a bare
+   `header` selector styled EVERY <header> on the page — including content
+   headers inside pages, which picked up the nav bar's background and shadow. */
+header.header {
 	background: var(--theme-header-bg, #eeeeee);
 	border-bottom: solid 1px var(--theme-border-light, rgba(55, 55, 55, 0.05));
 	box-shadow: var(--theme-shadow-sm, -1px 2px 10px rgba(0, 0, 0, 0.05));
@@ -46,7 +49,7 @@ header {
 	will-change: transform;
 }
 
-header.retracted {
+header.header.retracted {
 	/* Translate by full height plus safe-area */
 	transform: translateY(calc(-100% - env(safe-area-inset-top, 0px)));
 	@media (min-width: theme('screens.lg')) {
