@@ -58,6 +58,7 @@ const PRIVATE_ROUTES = [
 	'/pending',
 	'/request',
 	'/security',
+	'/storage-lockers',
 	'/volunteer',
 	'/welcome',
 ];
