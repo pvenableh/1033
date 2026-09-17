@@ -65,33 +65,41 @@ const mappedSize = computed((): ButtonVariants["size"] => {
   return props.size as ButtonVariants["size"]
 })
 
-// Generate color classes for NuxtUI color compatibility
+/*
+ * Generate color classes for NuxtUI color compatibility.
+ *
+ * Every entry repeats its text colour under hover:. The outline and ghost
+ * variants carry `hover:text-accent-foreground` (near-black) from the shadcn
+ * recipe, and tailwind-merge only resolves conflicts within the same modifier,
+ * so a plain `text-white` here does not displace it: the label turned dark on a
+ * dark hover fill. Stating the hover colour explicitly is what removes it.
+ */
 const colorClasses = computed(() => {
   if (!props.color) return ""
 
   const colorMap: Record<string, string> = {
-    primary: "bg-primary hover:bg-primary/90 text-primary-foreground",
-    sky: "bg-sky-500 hover:bg-sky-600 text-white",
-    blue: "bg-blue-500 hover:bg-blue-600 text-white",
-    red: "bg-red-500 hover:bg-red-600 text-white",
-    green: "bg-green-500 hover:bg-green-600 text-white",
-    yellow: "bg-yellow-500 hover:bg-yellow-600 text-white",
-    orange: "bg-orange-500 hover:bg-orange-600 text-white",
-    gray: "bg-gray-500 hover:bg-gray-600 text-white",
-    white: "bg-white hover:bg-gray-100 text-gray-900",
+    primary: "bg-primary hover:bg-primary/90 text-primary-foreground hover:text-primary-foreground",
+    sky: "bg-sky-500 hover:bg-sky-600 text-white hover:text-white",
+    blue: "bg-blue-500 hover:bg-blue-600 text-white hover:text-white",
+    red: "bg-red-500 hover:bg-red-600 text-white hover:text-white",
+    green: "bg-green-500 hover:bg-green-600 text-white hover:text-white",
+    yellow: "bg-yellow-500 hover:bg-yellow-600 text-white hover:text-white",
+    orange: "bg-orange-500 hover:bg-orange-600 text-white hover:text-white",
+    gray: "bg-gray-500 hover:bg-gray-600 text-white hover:text-white",
+    white: "bg-white hover:bg-gray-100 text-gray-900 hover:text-gray-900",
   }
 
   // Handle soft variant with colors
   if (props.variant === "soft") {
     const softColorMap: Record<string, string> = {
-      primary: "bg-primary/20 hover:bg-primary/30 text-primary",
-      sky: "bg-sky-100 hover:bg-sky-200 text-sky-700",
-      blue: "bg-blue-100 hover:bg-blue-200 text-blue-700",
-      red: "bg-red-100 hover:bg-red-200 text-red-700",
-      green: "bg-green-100 hover:bg-green-200 text-green-700",
-      yellow: "bg-yellow-100 hover:bg-yellow-200 text-yellow-700",
-      orange: "bg-orange-100 hover:bg-orange-200 text-orange-700",
-      gray: "bg-gray-100 hover:bg-gray-200 text-gray-700",
+      primary: "bg-primary/20 hover:bg-primary/30 text-primary hover:text-primary",
+      sky: "bg-sky-100 hover:bg-sky-200 text-sky-700 hover:text-sky-700",
+      blue: "bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-700",
+      red: "bg-red-100 hover:bg-red-200 text-red-700 hover:text-red-700",
+      green: "bg-green-100 hover:bg-green-200 text-green-700 hover:text-green-700",
+      yellow: "bg-yellow-100 hover:bg-yellow-200 text-yellow-700 hover:text-yellow-700",
+      orange: "bg-orange-100 hover:bg-orange-200 text-orange-700 hover:text-orange-700",
+      gray: "bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-700",
     }
     return softColorMap[props.color] || ""
   }
@@ -99,14 +107,14 @@ const colorClasses = computed(() => {
   // Handle ghost variant with colors
   if (props.variant === "ghost") {
     const ghostColorMap: Record<string, string> = {
-      primary: "hover:bg-primary/10 text-primary",
-      sky: "hover:bg-sky-100 text-sky-700",
-      blue: "hover:bg-blue-100 text-blue-700",
-      red: "hover:bg-red-100 text-red-700",
-      green: "hover:bg-green-100 text-green-700",
-      yellow: "hover:bg-yellow-100 text-yellow-700",
-      orange: "hover:bg-orange-100 text-orange-700",
-      gray: "hover:bg-gray-100 text-gray-700",
+      primary: "hover:bg-primary/10 text-primary hover:text-primary",
+      sky: "hover:bg-sky-100 text-sky-700 hover:text-sky-700",
+      blue: "hover:bg-blue-100 text-blue-700 hover:text-blue-700",
+      red: "hover:bg-red-100 text-red-700 hover:text-red-700",
+      green: "hover:bg-green-100 text-green-700 hover:text-green-700",
+      yellow: "hover:bg-yellow-100 text-yellow-700 hover:text-yellow-700",
+      orange: "hover:bg-orange-100 text-orange-700 hover:text-orange-700",
+      gray: "hover:bg-gray-100 text-gray-700 hover:text-gray-700",
     }
     return ghostColorMap[props.color] || ""
   }
