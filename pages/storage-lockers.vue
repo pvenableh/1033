@@ -125,7 +125,9 @@ const options = [
 		title: 'Yes - Install Lockers',
 		short: 'YES',
 		summary: 'Install 28 double storage lockers, one secure locker for every unit.',
-		bullets: ['One locker per unit', 'Locked & secure', '~$320 one-time per unit'],
+		cost: `A one-time cost of about $${COST_PER_UNIT} per unit, including installation.`,
+		bar: `~$${COST_PER_UNIT} one-time`,
+		bullets: ['One locker per unit', 'Locked & secure', `~$${COST_PER_UNIT} one-time per unit`],
 		body: `I vote YES to install secure storage lockers in the 1033 Lenox storage room, one for each of the ${UNITS} units, at an estimated one-time cost of about $${COST_PER_UNIT} per unit.`,
 	},
 	{
@@ -133,6 +135,8 @@ const options = [
 		title: 'No - Divide Without Lockers',
 		short: 'NO',
 		summary: 'Divide the room into marked floor spaces for each unit, with no lockers or doors.',
+		cost: 'No locker cost.',
+		bar: 'No lockers',
 		bullets: ['Marked floor space per unit', 'Open & unsecured', 'No locker cost'],
 		body: 'I vote NO on installing storage lockers. The storage room should be divided into spaces for each unit without lockers.',
 	},
@@ -172,6 +176,32 @@ function onUnitInput(event) {
 	unitNumber.value = digits;
 	event.target.value = digits;
 }
+
+const intro = ref(null);
+const voteCards = ref(null);
+const introVisible = ref(true);
+const voteCardsVisible = ref(false);
+
+// The bar appears once the intro (which holds its own vote link) has scrolled
+// away, and retires as soon as any sliver of the vote cards is on screen.
+// Observers rather than scroll offsets: the app layout scrolls an inner element
+// on some screens, so there is no single scroll position to watch.
+const showVoteBar = computed(() => !introVisible.value && !voteCardsVisible.value);
+
+let observer;
+
+onMounted(() => {
+	observer = new IntersectionObserver((entries) => {
+		for (const entry of entries) {
+			if (entry.target === intro.value) introVisible.value = entry.isIntersecting;
+			if (entry.target === voteCards.value) voteCardsVisible.value = entry.isIntersecting;
+		}
+	});
+	if (intro.value) observer.observe(intro.value);
+	if (voteCards.value) observer.observe(voteCards.value);
+});
+
+onBeforeUnmount(() => observer?.disconnect());
 
 function openVote(item) {
 	if (item.id === 'yes') launchConfetti();
@@ -246,9 +276,9 @@ function assetUrl(id, key = 'large-png') {
 }
 </script>
 <template>
-	<div class="flex items-center justify-center flex-col w-full pb-16 lockers">
+	<div class="flex items-center justify-center flex-col w-full pb-28 lockers">
 		<!-- Intro -->
-		<div class="w-full max-w-[720px] px-4 lockers__intro">
+		<div ref="intro" class="w-full max-w-[720px] px-4 lockers__intro">
 			<p class="uppercase tracking-[0.2em] text-[11px] font-bold text-center mt-10 lg:mt-12 opacity-60">
 				Community Vote
 			</p>
@@ -414,7 +444,7 @@ function assetUrl(id, key = 'large-png') {
 				</li>
 			</ul>
 
-			<div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 max-w-[760px] mx-auto">
+			<div ref="voteCards" class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-8 max-w-[760px] mx-auto">
 				<div
 					v-for="item in options"
 					:key="item.id"
@@ -422,6 +452,7 @@ function assetUrl(id, key = 'large-png') {
 					:class="item.id === 'yes' ? 'lockers__option--yes' : ''">
 					<h3 class="uppercase tracking-wide text-[20px] font-bold">{{ item.title }}</h3>
 					<p class="text-[14px] leading-5 mt-2 opacity-80">{{ item.summary }}</p>
+					<p class="text-[13px] leading-5 mt-2 font-bold" :class="item.id === 'yes' ? '' : 'opacity-70'">{{ item.cost }}</p>
 					<div class="flex flex-wrap justify-center gap-1.5 my-4">
 						<span
 							v-for="bullet in item.bullets"
@@ -447,11 +478,37 @@ function assetUrl(id, key = 'large-png') {
 			</p>
 		</section>
 
+		<Transition name="lockers-bar">
+			<div v-show="showVoteBar" class="lockers__bar glass-surface">
+				<div class="w-full max-w-[760px] mx-auto flex items-center gap-2 px-3 py-2.5">
+					<p class="hidden sm:block text-[12px] uppercase tracking-wide font-bold opacity-60 shrink-0">Your vote</p>
+					<div class="flex-1 grid grid-cols-2 gap-2">
+						<UButton
+							v-for="item in options"
+							:key="item.id"
+							color="gray"
+							variant="outline"
+							:ui="{rounded: 'rounded-sm'}"
+							class="w-full justify-center text-center leading-4 py-2"
+							@click="openVote(item)">
+							<span class="flex flex-col items-center">
+								<span class="uppercase tracking-wide text-[13px] font-bold">Vote {{ item.short }}</span>
+								<span class="text-[10px] uppercase tracking-wide opacity-70">{{ item.bar }}</span>
+							</span>
+						</UButton>
+					</div>
+				</div>
+			</div>
+		</Transition>
+
 		<Modal v-model="isVoteOpen">
 			<div class="py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
 				<p class="text-sm">
 					This is to confirm that you are voting:
 					<strong class="block text-lg uppercase mt-2 font-bold">{{ selectedItem.title }}</strong>
+				</p>
+				<p v-if="selectedItem.id === 'yes'" class="text-sm mt-3 font-bold">
+					This includes a one-time cost of about ${{ COST_PER_UNIT }} per unit, including installation.
 				</p>
 				<label class="block text-sm mt-4 mb-1" for="unit-number">Your unit number</label>
 				<input
@@ -494,6 +551,39 @@ function assetUrl(id, key = 'large-png') {
 </template>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
+
+.lockers__bar {
+	position: fixed;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 40;
+	padding-bottom: env(safe-area-inset-bottom);
+	border-radius: 0;
+	border-left: 0;
+	border-right: 0;
+	border-bottom: 0;
+}
+
+.lockers-bar-enter-active,
+.lockers-bar-leave-active {
+	transition:
+		transform 0.25s ease,
+		opacity 0.25s ease;
+}
+
+.lockers-bar-enter-from,
+.lockers-bar-leave-to {
+	transform: translateY(100%);
+	opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lockers-bar-enter-active,
+	.lockers-bar-leave-active {
+		transition: none;
+	}
+}
 
 .lockers__heading {
 	@apply text-xl sm:text-2xl uppercase font-bold tracking-wide text-center;
