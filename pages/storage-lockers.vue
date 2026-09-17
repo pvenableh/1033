@@ -283,7 +283,7 @@ function assetUrl(id, key = 'large-png') {
 				Community Vote
 			</p>
 			<h1 class="text-2xl sm:text-4xl uppercase font-bold text-center mt-2 mb-4">Storage Room Lockers</h1>
-			<p class="text-center text-[15px] leading-6 opacity-80">
+			<p class="text-center text-[15px] leading-6 opacity-90">
 				Our storage room should be an amenity for all 28 units. Today it is a free-for-all. We are asking every owner to vote on
 				installing secure, individual storage lockers - one for each apartment.
 			</p>
@@ -334,7 +334,7 @@ function assetUrl(id, key = 'large-png') {
 						<UIcon name="i-heroicons-exclamation-triangle" class="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
 						{{ item.title }}
 					</h3>
-					<p class="text-[14px] leading-5 opacity-80">{{ item.body }}</p>
+					<p class="text-[14px] leading-5 opacity-90">{{ item.body }}</p>
 				</div>
 			</div>
 		</section>
@@ -360,7 +360,7 @@ function assetUrl(id, key = 'large-png') {
 				<img :src="assetUrl(IMAGES.locker, 'medium-png')" alt="Uline double wire storage locker" class="w-full max-w-[200px] mx-auto" />
 				<div>
 					<h3 class="font-bold uppercase tracking-wide text-[13px] mb-2">The locker</h3>
-					<p class="text-[14px] leading-5 opacity-80">
+					<p class="text-[14px] leading-5 opacity-90">
 						A commercial-grade Uline wire double locker: a 36″ × 36″ footprint, 90″ tall, split into two separately locking 45″
 						compartments. Each unit gets one compartment - room for a shop vac, bins, luggage or beach gear. The open mesh keeps
 						air moving and lets anyone see at a glance that nothing hazardous is being stored.
@@ -379,7 +379,7 @@ function assetUrl(id, key = 'large-png') {
 						<UIcon :name="item.icon" class="h-4 w-4 shrink-0" />
 						{{ item.title }}
 					</h3>
-					<p class="text-[14px] leading-5 opacity-80">{{ item.body }}</p>
+					<p class="text-[14px] leading-5 opacity-90">{{ item.body }}</p>
 				</div>
 			</div>
 		</section>
@@ -451,7 +451,7 @@ function assetUrl(id, key = 'large-png') {
 					class="glass-card rounded-sm p-6 flex flex-col items-center text-center"
 					:class="item.id === 'yes' ? 'lockers__option--yes' : ''">
 					<h3 class="uppercase tracking-wide text-[20px] font-bold">{{ item.title }}</h3>
-					<p class="text-[14px] leading-5 mt-2 opacity-80">{{ item.summary }}</p>
+					<p class="text-[14px] leading-5 mt-2 opacity-90">{{ item.summary }}</p>
 					<p class="text-[13px] leading-5 mt-2 font-bold" :class="item.id === 'yes' ? '' : 'opacity-70'">{{ item.cost }}</p>
 					<div class="flex flex-wrap justify-center gap-1.5 my-4">
 						<span
@@ -502,7 +502,7 @@ function assetUrl(id, key = 'large-png') {
 		</Transition>
 
 		<Modal v-model="isVoteOpen">
-			<div class="py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
+			<div class="lockers__modal py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
 				<p class="text-sm">
 					This is to confirm that you are voting:
 					<strong class="block text-lg uppercase mt-2 font-bold">{{ selectedItem.title }}</strong>
@@ -585,12 +585,26 @@ function assetUrl(id, key = 'large-png') {
 	}
 }
 
+/*
+ * Body copy in Proxima Regular rather than the site's default Light. Long
+ * passages at Light go thin and grey once they also carry opacity; Regular is a
+ * real cut of the face, not a synthesised weight.
+ */
+.lockers p,
+.lockers li,
+.lockers figcaption,
+.lockers__bar,
+.lockers__modal p,
+.lockers__modal label {
+	font-family: 'Proxima Nova W01 Regular', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
 .lockers__heading {
 	@apply text-xl sm:text-2xl uppercase font-bold tracking-wide text-center;
 }
 
 .lockers__lede {
-	@apply text-[15px] leading-6 text-center opacity-80 max-w-[640px] mx-auto mt-2;
+	@apply text-[15px] leading-6 text-center opacity-90 max-w-[640px] mx-auto mt-2;
 }
 
 .lockers__option--yes {
