@@ -293,11 +293,13 @@ useSeoMeta({
 		font-family: var(--font-bold) !important;
 		font-weight: 900;
 		/* Paragraphs space themselves with 10px of padding rather than margin,
-		   so that padding is the space below a heading. Net rhythm: 32px above
-		   a heading, 20px between paragraphs, 10px below a heading — a heading
-		   must bind to the text it introduces more tightly than two paragraphs
-		   bind to each other. */
-		margin: 22px 0px 0px;
+		   which adds to the margin below. Net rhythm: 32px above a heading,
+		   20px between paragraphs, 16px below a heading. A heading binds to the
+		   text it introduces more tightly than two paragraphs bind to each
+		   other, but the gap still has to clear the heading's own leading
+		   (~26px at h3) or a wrapped heading reads as tighter than its own
+		   lines. */
+		margin: 22px 0px 6px;
 	}
 
 	/* The block always follows the greeting paragraph, which adds 10px of its
@@ -322,20 +324,22 @@ useSeoMeta({
 	}
 
 	h4 {
-		font-size: 17px;
+		font-size: 18px;
 		line-height: 1.35em;
 	}
 
+	/* No text-transform here: the author's own capitalisation is content, and
+	   uppercasing it in CSS silently rewrites their headings. Size and weight
+	   carry these levels instead — h5 in particular is used as a section
+	   heading, so it has to clear the 15px body size on its own. */
 	h5 {
-		font-size: 14px;
+		font-size: 16px;
 		line-height: 1.4em;
-		@apply uppercase tracking-wide;
 	}
 
 	h6 {
-		font-size: 12px;
+		font-size: 14px;
 		line-height: 1.4em;
-		@apply uppercase tracking-wide;
 	}
 
 	/* A deck/subhead binds to the heading above it, so it closes up — but it
@@ -350,6 +354,7 @@ useSeoMeta({
 	h4 + h5,
 	h5 + h6 {
 		margin-top: 10px;
+		margin-bottom: 10px;
 	}
 
 	/* Editor-authored headings often carry a trailing <br>, which would
