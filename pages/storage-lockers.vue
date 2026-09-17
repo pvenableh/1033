@@ -480,7 +480,7 @@ function assetUrl(id, key = 'large-png') {
 
 		<Transition name="lockers-bar">
 			<div v-show="showVoteBar" class="lockers__bar glass-surface">
-				<div class="w-full max-w-[760px] mx-auto flex items-center gap-2 px-3 py-2.5">
+				<div class="w-full max-w-[760px] mx-auto flex items-center gap-3 px-3 py-3">
 					<p class="hidden sm:block text-[12px] uppercase tracking-wide font-bold opacity-60 shrink-0">Your vote</p>
 					<div class="flex-1 grid grid-cols-2 gap-2">
 						<UButton
@@ -489,11 +489,11 @@ function assetUrl(id, key = 'large-png') {
 							color="gray"
 							variant="outline"
 							:ui="{rounded: 'rounded-sm'}"
-							class="w-full justify-center text-center leading-4 py-2"
+							class="w-full justify-center text-center"
 							@click="openVote(item)">
-							<span class="flex flex-col items-center">
-								<span class="uppercase tracking-wide text-[13px] font-bold">Vote {{ item.short }}</span>
-								<span class="text-[10px] uppercase tracking-wide opacity-70">{{ item.bar }}</span>
+							<span class="flex flex-col items-center gap-[3px] leading-none">
+								<span class="uppercase tracking-wide text-[13px] font-bold leading-none">Vote {{ item.short }}</span>
+								<span class="text-[10px] uppercase tracking-wide leading-none opacity-70">{{ item.bar }}</span>
 							</span>
 						</UButton>
 					</div>
@@ -551,6 +551,14 @@ function assetUrl(id, key = 'large-png') {
 </template>
 <style scoped>
 @reference "~/assets/css/tailwind.css";
+
+/* The shared button sets its own height and padding for single-line labels;
+   these two carry a second line, so give them room to breathe. */
+.lockers__bar button {
+	height: auto;
+	padding-top: 11px;
+	padding-bottom: 11px;
+}
 
 .lockers__bar {
 	position: fixed;
