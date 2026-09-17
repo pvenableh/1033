@@ -352,11 +352,11 @@ function assetUrl(id, key = 'large-png') {
 					<div class="uppercase tracking-wide text-[10px] mt-1 opacity-60">{{ fact.label }}</div>
 				</div>
 			</div>
-			<p class="text-[12px] mt-2 opacity-60 text-center">
+			<p class="text-[12px] mt-4 mb-2 opacity-60 text-center">
 				*Estimate includes $30-$35 per unit for installation. Final pricing will be confirmed before ordering.
 			</p>
 
-			<div v-if="IMAGES.locker" class="glass-card rounded-sm p-5 mt-8 grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 items-center">
+			<div v-if="IMAGES.locker" class="glass-card rounded-sm p-5 mt-10 grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 items-center">
 				<img :src="assetUrl(IMAGES.locker, 'medium-png')" alt="Uline double wire storage locker" class="w-full max-w-[200px] mx-auto" />
 				<div>
 					<h3 class="font-bold uppercase tracking-wide text-[13px] mb-2">The locker</h3>
@@ -615,8 +615,11 @@ function assetUrl(id, key = 'large-png') {
 	@apply text-[15px] leading-6 text-center opacity-90 max-w-[640px] mx-auto mt-2;
 }
 
+/* An outline rather than an inset shadow, which would replace the drop shadow
+   .glass-card gives every card. */
 .lockers__option--yes {
-	box-shadow: inset 0 0 0 2px rgba(201, 169, 110, 0.7);
+	outline: 2px solid rgba(201, 169, 110, 0.7);
+	outline-offset: -2px;
 }
 
 .lockers__plan-room {
