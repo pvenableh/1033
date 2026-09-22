@@ -124,7 +124,7 @@ const options = [
 		id: 'yes',
 		title: 'Yes - Install Lockers',
 		short: 'YES',
-		summary: 'Install 28 double storage lockers, one secure locker for every unit.',
+		summary: 'Install 14 double storage lockers, one secure locker for every unit.',
 		cost: `Paid through a one-time assessment of about $${COST_PER_UNIT} per unit, including installation.`,
 		bar: `~$${COST_PER_UNIT} assessment`,
 		bullets: ['One locker per unit', 'Locked & secure', `~$${COST_PER_UNIT} one-time assessment`],
@@ -317,7 +317,7 @@ function assetUrl(id, key = 'large-png') {
 			<p class="text-center text-[15px] leading-6 opacity-90">
 				Our storage room is an asset. It's time to reopen it — but let's work together to get it done right. We're asking every
 				owner to review the proposal: lockers that keep the room organized, your belongings secure, and the setup fair to all. Installation would be funded by a one-time assessment of about
-				${{ COST_PER_UNIT }} per unit.
+				${{ COST_PER_UNIT }} per unit that includes tax, shipping and installation.
 			</p>
 			<p class="text-center text-[15px] leading-6 opacity-90 mt-3">Below you'll find the options and a link to cast your vote.</p>
 			<p class="w-full mt-6 text-[14px] leading-5 text-center">
