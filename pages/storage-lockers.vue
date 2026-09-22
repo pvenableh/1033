@@ -8,7 +8,7 @@ const analytics = useAnalytics();
 import confetti from 'canvas-confetti';
 const toast = useToast();
 
-const VOTE_DEADLINE = 'Wednesday September 23rd, 2026 at 11:59PM EST';
+const VOTE_DEADLINE = 'Monday September 28th, 2026 at 11:59PM EST';
 
 // Directus asset IDs, from the Storage Lockers folder
 const IMAGES = {
@@ -16,7 +16,7 @@ const IMAGES = {
 	locker: 'fc12d1b5-7ad5-4566-bfcf-18a84c79eb82',
 };
 
-// Photos of the room before, with no management. Order and spans are tuned so the
+// Photos of the room from a past clean-out. Order and spans are tuned so the
 // grid packs with no gaps: 2 columns on mobile (10 cells), 3 from sm up (9 cells).
 const beforePhotos = [
 	{
@@ -43,25 +43,25 @@ const facts = [
 	{label: 'Units, one locker each', value: UNITS},
 	{label: 'Locker size (W × D × H)', value: '36″ × 36″ × 45″'},
 	{label: 'Storage per unit', value: '~34 cu ft'},
-	{label: 'One-time cost per unit*', value: `~$${COST_PER_UNIT}`},
+	{label: 'One-time assessment per unit*', value: `~$${COST_PER_UNIT}`},
 ];
 
 const problems = [
 	{
-		title: 'No order, no accountability',
-		body: 'The room is a shared space that, in practice, a handful of people use however they like. There is no record of what belongs to whom.',
+		title: 'No assigned space',
+		body: 'The room is shared with no record of what belongs to whom, so a few items can take over space meant for everyone.',
 	},
 	{
-		title: 'Taped-off spaces already failed',
-		body: 'We tried outlined floor spaces for all 28 units. Items overflowed their spaces, junk piled up, and there was no way to enforce it.',
+		title: 'Floor markings only go so far',
+		body: 'We tried outlined floor spaces for all 28 units. Without walls or doors, items drifted beyond their spaces and were hard to keep in place.',
 	},
 	{
-		title: 'Abandoned junk and safety risks',
-		body: 'Broken bikes, old furniture, a toilet, chemicals, and even a car transmission were pulled out of this room. That is a fire, pest, and liability problem for every owner.',
+		title: 'Unclaimed items and safety',
+		body: 'Past clean-outs turned up broken bikes, old furniture, a toilet, chemicals, and even a car transmission. Unclaimed items are a fire, pest, and liability concern for every owner.',
 	},
 	{
 		title: 'Nothing is secure',
-		body: 'Anything you store today is open to anyone with access to the room. Most residents simply cannot use it at all.',
+		body: 'Anything stored today is open to anyone with access to the room, so many residents choose not to use it at all.',
 	},
 ];
 
@@ -125,19 +125,19 @@ const options = [
 		title: 'Yes - Install Lockers',
 		short: 'YES',
 		summary: 'Install 28 double storage lockers, one secure locker for every unit.',
-		cost: `A one-time cost of about $${COST_PER_UNIT} per unit, including installation.`,
-		bar: `~$${COST_PER_UNIT} one-time`,
-		bullets: ['One locker per unit', 'Locked & secure', `~$${COST_PER_UNIT} one-time per unit`],
-		body: `I vote YES to install secure storage lockers in the 1033 Lenox storage room, one for each of the ${UNITS} units, at an estimated one-time cost of about $${COST_PER_UNIT} per unit.`,
+		cost: `Paid through a one-time assessment of about $${COST_PER_UNIT} per unit, including installation.`,
+		bar: `~$${COST_PER_UNIT} assessment`,
+		bullets: ['One locker per unit', 'Locked & secure', `~$${COST_PER_UNIT} one-time assessment`],
+		body: `I vote YES to install secure storage lockers in the 1033 Lenox storage room, one for each of the ${UNITS} units, funded by a one-time assessment of about $${COST_PER_UNIT} per unit.`,
 	},
 	{
 		id: 'no',
 		title: 'No - Divide Without Lockers',
 		short: 'NO',
 		summary: 'Divide the room into marked floor spaces for each unit, with no lockers or doors.',
-		cost: 'No locker cost.',
+		cost: 'No locker assessment.',
 		bar: 'No lockers',
-		bullets: ['Marked floor space per unit', 'Open & unsecured', 'No locker cost'],
+		bullets: ['Marked floor space per unit', 'Open & unsecured', 'No locker assessment'],
 		body: 'I vote NO on installing storage lockers. The storage room should be divided into spaces for each unit without lockers.',
 	},
 ];
@@ -271,6 +271,37 @@ function openExternalLink() {
 	startConfetti();
 }
 
+// Full-size photo viewer, stepping through the before photos in order
+const photoIndex = ref(null);
+const isPhotoOpen = computed({
+	get: () => photoIndex.value !== null,
+	set: (open) => {
+		if (!open) photoIndex.value = null;
+	},
+});
+const activePhoto = computed(() => (photoIndex.value === null ? null : beforePhotos[photoIndex.value]));
+
+function openPhoto(index) {
+	photoIndex.value = index;
+}
+
+function stepPhoto(delta) {
+	if (photoIndex.value === null) return;
+	photoIndex.value = (photoIndex.value + delta + beforePhotos.length) % beforePhotos.length;
+}
+
+function onPhotoKeydown(event) {
+	if (event.key === 'ArrowRight') stepPhoto(1);
+	if (event.key === 'ArrowLeft') stepPhoto(-1);
+}
+
+watch(isPhotoOpen, (open) => {
+	if (open) window.addEventListener('keydown', onPhotoKeydown);
+	else window.removeEventListener('keydown', onPhotoKeydown);
+});
+
+onBeforeUnmount(() => window.removeEventListener('keydown', onPhotoKeydown));
+
 function assetUrl(id, key = 'large-png') {
 	return `https://admin.1033lenox.com/assets/${id}${key ? `?key=${key}` : ''}`;
 }
@@ -284,9 +315,11 @@ function assetUrl(id, key = 'large-png') {
 			</p>
 			<h1 class="text-2xl sm:text-4xl uppercase font-bold text-center mt-2 mb-4">Storage Room Lockers</h1>
 			<p class="text-center text-[15px] leading-6 opacity-90">
-				Our storage room should be an amenity for all 28 units. Today it is a free-for-all. We are asking every owner to vote on
-				installing secure, individual storage lockers - one for each apartment.
+				Our storage room is an asset. It's time to reopen it — but let's work together to get it done right. We're asking every
+				owner to review the proposal: lockers that keep the room organized, your belongings secure, and the setup fair to all. Installation would be funded by a one-time assessment of about
+				${{ COST_PER_UNIT }} per unit.
 			</p>
+			<p class="text-center text-[15px] leading-6 opacity-90 mt-3">Below you'll find the options and a link to cast your vote.</p>
 			<p class="w-full mt-6 text-[14px] leading-5 text-center">
 				Please note that your vote is due by:
 				<span class="block font-bold text-red-600 dark:text-red-400">{{ VOTE_DEADLINE }}</span>
@@ -301,19 +334,19 @@ function assetUrl(id, key = 'large-png') {
 
 		<!-- The problem -->
 		<section class="w-full max-w-[1000px] px-4 mt-14">
-			<h2 class="lockers__heading">What happens without a system</h2>
+			<h2 class="lockers__heading">Why the room needs a system</h2>
 			<p class="lockers__lede">
-				This is what the storage room looked like the last time it was left to manage itself.
+				Photos from a past clean-out show what builds up in a shared room with no assigned space.
 			</p>
 			<div class="grid grid-cols-2 sm:grid-cols-3 auto-rows-[150px] sm:auto-rows-[210px] gap-2 mt-6">
-				<a
-					v-for="photo in beforePhotos"
+				<button
+					v-for="(photo, index) in beforePhotos"
 					:key="photo.id"
-					:href="assetUrl(photo.id, 'large-png')"
-					target="_blank"
-					rel="noopener"
-					class="relative block overflow-hidden rounded-sm shadow-lg group lockers__photo"
-					:class="photo.class">
+					type="button"
+					:aria-label="`View full size: ${photo.caption}`"
+					class="relative block overflow-hidden rounded-sm shadow-lg group text-left cursor-zoom-in lockers__photo"
+					:class="photo.class"
+					@click="openPhoto(index)">
 					<img
 						:src="assetUrl(photo.id, photo.featured ? 'large-png' : 'medium-png')"
 						:alt="photo.caption"
@@ -325,13 +358,13 @@ function assetUrl(id, key = 'large-png') {
 						:class="photo.featured ? 'text-[14px] font-bold' : 'text-[11px]'">
 						{{ photo.caption }}
 					</span>
-				</a>
+				</button>
 			</div>
 			<p class="text-[12px] text-center mt-2 opacity-60">Tap any photo to view it full size.</p>
 			<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
 				<div v-for="item in problems" :key="item.title" class="glass-card rounded-sm p-5">
 					<h3 class="font-bold uppercase tracking-wide text-[13px] mb-2 flex items-center gap-2">
-						<UIcon name="i-heroicons-exclamation-triangle" class="h-4 w-4 text-red-600 dark:text-red-400 shrink-0" />
+						<UIcon name="i-heroicons-light-bulb" class="h-4 w-4 shrink-0" />
 						{{ item.title }}
 					</h3>
 					<p class="text-[14px] leading-5 opacity-90">{{ item.body }}</p>
@@ -353,7 +386,7 @@ function assetUrl(id, key = 'large-png') {
 				</div>
 			</div>
 			<p class="text-[12px] mt-4 mb-2 opacity-60 text-center">
-				*Estimate includes $30-$35 per unit for installation. Final pricing will be confirmed before ordering.
+				*Estimate includes $30-$35 per unit for installation. The final assessment amount will be confirmed before ordering.
 			</p>
 
 			<div v-if="IMAGES.locker" class="glass-card rounded-sm p-5 mt-10 grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-6 items-center">
@@ -501,6 +534,36 @@ function assetUrl(id, key = 'large-png') {
 			</div>
 		</Transition>
 
+		<Modal
+			v-model="isPhotoOpen"
+			class="max-w-5xl w-[calc(100%-2rem)] p-0 gap-0 border-0 bg-black text-white overflow-hidden sm:rounded-sm">
+			<figure v-if="activePhoto" class="relative">
+				<img
+					:key="activePhoto.id"
+					:src="assetUrl(activePhoto.id, 'large-png')"
+					:alt="activePhoto.caption"
+					class="block w-full max-h-[80vh] object-contain bg-black" />
+				<button
+					type="button"
+					aria-label="Previous photo"
+					class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 p-2"
+					@click="stepPhoto(-1)">
+					<UIcon name="i-heroicons-chevron-left" class="h-5 w-5 block" />
+				</button>
+				<button
+					type="button"
+					aria-label="Next photo"
+					class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/60 hover:bg-black/80 p-2"
+					@click="stepPhoto(1)">
+					<UIcon name="i-heroicons-chevron-right" class="h-5 w-5 block" />
+				</button>
+				<figcaption class="flex items-center justify-between gap-4 px-4 py-3 text-[13px] leading-5">
+					<span>{{ activePhoto.caption }}</span>
+					<span class="shrink-0 opacity-60">{{ photoIndex + 1 }} / {{ beforePhotos.length }}</span>
+				</figcaption>
+			</figure>
+		</Modal>
+
 		<Modal v-model="isVoteOpen">
 			<div class="lockers__modal py-8 px-6 text-center relative dark:bg-white dark:text-gray-900">
 				<p class="text-sm">
@@ -508,7 +571,7 @@ function assetUrl(id, key = 'large-png') {
 					<strong class="block text-lg uppercase mt-2 font-bold">{{ selectedItem.title }}</strong>
 				</p>
 				<p v-if="selectedItem.id === 'yes'" class="text-sm mt-3 font-bold">
-					This includes a one-time cost of about ${{ COST_PER_UNIT }} per unit, including installation.
+					This includes a one-time assessment of about ${{ COST_PER_UNIT }} per unit, including installation.
 				</p>
 				<label class="block text-sm mt-4 mb-1" for="unit-number">Your unit number</label>
 				<input
